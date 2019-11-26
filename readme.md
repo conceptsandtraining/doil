@@ -6,7 +6,7 @@ Docker ermöglicht uns Ilias in eigenen Containern laufen zu lassen, ohne, dass 
 
 Der Aufbau der Architektur hinter Docker ist dabei möglichst modular gesetzt, sodass schnell und einfach zwischen verschiedenen ILIAS Versionen gewechselt werden kann, bzw. diese parallel laufen. Dafür werden verschiedene Container bereit gestellt, die zusätzlich individuell konfiguriert werden können.
 
-* Ubuntu Webserver mit PHP 7.2 als System für Ilias
+* Ubuntu Webserver mit PHP 7.3 als System für Ilias
 * MySQL 5.6 Server zum Betrieb der Datenbanken
 * PHPMyAdmin Server
 
