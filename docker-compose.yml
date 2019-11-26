@@ -1,0 +1,60 @@
+version: "3"
+services:
+    ilf:
+        build:
+            context: .
+            dockerfile: ilias54.Dockerfile
+        image: ubuntu/latest
+        ports:
+            - "8080:80"
+        volumes:
+            - ./ilias/ilias54:/var/www/html
+            - ./data/ilias54:/var/data/ilias54
+            - ./logs/ilias54/logs/:/var/log/ilias/logs
+            - ./logs/ilias54/error/:/var/log/ilias/error
+        links:
+            - db:db
+        networks:
+            - default
+    ils:
+        build:
+            context: .
+            dockerfile: ilias60.Dockerfile
+        image: ubuntu/latest
+        ports:
+            - "8081:80"
+        volumes:
+            - ./ilias/ilias60:/var/www/html
+            - ./data/ilias60:/var/data/ilias54
+            - ./logs/ilias60/logs/:/var/log/ilias/logs
+            - ./logs/ilias60/error/:/var/log/ilias/error
+        links:
+            - db:db
+        networks:
+            - default
+    db:
+        image: mysql:5.6
+        ports:
+            - "3306:3306"
+        command: --default-authentication-plugin=mysql_native_password --max_allowed_packet=32505856
+        environment:
+            MYSQL_DATABASE: ilias54
+            MYSQL_USER: ilias
+            MYSQL_PASSWORD: gjeipgjerip30
+            MYSQL_ROOT_PASSWORD: gjeipgjerip30
+        volumes:
+            - persistent:/var/lib/mysql
+        networks:
+            - default
+    phpmyadmin:
+        image: phpmyadmin/phpmyadmin
+        links:
+            - db:db
+        ports:
+            - 8000:80
+        environment:
+            MYSQL_USER: ilias
+            MYSQL_PASSWORD: gjeipgjerip30
+            MYSQL_ROOT_PASSWORD: gjeipgjerip30
+volumes:
+    persistent:
