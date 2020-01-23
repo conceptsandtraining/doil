@@ -1,0 +1,49 @@
+version: "3.5"
+services:
+  %TPL_FOLDER%:
+    build:
+        context: .
+        dockerfile: ../templates/dockerfiles/Dockerfile%TPL_PHPVERSION%
+    image: ubuntu/latest
+    volumes:
+        - ./volumes/ilias:/var/www/html
+        - ./volumes/data:/var/ilias/data
+        - ./volumes/logs/:/var/ilias/logs
+        - ./volumes/logs/error/:/var/ilias/logs/error
+    links:
+        - %TPL_FOLDER%-db:%TPL_FOLDER%-db
+    networks:
+      %TPL_SUBNET_NAME%:
+        ipv4_address: %TPL_SUBNET_BASE%.4
+  %TPL_FOLDER%-db:
+    image: mysql:5.6
+    command: --default-authentication-plugin=mysql_native_password --max_allowed_packet=32505856
+    environment:
+        MYSQL_USER: ilias
+        MYSQL_PASSWORD: ilias
+        MYSQL_ROOT_PASSWORD: ilias
+    volumes:
+        - persistent:/var/lib/mysql
+        - ./volumes/db/:/var/lib/mysql
+    networks:
+      %TPL_SUBNET_NAME%:
+        ipv4_address: %TPL_SUBNET_BASE%.2
+  %TPL_FOLDER%-pma:
+    image: phpmyadmin/phpmyadmin
+    links:
+        - %TPL_FOLDER%-db:%TPL_FOLDER%-db
+    environment:
+        MYSQL_USER: ilias
+        MYSQL_PASSWORD: ilias
+        MYSQL_ROOT_PASSWORD: ilias
+    networks:
+      %TPL_SUBNET_NAME%:
+        ipv4_address: %TPL_SUBNET_BASE%.3
+networks:
+  %TPL_SUBNET_NAME%:
+    ipam:
+      driver: default
+      config:
+        - subnet: %TPL_SUBNET_BASE%.0/16
+volumes:
+    persistent:

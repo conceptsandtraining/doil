@@ -22,15 +22,12 @@ RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
 # Install standard packages
 RUN apt-get install -y zip unzip git nodejs composer nano tree vim curl ftp imagemagick ffmpeg phantomjs vim
 
-# Install php %TPL_PHPVERSION%
+# Install php 7.2
 RUN apt-get update
-RUN apt-get install -y software-properties-common
-RUN add-apt-repository -y ppa:ondrej/php
-RUN apt-get update
-RUN apt-get install -y php%TPL_PHPVERSION% php%TPL_PHPVERSION%-bz2 php%TPL_PHPVERSION%-cgi php%TPL_PHPVERSION%-cli php%TPL_PHPVERSION%-common php%TPL_PHPVERSION%-curl php%TPL_PHPVERSION%-dev php%TPL_PHPVERSION%-enchant php%TPL_PHPVERSION%-fpm php%TPL_PHPVERSION%-gd php%TPL_PHPVERSION%-gmp php%TPL_PHPVERSION%-imap php%TPL_PHPVERSION%-interbase php%TPL_PHPVERSION%-intl php%TPL_PHPVERSION%-json php%TPL_PHPVERSION%-ldap php%TPL_PHPVERSION%-mbstring php%TPL_PHPVERSION%-mysql php%TPL_PHPVERSION%-odbc php%TPL_PHPVERSION%-opcache php%TPL_PHPVERSION%-pgsql php%TPL_PHPVERSION%-phpdbg php%TPL_PHPVERSION%-pspell php%TPL_PHPVERSION%-readline php%TPL_PHPVERSION%-recode php%TPL_PHPVERSION%-snmp php%TPL_PHPVERSION%-sqlite3 php%TPL_PHPVERSION%-sybase php%TPL_PHPVERSION%-tidy php%TPL_PHPVERSION%-xmlrpc php%TPL_PHPVERSION%-xsl php%TPL_PHPVERSION%-zip php%TPL_PHPVERSION%-soap
+RUN apt-get install -y php7.2 php7.2-bz2 php7.2-cgi php7.2-cli php7.2-common php7.2-curl php7.2-dev php7.2-enchant php7.2-fpm php7.2-gd php7.2-gmp php7.2-imap php7.2-interbase php7.2-intl php7.2-json php7.2-ldap php7.2-mbstring php7.2-mysql php7.2-odbc php7.2-opcache php7.2-pgsql php7.2-phpdbg php7.2-pspell php7.2-readline php7.2-recode php7.2-snmp php7.2-sqlite3 php7.2-sybase php7.2-tidy php7.2-xmlrpc php7.2-xsl php7.2-zip php7.2-soap
 
 # Install apache2
-RUN apt-get install -y apache2 libapache2-mod-php%TPL_PHPVERSION%
+RUN apt-get install -y apache2 libapache2-mod-php7.2
 
 # Install Mailserver
 RUN apt-get install -y postfix
