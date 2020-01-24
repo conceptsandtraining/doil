@@ -133,4 +133,4 @@ fi
 
 # Run container the first time
 cd "$FOLDERPATH"
-../../manage/up.sh
+../../tools/initial-up.sh

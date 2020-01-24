@@ -47,11 +47,6 @@ VOLUME /var/lib/mysql
 VOLUME /var/log/mysql
 VOLUME /etc/apache2
 
-# Run composer installation
-COPY conf/composer-install.sh /var/www/
-RUN chmod +x /var/www/composer-install.sh
-CMD ["/var/www/composer-install.sh"]
-
 # Make folders accessable
 RUN chown -R www-data:www-data /var/www
 RUN chown -R www-data:www-data /var/ilias

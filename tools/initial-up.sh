@@ -1,5 +1,9 @@
 #!/bin/bash
 
+# Start the container
+docker-compose up -d
+
+# get the docker process
 DCFOLDER=${PWD##*/}
 MACHINE=$DCFOLDER"_web"
 DCPROC=$(docker ps | grep $MACHINE)
