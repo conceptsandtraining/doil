@@ -1,10 +1,5 @@
 #!/bin/bash
 
-# Set the config. You might adjust the urls
-ILIAS_URL_SSH="git@github.com:ILIAS-eLearning/ILIAS.git"
-TMS_URL_SSH="git@github.com:conceptsandtraining/TMS.git"
-CATILIAS_URL_SSH="git@github.com:conceptsandtraining/ILIAS.git"
-
 # set current folder
 CWD=$(pwd)
 TEMPLATES="$CWD/../templates"
@@ -57,7 +52,6 @@ mkdir "$FOLDERPATH"
 mkdir "$FOLDERPATH/conf"
 mkdir "$FOLDERPATH/volumes"
 mkdir "$FOLDERPATH/volumes/db"
-mkdir "$FOLDERPATH/volumes/ilias"
 mkdir "$FOLDERPATH/volumes/data"
 mkdir "$FOLDERPATH/volumes/logs"
 mkdir "$FOLDERPATH/volumes/logs/error"
@@ -94,7 +88,7 @@ SUB_NET_NAME="in-$projectname"
 SUB_NET_NAME=${SUB_NET_NAME//-}
 
 LINES=$(docker network ls | grep " " | wc -l)
-SUB_NET_BASE="172.100.$LINES"
+SUB_NET_BASE="172.$LINES.0"
 
 find "$FOLDERPATH" \( -type d -name .git -prune \) -o -type f -print0 | xargs -0 sed -i "s/%TPL_SUBNET_BASE%/$SUB_NET_BASE/g"
 find "$FOLDERPATH" \( -type d -name .git -prune \) -o -type f -print0 | xargs -0 sed -i "s/%TPL_SUBNET_NAME%/$SUB_NET_NAME/g"
@@ -107,20 +101,28 @@ echo "$IL_ADDRESS $projectname.local" | sudo tee -a /etc/hosts > /dev/null
 echo "$PMA_ADDRESS pma.$projectname.local" | sudo tee -a /etc/hosts > /dev/null
 
 # clone ilias or tms
-#if [ "$type" == "ilias" ]
-#then
-#  git clone $ILIAS_URL_SSH "$FOLDERPATH/volumes/ilias"
-#fi
+if [ "$type" == "ilias" ]
+then
+  cp -r "$TEMPLATES/repos/ilias/" "$FOLDERPATH/volumes/"
+fi
 
 if [ "$type" == "catilias" ]
 then
-  git clone $CATILIAS_URL_SSH "$FOLDERPATH/volumes/ilias"
+  cp -r "$TEMPLATES/repos/catilias/" "$FOLDERPATH/volumes"
+  mv "$FOLDERPATH/volumes/catilias" "$FOLDERPATH/volumes/ilias"
 fi
 
 if [ "$type" == "tms" ]
 then
-  git clone $TMS_URL_SSH "$FOLDERPATH/volumes/ilias"
+  cp -r "$TEMPLATES/repos/tms/" "$FOLDERPATH/volumes/"
+  mv "$FOLDERPATH/volumes/tms" "$FOLDERPATH/volumes/ilias"
 fi
+
+# Checkout the setted branch
+cd "$FOLDERPATH/volumes/ilias"
+git checkout $branch
+git pull origin $branch
+cd $CWD
 
 # Start the TMS Scripts
 if [ "$type" == "tms" ]
@@ -129,19 +131,6 @@ then
   ./tms-download-plugins.sh $projectname
 fi
 
-# Checkout the setted branch
-#cd "$FOLDERPATH/volumes/ilias"
-#git checkout $branch
-#cd $CWD
-
 # Run container the first time
 cd "$FOLDERPATH"
 ../../manage/up.sh
-
-#WIP
-# get the docker process
-#DCPROC=$(docker ps | grep $projectname)
-#DCPROCHASH=${DCPROC:0:12}
-
-# run the composer
-#docker exec -t $DCPROCHASH /var/www/composer-install.sh

@@ -1,8 +1,9 @@
 #!/bin/bash
 
 # get the proc
-DIRNAME=${PWD##*/}
-DCPROC=$(docker ps | grep $DIRNAME)
+DCFOLDER=${PWD##*/}
+MACHINE=$DCFOLDER"_web"
+DCPROC=$(docker ps | grep $MACHINE)
 DCPROCHASH=${DCPROC:0:12}
 
 # login

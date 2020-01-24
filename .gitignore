@@ -1,2 +1,4 @@
 instances/*
 !instances/.gitkeep
+templates/repos/*
+!templates/repos/.gitkeep
