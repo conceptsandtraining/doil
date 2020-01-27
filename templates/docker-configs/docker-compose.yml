@@ -1,9 +1,7 @@
 version: "3.5"
 services:
   %TPL_FOLDER%:
-    build:
-      context: .
-      dockerfile: ../templates/dockerfiles/Dockerfile%TPL_PHPVERSION%
+    build: .
     image: ubuntu/latest
     container_name: %TPL_FOLDER%_web
     volumes:

@@ -62,6 +62,9 @@ cp "$TEMPLATES/docker-configs/run-lamp.sh" "$FOLDERPATH/conf/run-lamp.sh"
 cp "$TEMPLATES/docker-configs/docker-compose.yml" "$FOLDERPATH/docker-compose.yml"
 cp "$TEMPLATES/ilias-configs/composer-install.sh" "$FOLDERPATH/conf/composer-install.sh"
 
+# copy the docker file
+cp "$TEMPLATES/dockerfiles/Dockerfile$phpversion" "$FOLDERPATH/Dockerfile"
+
 # Copy the TMS scripts
 if [ "$type" == "tms" ]
 then
