@@ -120,6 +120,7 @@ fi
 
 # Checkout the setted branch
 cd "$FOLDERPATH/volumes/ilias"
+git fetch origin
 git checkout $branch
 git pull origin $branch
 cd $CWD
