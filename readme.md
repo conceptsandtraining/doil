@@ -5,7 +5,6 @@ This tool creates and manages multiple docker container with ILIAS and comes wit
 ## Initial Setup
 
 1. In order to get these tools up and running you first need to check your docker permissions. For that simply execute `/tools/fix-docker-permissions.sh`.
-2. Execute the script `/tools/clone-all-ilias.sh` to download some ILIAS versions
 
 ## Usage
 
@@ -21,7 +20,7 @@ This toolbox comes with three handy tools. Execute these tools inside of your pr
 * `/manage/down.sh` stops a container
 * `/manage/login.sh` logs you into the current container if it is running.
 * `/manage/stop-all.sh` stops all container
-* `/manage/prune-networks.sh` removes all docker internal networks
+* `/manage/prune-networks.sh` DONOT USE
 
 ## Outlook
 
