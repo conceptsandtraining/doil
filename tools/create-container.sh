@@ -206,7 +206,7 @@ echo "[$NOW] Everything done."
 echo "You can reach your ILIAS installation at http://$projectname.local"
 echo "phpMyAdmin can be reached via http://pma.$projectname.local"
 
-if [ "$insert_network" == "NO" ]
+if [ "$insert_network" != "YES" ]
 then
   echo "You chosed not to add the hosts information to the /etc/hosts file. Add following lines to your host files:"
   echo " "

@@ -1,5 +1,8 @@
 #!/bin/bash
 
+# Prepare git to ignore the file modes because these will change
+git config core.fileMode false
+
 # Start the container
 docker-compose up -d
 
