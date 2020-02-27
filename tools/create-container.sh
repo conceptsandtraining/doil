@@ -220,4 +220,4 @@ fi
 echo "You can reach the MySQL server at $SUB_NET_BASE.2:3306"
 echo "Hint: Use the scripts in ./manage/ only in the project folder"
 echo " "
-echo "\\//. life long and prosper"
+echo "\\//. live long and prosper"
