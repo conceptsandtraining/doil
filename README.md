@@ -14,7 +14,7 @@ This tool creates and manages multiple docker container with ILIAS and comes wit
 
 ## Included tools
 
-This toolbox comes with three handy tools. Execute these scripts inside of your project folder
+This toolbox comes with some handy tools. Execute these scripts inside of your project folder
 
 * `/manage/up.sh` starts a container
 * `/manage/down.sh` stops a container
