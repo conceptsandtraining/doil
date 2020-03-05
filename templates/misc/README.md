@@ -30,7 +30,6 @@ The included database environment comes with following setup:
 ```
 MYSQL_USER: root
 MYSQL_PASSWORD: ilias
-MYSQL_ROOT_PASSWORD: ilias
 ```
 
 A database is not created and must be during the installation of ILIAS
