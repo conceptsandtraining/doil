@@ -9,6 +9,7 @@ services:
       - ./volumes/data:/var/ilias/data
       - ./volumes/logs/:/var/ilias/logs
       - ./volumes/logs/error/:/var/ilias/logs/error
+      - ./volumes/logs/apache:/var/log/apache2
       - ./volumes/plugins:/var/www/html/Customizing/global/plugins
       - ./volumes/skins/%TPL_SKIN%:/var/www/html/Customizing/global/skin/custom
     links:
