@@ -1,4 +1,2 @@
-instances/*
-!instances/.gitkeep
-templates/repos/*
-!templates/repos/.gitkeep
+src/lib/tpl/repos/*
+!src/lib/tpl/repos/.gitkeep
