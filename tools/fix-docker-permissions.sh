@@ -1,7 +1,7 @@
 #!/bin/bash
 
 ## Take in a username for the usermod
-read -p "Please type in a username: " username
+read -p "Please type in the username that should be added to the docker-group (probably your login): " username
 read -p "Your username is $username. Is this correct? [Type YES in uppercase] " confirmation
 
 if [ "$confirmation" != "YES" ]
@@ -10,7 +10,7 @@ then
 fi
 
 # Brief user
-read -p "You will need to enter your password for sudo in order to add the group docker and add your user to the group. Did you understand? [Type YES in uppercase] " understood
+read -p "You will need to enter your password for sudo in order to add the group. Your pass is not being stored. OK? [Type YES in uppercase] " understood
 if [ "$understood" != "YES" ]
 then
 	exit 1
