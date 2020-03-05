@@ -68,6 +68,7 @@ mkdir "$FOLDERPATH/conf"
 mkdir "$FOLDERPATH/volumes"
 mkdir "$FOLDERPATH/volumes/db"
 mkdir "$FOLDERPATH/volumes/data"
+mkdir "$FOLDERPATH/volumes/index"
 mkdir "$FOLDERPATH/volumes/logs"
 mkdir "$FOLDERPATH/volumes/logs/error"
 
@@ -79,8 +80,14 @@ cp "$TEMPLATES/docker-configs/run-lamp.sh" "$FOLDERPATH/conf/run-lamp.sh"
 cp "$TEMPLATES/docker-configs/docker-compose.yml" "$FOLDERPATH/docker-compose.yml"
 cp "$TEMPLATES/docker-configs/composer-install.sh" "$FOLDERPATH/conf/composer-install.sh"
 
-# copy the docker file
+# copy lucene configs
+cp "$TEMPLATES/lucene/init.sh" "$FOLDERPATH/conf/lucene/init.sh"
+cp "$TEMPLATES/lucene/loop.sh" "$FOLDERPATH/conf/lucene/loop.sh"
+cp "$TEMPLATES/lucene/ilServer.ini" "$FOLDERPATH/conf/lucene/ilServer.ini"
+
+# copy the docker files
 cp "$TEMPLATES/dockerfiles/Dockerfile$phpversion" "$FOLDERPATH/Dockerfile"
+cp "$TEMPLATES/dockerfiles/Dockerfile.java" "$FOLDERPATH/Dockerfile.java"
 
 # Copy the TMS scripts
 if [ "$type" == "tms" ]
