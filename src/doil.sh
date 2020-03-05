@@ -47,7 +47,14 @@ then
 	exit
 fi
 
-# up
+# update-repo
+if [ "$CMD" == "update-repo" ]
+then
+  /usr/lib/doil/update-repo.sh
+	exit
+fi
+
+# fix-permissions
 if [ "$CMD" == "fix-permissions" ]
 then
   /usr/lib/doil/fix-permissions.sh
