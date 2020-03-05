@@ -14,7 +14,7 @@ Webserver | %TPL_SUBNET_BASE%.4 | %TPL_FOLDER%.local
 
 ### /etc/hosts
 
-If you chosed not to add the hosts information to the /etc/hosts file. Add following lines to your host files:
+If you chose not to add the hosts information to the /etc/hosts file. Add following lines to your host files:
 
 ```
 ### %TPL_FOLDER% start
