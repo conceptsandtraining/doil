@@ -63,8 +63,10 @@ moves the active directory to the given \fBINSTANCE\fR. Bails if the
 fixes some permission issues related to docker. Usually only used once.
 
 .TP
-\fBupdate-repo\fR
-updates the local ILIAS and TMS repositories
+\fBupdate-repo [REPO]\fR
+updates the local ILIAS and TMS repositories. If no \fBREPO\fR then all
+repositories will be updated. The possible options for \fBREPO\fR are \fBilias\fR,
+\fBtms\fR and \fBcatilias\fR
 
 .SH AUTHOR
 Laura Herzog (laura.herzog@concepts-and-training.de)

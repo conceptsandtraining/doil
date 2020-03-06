@@ -1,22 +1,25 @@
 #!/bin/bash
 
-# set current folder
+# Get the settings
 CWD=$(pwd)
-TEMPLATES="$CWD/../templates"
+WHOAMI=$(whoami)
+TEMPLATES="/usr/lib/doil/tpl"
 
+# Get all the needed information from the user
 # set the project name
-read -p "Name the project for this container ILIAS installation: " projectname
+read -p "Name the instance for this container ILIAS installation: " projectname
 if [ -z "$projectname" ]
 then
-  echo "You have to set a projectname! Aborting."
+  echo "You have to set a name for this instance! Aborting."
   exit 0
 fi
 
-FOLDERPATH="$CWD/../instances/$projectname"
-if [ -d "${FOLDERPATH}" ]
+# check if the instance if it exists
+LINKPATH="/home/$WHOAMI/.doil/$projectname"
+if [ -h "${LINKPATH}" ]
 then
-    echo "${projectname} already exists! Aborting."
-    exit 0
+  echo "${projectname} already exists! Aborting."
+  exit 0
 fi
 
 # set php version, defaults to 7.2
@@ -63,6 +66,7 @@ fi
 # first we create the needed folders
 NOW=$(date +'%d.%m.%Y %I:%M:%S')
 echo "[$NOW] Creating basic folders"
+FOLDERPATH="$CWD/$projectname"
 mkdir "$FOLDERPATH"
 mkdir "$FOLDERPATH/conf"
 mkdir "$FOLDERPATH/volumes"
@@ -70,6 +74,7 @@ mkdir "$FOLDERPATH/volumes/db"
 mkdir "$FOLDERPATH/volumes/data"
 mkdir "$FOLDERPATH/volumes/logs"
 mkdir "$FOLDERPATH/volumes/logs/error"
+
 
 # copy the template filesDockerFile
 NOW=$(date +'%d.%m.%Y %I:%M:%S')
@@ -137,41 +142,31 @@ NOW=$(date +'%d.%m.%Y %I:%M:%S')
 echo "[$NOW] Cloning ILIAS"
 if [ "$type" == "ilias" ]
 then
-  if [ ! -d "${TEMPLATES}/repos/ilias/" ]
-  then
-    NOW=$(date +'%d.%m.%Y %I:%M:%S')
-    echo "[$NOW] ILIAS repository does not exist. Cloning ..."
-    ./internal/clone-all-ilias.sh ilias
-    NOW=$(date +'%d.%m.%Y %I:%M:%S')
-    echo "[$NOW] Finished cloning ILIAS"
-  fi
+  NOW=$(date +'%d.%m.%Y %I:%M:%S')
+  echo "[$NOW] Updating CAT ILIAS repository ..."
+  doil update-repo ilias
+  NOW=$(date +'%d.%m.%Y %I:%M:%S')
+  echo "[$NOW] Finished updating ILIAS"
   cp -r "$TEMPLATES/repos/ilias/" "$FOLDERPATH/volumes/"
 fi
 
 if [ "$type" == "catilias" ]
 then
-  if [ ! -d "${TEMPLATES}/repos/catilias/" ]
-  then
-    NOW=$(date +'%d.%m.%Y %I:%M:%S')
-    echo "[$NOW] CAT ILIAS repository does not exist. Cloning ..."
-    ./internal/clone-all-ilias.sh catilias
-    NOW=$(date +'%d.%m.%Y %I:%M:%S')
-    echo "[$NOW] Finished cloning CAT ILIAS"
-  fi
+  NOW=$(date +'%d.%m.%Y %I:%M:%S')
+  echo "[$NOW] Updating CAT ILIAS repository ..."
+  doil update-repo catilias
+  NOW=$(date +'%d.%m.%Y %I:%M:%S')
+  echo "[$NOW] Finished updating CAT ILIAS"
   cp -r "$TEMPLATES/repos/catilias/" "$FOLDERPATH/volumes"
   mv "$FOLDERPATH/volumes/catilias" "$FOLDERPATH/volumes/ilias"
 fi
 
 if [ "$type" == "tms" ]
 then
-  if [ ! -d "${TEMPLATES}/repos/tms/" ]
-  then
-    NOW=$(date +'%d.%m.%Y %I:%M:%S')
-    echo "[$NOW] TMS repository does not exist. Cloning ..."
-    ./internal/clone-all-ilias.sh tms
-    NOW=$(date +'%d.%m.%Y %I:%M:%S')
-    echo "[$NOW] Finished cloning TMS"
-  fi
+  echo "[$NOW] Updating TMS repository ..."
+  doil update-repo tms
+  NOW=$(date +'%d.%m.%Y %I:%M:%S')
+  echo "[$NOW] Finished updating TMS"
   cp -r "$TEMPLATES/repos/tms/" "$FOLDERPATH/volumes/"
   mv "$FOLDERPATH/volumes/tms" "$FOLDERPATH/volumes/ilias"
 fi
@@ -188,17 +183,17 @@ if [ "$type" == "tms" ]
 then
   NOW=$(date +'%d.%m.%Y %I:%M:%S')
   echo "[$NOW] Cloning TMS skins"
-  ./internal/tms-download-skins.sh $projectname $skin
+  /usr/lib/doil/tms/skins.sh $projectname $skin
   NOW=$(date +'%d.%m.%Y %I:%M:%S')
   echo "[$NOW] Cloning TMS plugins"
-  ./internal/tms-download-plugins.sh $projectname
+  /usr/lib/doil/tms/plugins.sh $projectname
 fi
 
-# Run container the first time
-NOW=$(date +'%d.%m.%Y %I:%M:%S')
-echo "[$NOW] Initial start of the servers"
 cd "$FOLDERPATH"
-../../tools/internal/initial-up.sh
+doil up
+/usr/lib/doil/install-composer.sh
+doil down
+cd "$CWD"
 
 # Goodbye txt
 NOW=$(date +'%d.%m.%Y %I:%M:%S')
