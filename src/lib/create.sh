@@ -71,6 +71,7 @@ mkdir "$FOLDERPATH"
 mkdir "$FOLDERPATH/conf"
 mkdir "$FOLDERPATH/volumes"
 mkdir "$FOLDERPATH/volumes/db"
+mkdir "$FOLDERPATH/volumes/index"
 mkdir "$FOLDERPATH/volumes/data"
 mkdir "$FOLDERPATH/volumes/logs"
 mkdir "$FOLDERPATH/volumes/logs/error"
@@ -83,9 +84,16 @@ cp "$TEMPLATES/docker-configs/debconf.selections" "$FOLDERPATH/conf/debconf.sele
 cp "$TEMPLATES/docker-configs/run-lamp.sh" "$FOLDERPATH/conf/run-lamp.sh"
 cp "$TEMPLATES/docker-configs/docker-compose.yml" "$FOLDERPATH/docker-compose.yml"
 cp "$TEMPLATES/docker-configs/composer-install.sh" "$FOLDERPATH/conf/composer-install.sh"
+cp "$TEMPLATES/misc/README.md" "$FOLDERPATH/README.md"
+
+# copy lucene configs
+cp "$TEMPLATES/lucene/init.sh" "$FOLDERPATH/conf/lucene/init.sh"
+cp "$TEMPLATES/lucene/loop.sh" "$FOLDERPATH/conf/lucene/loop.sh"
+cp "$TEMPLATES/lucene/ilServer.ini" "$FOLDERPATH/conf/lucene/ilServer.ini"
 
 # copy the docker file
 cp "$TEMPLATES/dockerfiles/Dockerfile$phpversion" "$FOLDERPATH/Dockerfile"
+cp "$TEMPLATES/dockerfiles/Dockerfile.java" "$FOLDERPATH/Dockerfile.java"
 
 # Copy the TMS scripts
 if [ "$type" == "tms" ]
@@ -93,21 +101,6 @@ then
   mkdir "$FOLDERPATH/volumes/skins"
   mkdir "$FOLDERPATH/volumes/plugins"
   cp "$TEMPLATES/tms-configs/docker-compose.yml" "$FOLDERPATH/docker-compose.yml"
-fi
-
-# replace the templates vars for port and phpversion
-NOW=$(date +'%d.%m.%Y %I:%M:%S')
-echo "[$NOW] Replacing temporary variables"
-find "$FOLDERPATH" \( -type d -name .git -prune \) -o -type f -print0 | xargs -0 sed -i "s/%TPL_PHPVERSION%/$phpversion/g"
-find "$FOLDERPATH" \( -type d -name .git -prune \) -o -type f -print0 | xargs -0 sed -i "s/%TPL_FOLDER%/$projectname/g"
-if [ "$type" == "tms" ]
-then
-  skinname=$skin
-  if [ "$skin" == "all" ]
-  then
-    skinname="base54"
-  fi
-  find "$FOLDERPATH" \( -type d -name .git -prune \) -o -type f -print0 | xargs -0 sed -i "s/%TPL_SKIN%/$skinname/g"
 fi
 
 # set the network for the server
@@ -119,9 +112,6 @@ SUB_NET_NAME=${SUB_NET_NAME//-}
 LINES=$(docker network ls | grep " " | wc -l)
 LINES=$(($LINES + 1))
 SUB_NET_BASE="172.$LINES.0"
-
-find "$FOLDERPATH" \( -type d -name .git -prune \) -o -type f -print0 | xargs -0 sed -i "s/%TPL_SUBNET_BASE%/$SUB_NET_BASE/g"
-find "$FOLDERPATH" \( -type d -name .git -prune \) -o -type f -print0 | xargs -0 sed -i "s/%TPL_SUBNET_NAME%/$SUB_NET_NAME/g"
 
 # add project to hosts
 PMA_ADDRESS="$SUB_NET_BASE.3"
@@ -135,6 +125,24 @@ then
   echo "$IL_ADDRESS $projectname.local" | sudo tee -a /etc/hosts > /dev/null
   echo "$PMA_ADDRESS pma.$projectname.local" | sudo tee -a /etc/hosts > /dev/null
   echo "### $projectname end" | sudo tee -a /etc/hosts > /dev/null
+fi
+
+# replace the templates vars for port and phpversion
+NOW=$(date +'%d.%m.%Y %I:%M:%S')
+echo "[$NOW] Replacing temporary variables"
+find "$FOLDERPATH" \( -type d -name .git -prune \) -o -type f -print0 | xargs -0 sed -i "s/%TPL_TYPE%/$type/g"
+find "$FOLDERPATH" \( -type d -name .git -prune \) -o -type f -print0 | xargs -0 sed -i "s/%TPL_PHPVERSION%/$phpversion/g"
+find "$FOLDERPATH" \( -type d -name .git -prune \) -o -type f -print0 | xargs -0 sed -i "s/%TPL_FOLDER%/$projectname/g"
+find "$FOLDERPATH" \( -type d -name .git -prune \) -o -type f -print0 | xargs -0 sed -i "s/%TPL_SUBNET_BASE%/$SUB_NET_BASE/g"
+find "$FOLDERPATH" \( -type d -name .git -prune \) -o -type f -print0 | xargs -0 sed -i "s/%TPL_SUBNET_NAME%/$SUB_NET_NAME/g"
+if [ "$type" == "tms" ]
+then
+  skinname=$skin
+  if [ "$skin" == "all" ]
+  then
+    skinname="base54"
+  fi
+  find "$FOLDERPATH" \( -type d -name .git -prune \) -o -type f -print0 | xargs -0 sed -i "s/%TPL_SKIN%/$skinname/g"
 fi
 
 # clone ilias or tms
@@ -198,21 +206,17 @@ cd "$CWD"
 # Goodbye txt
 NOW=$(date +'%d.%m.%Y %I:%M:%S')
 echo "[$NOW] Everything done."
-echo "You can reach your ILIAS installation at http://$projectname.local"
-echo "phpMyAdmin can be reached via http://pma.$projectname.local"
 
-if [ "$insert_network" != "YES" ]
+read -p "If you want to see the README type YES: " readme
+if [ "$readme" == "YES" ]
 then
-  echo "You chosed not to add the hosts information to the /etc/hosts file. Add following lines to your host files:"
+  cd "$FOLDERPATH"
+  cat README.md
+  cd "$CWD"
   echo " "
-  echo "### $projectname start"
-  echo "$IL_ADDRESS $projectname.local"
-  echo "$PMA_ADDRESS pma.$projectname.local"
-  echo "### $projectname end"
+  echo "\\//. life long and prosper"
+else
+  echo "See README.md inside of your instance folder in $FOLDERPATH for more information about passwords and IPs"
   echo " "
+  echo "\\//. life long and prosper"
 fi
-
-echo "You can reach the MySQL server at $SUB_NET_BASE.2:3306"
-echo "Hint: Use the scripts in ./manage/ only in the project folder"
-echo " "
-echo "\\//. live long and prosper"

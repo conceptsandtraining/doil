@@ -22,7 +22,7 @@ then
 
   # Prepare git to ignore the file modes because these will change
   git config core.fileMode false
-  find . -type d -name .git -print | sed 's/.git//' | xargs -I% sh -c "cd %;git config core.fileMode false"
+  find ./volumes/ilias -type d -name .git -print | sed 's/.git//' | xargs -I% sh -c "cd %;git config core.fileMode false"
 
   # Start the container
   docker-compose up -d

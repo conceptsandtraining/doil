@@ -67,3 +67,17 @@ then
   /usr/lib/doil/fix-permissions.sh
 	exit
 fi
+
+# instances
+if [ "$CMD" == "instances" ]
+then
+  /usr/lib/doil/instances.sh
+  exit
+fi
+
+# cd
+if [ "$CMD" == "cd" ]
+then
+  /usr/lib/doil/cd.sh $2
+  exit
+fi
