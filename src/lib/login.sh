@@ -1,6 +1,7 @@
 #!/bin/bash
 
 # set the instance to work with
+WHOAMI=$(whoami)
 INSTANCE=$1
 if [ -z "$INSTANCE" ]
 then
@@ -26,6 +27,15 @@ then
   # login
   docker exec -t -i $DCPROCHASH /bin/bash
 else
-  # not implemented
-  echo "Currently not implemented"
+  LINKNAME="/home/$WHOAMI/.doil/$INSTANCE"
+  if [ -h "${LINKNAME}" ]
+  then
+    TARGET=$(readlink -f ${LINKNAME})
+    cd ${TARGET}
+    /usr/lib/doil/login.sh
+  else
+    echo -e "\033[1mERROR:\033[0m"
+    echo -e "\tInstance not found!"
+    echo -e "\tuse \033[1mdoil instances\033[0m to see current installed instances"
+  fi
 fi

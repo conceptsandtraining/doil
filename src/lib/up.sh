@@ -1,6 +1,7 @@
 #!/bin/bash
 
 # set the instance to work with
+WHOAMI=$(whoami)
 INSTANCE=$1
 if [ -z "$INSTANCE" ]
 then
@@ -21,7 +22,6 @@ then
   echo "[$NOW] Starting instance"
 
   # Prepare git to ignore the file modes because these will change
-  git config core.fileMode false
   find ./volumes/ilias -type d -name .git -print | sed 's/.git//' | xargs -I% sh -c "cd %;git config core.fileMode false"
 
   # Start the container
@@ -44,6 +44,15 @@ then
   NOW=$(date +'%d.%m.%Y %I:%M:%S')
   echo "[$NOW] Instance started"
 else
-  # not implemented
-  echo "Currently not implemented"
+  LINKNAME="/home/$WHOAMI/.doil/$INSTANCE"
+  if [ -h "${LINKNAME}" ]
+  then
+    TARGET=$(readlink -f ${LINKNAME})
+    cd ${TARGET}
+    /usr/lib/doil/up.sh
+  else
+    echo -e "\033[1mERROR:\033[0m"
+    echo -e "\tInstance not found!"
+    echo -e "\tuse \033[1mdoil instances\033[0m to see current installed instances"
+  fi
 fi

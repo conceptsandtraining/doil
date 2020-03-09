@@ -1,6 +1,7 @@
 #!/bin/bash
 
 # set the instance to work with
+WHOAMI=$(whoami)
 INSTANCE=$1
 if [ -z "$INSTANCE" ]
 then
@@ -25,6 +26,15 @@ then
   NOW=$(date +'%d.%m.%Y %I:%M:%S')
   echo "[$NOW] Instance stopped"
 else
-  # not implemented
-  echo "Currently not implemented"
+  LINKNAME="/home/$WHOAMI/.doil/$INSTANCE"
+  if [ -h "${LINKNAME}" ]
+  then
+    TARGET=$(readlink -f ${LINKNAME})
+    cd ${TARGET}
+    /usr/lib/doil/down.sh
+  else
+    echo -e "\033[1mERROR:\033[0m"
+    echo -e "\tInstance not found!"
+    echo -e "\tuse \033[1mdoil instances\033[0m to see current installed instances"
+  fi
 fi
