@@ -77,6 +77,8 @@ mkdir "$FOLDERPATH/volumes/data"
 mkdir "$FOLDERPATH/volumes/logs"
 mkdir "$FOLDERPATH/volumes/logs/error"
 
+# set the link
+ln -s "$FOLDERPATH" "/home/$WHOAMI/.doil/$projectname"
 
 # copy the template filesDockerFile
 NOW=$(date +'%d.%m.%Y %I:%M:%S')
@@ -110,8 +112,8 @@ echo "[$NOW] Setting up network."
 SUB_NET_NAME="in-$projectname"
 SUB_NET_NAME=${SUB_NET_NAME//-}
 
-LINES=$(docker network ls | grep " " | wc -l)
-LINES=$(($LINES + 1))
+LINES=$(ls -l "/home/$WHOAMI/.doil/" | wc -l)
+LINES=$(($LINES + 4))
 SUB_NET_BASE="172.$LINES.0"
 
 # add project to hosts
@@ -152,7 +154,7 @@ echo "[$NOW] Cloning ILIAS"
 if [ "$type" == "ilias" ]
 then
   NOW=$(date +'%d.%m.%Y %I:%M:%S')
-  echo "[$NOW] Updating CAT ILIAS repository ..."
+  echo "[$NOW] Updating ILIAS repository ..."
   doil update-repo ilias
   NOW=$(date +'%d.%m.%Y %I:%M:%S')
   echo "[$NOW] Finished updating ILIAS"
@@ -182,6 +184,7 @@ fi
 
 # Checkout the setted branch
 cd "$FOLDERPATH/volumes/ilias"
+git config core.fileMode false
 git fetch origin
 git checkout $branch
 git pull origin $branch
@@ -198,11 +201,16 @@ then
   /usr/lib/doil/tms/plugins.sh $projectname
 fi
 
+# initial startup
+NOW=$(date +'%d.%m.%Y %I:%M:%S')
+echo "[$NOW] Initial startup to install the mandatory dependencies"
 cd "$FOLDERPATH"
 doil up
 /usr/lib/doil/install-composer.sh
 doil down
 cd "$CWD"
+NOW=$(date +'%d.%m.%Y %I:%M:%S')
+echo "[$NOW] Initial startup finished. Server shutted down."
 
 # Goodbye txt
 NOW=$(date +'%d.%m.%Y %I:%M:%S')
