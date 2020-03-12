@@ -14,7 +14,7 @@ fi
 
 # set the config
 CWD=$(pwd)
-SKINPATH="$FOLDERPATH/volumes/skins"
+SKINPATH="$1/volumes/skins"
 SKIN="$2"
 PREFIX="origin/"
 

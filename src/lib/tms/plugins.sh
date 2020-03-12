@@ -9,7 +9,7 @@ fi
 
 # set the config
 CWD=$(pwd)
-PLUGINPATH="$FOLDERPATH/volumes/plugins"
+PLUGINPATH="$1/volumes/plugins"
 
 # create the directories
 mkdir "$PLUGINPATH/Services"
