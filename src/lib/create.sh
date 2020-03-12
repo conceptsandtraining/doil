@@ -195,10 +195,10 @@ if [ "$type" == "tms" ]
 then
   NOW=$(date +'%d.%m.%Y %I:%M:%S')
   echo "[$NOW] Cloning TMS skins"
-  /usr/lib/doil/tms/skins.sh $projectname $skin
+  /usr/lib/doil/tms/skins.sh $FOLDERPATH $skin
   NOW=$(date +'%d.%m.%Y %I:%M:%S')
   echo "[$NOW] Cloning TMS plugins"
-  /usr/lib/doil/tms/plugins.sh $projectname
+  /usr/lib/doil/tms/plugins.sh $FOLDERPATH
 fi
 
 # initial startup

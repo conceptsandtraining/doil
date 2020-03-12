@@ -3,7 +3,7 @@
 # check arguments
 if [ -z "$1" ]
 then
-	echo "Set the projectname"
+	echo "Set the folderpath"
 	exit
 fi
 if [ -z "$2" ]
@@ -14,7 +14,7 @@ fi
 
 # set the config
 CWD=$(pwd)
-SKINPATH="$CWD/../instances/$1/volumes/skins"
+SKINPATH="$FOLDERPATH/volumes/skins"
 SKIN="$2"
 PREFIX="origin/"
 
