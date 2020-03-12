@@ -49,7 +49,7 @@ services:
     working_dir: /var/www/html/Services/WebServices/RPC/lib
     volumes:
       - /etc/localtime:/etc/localtime
-      - ./conf/lucine:/config
+      - ./conf/lucene:/config
       - ./volumes/ilias:/var/www/html
       - ./volumes/data:/var/ilias/data
       - ./volumes/index:/var/ilias/index
