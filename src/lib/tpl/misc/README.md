@@ -2,6 +2,12 @@
 
 This is an automatically created instance of %TPL_TYPE%.
 
+## Paths
+
+* Path to data directory outside of ILIAS: `/var/ilias/data`
+* Path to ILIAS log file: `/var/ilias/logs/ilias.log`
+* Path to ILIAS error log folder: `/var/ilias/logs/error/`
+
 ## IPs
 
 Your servers are available on following addresses:
