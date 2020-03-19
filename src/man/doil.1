@@ -63,6 +63,13 @@ moves the active directory to the given \fBINSTANCE\fR. Bails if the
 fixes some permission issues related to docker. Usually only used once.
 
 .TP
+\fBupdate-image [INSTANCE]\fR
+updates the local docker images according to the dockerfile depending on the
+location of the user if \fBINSTANCE\fR is not given. If \fBINSTANCE\fR is given
+doil will search for the instance and updates the images. Bails if no instance
+is found.
+
+.TP
 \fBupdate-repo [REPO]\fR
 updates the local ILIAS and TMS repositories. If no \fBREPO\fR then all
 repositories will be updated. The possible options for \fBREPO\fR are \fBilias\fR,

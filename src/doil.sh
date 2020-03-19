@@ -19,7 +19,7 @@ then
   exit
 fi
 
-# up
+# create
 if [ "$CMD" == "create" ]
 then
   /usr/lib/doil/create.sh
@@ -58,6 +58,13 @@ fi
 if [ "$CMD" == "update-repo" ]
 then
   /usr/lib/doil/update-repo.sh $2
+	exit
+fi
+
+# update image
+if [ "$CMD" == "update-image" ]
+then
+  /usr/lib/doil/update-image.sh $2
 	exit
 fi
 
