@@ -5,7 +5,7 @@ cp src/doil.sh /usr/local/bin/doil
 chmod a+x /usr/local/bin/doil
 
 # Move the script library to /usr/lib/doil
-if [ ! -d "/home/$username/.doil" ]
+if [ ! -d "/usr/lib/doil" ]
 then
   mkdir /usr/lib/doil
 fi
@@ -21,9 +21,9 @@ install -g 0 -o 0 -m 0644 src/man/doil.1 /usr/share/man/man1/
 gzip /usr/share/man/man1/doil.1
 
 # Install local instance tracker
-read -p "Please type your username for this machine: " username
-if [ ! -d "/home/$username/.doil" ]
+HOME=$(eval echo "~${SUDO_USER}")
+if [ ! -d "$HOME/.doil" ]
 then
-  mkdir "/home/$username/.doil"
-  chown -R $username:$username "/home/$username/.doil"
+  mkdir "$HOME/.doil"
+  chown -R $username:$username "$HOME/.doil"
 fi

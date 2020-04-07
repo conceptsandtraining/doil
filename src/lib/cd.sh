@@ -8,7 +8,7 @@ then
   if [ -h "${LINKNAME}" ]
   then
     TARGET=$(readlink -f ${LINKNAME})
-    cd ${TARGET}
+    builtin cd ${TARGET} 2> /dev/null
     exec bash
   else
     echo -e "\033[1mERROR:\033[0m"

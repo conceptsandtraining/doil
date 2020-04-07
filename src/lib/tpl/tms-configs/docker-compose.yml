@@ -12,6 +12,7 @@ services:
       - ./volumes/logs/apache:/var/log/apache2
       - ./volumes/plugins:/var/www/html/Customizing/global/plugins
       - ./volumes/skins/%TPL_SKIN%:/var/www/html/Customizing/global/skin/custom
+      - ./conf/php/php.ini:/etc/php/%TPL_PHPVERSION%/apache2/php.ini
     links:
       - %TPL_FOLDER%-db:%TPL_FOLDER%-db
     networks:
@@ -27,6 +28,7 @@ services:
     volumes:
       - persistent:/var/lib/mysql
       - ./volumes/db/:/var/lib/mysql
+      - ./conf/mysql:/etc/mysql/conf.d
     networks:
       %TPL_SUBNET_NAME%:
         ipv4_address: %TPL_SUBNET_BASE%.2

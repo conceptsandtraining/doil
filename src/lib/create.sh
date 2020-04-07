@@ -5,6 +5,15 @@ CWD=$(pwd)
 WHOAMI=$(whoami)
 TEMPLATES="/usr/lib/doil/tpl"
 
+# Check if the current directory is writeable
+if [ ! -w `pwd` ]; then
+  echo -e "\033[1mERROR:\033[0m"
+  echo -e "\tThe current directory is not writeable for you."
+  echo -e "\tPlease head to a different directory."
+
+  exit
+fi
+
 # Get all the needed information from the user
 # set the project name
 read -p "Name the instance for this container ILIAS installation: " projectname
@@ -69,6 +78,8 @@ echo "[$NOW] Creating basic folders"
 FOLDERPATH="$CWD/$projectname"
 mkdir "$FOLDERPATH"
 mkdir "$FOLDERPATH/conf"
+mkdir "$FOLDERPATH/conf/php"
+mkdir "$FOLDERPATH/conf/mysql"
 mkdir "$FOLDERPATH/conf/lucene"
 mkdir "$FOLDERPATH/volumes"
 mkdir "$FOLDERPATH/volumes/db"
@@ -88,6 +99,14 @@ cp "$TEMPLATES/docker-configs/run-lamp.sh" "$FOLDERPATH/conf/run-lamp.sh"
 cp "$TEMPLATES/docker-configs/docker-compose.yml" "$FOLDERPATH/docker-compose.yml"
 cp "$TEMPLATES/docker-configs/composer-install.sh" "$FOLDERPATH/conf/composer-install.sh"
 cp "$TEMPLATES/misc/README.md" "$FOLDERPATH/README.md"
+
+# copy php config
+cp "$TEMPLATES/php/php.ini" "$FOLDERPATH/conf/php/php.ini"
+
+# copy mysql configs
+cp "$TEMPLATES/mysql/docker.cnf" "$FOLDERPATH/conf/mysql/docker.cnf"
+cp "$TEMPLATES/mysql/mysql.cnf" "$FOLDERPATH/conf/mysql/mysql.cnf"
+cp "$TEMPLATES/mysql/mysqldump.cnf" "$FOLDERPATH/conf/mysql/mysqldump.cnf"
 
 # copy lucene configs
 cp "$TEMPLATES/lucene/init.sh" "$FOLDERPATH/conf/lucene/init.sh"
