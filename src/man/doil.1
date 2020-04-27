@@ -1,0 +1,79 @@
+.\" Manpage for doil.
+.\" Contact laura.herzog@concepts-and-training.de to correct errors or typos.
+.TH doil 1 "05 March 2020" "Version 0.3" "doil manual"
+
+.SH NAME
+doil \- create a new LDAP user
+
+.SH SYNOPSIS
+doil [COMMAND] [OPTIONS]
+
+.SH DESCRIPTION
+.\" Add any additional description here
+.PP
+Doil is a toolbox which comes with a bunch of commands to manage your ILIAS
+instances with docker. Most of the commands come with an own optionset which
+is described below.
+
+.SH COMMANDS
+
+.TP
+\fBhelp\fR
+shows this manual
+
+.TP
+\fBcreate\fR
+Starts a setup script to create an instance of ILIAS or TMS depending on
+settings you will be promted within the installation process. The instance will
+be create as a new folder inside of the current active directory.
+
+.TP
+\fBup [INSTANCE]\fR
+starts the docker container depending on the current location of the user if
+\fBINSTANCE\fR is not given. If \fBINSTANCE\fR is given doil will search for
+the instance and starts it. Bails if no instance is found.
+
+.TP
+\fBdown [INSTANCE]\fR
+stops the docker container depending on the current location of the user if
+\fBINSTANCE\fR is not given. If \fBINSTANCE\fR is given doil will search for
+the instance and stops it. Bails if no instance is found.
+
+.TP
+\fBlogin [INSTANCE]\fR
+logs the user into the running docker container (www) depending on the location
+of the user if \fBINSTANCE\fR is not given. If \fBINSTANCE\fR is given doil will
+search for the instance and logs the user in. Bails if no instance is found.
+
+.TP
+\fBstop-all\fR
+stops \fBall\fR running docker instances
+
+.TP
+\fBinstances\fR
+lists all instances which are created with doil
+
+.TP
+\fBcd INSTANCE\fR
+moves the active directory to the given \fBINSTANCE\fR. Bails if the
+\fBINSTANCE\fR could not be located
+
+.TP
+\fBfix-permissions\fR
+fixes some permission issues related to docker. Usually only used once.
+
+.TP
+\fBupdate-image [INSTANCE]\fR
+updates the local docker images according to the dockerfile depending on the
+location of the user if \fBINSTANCE\fR is not given. If \fBINSTANCE\fR is given
+doil will search for the instance and updates the images. Bails if no instance
+is found.
+
+.TP
+\fBupdate-repo [REPO]\fR
+updates the local ILIAS and TMS repositories. If no \fBREPO\fR then all
+repositories will be updated. The possible options for \fBREPO\fR are \fBilias\fR,
+\fBtms\fR and \fBcatilias\fR
+
+.SH AUTHOR
+Laura Herzog (laura.herzog@concepts-and-training.de)

@@ -1,22 +1,34 @@
 #!/bin/bash
 
-# set current folder
+# Get the settings
 CWD=$(pwd)
-TEMPLATES="$CWD/../templates"
+WHOAMI=$(whoami)
+TEMPLATES="/usr/lib/doil/tpl"
 
+# Check if the current directory is writeable
+if [ ! -w `pwd` ]; then
+  echo -e "\033[1mERROR:\033[0m"
+  echo -e "\tThe current directory is not writeable for you."
+  echo -e "\tPlease head to a different directory."
+
+  exit
+fi
+
+# Get all the needed information from the user
 # set the project name
-read -p "Name the project for this container ILIAS installation: " projectname
+read -p "Name the instance for this container ILIAS installation: " projectname
 if [ -z "$projectname" ]
 then
-  echo "You have to set a projectname! Aborting."
+  echo "You have to set a name for this instance! Aborting."
   exit 0
 fi
 
-FOLDERPATH="$CWD/../instances/$projectname"
-if [ -d "${FOLDERPATH}" ]
+# check if the instance if it exists
+LINKPATH="/home/$WHOAMI/.doil/$projectname"
+if [ -h "${LINKPATH}" ]
 then
-    echo "${projectname} already exists! Aborting."
-    exit 0
+  echo "${projectname} already exists! Aborting."
+  exit 0
 fi
 
 # set php version, defaults to 7.2
@@ -63,13 +75,21 @@ fi
 # first we create the needed folders
 NOW=$(date +'%d.%m.%Y %I:%M:%S')
 echo "[$NOW] Creating basic folders"
+FOLDERPATH="$CWD/$projectname"
 mkdir "$FOLDERPATH"
 mkdir "$FOLDERPATH/conf"
+mkdir "$FOLDERPATH/conf/php"
+mkdir "$FOLDERPATH/conf/mysql"
+mkdir "$FOLDERPATH/conf/lucene"
 mkdir "$FOLDERPATH/volumes"
 mkdir "$FOLDERPATH/volumes/db"
+mkdir "$FOLDERPATH/volumes/index"
 mkdir "$FOLDERPATH/volumes/data"
 mkdir "$FOLDERPATH/volumes/logs"
 mkdir "$FOLDERPATH/volumes/logs/error"
+
+# set the link
+ln -s "$FOLDERPATH" "/home/$WHOAMI/.doil/$projectname"
 
 # copy the template filesDockerFile
 NOW=$(date +'%d.%m.%Y %I:%M:%S')
@@ -78,9 +98,24 @@ cp "$TEMPLATES/docker-configs/debconf.selections" "$FOLDERPATH/conf/debconf.sele
 cp "$TEMPLATES/docker-configs/run-lamp.sh" "$FOLDERPATH/conf/run-lamp.sh"
 cp "$TEMPLATES/docker-configs/docker-compose.yml" "$FOLDERPATH/docker-compose.yml"
 cp "$TEMPLATES/docker-configs/composer-install.sh" "$FOLDERPATH/conf/composer-install.sh"
+cp "$TEMPLATES/misc/README.md" "$FOLDERPATH/README.md"
+
+# copy php config
+cp "$TEMPLATES/php/php.ini" "$FOLDERPATH/conf/php/php.ini"
+
+# copy mysql configs
+cp "$TEMPLATES/mysql/docker.cnf" "$FOLDERPATH/conf/mysql/docker.cnf"
+cp "$TEMPLATES/mysql/mysql.cnf" "$FOLDERPATH/conf/mysql/mysql.cnf"
+cp "$TEMPLATES/mysql/mysqldump.cnf" "$FOLDERPATH/conf/mysql/mysqldump.cnf"
+
+# copy lucene configs
+cp "$TEMPLATES/lucene/init.sh" "$FOLDERPATH/conf/lucene/init.sh"
+cp "$TEMPLATES/lucene/loop.sh" "$FOLDERPATH/conf/lucene/loop.sh"
+cp "$TEMPLATES/lucene/ilServer.ini" "$FOLDERPATH/conf/lucene/ilServer.ini"
 
 # copy the docker file
 cp "$TEMPLATES/dockerfiles/Dockerfile$phpversion" "$FOLDERPATH/Dockerfile"
+cp "$TEMPLATES/dockerfiles/Dockerfile.java" "$FOLDERPATH/Dockerfile.java"
 
 # Copy the TMS scripts
 if [ "$type" == "tms" ]
@@ -90,33 +125,15 @@ then
   cp "$TEMPLATES/tms-configs/docker-compose.yml" "$FOLDERPATH/docker-compose.yml"
 fi
 
-# replace the templates vars for port and phpversion
-NOW=$(date +'%d.%m.%Y %I:%M:%S')
-echo "[$NOW] Replacing temporary variables"
-find "$FOLDERPATH" \( -type d -name .git -prune \) -o -type f -print0 | xargs -0 sed -i "s/%TPL_PHPVERSION%/$phpversion/g"
-find "$FOLDERPATH" \( -type d -name .git -prune \) -o -type f -print0 | xargs -0 sed -i "s/%TPL_FOLDER%/$projectname/g"
-if [ "$type" == "tms" ]
-then
-  skinname=$skin
-  if [ "$skin" == "all" ]
-  then
-    skinname="base54"
-  fi
-  find "$FOLDERPATH" \( -type d -name .git -prune \) -o -type f -print0 | xargs -0 sed -i "s/%TPL_SKIN%/$skinname/g"
-fi
-
 # set the network for the server
 NOW=$(date +'%d.%m.%Y %I:%M:%S')
 echo "[$NOW] Setting up network."
 SUB_NET_NAME="in-$projectname"
 SUB_NET_NAME=${SUB_NET_NAME//-}
 
-LINES=$(docker network ls | grep " " | wc -l)
-LINES=$(($LINES + 1))
+LINES=$(ls -l "/home/$WHOAMI/.doil/" | wc -l)
+LINES=$(($LINES + 4))
 SUB_NET_BASE="172.$LINES.0"
-
-find "$FOLDERPATH" \( -type d -name .git -prune \) -o -type f -print0 | xargs -0 sed -i "s/%TPL_SUBNET_BASE%/$SUB_NET_BASE/g"
-find "$FOLDERPATH" \( -type d -name .git -prune \) -o -type f -print0 | xargs -0 sed -i "s/%TPL_SUBNET_NAME%/$SUB_NET_NAME/g"
 
 # add project to hosts
 PMA_ADDRESS="$SUB_NET_BASE.3"
@@ -132,52 +149,61 @@ then
   echo "### $projectname end" | sudo tee -a /etc/hosts > /dev/null
 fi
 
+# replace the templates vars for port and phpversion
+NOW=$(date +'%d.%m.%Y %I:%M:%S')
+echo "[$NOW] Replacing temporary variables"
+find "$FOLDERPATH" \( -type d -name .git -prune \) -o -type f -print0 | xargs -0 sed -i "s/%TPL_TYPE%/$type/g"
+find "$FOLDERPATH" \( -type d -name .git -prune \) -o -type f -print0 | xargs -0 sed -i "s/%TPL_PHPVERSION%/$phpversion/g"
+find "$FOLDERPATH" \( -type d -name .git -prune \) -o -type f -print0 | xargs -0 sed -i "s/%TPL_FOLDER%/$projectname/g"
+find "$FOLDERPATH" \( -type d -name .git -prune \) -o -type f -print0 | xargs -0 sed -i "s/%TPL_SUBNET_BASE%/$SUB_NET_BASE/g"
+find "$FOLDERPATH" \( -type d -name .git -prune \) -o -type f -print0 | xargs -0 sed -i "s/%TPL_SUBNET_NAME%/$SUB_NET_NAME/g"
+if [ "$type" == "tms" ]
+then
+  skinname=$skin
+  if [ "$skin" == "all" ]
+  then
+    skinname="base54"
+  fi
+  find "$FOLDERPATH" \( -type d -name .git -prune \) -o -type f -print0 | xargs -0 sed -i "s/%TPL_SKIN%/$skinname/g"
+fi
+
 # clone ilias or tms
 NOW=$(date +'%d.%m.%Y %I:%M:%S')
 echo "[$NOW] Cloning ILIAS"
 if [ "$type" == "ilias" ]
 then
-  if [ ! -d "${TEMPLATES}/repos/ilias/" ]
-  then
-    NOW=$(date +'%d.%m.%Y %I:%M:%S')
-    echo "[$NOW] ILIAS repository does not exist. Cloning ..."
-    ./internal/clone-all-ilias.sh ilias
-    NOW=$(date +'%d.%m.%Y %I:%M:%S')
-    echo "[$NOW] Finished cloning ILIAS"
-  fi
+  NOW=$(date +'%d.%m.%Y %I:%M:%S')
+  echo "[$NOW] Updating ILIAS repository ..."
+  doil update-repo ilias
+  NOW=$(date +'%d.%m.%Y %I:%M:%S')
+  echo "[$NOW] Finished updating ILIAS"
   cp -r "$TEMPLATES/repos/ilias/" "$FOLDERPATH/volumes/"
 fi
 
 if [ "$type" == "catilias" ]
 then
-  if [ ! -d "${TEMPLATES}/repos/catilias/" ]
-  then
-    NOW=$(date +'%d.%m.%Y %I:%M:%S')
-    echo "[$NOW] CAT ILIAS repository does not exist. Cloning ..."
-    ./internal/clone-all-ilias.sh catilias
-    NOW=$(date +'%d.%m.%Y %I:%M:%S')
-    echo "[$NOW] Finished cloning CAT ILIAS"
-  fi
+  NOW=$(date +'%d.%m.%Y %I:%M:%S')
+  echo "[$NOW] Updating CAT ILIAS repository ..."
+  doil update-repo catilias
+  NOW=$(date +'%d.%m.%Y %I:%M:%S')
+  echo "[$NOW] Finished updating CAT ILIAS"
   cp -r "$TEMPLATES/repos/catilias/" "$FOLDERPATH/volumes"
   mv "$FOLDERPATH/volumes/catilias" "$FOLDERPATH/volumes/ilias"
 fi
 
 if [ "$type" == "tms" ]
 then
-  if [ ! -d "${TEMPLATES}/repos/tms/" ]
-  then
-    NOW=$(date +'%d.%m.%Y %I:%M:%S')
-    echo "[$NOW] TMS repository does not exist. Cloning ..."
-    ./internal/clone-all-ilias.sh tms
-    NOW=$(date +'%d.%m.%Y %I:%M:%S')
-    echo "[$NOW] Finished cloning TMS"
-  fi
+  echo "[$NOW] Updating TMS repository ..."
+  doil update-repo tms
+  NOW=$(date +'%d.%m.%Y %I:%M:%S')
+  echo "[$NOW] Finished updating TMS"
   cp -r "$TEMPLATES/repos/tms/" "$FOLDERPATH/volumes/"
   mv "$FOLDERPATH/volumes/tms" "$FOLDERPATH/volumes/ilias"
 fi
 
 # Checkout the setted branch
 cd "$FOLDERPATH/volumes/ilias"
+git config core.fileMode false
 git fetch origin
 git checkout $branch
 git pull origin $branch
@@ -188,36 +214,37 @@ if [ "$type" == "tms" ]
 then
   NOW=$(date +'%d.%m.%Y %I:%M:%S')
   echo "[$NOW] Cloning TMS skins"
-  ./internal/tms-download-skins.sh $projectname $skin
+  /usr/lib/doil/tms/skins.sh $FOLDERPATH $skin
   NOW=$(date +'%d.%m.%Y %I:%M:%S')
   echo "[$NOW] Cloning TMS plugins"
-  ./internal/tms-download-plugins.sh $projectname
+  /usr/lib/doil/tms/plugins.sh $FOLDERPATH
 fi
 
-# Run container the first time
+# initial startup
 NOW=$(date +'%d.%m.%Y %I:%M:%S')
-echo "[$NOW] Initial start of the servers"
+echo "[$NOW] Initial startup to install the mandatory dependencies"
 cd "$FOLDERPATH"
-../../tools/internal/initial-up.sh
+doil up
+/usr/lib/doil/install-composer.sh
+doil down
+cd "$CWD"
+NOW=$(date +'%d.%m.%Y %I:%M:%S')
+echo "[$NOW] Initial startup finished. Server shutted down."
 
 # Goodbye txt
 NOW=$(date +'%d.%m.%Y %I:%M:%S')
 echo "[$NOW] Everything done."
-echo "You can reach your ILIAS installation at http://$projectname.local"
-echo "phpMyAdmin can be reached via http://pma.$projectname.local"
 
-if [ "$insert_network" != "YES" ]
+read -p "If you want to see the README type YES: " readme
+if [ "$readme" == "YES" ]
 then
-  echo "You chosed not to add the hosts information to the /etc/hosts file. Add following lines to your host files:"
+  cd "$FOLDERPATH"
+  cat README.md
+  cd "$CWD"
   echo " "
-  echo "### $projectname start"
-  echo "$IL_ADDRESS $projectname.local"
-  echo "$PMA_ADDRESS pma.$projectname.local"
-  echo "### $projectname end"
+  echo "\\//. life long and prosper"
+else
+  echo "See README.md inside of your instance folder in $FOLDERPATH for more information about passwords and IPs"
   echo " "
+  echo "\\//. life long and prosper"
 fi
-
-echo "You can reach the MySQL server at $SUB_NET_BASE.2:3306"
-echo "Hint: Use the scripts in ./manage/ only in the project folder"
-echo " "
-echo "\\//. live long and prosper"

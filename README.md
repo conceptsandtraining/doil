@@ -2,28 +2,9 @@
 
 This tool creates and manages multiple docker container with ILIAS and comes with several tools to help manage everything. It is able to download ILIAS and TMS (with all its plugins and skins).
 
-## Initial Setup
+## Setup
 
-1. In order to get these tools up and running you first need to check your docker permissions. For that simply execute `/tools/fix-docker-permissions.sh`.
-
-## Usage
-
-1. Execute the script `create-container.sh` inside of the tools-Folder and follow the steps.
-2. Your project will be available at `http://projectname.local`
-3. phpMyAdmin will be available at `http://pma.projectname.local`
-
-## Included tools
-
-This toolbox comes with three handy tools. Execute these scripts inside of your project folder
-
-* `/manage/up.sh` starts a container
-* `/manage/down.sh` stops a container
-* `/manage/login.sh` logs you into the current container if it is running.
-* `/manage/stop-all.sh` stops all container
-* `/manage/prune-networks.sh` DONOT USE
-
-## Outlook
-
-* automatic installation of ILIAS and TMS
-* add dummy data to blank installations
-* sync client data
+1. Download and unpack this repository wherever you want
+2. Execute `sudo ./install.sh` in order to install doil (you can remove the downloaded folder afterwards)
+3. Check `man doil` or `doil help` for available commands and further instructions
+4. Execute `doil fix-permissions` in order to get your docker installation running with userrights

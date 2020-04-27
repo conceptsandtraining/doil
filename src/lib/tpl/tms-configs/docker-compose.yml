@@ -9,6 +9,10 @@ services:
       - ./volumes/data:/var/ilias/data
       - ./volumes/logs/:/var/ilias/logs
       - ./volumes/logs/error/:/var/ilias/logs/error
+      - ./volumes/logs/apache:/var/log/apache2
+      - ./volumes/plugins:/var/www/html/Customizing/global/plugins
+      - ./volumes/skins/%TPL_SKIN%:/var/www/html/Customizing/global/skin/custom
+      - ./conf/php/php.ini:/etc/php/%TPL_PHPVERSION%/apache2/php.ini
     links:
       - %TPL_FOLDER%-db:%TPL_FOLDER%-db
     networks:
@@ -24,6 +28,7 @@ services:
     volumes:
       - persistent:/var/lib/mysql
       - ./volumes/db/:/var/lib/mysql
+      - ./conf/mysql:/etc/mysql/conf.d
     networks:
       %TPL_SUBNET_NAME%:
         ipv4_address: %TPL_SUBNET_BASE%.2
@@ -39,6 +44,29 @@ services:
     networks:
       %TPL_SUBNET_NAME%:
         ipv4_address: %TPL_SUBNET_BASE%.3
+  %TPL_FOLDER%-java:
+    image: openjdk:8-jre-alpine
+    build:
+      context: .
+      dockerfile: Dockerfile.java
+    restart: always
+    working_dir: /var/www/html/Services/WebServices/RPC/lib
+    volumes:
+      - /etc/localtime:/etc/localtime
+      - ./conf/lucene:/config
+      - ./volumes/ilias:/var/www/html
+      - ./volumes/data:/var/ilias/data
+      - ./volumes/index:/var/ilias/index
+    environment:
+      - ILIAS_INI_PATH=/var/www/html/ilias.ini.php
+      - TZ=Europe/Berlin
+      - JAVA_SERVER_PATH=/var/www/html/Services/WebServices/RPC/lib
+      - JAVA_SERVER_START
+    depends_on:
+      - %TPL_FOLDER%
+    networks:
+      %TPL_SUBNET_NAME%:
+        ipv4_address: %TPL_SUBNET_BASE%.5
 networks:
   %TPL_SUBNET_NAME%:
     ipam:

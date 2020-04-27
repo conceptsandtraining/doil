@@ -3,13 +3,13 @@
 # check arguments
 if [ -z "$1" ]
 then
-	echo "Set the projectname"
+	echo "Set the folderpath"
 	exit
 fi
 
 # set the config
 CWD=$(pwd)
-PLUGINPATH="$CWD/../instances/$1/volumes/plugins"
+PLUGINPATH="$1/volumes/plugins"
 
 # create the directories
 mkdir "$PLUGINPATH/Services"

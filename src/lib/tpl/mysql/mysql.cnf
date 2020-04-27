@@ -1,0 +1,13 @@
+[mysql]
+
+; InnoDB buffer pool size in bytes. The primary value to adjust on a database server,
+; can be set up to 80% of the total memory in these environments
+innodb_buffer_pool_size = 6000M
+;  If innodb_buffer_pool_size is set to more than 1GB, innodb_buffer_pool_instances
+; divides the InnoDB buffer pool into this many instances.
+innodb_buffer_pool_instances = 4
+
+; Number of I/O threads for writes
+innodb_write_io_threads = 8
+; Number of I/O threads for reads
+innodb_read_io_threads = 8

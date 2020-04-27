@@ -1,10 +1,10 @@
 #!/bin/bash
 
-# get the proc
+# get the docker process
 DCFOLDER=${PWD##*/}
 MACHINE=$DCFOLDER"_web"
 DCPROC=$(docker ps | grep $MACHINE)
 DCPROCHASH=${DCPROC:0:12}
 
-# login
-docker exec -t -i $DCPROCHASH /bin/bash
+# run the composer
+docker exec -t $DCPROCHASH /var/www/composer-install.sh
