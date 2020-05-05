@@ -6,11 +6,6 @@ if [ -z $(pgrep tail) ] ; then
 fi
 
 if [ "${JAVA_SERVER_START}" == "1" ] ; then
-    #while ! [ -f "${ILIAS_INI_PATH}" ];
-    #do
-    #    echo "${ILIAS_INI_PATH} does not exist...."
-    #    sleep 20
-    #done
     cd "${JAVA_SERVER_PATH}"
     pkill java > /dev/null 2>&1
     exec java -jar ./ilServer.jar /config/ilServer.ini start
