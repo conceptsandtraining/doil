@@ -28,7 +28,7 @@ services:
     volumes:
       - persistent:/var/lib/mysql
       - ./volumes/db/:/var/lib/mysql
-      - ./conf/mysql:/etc/mysql/conf.d
+      - ./conf/mysql:/etc/mysqld/conf.d
     networks:
       %TPL_SUBNET_NAME%:
         ipv4_address: %TPL_SUBNET_BASE%.2

@@ -2,7 +2,7 @@ version: "3.5"
 services:
   %TPL_FOLDER%:
     build: .
-    image: ubuntu/18.04
+    image: ubuntu:18.04
     container_name: %TPL_FOLDER%_web
     volumes:
       - ./volumes/ilias:/var/www/html
@@ -26,7 +26,7 @@ services:
     volumes:
       - persistent:/var/lib/mysql
       - ./volumes/db/:/var/lib/mysql
-      - ./conf/mysql:/etc/mysql/conf.d
+      - ./conf/mysql:/etc/mysqld/conf.d
     networks:
       %TPL_SUBNET_NAME%:
         ipv4_address: %TPL_SUBNET_BASE%.2
