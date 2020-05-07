@@ -1,5 +1,5 @@
 # Fetch Ubuntu
-FROM ubuntu:latest
+FROM ubuntu:18:04
 
 # Update apt
 RUN apt-get update
