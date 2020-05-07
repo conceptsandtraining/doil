@@ -26,7 +26,6 @@ services:
       MYSQL_PASSWORD: ilias
       MYSQL_ROOT_PASSWORD: ilias
     volumes:
-      - persistent:/var/lib/mysql
       - ./volumes/db/:/var/lib/mysql
       - ./conf/mysql:/etc/mysql/conf.d
     networks:
