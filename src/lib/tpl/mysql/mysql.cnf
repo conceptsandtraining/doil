@@ -1,4 +1,4 @@
-[mysql]
+[mysqld]
 
 ; InnoDB buffer pool size in bytes. The primary value to adjust on a database server,
 ; can be set up to 80% of the total memory in these environments
