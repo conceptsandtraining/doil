@@ -39,6 +39,9 @@ RUN apt-get install -y postfix
 RUN apt-get install -y npm
 RUN npm install -g grunt-cli less
 
+# Remove php7.4
+RUN apt-get remove -y php7.4-cli
+
 # Relink everything
 RUN a2enmod rewrite
 

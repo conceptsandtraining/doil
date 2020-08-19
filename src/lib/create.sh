@@ -37,6 +37,7 @@ if [ -z "$phpversion" ]
 then
   phpversion="7.2"
 fi
+phpversionshort="${phpversion/./}"
 
 # set the installation type
 read -p "Set the type of your installation [options: ilias, catilias or tms [default: ilias]]: " type
@@ -114,8 +115,8 @@ cp "$TEMPLATES/lucene/loop.sh" "$FOLDERPATH/conf/lucene/loop.sh"
 cp "$TEMPLATES/lucene/ilServer.ini" "$FOLDERPATH/conf/lucene/ilServer.ini"
 
 # copy the docker file
-cp "$TEMPLATES/dockerfiles/Dockerfile$phpversion" "$FOLDERPATH/Dockerfile"
-cp "$TEMPLATES/dockerfiles/Dockerfile.java" "$FOLDERPATH/Dockerfile.java"
+cp "$TEMPLATES/dockerfiles/$phpversionshort/Dockerfile" "$FOLDERPATH/Dockerfile"
+cp "$TEMPLATES/dockerfiles/java/Dockerfile" "$FOLDERPATH/Dockerfile.java"
 
 # Copy the TMS scripts
 if [ "$type" == "tms" ]
@@ -154,6 +155,7 @@ NOW=$(date +'%d.%m.%Y %I:%M:%S')
 echo "[$NOW] Replacing temporary variables"
 find "$FOLDERPATH" \( -type d -name .git -prune \) -o -type f -print0 | xargs -0 sed -i "s/%TPL_TYPE%/$type/g"
 find "$FOLDERPATH" \( -type d -name .git -prune \) -o -type f -print0 | xargs -0 sed -i "s/%TPL_PHPVERSION%/$phpversion/g"
+find "$FOLDERPATH" \( -type d -name .git -prune \) -o -type f -print0 | xargs -0 sed -i "s/%TPL_PHPVERSION_SHORT%/$phpversionshort/g"
 find "$FOLDERPATH" \( -type d -name .git -prune \) -o -type f -print0 | xargs -0 sed -i "s/%TPL_FOLDER%/$projectname/g"
 find "$FOLDERPATH" \( -type d -name .git -prune \) -o -type f -print0 | xargs -0 sed -i "s/%TPL_SUBNET_BASE%/$SUB_NET_BASE/g"
 find "$FOLDERPATH" \( -type d -name .git -prune \) -o -type f -print0 | xargs -0 sed -i "s/%TPL_SUBNET_NAME%/$SUB_NET_NAME/g"
