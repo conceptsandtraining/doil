@@ -4,10 +4,10 @@ if [ $ALLOW_OVERRIDE == 'All' ]; then
 fi
 
 # enable php short tags:
-/bin/sed -i "s/short_open_tag\ \=\ Off/short_open_tag\ \=\ On/g" /etc/php/%TPL_PHPVERSION%/apache2/php.ini
+/bin/sed -i "s/short_open_tag\ \=\ Off/short_open_tag\ \=\ On/g" /etc/php/7.1/apache2/php.ini
 
 # Set PHP timezone
-/bin/sed -i "s/\;date\.timezone\ \=/date\.timezone\ \=\ ${DATE_TIMEZONE}/" /etc/php/%TPL_PHPVERSION%/apache2/php.ini
+/bin/sed -i "s/\;date\.timezone\ \=/date\.timezone\ \=\ ${DATE_TIMEZONE}/" /etc/php/7.1/apache2/php.ini
 
 # Run Postfix
 /usr/sbin/postfix start
