@@ -41,6 +41,7 @@ RUN npm install -g grunt-cli less
 
 # Remove php7.4 whyever this is installed
 RUN apt-get remove -y php7.4-cli
+RUN apt-get remove -y php7.3-cli
 RUN apt-get autoremove -y
 
 # Relink everything

@@ -41,6 +41,7 @@ RUN npm install -g grunt-cli less
 
 # Remove php7.4
 RUN apt-get remove -y php7.4-cli
+RUN apt-get remove -y php7.3-cli
 
 # Relink everything
 RUN a2enmod rewrite
