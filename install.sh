@@ -31,16 +31,16 @@ fi
 # Build up local docker images
 cd src/lib/tpl/dockerfiles/70
 docker build -t catphp70 .
-docker tag catphp70:latest
+docker tag catphp70:latest catphp70:stage
 
 cd ../71
 docker build -t catphp71 .
-docker tag catphp71:latest
+docker tag catphp71:latest catphp71:stage
 
 cd ../72
 docker build -t catphp72 .
-docker tag catphp72:latest
+docker tag catphp72:latest catphp72:stage
 
 cd ../73
 docker build -t catphp73 .
-docker tag catphp73:latest
+docker tag catphp73:latest catphp73:stage

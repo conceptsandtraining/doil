@@ -2,7 +2,7 @@ version: "3.5"
 services:
   %TPL_FOLDER%:
     build: .
-    image: catphp%TPL_PHPVERSION_SHORT%:latest
+    image: catphp%TPL_PHPVERSION_SHORT%:stage
     container_name: %TPL_FOLDER%_web
     volumes:
       - ./volumes/ilias:/var/www/html
