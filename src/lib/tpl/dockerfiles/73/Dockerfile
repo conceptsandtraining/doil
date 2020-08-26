@@ -22,15 +22,15 @@ RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
 # Install standard packages
 RUN apt-get install -y zip unzip git nodejs composer nano tree vim curl ftp imagemagick ffmpeg phantomjs vim
 
-# Install php 7.1
+# Install php 7.3
 RUN apt-get update
 RUN apt-get install -y software-properties-common
 RUN add-apt-repository -y ppa:ondrej/php
 RUN apt-get update
-RUN apt-get install -y php7.1 php7.1-bz2 php7.1-cgi php7.1-cli php7.1-common php7.1-curl php7.1-dev php7.1-enchant php7.1-fpm php7.1-gd php7.1-gmp php7.1-imap php7.1-interbase php7.1-intl php7.1-json php7.1-ldap php7.1-mbstring php7.1-mysql php7.1-odbc php7.1-opcache php7.1-pgsql php7.1-phpdbg php7.1-pspell php7.1-readline php7.1-recode php7.1-snmp php7.1-sqlite3 php7.1-sybase php7.1-tidy php7.1-xmlrpc php7.1-xsl php7.1-zip php7.1-soap php7.3-bcmath
+RUN apt-get install -y php7.3 php7.3-bz2 php7.3-cgi php7.3-cli php7.3-common php7.3-curl php7.3-dev php7.3-enchant php7.3-fpm php7.3-gd php7.3-gmp php7.3-imap php7.3-interbase php7.3-intl php7.3-json php7.3-ldap php7.3-mbstring php7.3-mysql php7.3-odbc php7.3-opcache php7.3-pgsql php7.3-phpdbg php7.3-pspell php7.3-readline php7.3-recode php7.3-snmp php7.3-sqlite3 php7.3-sybase php7.3-tidy php7.3-xmlrpc php7.3-xsl php7.3-zip php7.3-soap php7.3-bcmath php7.3-curl php7.3-gd php7.3-zip
 
 # Install apache2
-RUN apt-get install -y apache2 libapache2-mod-php7.1
+RUN apt-get install -y apache2 libapache2-mod-php7.3
 
 # Install Mailserver
 RUN apt-get install -y postfix
@@ -38,6 +38,9 @@ RUN apt-get install -y postfix
 # Install Bower Packages
 RUN apt-get install -y npm
 RUN npm install -g grunt-cli less
+
+# Remove php7.4
+RUN apt-get remove -y php7.4-cli
 
 # Relink everything
 RUN a2enmod rewrite
