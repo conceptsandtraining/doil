@@ -24,8 +24,18 @@ then
   DCPROC=$(docker ps | grep $MACHINE)
   DCPROCHASH=${DCPROC:0:12}
 
+	# check if instance is running, if not, start it
+	if [ -z $DCPROCHASH ]; then
+		docker-compose up -d
+
+		DCFOLDER=${PWD##*/}
+		MACHINE=$DCFOLDER"_web"
+		DCPROC=$(docker ps | grep $MACHINE)
+		DCPROCHASH=${DCPROC:0:12}
+	fi
+
   # login
-  docker exec -t -i $DCPROCHASH /bin/bash
+  docker exec -t -i $DCPROCHASH /bin/bash -c "export TERM=xterm-color; exec bash"
 else
   LINKNAME="/home/$WHOAMI/.doil/$INSTANCE"
   if [ -h "${LINKNAME}" ]

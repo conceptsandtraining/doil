@@ -23,6 +23,12 @@ then
   exit 0
 fi
 
+# check if the name has not wanted
+if [[ $projectname == *['!'@#\$%^\&*()_+]* ]]; then
+	echo "You are using an invalid charackter! Only letters and numbers are allowed! Aborting."
+	exit 0
+fi
+
 # check if the instance if it exists
 LINKPATH="/home/$WHOAMI/.doil/$projectname"
 if [ -h "${LINKPATH}" ]
@@ -134,6 +140,12 @@ SUB_NET_NAME=${SUB_NET_NAME//-}
 
 LINES=$(ls -l "/home/$WHOAMI/.doil/" | wc -l)
 LINES=$(($LINES + 4))
+
+COUNTERFILE="/home/$WHOAMI/.doil/config/subnetcounter"
+LINES=$(<$COUNTERFILE)
+LINES=$(($LINES + 1))
+echo $LINES > $COUNTERFILE
+
 SUB_NET_BASE="172.$LINES.0"
 
 # add project to hosts
