@@ -25,7 +25,7 @@ fi
 
 # check if the name has not wanted
 if [[ $projectname == *['!'@#\$%^\&*()_+]* ]]; then
-	echo "You are using an invalid charackter! Only letters and numbers are allowed! Aborting."
+	echo "You are using an invalid character! Only letters and numbers are allowed! Aborting."
 	exit 0
 fi
 
