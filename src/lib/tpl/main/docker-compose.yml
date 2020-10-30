@@ -1,0 +1,38 @@
+version: "3.5"
+services:
+  saltmain:
+    build:
+      context: .
+      dockerfile: DockerfileMain
+    image: debian:stable
+    container_name: saltmain
+    volumes:
+      - ./salt/states:/srv/salt/states
+      - ./salt/config/master:/etc/salt/master
+      - ./conf/supervisor/salt-main.conf:/etc/supervisor/conf.d/salt-main.conf
+    networks:
+      saltnet:
+        ipv4_address: 172.100.0.10
+  saltsec:
+    build:
+      context: .
+      dockerfile: DockerfileMinion
+    image: debian:stable
+    container_name: saltsec
+    volumes:
+      - ./salt/config/minion:/etc/salt/minion
+      - ./ilias:/var/www/html
+      - ./data/ilias:/var/ilias/data
+      - ./data/logs:/var/ilias/logs
+      - ./conf/supervisor/salt-minion.conf:/etc/supervisor/conf.d/salt-minion.conf
+    networks:
+      saltnet:
+        ipv4_address: 172.100.0.20
+networks:
+  saltnet:
+    ipam:
+      driver: default
+      config:
+        - subnet: 172.100.0.0/16
+volumes:
+    persistent:
