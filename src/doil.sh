@@ -6,12 +6,12 @@ CMD=$1
 # if we don't have any command we load the help
 if [ -z "$CMD" ] || [ "$CMD" == "help" ]
 then
-  .lib/help.sh
+  /usr/lib/doil/help.sh
 	exit
 fi
 
 # Check if the script can be found bail if not
-if [ ! -f ".lib/$CMD.sh" ]
+if [ ! -f "/usr/lib/doil/$CMD.sh" ]
 then
   echo -e "\033[1mERROR:\033[0m"
   echo -e "\tCan't find a suitable command."
@@ -22,48 +22,48 @@ fi
 # create
 if [ "$CMD" == "create" ]
 then
-  .lib/create.sh
+  /usr/lib/doil/create.sh
 	exit
 fi
 
 # up
 if [ "$CMD" == "up" ]
 then
-  .lib/up.sh $2
+  /usr/lib/doil/up.sh $2
 	exit
 fi
 
 # down
 if [ "$CMD" == "down" ]
 then
-  .lib/down.sh $2
+  /usr/lib/doil/down.sh $2
 	exit
 fi
 
 # login
 if [ "$CMD" == "login" ]
 then
-  .lib/login.sh $2
+  /usr/lib/doil/login.sh $2
 	exit
 fi
 
 # stop-all
 if [ "$CMD" == "stop-all" ]
 then
-  .lib/stop-all.sh
+  /usr/lib/doil/stop-all.sh
 	exit
 fi
 
 # instances
 if [ "$CMD" == "instances" ]
 then
-  .lib/instances.sh
+  /usr/lib/doil/instances.sh
   exit
 fi
 
 # cd
 if [ "$CMD" == "cd" ]
 then
-  .lib/cd.sh $2
+  /usr/lib/doil/cd.sh $2
   exit
 fi

@@ -1,8 +1,8 @@
 FROM debian:stable
 
 RUN apt-get update
-RUN apt-get install -y vim supervisor salt-minion
+RUN apt-get install -y supervisor salt-minion
 
-COPY conf/run-supervisor.sh /var/www
-RUN chmod +x /var/www/run-supervisor.sh
-CMD ["/var/www/run-supervisor.sh"]
+COPY conf/run-supervisor.sh /usr/local/bin/
+RUN chmod +x /usr/local/bin/run-supervisor.sh
+CMD ["/usr/local/bin/run-supervisor.sh"]
