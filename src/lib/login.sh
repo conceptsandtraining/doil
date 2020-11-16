@@ -20,18 +20,14 @@ then
 
   # get the proc
   DCFOLDER=${PWD##*/}
-  MACHINE=$DCFOLDER"_web"
-  DCPROC=$(docker ps | grep $MACHINE)
-  DCPROCHASH=${DCPROC:0:12}
+  DCPROCHASH=$(doil_get_hash $DCFOLDER)
 
 	# check if instance is running, if not, start it
 	if [ -z $DCPROCHASH ]; then
 		docker-compose up -d
 
 		DCFOLDER=${PWD##*/}
-		MACHINE=$DCFOLDER"_web"
-		DCPROC=$(docker ps | grep $MACHINE)
-		DCPROCHASH=${DCPROC:0:12}
+    DCPROCHASH=$(doil_get_hash $DCFOLDER)
 	fi
 
   # login

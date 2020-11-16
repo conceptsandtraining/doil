@@ -24,3 +24,8 @@ then
   mkdir "$HOME/.doil"
   chown -R $SUDO_USER:$SODU_USER "$HOME/.doil"
 fi
+
+#sudo -i -u $SUDO_USER bash << EOF
+#git clone git@github.com:conceptsandtraining/TMS6.git /usr/lib/doil/tpl/repo/tms
+#git clone git@github.com:ILIAS-eLearning/ILIAS.git /usr/lib/doil/tpl/repo/ilias
+#EOF

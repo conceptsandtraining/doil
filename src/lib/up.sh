@@ -1,5 +1,7 @@
 #!/bin/bash
 
+source /usr/lib/doil/helper.sh
+
 # set the instance to work with
 WHOAMI=$(whoami)
 INSTANCE=$1
@@ -21,25 +23,18 @@ then
   NOW=$(date +'%d.%m.%Y %I:%M:%S')
   echo "[$NOW] Starting instance"
 
-  # Prepare git to ignore the file modes because these will change
-  find ./volumes/ilias -type d -name .git -print | sed 's/.git//' | xargs -I% sh -c "cd %;git config core.fileMode false"
-
   # Start the container
   docker-compose up -d
 
-  # get the docker process
+  # remove the current ip from the host file and add the new one
   DCFOLDER=${PWD##*/}
-  MACHINE=$DCFOLDER"_web"
-  DCPROC=$(docker ps | grep $MACHINE)
-  DCPROCHASH=${DCPROC:0:12}
+  DCHASH=$(doil_get_hash $DCFOLDER)
+  DCIP=$(doil_get_data $DCHASH "ip")
+  DCHOSTNAME=$(doil_get_data $DCHASH "hostname")
+  DCDOMAIN=$(doil_get_data $DCHASH "domainname")
 
-  # make the files write and readable
-  docker exec $DCPROCHASH bash -c 'chown -R www-data:www-data /var/www/'
-  docker exec $DCPROCHASH bash -c 'chown -R www-data:www-data /var/ilias/'
-
-  # naaaaaaarf :/
-  docker exec $DCPROCHASH bash -c 'chmod -R 777 /var/www/'
-  docker exec $DCPROCHASH bash -c 'chmod -R 777 /var/ilias/'
+  sudo sed -i "/${DCHOSTNAME}.${DCDOMAIN}$/d" /etc/hosts
+  sudo /bin/bash -c "echo \"$DCIP $DCHOSTNAME.$DCDOMAIN\" >> /etc/hosts"
 
   NOW=$(date +'%d.%m.%Y %I:%M:%S')
   echo "[$NOW] Instance started"

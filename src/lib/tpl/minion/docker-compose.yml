@@ -4,14 +4,18 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    image: debian:stable
+    image: %TPL_PROJECT_NAME%_image:stable
     container_name: %TPL_PROJECT_NAME%
+    hostname: %TPL_PROJECT_NAME%
+    domainname: loc.dev
     volumes:
+      - ./volumes/ilias:/var/www/html
+      - ./volumes/data:/var/ilias/data
+      - ./volumes/logs:/var/ilias/logs
       - /usr/lib/doil/tpl/stack/config/minion:/etc/salt/minion
       - /usr/lib/doil/tpl/minion/salt-minion.conf:/etc/supervisor/conf.d/salt-minion.conf
     networks:
-      main_saltnet:
-        ipv4_address: %TPL_SUB_NET_BASE%
+      - main_saltnet
 networks:
   main_saltnet:
     external: true

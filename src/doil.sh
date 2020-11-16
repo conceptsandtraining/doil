@@ -3,6 +3,9 @@
 # set the command to work with
 CMD=$1
 
+# get the helper
+source /usr/lib/doil/helper.sh
+
 # if we don't have any command we load the help
 if [ -z "$CMD" ] || [ "$CMD" == "help" ]
 then

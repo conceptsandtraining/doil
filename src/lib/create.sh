@@ -1,5 +1,7 @@
 #!/bin/bash
 
+source /usr/lib/doil/helper.sh
+
 # Get the settings
 CWD=$(pwd)
 WHOAMI=$(whoami)
@@ -37,6 +39,13 @@ then
   exit 0
 fi
 
+# get the branch
+read -p "Set the branch to checkout [Default: release_6]: " project_branch
+if [ -z $project_branch ]
+then
+  project_branch="release_6"
+fi
+
 # we got all the information now we start to build the structure
 # first we create the needed folders
 NOW=$(date +'%d.%m.%Y %I:%M:%S')
@@ -61,23 +70,41 @@ cp "/usr/lib/doil/tpl/minion/run-supervisor.sh" "$FOLDERPATH/conf/run-supervisor
 cp "/usr/lib/doil/tpl/minion/docker-compose.yml" "$FOLDERPATH/docker-compose.yml"
 cp "/usr/lib/doil/tpl/minion/Dockerfile" "$FOLDERPATH/Dockerfile"
 
-# set the network for the server
-NOW=$(date +'%d.%m.%Y %I:%M:%S')
-echo "[$NOW] Setting up network."
+# copy ilias
+cd /usr/lib/doil/tpl/repo/ilias
+git fetch origin
+git checkout $project_branch
+git pull origin $project_branch
+cp -r "/usr/lib/doil/tpl/repo/ilias" "$FOLDERPATH/volumes/ilias"
 
-LINES=$(ls -l "/home/$WHOAMI/.doil/" | wc -l)
-LINES=$(($LINES + 2))
-
-SUB_NET_BASE="172.100.0.$LINES"
-echo "### $projectname start" | sudo tee -a /etc/hosts > /dev/null
-echo "$SUB_NET_BASE $projectname.local" | sudo tee -a /etc/hosts > /dev/null
-echo "### $projectname end" | sudo tee -a /etc/hosts > /dev/null
-
-# replace the templates vars for port and phpversion
+# replace the templates vars
 NOW=$(date +'%d.%m.%Y %I:%M:%S')
 echo "[$NOW] Replacing temporary variables"
 find "$FOLDERPATH" \( -type d -name .git -prune \) -o -type f -print0 | xargs -0 sed -i "s/%TPL_PROJECT_NAME%/$projectname/g"
-find "$FOLDERPATH" \( -type d -name .git -prune \) -o -type f -print0 | xargs -0 sed -i "s/%TPL_SUB_NET_BASE%/$SUB_NET_BASE/g"
+
+# start the main salt server
+cd /usr/lib/doil/tpl/main
+docker-compose up -d
+
+# start the minion
+cd $FOLDERPATH
+docker-compose up -d
+
+# apply the states to the minion
+DCPROC=$(docker ps | grep "saltmain")
+DCPROCHASH=${DCPROC:0:12}
+docker exec -t -i $DCPROCHASH /bin/bash -c "salt '*' state.apply --state-output=terse"
+
+# go to the minion and save the machine
+DCFOLDER=${PWD##*/}
+DCHASH=$(doil_get_hash $DCFOLDER)
+docker commit $DCHASH doil/$projectname:stable
+
+# add ip to hosts
+DCIP=$(doil_get_data $DCHASH "ip")
+DCHOSTNAME=$(doil_get_data $DCHASH "hostname")
+DCDOMAIN=$(doil_get_data $DCHASH "domainname")
+sudo /bin/bash -c "echo \"$DCIP $DCHOSTNAME.$DCDOMAIN\" >> /etc/hosts"
 
 # Goodbye txt
 NOW=$(date +'%d.%m.%Y %I:%M:%S')
