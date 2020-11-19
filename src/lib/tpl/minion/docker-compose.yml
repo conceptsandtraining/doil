@@ -7,7 +7,7 @@ services:
     image: %TPL_PROJECT_NAME%_image:stable
     container_name: %TPL_PROJECT_NAME%
     hostname: %TPL_PROJECT_NAME%
-    domainname: loc.dev
+    domainname: local
     volumes:
       - ./volumes/ilias:/var/www/html
       - ./volumes/data:/var/ilias/data

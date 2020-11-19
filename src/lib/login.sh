@@ -1,5 +1,7 @@
 #!/bin/bash
 
+source /usr/lib/doil/helper.sh
+
 # set the instance to work with
 WHOAMI=$(whoami)
 INSTANCE=$1
