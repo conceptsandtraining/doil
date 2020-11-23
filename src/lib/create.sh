@@ -33,7 +33,7 @@ while [ ${is_projectname} == FALSE ]; do
   exec 3>&1
   projectname=$(dialog \
     --backtitle "doil - create" \
-    --title "doil - create - (1/4)" \
+    --title "doil - create - (1/5)" \
     --clear \
     --cancel-label "Exit" \
     --inputbox "Set up a name for your project" ${HEIGHT} ${WIDTH} "" \
@@ -75,7 +75,7 @@ done
 # get the project type
 # this also will setup the available branches and the type of the saltstack to use
 is_projecttype=FALSE
-declare -a projecttypes
+declare -A projecttypes
 i=1
 while read line
 do
@@ -91,7 +91,7 @@ while [ ${is_projecttype} == FALSE ]; do
   exec 3>&1
   projecttype=$(dialog \
     --backtitle "doil - create" \
-    --title "doil - create - (2/4)" \
+    --title "doil - create - (2/5)" \
     --clear \
     --cancel-label "Exit" \
     --menu "Set the type for your project" ${HEIGHT} ${WIDTH} "" \
@@ -120,6 +120,21 @@ echo "Fetching data ... stand by."
 is_projectbranch=FALSE
 declare -a projectbranches
 i=1
+if [ ! -d "/usr/lib/doil/tpl/repo/${projecttype}" ]
+then
+
+  while read line
+  do
+    gprojecttypename="$(cut -d'=' -f1 <<<${line})"
+    gprojecttyperepo="$(cut -d'=' -f2 <<<${line})"
+
+    if [ $gprojecttypename = $projecttype ]
+    then
+      break
+    fi
+  done < "/home/${WHOAMI}/.doil/config/repos"
+  git clone ${gprojecttyperepo} "/usr/lib/doil/tpl/repo/${projecttype}"
+fi
 cd "/usr/lib/doil/tpl/repo/${projecttype}"
 git fetch origin -q
 
@@ -139,7 +154,7 @@ while [ ${is_projectbranch} == FALSE ]; do
   exec 3>&1
   projectbranch=$(dialog \
     --backtitle "doil - create" \
-    --title "doil - create - (3/4)" \
+    --title "doil - create - (3/5)" \
     --clear \
     --cancel-label "Exit" \
     --menu "Set the branch for your project" ${HEIGHT} ${WIDTH} "" \
@@ -163,10 +178,82 @@ while [ ${is_projectbranch} == FALSE ]; do
   clear
 done
 
+# get the php version
+is_projectphpversion=FALSE
+while [ ${is_projectphpversion} == FALSE ]; do
+  exec 3>&1
+  projectphpversion=$(dialog \
+    --backtitle "doil - create" \
+    --title "doil - create - (4/5)" \
+    --clear \
+    --cancel-label "Exit" \
+    --menu "Set the branch for your project" ${HEIGHT} ${WIDTH} "" \
+      "7.0" "PHP Version 7.0" \
+      "7.1" "PHP Version 7.1" \
+      "7.2" "PHP Version 7.2" \
+      "7.3" "PHP Version 7.3" \
+      "7.4" "PHP Version 7.4" \
+      3>&1 1>&2 2>&3)
+  exit_status=$?
+  exec 3>&-
+  case ${exit_status} in
+    ${DIALOG_CANCEL})
+      clear
+      echo "Program terminated."
+      exit
+    ;;
+    ${DIALOG_ESC})
+      clear
+      echo "Program aborted." >&2
+      exit 1
+    ;;
+  esac
+  is_projectphpversion=TRUE
+  clear
+done
+
+# ask for state if we can't determine it automatically
+if [[ ${projecttype} != "cate" ]] && [[ ${projectbranch} != "release_5-4" ]] && [[ ${projectbranch} != "release_6" ]] && [[ ${projectbranch} != "release_7" ]]
+then
+  is_projectstate=FALSE
+  while [ ${is_projectstate} == FALSE ]; do
+    exec 3>&1
+    projectstate=$(dialog \
+      --backtitle "doil - create" \
+      --title "doil - create - (4.5/5)" \
+      --clear \
+      --cancel-label "Exit" \
+      --menu "doil can't determine the corrent ILIAS version. Could you please specify it by chosing the corrent base version of ILIAS?" ${HEIGHT} ${WIDTH} "" \
+        "ilias54" "ILIAS Version 5.4" \
+        "ilias6" "ILIAS Version 6.x" \
+        "ilias7" "ILIAS Version 7.x" \
+        "cate" "cate" \
+        3>&1 1>&2 2>&3)
+    exit_status=$?
+    exec 3>&-
+    case ${exit_status} in
+      ${DIALOG_CANCEL})
+        clear
+        echo "Program terminated."
+        exit
+      ;;
+      ${DIALOG_ESC})
+        clear
+        echo "Program aborted." >&2
+        exit 1
+      ;;
+    esac
+    is_projectstate=TRUE
+    clear
+  done
+fi
+
+exit
+
 # ask for autoinstaller
 dialog \
   --backtitle "doil - create" \
-  --title "doil - create - (4/4)" \
+  --title "doil - create - (5/5)" \
   --clear \
   --yesno "Sometimes it is possible to install ILIAS automatically. Do you want to try it?" ${HEIGHT} ${WIDTH}
 projectautoinstall=$?
@@ -178,6 +265,9 @@ else
   projectautoinstall="no"
 fi
 
+# set the most important var
+FOLDERPATH="${CWD}/${projectname}"
+
 # start the process
 DIALOG=dialog
 (
@@ -186,12 +276,12 @@ DIALOG=dialog
   (
     # log file
     readonly LOG_FILE="/var/log/doil.log"
-    exec 1>${LOG_FILE}
+    exec 1>>${LOG_FILE}
     exec 2>&1
     NOW=$(date +'%d.%m.%Y %I:%M:%S')
+    echo "[${NOW}] Start creating project ${projectname}"
     echo "[${NOW}] Create basic folders"
   
-    FOLDERPATH="$CWD/${projectname}"
     mkdir -p "${FOLDERPATH}/conf"
     mkdir -p "${FOLDERPATH}/volumes/db"
     mkdir -p "${FOLDERPATH}/volumes/index"
@@ -210,7 +300,7 @@ DIALOG=dialog
   (
     # log file
     readonly LOG_FILE="/var/log/doil.log"
-    exec 1>${LOG_FILE}
+    exec 1>>${LOG_FILE}
     exec 2>&1
     NOW=$(date +'%d.%m.%Y %I:%M:%S')
     echo "[${NOW}] Copying necessary files"
@@ -222,9 +312,10 @@ DIALOG=dialog
 
     # copy ilias
     cd "/usr/lib/doil/tpl/repo/${projecttype}"
+    git config core.fileMode false
     git fetch origin
     git checkout ${projectbranch}
-    git pull origin ${$projectbranch}
+    git pull origin ${projectbranch}
     cp -r "/usr/lib/doil/tpl/repo/${projecttype}" "${FOLDERPATH}/volumes/ilias"
   )
 
@@ -235,7 +326,7 @@ DIALOG=dialog
   (
     # log file
     readonly LOG_FILE="/var/log/doil.log"
-    exec 1>${LOG_FILE}
+    exec 1>>${LOG_FILE}
     exec 2>&1
     NOW=$(date +'%d.%m.%Y %I:%M:%S')
     echo "[${NOW}] Replacing template vars"
@@ -251,7 +342,7 @@ DIALOG=dialog
   (
     # log file
     readonly LOG_FILE="/var/log/doil.log"
-    exec 1>${LOG_FILE}
+    exec 1>>${LOG_FILE}
     exec 2>&1
     NOW=$(date +'%d.%m.%Y %I:%M:%S')
     echo "[${NOW}] Starting master salt service"
@@ -259,6 +350,7 @@ DIALOG=dialog
     # start service
     cd /usr/lib/doil/tpl/main
     docker-compose up -d
+    sleep 5
   )
 
   ##############################
@@ -268,20 +360,27 @@ DIALOG=dialog
   (
     # log file
     readonly LOG_FILE="/var/log/doil.log"
-    exec 1>${LOG_FILE}
+    exec 1>>${LOG_FILE}
     exec 2>&1
     NOW=$(date +'%d.%m.%Y %I:%M:%S')
     echo "[${NOW}] Checking master salt service"
 
     # check if the salt-master service is running the service
-    DCMAINPROC=$(docker ps | grep "saltmain")
-    DCMAINPROCHASH=${DCMAINPROC:0:12}
+    DCMAIN=$(docker ps | grep "saltmain")
+    DCMAINHASH=${DCMAIN:0:12}
 
-    DCMAINSALTSERVICE=$(docker exec -ti ${DCMAINPROCHASH} bash -c "ps -aux | grep salt-master" | grep "/usr/bin/salt-master -d")
+    DCMAINSALTSERVICE=$(docker exec -ti ${DCMAINHASH} bash -c "ps -aux | grep salt-master" | grep "/usr/bin/salt-master -d")
     if [[ -z ${DCMAINSALTSERVICE} ]]
     then
-      $(docker exec -ti ${DCMAINPROCHASH} bash -c "salt-master -d")
+      $(docker exec -ti ${DCMAINHASH} bash -c "salt-master -d")
     fi
+
+    until [[ ! -z ${DCMAINSALTSERVICE} ]]
+    do
+      echo "Master service not ready ..."
+      sleep 0.1
+    done
+    echo "Master service ready."
   )
 
   #######################
@@ -291,14 +390,14 @@ DIALOG=dialog
   (
     # log file
     readonly LOG_FILE="/var/log/doil.log"
-    exec 1>${LOG_FILE}
+    exec 1>>${LOG_FILE}
     exec 2>&1
     NOW=$(date +'%d.%m.%Y %I:%M:%S')
     echo "[${NOW}] Building minion image"
 
     # build the image
     cd ${FOLDERPATH}
-    docker-compose build
+    docker-compose up --force-recreate --no-start --renew-anon-volumes
   )
 
   ##############################
@@ -308,7 +407,7 @@ DIALOG=dialog
   (
     # log file
     readonly LOG_FILE="/var/log/doil.log"
-    exec 1>${LOG_FILE}
+    exec 1>>${LOG_FILE}
     exec 2>&1
     NOW=$(date +'%d.%m.%Y %I:%M:%S')
     echo "[${NOW}] Starting salt minion service"
@@ -316,6 +415,7 @@ DIALOG=dialog
     # start the docker service
     cd ${FOLDERPATH}
     docker-compose up -d
+    sleep 5
   )
 
   ##############################
@@ -325,31 +425,36 @@ DIALOG=dialog
   (
     # log file
     readonly LOG_FILE="/var/log/doil.log"
-    exec 1>${LOG_FILE}
+    exec 1>>${LOG_FILE}
     exec 2>&1
     NOW=$(date +'%d.%m.%Y %I:%M:%S')
     echo "[${NOW}] Checking minion service"
 
     # check if the service is running
+    cd ${FOLDERPATH}
     DCMINIONFOLDER=${PWD##*/}
     DCMINIONHASH=$(doil_get_hash ${DCMINIONFOLDER})
+    DCMINIONSALTSERVICE=$(docker container top ${DCMINIONHASH} | grep "salt-minion")
 
-    DCMINIONSALTSERVICE=$(docker exec -ti ${DCMINIONPROCHASH} bash -c "ps -aux | grep salt-minion" | grep "/usr/bin/salt-minion -d")
-    if [[ -z ${DCMINIONSALTSERVICE} ]]
+    # wait until the service is there
+    if [[ ! -z ${DCMINIONSALTSERVICE} ]]
     then
-      $(docker exec -ti ${DCMINIONPROCHASH} bash -c "salt-minion -d")
+      echo "Minion service not ready ... starting"
+      docker exec -ti ${DCMINIONHASH} bash -c "salt-minion -d"
+      sleep 5
     fi
 
     # check if the new key is registered
-    DCMAINPROC=$(docker ps | grep "saltmain")
-    DCMAINPROCHASH=${DCMAINPROC:0:12}
-    SALTKEYS=$(docker exec -t -i ${DCMAINPROCHASH} /bin/bash -c "salt-key -L" | grep "${projectname}.local")
-    if [ -z ${SALTKEYS} ]
-    then
-      echo "Something went wrong registering the minion to the main server. So we do it again ..."
-      docker exec -t -i ${DCMINIONHASH} /bin/bash -c "killall -9 salt-minion"
-      docker exec -t -i ${DCMINIONHASH} /bin/bash -c "salt-minion -d"
-    fi
+    DCMAIN=$(docker ps | grep "saltmain")
+    DCMAINHASH=${DCMAIN:0:12}
+    SALTKEYS=$(docker exec -t -i ${DCMAINHASH} /bin/bash -c "salt-key -L" | grep "${projectname}.local")
+
+    until [ ! -z ${SALTKEYS} ]
+    do
+      echo "Key not ready ..."
+      sleep 0.2
+    done
+    echo "Key ready."
   )
 
   ##################
@@ -359,15 +464,15 @@ DIALOG=dialog
   (
     # log file
     readonly LOG_FILE="/var/log/doil.log"
-    exec 1>${LOG_FILE}
+    exec 1>>${LOG_FILE}
     exec 2>&1
-    NOW=$(date +'%d.%m.%Y %I:%M:%S')
+    now=$(DATE +'%D.%M.%Y %I:%M:%S')
     echo "[${NOW}] Apply base state"
 
     # apply base state
-    DCMAINPROC=$(docker ps | grep "saltmain")
-    DCMAINPROCHASH=${DCMAINPROC:0:12}
-    docker exec -t -i ${DCMAINPROCHASH} /bin/bash -c "salt '${projectname}.local' state.highstate saltenv=base --state-output=terse"
+    DCMAIN=$(docker ps | grep "saltmain")
+    DCMAINHASH=${DCMAIN:0:12}
+    #docker exec -t -i ${DCMAINHASH} /bin/bash -c "salt '${projectname}.local' state.highstate saltenv=base --state-output=terse"
   )
 
   #################
@@ -377,21 +482,108 @@ DIALOG=dialog
   (
     # log file
     readonly LOG_FILE="/var/log/doil.log"
-    exec 1>${LOG_FILE}
+    exec 1>>${LOG_FILE}
     exec 2>&1
     NOW=$(date +'%d.%m.%Y %I:%M:%S')
     echo "[${NOW}] Apply dev state"
 
     # apply base state
-    DCMAINPROC=$(docker ps | grep "saltmain")
-    DCMAINPROCHASH=${DCMAINPROC:0:12}
-    docker exec -t -i ${DCMAINPROCHASH} /bin/bash -c "salt '${projectname}.local' state.highstate saltenv=dev --state-output=terse"
+    DCMAIN=$(docker ps | grep "saltmain")
+    DCMAINHASH=${DCMAIN:0:12}
+    #docker exec -t -i ${DCMAINHASH} /bin/bash -c "salt '${projectname}.local' state.highstate saltenv=dev --state-output=terse"
+  )
+
+  #################
+  # apply php state
+  echo "XXX"; echo "Apply php state"; echo "XXX"
+  echo "65"
+  (
+    # log file
+    readonly LOG_FILE="/var/log/doil.log"
+    exec 1>>${LOG_FILE}
+    exec 2>&1
+    NOW=$(date +'%d.%m.%Y %I:%M:%S')
+    echo "[${NOW}] Apply dev state"
+
+    # apply base state
+    DCMAIN=$(docker ps | grep "saltmain")
+    DCMAINHASH=${DCMAIN:0:12}
+
+    docker exec -t -i ${DCMAINHASH} /bin/bash -c "salt '${projectname}.local' state.highstate saltenv=php${projectphpversion} --state-output=terse"
   )
 
   ###################
   # apply ilias state
+  echo "XXX"; echo "Apply ilias state"; echo "XXX"
+  echo "70"
+  (
+    # log file
+    readonly LOG_FILE="/var/log/doil.log"
+    exec 1>>${LOG_FILE}
+    exec 2>&1
+    NOW=$(date +'%d.%m.%Y %I:%M:%S')
+    echo "[${NOW}] Apply ilias state"
 
+    # apply base state
+    DCMAIN=$(docker ps | grep "saltmain")
+    DCMAINHASH=${DCMAIN:0:12}
 
+    if [[ -z ${projectstate} ]]
+    then
+      if [[ ${projecttype} == "cate" ]]
+      then
+        projectstate="cate"
+      elif [[ ${projectbranch} == "release_5-4" ]]
+      then
+        projectstate="ilias54"
+      elif [[ ${projectbranch} == "release_6" ]]
+      then
+        projectstate="ilias6"
+      elif [[ ${projectbranch} == "release_7" ]]
+      then
+        projectstate="ilias7"
+      fi
+    fi
+
+    docker exec -t -i ${DCMAINHASH} /bin/bash -c "salt '${projectname}.local' state.highstate saltenv=${projectstate} --state-output=terse"
+  )
+
+  ###############################
+  # apply autoinstaller if needed
+  if [[ ${projectautoinstall} == "yes" ]]
+  then
+    echo "XXX"; echo "Trying auto installation"; echo "XXX"
+    echo "80"
+    (
+      # log file
+      readonly LOG_FILE="/var/log/doil.log"
+      exec 1>>${LOG_FILE}
+      exec 2>&1
+      NOW=$(date +'%d.%m.%Y %I:%M:%S')
+      echo "[${NOW}] Trying auto installation"
+
+      # apply base state
+      DCMAIN=$(docker ps | grep "saltmain")
+      DCMAINHASH=${DCMAIN:0:12}
+
+      projectaiinstallstate=FALSE
+      if [[ ${projecttype} == "cate" ]]
+      then
+        projectaiinstallstate="cate_ai"
+      elif [[ ${projectbranch} == "release_6" ]]
+      then
+        projectaiinstallstate="ilias6_ai"
+      elif [[ ${projectbranch} == "release_7" ]]
+      then
+        projectaiinstallstate="ilias7_ai"
+      fi
+
+      if [ ${projectaiinstallstate} != FALSE ]
+      then
+        docker exec -t -i ${DCMAINHASH} /bin/bash -c "salt '${projectname}.local' state.highstate saltenv=${projectaiinstallstate} --state-output=terse"
+      fi
+    )
+  fi
 
   #########################
   # finalizing docker image
@@ -400,15 +592,19 @@ DIALOG=dialog
   (
     # log file
     readonly LOG_FILE="/var/log/doil.log"
-    exec 1>${LOG_FILE}
+    exec 1>>${LOG_FILE}
     exec 2>&1
     NOW=$(date +'%d.%m.%Y %I:%M:%S')
     echo "[${NOW}] Finalizing docker image"
 
     # go to the minion and save the machine
+    cd ${FOLDERPATH}
     DCFOLDER=${PWD##*/}
     DCHASH=$(doil_get_hash ${DCFOLDER})
     docker commit ${DCHASH} doil/${projectname}:stable
+
+    # stop the server
+    doil down
   )
 
   #################
@@ -418,7 +614,7 @@ DIALOG=dialog
   (
     # log file
     readonly LOG_FILE="/var/log/doil.log"
-    exec 1>${LOG_FILE}
+    exec 1>>${LOG_FILE}
     exec 2>&1
     NOW=$(date +'%d.%m.%Y %I:%M:%S')
     echo "[${NOW}] Everything done"

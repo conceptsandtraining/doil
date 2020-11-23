@@ -1,6 +1,6 @@
 .\" Manpage for doil.
 .\" Contact laura.herzog@concepts-and-training.de to correct errors or typos.
-.TH doil 1 "05 March 2020" "Version 0.5" "doil manual"
+.TH doil 1 "05 March 2020" "Version 0.6" "doil manual"
 
 .SH NAME
 doil \- Docker and ILIAS
@@ -23,7 +23,7 @@ shows this manual
 
 .TP
 \fBcreate\fR
-Starts a setup script to create an instance of ILIAS or TMS depending on
+Starts a setup script to create an instance of ILIAS or cate depending on
 settings you will be promted within the installation process. The instance will
 be create as a new folder inside of the current active directory.
 
@@ -57,23 +57,6 @@ lists all instances which are created with doil
 \fBcd INSTANCE\fR
 moves the active directory to the given \fBINSTANCE\fR. Bails if the
 \fBINSTANCE\fR could not be located
-
-.TP
-\fBfix-permissions\fR
-fixes some permission issues related to docker. Usually only used once.
-
-.TP
-\fBupdate-image [INSTANCE]\fR
-updates the local docker images according to the dockerfile depending on the
-location of the user if \fBINSTANCE\fR is not given. If \fBINSTANCE\fR is given
-doil will search for the instance and updates the images. Bails if no instance
-is found.
-
-.TP
-\fBupdate-repo [REPO]\fR
-updates the local ILIAS and TMS repositories. If no \fBREPO\fR then all
-repositories will be updated. The possible options for \fBREPO\fR are \fBilias\fR,
-\fBtms\fR and \fBcatilias\fR
 
 .SH AUTHOR
 Laura Herzog (laura.herzog@concepts-and-training.de)
