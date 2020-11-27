@@ -29,6 +29,13 @@ then
 	exit
 fi
 
+# delete
+if [ "$CMD" == "delete" ]
+then
+  /usr/lib/doil/delete.sh $2
+	exit
+fi
+
 # up
 if [ "$CMD" == "up" ]
 then
@@ -47,13 +54,6 @@ fi
 if [ "$CMD" == "login" ]
 then
   /usr/lib/doil/login.sh $2
-	exit
-fi
-
-# stop-all
-if [ "$CMD" == "stop-all" ]
-then
-  /usr/lib/doil/stop-all.sh
 	exit
 fi
 

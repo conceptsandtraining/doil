@@ -248,8 +248,6 @@ then
   done
 fi
 
-exit
-
 # ask for autoinstaller
 dialog \
   --backtitle "doil - create" \
@@ -373,6 +371,7 @@ DIALOG=dialog
     if [[ -z ${DCMAINSALTSERVICE} ]]
     then
       $(docker exec -ti ${DCMAINHASH} bash -c "salt-master -d")
+      sleep 5
     fi
 
     until [[ ! -z ${DCMAINSALTSERVICE} ]]
@@ -449,11 +448,13 @@ DIALOG=dialog
     DCMAINHASH=${DCMAIN:0:12}
     SALTKEYS=$(docker exec -t -i ${DCMAINHASH} /bin/bash -c "salt-key -L" | grep "${projectname}.local")
 
-    until [ ! -z ${SALTKEYS} ]
-    do
-      echo "Key not ready ..."
-      sleep 0.2
-    done
+    if [ ! -z ${SALTKEYS} ]
+    then
+      docker exec -ti ${DCMAINHASH} bash -c "killall -9 salt-master"
+      sleep 5
+      docker exec -ti ${DCMAINHASH} bash -c "salt-master -d"
+      sleep 7
+    fi
     echo "Key ready."
   )
 
@@ -466,13 +467,13 @@ DIALOG=dialog
     readonly LOG_FILE="/var/log/doil.log"
     exec 1>>${LOG_FILE}
     exec 2>&1
-    now=$(DATE +'%D.%M.%Y %I:%M:%S')
+    now=$(date +'%D.%M.%Y %I:%M:%S')
     echo "[${NOW}] Apply base state"
 
     # apply base state
     DCMAIN=$(docker ps | grep "saltmain")
     DCMAINHASH=${DCMAIN:0:12}
-    #docker exec -t -i ${DCMAINHASH} /bin/bash -c "salt '${projectname}.local' state.highstate saltenv=base --state-output=terse"
+    docker exec -t -i ${DCMAINHASH} /bin/bash -c "salt '${projectname}.local' state.highstate saltenv=base --state-output=terse"
   )
 
   #################
@@ -490,7 +491,7 @@ DIALOG=dialog
     # apply base state
     DCMAIN=$(docker ps | grep "saltmain")
     DCMAINHASH=${DCMAIN:0:12}
-    #docker exec -t -i ${DCMAINHASH} /bin/bash -c "salt '${projectname}.local' state.highstate saltenv=dev --state-output=terse"
+    docker exec -t -i ${DCMAINHASH} /bin/bash -c "salt '${projectname}.local' state.highstate saltenv=dev --state-output=terse"
   )
 
   #################
@@ -503,7 +504,7 @@ DIALOG=dialog
     exec 1>>${LOG_FILE}
     exec 2>&1
     NOW=$(date +'%d.%m.%Y %I:%M:%S')
-    echo "[${NOW}] Apply dev state"
+    echo "[${NOW}] Apply php state"
 
     # apply base state
     DCMAIN=$(docker ps | grep "saltmain")

@@ -4,16 +4,25 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    image: %TPL_PROJECT_NAME%_image:stable
+    image: doil/%TPL_PROJECT_NAME%:stable
     container_name: %TPL_PROJECT_NAME%
     hostname: %TPL_PROJECT_NAME%
     domainname: local
     volumes:
       - ./volumes/ilias:/var/www/html
       - ./volumes/data:/var/ilias/data
+      - ./volumes/db/:/var/lib/mysql
+      - ./volumes/index:/var/ilias/index
       - ./volumes/logs:/var/ilias/logs
+      - ./volumes/logs/error/:/var/ilias/logs/error
+      - ./volumes/logs/apache:/var/log/apache2
       - /usr/lib/doil/tpl/stack/config/minion:/etc/salt/minion
       - /usr/lib/doil/tpl/minion/salt-minion.conf:/etc/supervisor/conf.d/salt-minion.conf
+    environment:
+      - ILIAS_INI_PATH=/var/www/html/ilias.ini.php
+      - TZ=Europe/Berlin
+      - JAVA_SERVER_PATH=/var/www/html/Services/WebServices/RPC/lib
+      - JAVA_SERVER_START
     networks:
       - main_saltnet
 networks:
