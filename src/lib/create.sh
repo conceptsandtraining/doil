@@ -75,7 +75,7 @@ done
 # get the project type
 # this also will setup the available branches and the type of the saltstack to use
 is_projecttype=FALSE
-declare -A projecttypes
+declare -a projecttypes
 i=1
 while read line
 do
@@ -467,7 +467,7 @@ DIALOG=dialog
     readonly LOG_FILE="/var/log/doil.log"
     exec 1>>${LOG_FILE}
     exec 2>&1
-    now=$(date +'%D.%M.%Y %I:%M:%S')
+    NOW=$(date +'%D.%M.%Y %I:%M:%S')
     echo "[${NOW}] Apply base state"
 
     # apply base state
@@ -608,6 +608,22 @@ DIALOG=dialog
     doil down
   )
 
+  ###########################
+  # Copying readme to project
+  echo "XXX"; echo "Copying readme to project"; echo "XXX"
+  echo "99"
+  (
+    # log file
+    readonly LOG_FILE="/var/log/doil.log"
+    exec 1>>${LOG_FILE}
+    exec 2>&1
+    NOW=$(date +'%d.%m.%Y %I:%M:%S')
+    echo "[${NOW}] Copying readme to project"
+
+    cp "/usr/lib/doil/tpl/minion/README.md" "${FOLDERPATH}/README.md"
+    sed -i "s/%TPL_PROJECT_NAME%/${projectname}/g" "${FOLDERPATH}/README.md"
+  )
+
   #################
   # Everything done
   echo "XXX"; echo "Everything done"; echo "XXX"
@@ -631,7 +647,7 @@ $DIALOG --clear
 $DIALOG \
   --backtitle "doil - create" \
   --title "doil - create" \
-  --msgbox "Display endcard ..." 0 0
+  --msgbox "Your project is successfully installed. Head to your project via 'doil cd ${projectname}' and see the readme file for more information about the usage with doil." 0 0
 $DIALOG --clear
 clear
 

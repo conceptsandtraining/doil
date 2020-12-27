@@ -16,8 +16,12 @@ doil tries to use as little 3rd party software as possible. However doil needs s
 * docker-compose
 * dialog (doil installs this by itself)
 
-## Architecture
+## Configuration
 
-### local configuration
+### Adding more ILIAS repositories
 
+It is possible to add more repositories to the list which doil can use to install ILIAS. After the installation of doil head to `~/.doil/config/`  and edit the file `repos`. Add your git-Repository in this pattern: `$name=$git-repo-url`. Make sure you are using the SSH version of the git repository.
 
+### Adding own saltstack
+
+Simply fork our saltstack (place URL here) and edit or add files you need. After that you can implement this stack into doil by editing the file `~/.doil/config/saltstack` and replace it with the git repository of your saltstack.
