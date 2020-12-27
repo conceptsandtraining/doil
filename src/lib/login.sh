@@ -1,6 +1,18 @@
 #!/bin/bash
 
-source /usr/lib/doil/helper.sh
+# set the doilpath
+case "$(uname -s)" in
+  Darwin)
+  DOILPATH="/usr/local/lib/doil"
+  ;;
+  Linux)
+  DOILPATH="/usr/lib/doil"
+  ;;
+  *)
+    exit
+  ;;
+esac
+source "${DOILPATH}/helper.sh"
 
 # set the instance to work with
 WHOAMI=$(whoami)

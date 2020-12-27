@@ -1,20 +1,33 @@
 #!/bin/bash
 
+# set the doilpath
+case "$(uname -s)" in
+  Darwin)
+  DOILPATH="/usr/local/lib/doil"
+  ;;
+  Linux)
+  DOILPATH="/usr/lib/doil"
+  ;;
+  *)
+    exit
+  ;;
+esac
+
 # set the command to work with
 CMD=$1
 
 # get the helper
-source /usr/lib/doil/helper.sh
+source "${DOILPATH}/helper.sh"
 
 # if we don't have any command we load the help
-if [ -z "$CMD" ] || [ "$CMD" == "help" ]
+if [ -z "${CMD}" ] || [ "${CMD}" == "help" ]
 then
-  /usr/lib/doil/help.sh
+  eval "${DOILPATH}/help.sh"
 	exit
 fi
 
 # Check if the script can be found bail if not
-if [ ! -f "/usr/lib/doil/$CMD.sh" ]
+if [ ! -f "${DOILPATH}/${CMD}.sh" ]
 then
   echo -e "\033[1mERROR:\033[0m"
   echo -e "\tCan't find a suitable command."
@@ -23,50 +36,50 @@ then
 fi
 
 # create
-if [ "$CMD" == "create" ]
+if [ "${CMD}" == "create" ]
 then
-  /usr/lib/doil/create.sh
+  eval "${DOILPATH}/create.sh"
 	exit
 fi
 
 # delete
-if [ "$CMD" == "delete" ]
+if [ "${CMD}" == "delete" ]
 then
-  /usr/lib/doil/delete.sh $2
+  eval "${DOILPATH}/delete.sh" $2
 	exit
 fi
 
 # up
-if [ "$CMD" == "up" ]
+if [ "${CMD}" == "up" ]
 then
-  /usr/lib/doil/up.sh $2
+  eval "${DOILPATH}/up.sh" $2
 	exit
 fi
 
 # down
-if [ "$CMD" == "down" ]
+if [ "${CMD}" == "down" ]
 then
-  /usr/lib/doil/down.sh $2
+  eval "${DOILPATH}/down.sh" $2
 	exit
 fi
 
 # login
-if [ "$CMD" == "login" ]
+if [ "${CMD}" == "login" ]
 then
-  /usr/lib/doil/login.sh $2
+  eval "${DOILPATH}/login.sh" $2
 	exit
 fi
 
 # instances
-if [ "$CMD" == "instances" ]
+if [ "${CMD}" == "instances" ]
 then
-  /usr/lib/doil/instances.sh
+  eval "${DOILPATH}/instances.sh"
   exit
 fi
 
 # cd
-if [ "$CMD" == "cd" ]
+if [ "${CMD}" == "cd" ]
 then
-  /usr/lib/doil/cd.sh $2
+  eval "${DOILPATH}/cd.sh" $2
   exit
 fi

@@ -1,6 +1,18 @@
 #!/bin/bash
 
-source /usr/lib/doil/helper.sh
+# set the doilpath
+case "$(uname -s)" in
+  Darwin)
+  DOILPATH="/usr/local/lib/doil"
+  ;;
+  Linux)
+  DOILPATH="${DOILPATH}"
+  ;;
+  *)
+    exit
+  ;;
+esac
+source "${DOILPATH}/helper.sh"
 
 # Get the settings
 CWD=$(pwd)
@@ -48,17 +60,17 @@ while [ ${is_projectname} == FALSE ]; do
     ;;
     ${DIALOG_ESC})
       clear
-      echo "Program aborted." >&2
+      echo "Program aborted with: ${exit_status}" >&2
       exit 1
     ;;
   esac
 
-  LINKPATH="/home/${WHOAMI}/.doil/${projectname}"
+  LINKPATH="${HOME}/.doil/${projectname}"
   if [[ -z "${projectname}" ]]
   then
     result="The name of the project cannot be empty!"
     display_error "Error!"
-  elif [[ ${projectname} == *['!'@#\$%^\&*()_+]* ]]
+  elif [[ ${projectname} == *['!'@#\$%^\&\(\)*_+]* ]]
   then
     result="You are using an invalid character! Only letters and numbers are allowed!"
     display_error "Error!"
@@ -85,7 +97,7 @@ do
   projecttypes[ $i ]=${projecttypename}
   projecttypes[ ( $i + 1 ) ]=${projecttyperepo}
   (( i=($i+2) ))
-done < "/home/${WHOAMI}/.doil/config/repos"
+done < "${HOME}/.doil/config/repos"
 
 while [ ${is_projecttype} == FALSE ]; do
   exec 3>&1
@@ -107,7 +119,7 @@ while [ ${is_projecttype} == FALSE ]; do
     ;;
     ${DIALOG_ESC})
       clear
-      echo "Program aborted." >&2
+      echo "Program aborted with: ${exit_status}" >&2
       exit 1
     ;;
   esac
@@ -120,7 +132,7 @@ echo "Fetching data ... stand by."
 is_projectbranch=FALSE
 declare -a projectbranches
 i=1
-if [ ! -d "/usr/lib/doil/tpl/repo/${projecttype}" ]
+if [ ! -d "${DOILPATH}/tpl/repo/${projecttype}" ]
 then
 
   while read line
@@ -132,10 +144,10 @@ then
     then
       break
     fi
-  done < "/home/${WHOAMI}/.doil/config/repos"
-  git clone ${gprojecttyperepo} "/usr/lib/doil/tpl/repo/${projecttype}"
+  done < "${HOME}/.doil/config/repos"
+  git clone ${gprojecttyperepo} "${DOILPATH}/tpl/repo/${projecttype}"
 fi
-cd "/usr/lib/doil/tpl/repo/${projecttype}"
+cd "${DOILPATH}/tpl/repo/${projecttype}"
 git fetch origin -q
 
 while read line
@@ -170,7 +182,7 @@ while [ ${is_projectbranch} == FALSE ]; do
     ;;
     ${DIALOG_ESC})
       clear
-      echo "Program aborted." >&2
+      echo "Program aborted with: ${exit_status}" >&2
       exit 1
     ;;
   esac
@@ -204,7 +216,7 @@ while [ ${is_projectphpversion} == FALSE ]; do
     ;;
     ${DIALOG_ESC})
       clear
-      echo "Program aborted." >&2
+      echo "Program aborted with: ${exit_status}" >&2
       exit 1
     ;;
   esac
@@ -239,7 +251,7 @@ then
       ;;
       ${DIALOG_ESC})
         clear
-        echo "Program aborted." >&2
+        echo "Program aborted with: ${exit_status}" >&2
         exit 1
       ;;
     esac
@@ -288,7 +300,7 @@ DIALOG=dialog
     mkdir -p "${FOLDERPATH}/volumes/logs/apache"
 
     # set the link
-    ln -s "${FOLDERPATH}" "/home/${WHOAMI}/.doil/${projectname}"
+    ln -s "${FOLDERPATH}" "${HOME}/.doil/${projectname}"
   )
 
   #########################
@@ -304,17 +316,17 @@ DIALOG=dialog
     echo "[${NOW}] Copying necessary files"
 
     # docker stuff
-    cp "/usr/lib/doil/tpl/minion/run-supervisor.sh" "${FOLDERPATH}/conf/run-supervisor.sh"
-    cp "/usr/lib/doil/tpl/minion/docker-compose.yml" "${FOLDERPATH}/docker-compose.yml"
-    cp "/usr/lib/doil/tpl/minion/Dockerfile" "${FOLDERPATH}/Dockerfile"
+    cp "${DOILPATH}/tpl/minion/run-supervisor.sh" "${FOLDERPATH}/conf/run-supervisor.sh"
+    cp "${DOILPATH}/tpl/minion/docker-compose.yml" "${FOLDERPATH}/docker-compose.yml"
+    cp "${DOILPATH}/tpl/minion/Dockerfile" "${FOLDERPATH}/Dockerfile"
 
     # copy ilias
-    cd "/usr/lib/doil/tpl/repo/${projecttype}"
+    cd "${DOILPATH}/tpl/repo/${projecttype}"
     git config core.fileMode false
     git fetch origin
     git checkout ${projectbranch}
     git pull origin ${projectbranch}
-    cp -r "/usr/lib/doil/tpl/repo/${projecttype}" "${FOLDERPATH}/volumes/ilias"
+    cp -r "${DOILPATH}/tpl/repo/${projecttype}" "${FOLDERPATH}/volumes/ilias"
   )
 
   ############################
@@ -346,7 +358,7 @@ DIALOG=dialog
     echo "[${NOW}] Starting master salt service"
 
     # start service
-    cd /usr/lib/doil/tpl/main
+    cd ${DOILPATH}/tpl/main
     docker-compose up -d
     sleep 5
   )
@@ -620,7 +632,7 @@ DIALOG=dialog
     NOW=$(date +'%d.%m.%Y %I:%M:%S')
     echo "[${NOW}] Copying readme to project"
 
-    cp "/usr/lib/doil/tpl/minion/README.md" "${FOLDERPATH}/README.md"
+    cp "${DOILPATH}/tpl/minion/README.md" "${FOLDERPATH}/README.md"
     sed -i "s/%TPL_PROJECT_NAME%/${projectname}/g" "${FOLDERPATH}/README.md"
   )
 
