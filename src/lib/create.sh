@@ -3,10 +3,12 @@
 # set the doilpath
 case "$(uname -s)" in
   Darwin)
-  DOILPATH="/usr/local/lib/doil"
+    HOS="mac"
+    DOILPATH="/usr/local/lib/doil"
   ;;
   Linux)
-  DOILPATH="${DOILPATH}"
+    HOS="linux"
+    DOILPATH="/usr/lib/doil"
   ;;
   *)
     exit
@@ -16,7 +18,6 @@ source "${DOILPATH}/helper.sh"
 
 # Get the settings
 CWD=$(pwd)
-WHOAMI=$(whoami)
 
 # Check if the current directory is writeable
 if [ ! -w `pwd` ]; then
@@ -342,7 +343,13 @@ DIALOG=dialog
     echo "[${NOW}] Replacing template vars"
 
     # replacer
-    find "${FOLDERPATH}" \( -type d -name .git -prune \) -o -type f -print0 | xargs -0 sed -i "s/%TPL_PROJECT_NAME%/${projectname}/g"
+    if [ ${HOS} == "linux" ]; then
+      find "${FOLDERPATH}" \( -type d -name .git -prune \) -o -type f -print0 | xargs -0 sed -i "s/%TPL_PROJECT_NAME%/${projectname}/g"
+      find "${FOLDERPATH}" \( -type d -name .git -prune \) -o -type f -print0 | xargs -0 sed -i "s/%DOILPATH%/${DOILPATH}/g"
+    elif [ ${HOS} == "mac" ]; then
+      sed -i "" "s/%TPL_PROJECT_NAME%/${projectname}/g" "${FOLDERPATH}/docker-compose.yml"
+      sed -i "" "s/%DOILPATH%/\/usr\/local\/lib\/doil/g" "${FOLDERPATH}/docker-compose.yml"
+    fi
   )
 
   ##############################
@@ -633,7 +640,11 @@ DIALOG=dialog
     echo "[${NOW}] Copying readme to project"
 
     cp "${DOILPATH}/tpl/minion/README.md" "${FOLDERPATH}/README.md"
-    sed -i "s/%TPL_PROJECT_NAME%/${projectname}/g" "${FOLDERPATH}/README.md"
+    if [ ${HOS} == "linux" ]; then
+      sed -i "s/%TPL_PROJECT_NAME%/${projectname}/g" "${FOLDERPATH}/README.md"
+    elif [ ${HOS} == "mac" ]; then
+      sed -i "s/%TPL_PROJECT_NAME%/${projectname}/g" "${FOLDERPATH}/README.md"
+    fi
   )
 
   #################

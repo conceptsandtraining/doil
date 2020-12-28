@@ -2,10 +2,9 @@
 
 # set the instance to work with
 CAD=$(pwd)
-WHOAMI=$(whoami)
 INSTANCE=$1
   
-LINKNAME="/home/$WHOAMI/.doil/$INSTANCE"
+LINKNAME="${HOME}/.doil/$INSTANCE"
 if [ -h "${LINKNAME}" ]
 then
   NOW=$(date +'%d.%m.%Y %I:%M:%S')
@@ -21,7 +20,7 @@ then
   sudo rm -rf $the_path
 
   # remove link
-  rm -f "/home/$WHOAMI/.doil/$INSTANCE"
+  rm -f "${HOME}/.doil/$INSTANCE"
 
   # remove entry from the hosts
   sudo sed -i "/${INSTANCE}.local$/d" /etc/hosts

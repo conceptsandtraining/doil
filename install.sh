@@ -10,11 +10,11 @@ fi
 OPS=""
 case "$(uname -s)" in
   Darwin)
-	OPS="mac"
+	  OPS="mac"
     #brew install dialog
   ;;
   Linux)
-	OPS="linux"
+	  OPS="linux"
     #apt-get install dialog
   ;;
   CYGWIN*|MINGW32*|MSYS*|MINGW*)
@@ -28,13 +28,13 @@ esac
 
 # remove the old version of doil because we need to be sure
 # that we are running a clean version here
-if [ $OPS == "linux" ]; then
-  rm /usr/loca/bin/doil
-  rm -r /usr/lib/doil
-elif [ $OPS == "mac" ]; then
-  rm /usr/local/bin/doil
-  rm -rf /usr/local/lib/doil
-fi
+#if [ $OPS == "linux" ]; then
+#  rm /usr/loca/bin/doil
+#  rm -r /usr/lib/doil
+#elif [ $OPS == "mac" ]; then
+#  rm /usr/local/bin/doil
+#  rm -rf /usr/local/lib/doil
+#fi
 
 # Move the base script to the /usr/local/bin folder and make it executeable
 cp src/doil.sh /usr/local/bin/doil
@@ -63,6 +63,13 @@ fi
 #install -g 0 -o 0 -m 0644 src/man/doil.1 /usr/share/man/man1/
 #gzip /usr/share/man/man1/doil.1
 
+# add log file
+touch /var/log/doil.log
+chown ${SUDO_USER}:${SODU_USER} "/var/log/doil.log"
+
+echo ${SUDO_USER}
+exit
+
 # Install local instance tracker
 HOME=$(eval echo "~${SUDO_USER}")
 if [ ! -d "${HOME}/.doil" ]
@@ -83,17 +90,13 @@ fi
 #echo "cate=git@github.com:conceptsandtraining/TMS6.git" >> "${HOME}/.doil/config/repos"
 #echo "git@github.com:conceptsandtraining/ilias-tool-salt.git" >> "${HOME}/.doil/config/saltstack"
 
-# clone the basic repositories
+# clone the stack
 #if [ $OPS == "linux" ]; then
 #sudo -i -u $SUDO_USER bash << EOF
-#git clone git@github.com:conceptsandtraining/TMS6.git /usr/lib/doil/tpl/repo/cate
-#git clone git@github.com:ILIAS-eLearning/ILIAS.git /usr/lib/doil/tpl/repo/ilias
 #git clone git@github.com:conceptsandtraining/ilias-tool-salt.git /usr/lib/doil/tpl/stack
 #EOF
 #elif [ $OPS == "mac" ]; then
 #sudo -i -u $SUDO_USER bash << EOF
-#git clone git@github.com:conceptsandtraining/TMS6.git /usr/local/lib/doil/tpl/repo/cate
-#git clone git@github.com:ILIAS-eLearning/ILIAS.git /usr/local/lib/doil/tpl/repo/ilias
 #git clone git@github.com:conceptsandtraining/ilias-tool-salt.git /usr/local/lib/doil/tpl/stack
 #EOF
 #fi

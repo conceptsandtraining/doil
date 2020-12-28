@@ -3,10 +3,12 @@
 # set the doilpath
 case "$(uname -s)" in
   Darwin)
-  DOILPATH="/usr/local/lib/doil"
+    HOS="mac"
+    DOILPATH="/usr/local/lib/doil"
   ;;
   Linux)
-  DOILPATH="/usr/lib/doil"
+    HOS="linux"
+    DOILPATH="/usr/lib/doil"
   ;;
   *)
     exit
@@ -15,7 +17,6 @@ esac
 source "${DOILPATH}/helper.sh"
 
 # set the instance to work with
-WHOAMI=$(whoami)
 INSTANCE=$1
 if [ -z "$INSTANCE" ]
 then
@@ -45,18 +46,22 @@ then
   DCHOSTNAME=$(doil_get_data $DCHASH "hostname")
   DCDOMAIN=$(doil_get_data $DCHASH "domainname")
 
-  sudo sed -i "/${DCHOSTNAME}.${DCDOMAIN}$/d" /etc/hosts
+  if [ ${HOS} == "linux" ]; then
+    sudo sed -i "/${DCHOSTNAME}.${DCDOMAIN}$/d" /etc/hosts
+  elif [ ${HOS} == "mac" ]; then
+    sudo sed -i  "" "/${DCHOSTNAME}.${DCDOMAIN}$/d" /etc/hosts
+  fi
   sudo /bin/bash -c "echo \"$DCIP $DCHOSTNAME.$DCDOMAIN\" >> /etc/hosts"
 
   NOW=$(date +'%d.%m.%Y %I:%M:%S')
   echo "[$NOW] Instance started"
 else
-  LINKNAME="/home/$WHOAMI/.doil/$INSTANCE"
+  LINKNAME="${HOME}/.doil/$INSTANCE"
   if [ -h "${LINKNAME}" ]
   then
     TARGET=$(readlink -f ${LINKNAME})
     cd ${TARGET}
-    /usr/lib/doil/up.sh
+    eval "${DOILPATH}/up.sh"
   else
     echo -e "\033[1mERROR:\033[0m"
     echo -e "\tInstance not found!"

@@ -3,10 +3,10 @@
 # set the doilpath
 case "$(uname -s)" in
   Darwin)
-  DOILPATH="/usr/local/lib/doil"
+    DOILPATH="/usr/local/lib/doil"
   ;;
   Linux)
-  DOILPATH="/usr/lib/doil"
+    DOILPATH="/usr/lib/doil"
   ;;
   *)
     exit
@@ -15,7 +15,6 @@ esac
 source "${DOILPATH}/helper.sh"
 
 # set the instance to work with
-WHOAMI=$(whoami)
 INSTANCE=$1
 if [ -z "$INSTANCE" ]
 then
@@ -47,12 +46,12 @@ then
   # login
   docker exec -t -i $DCPROCHASH /bin/bash -c "export TERM=xterm-color; exec bash"
 else
-  LINKNAME="/home/$WHOAMI/.doil/$INSTANCE"
+  LINKNAME="${HOME}/.doil/$INSTANCE"
   if [ -h "${LINKNAME}" ]
   then
     TARGET=$(readlink -f ${LINKNAME})
     cd ${TARGET}
-    /usr/lib/doil/login.sh
+    eval "${DOILPATH}/login.sh"
   else
     echo -e "\033[1mERROR:\033[0m"
     echo -e "\tInstance not found!"

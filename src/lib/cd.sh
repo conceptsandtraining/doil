@@ -1,10 +1,9 @@
 #!/bin/bash
 
-WHOAMI=$(whoami)
 INSTANCE=$1
 if [ ! -z "$INSTANCE" ]
 then
-  LINKNAME="/home/$WHOAMI/.doil/$INSTANCE"
+  LINKNAME="${HOME}/.doil/$INSTANCE"
   if [ -h "${LINKNAME}" ]
   then
     TARGET=$(readlink -f ${LINKNAME})
