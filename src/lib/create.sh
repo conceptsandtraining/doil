@@ -369,8 +369,8 @@ DIALOG=dialog
 
     # replacer
     if [ ${HOS} == "linux" ]; then
-      find "${FOLDERPATH}" \( -type d -name .git -prune \) -o -type f -print0 | xargs -0 sed -i "s/%TPL_PROJECT_NAME%/${projectname}/g"
-      find "${FOLDERPATH}" \( -type d -name .git -prune \) -o -type f -print0 | xargs -0 sed -i "s/%DOILPATH%/${DOILPATH}/g"
+      sed -i "s/%TPL_PROJECT_NAME%/${projectname}/g" "${FOLDERPATH}/docker-compose.yml"
+      sed -i "s/%DOILPATH%/\/usr\/local\/lib\/doil/g" "${FOLDERPATH}/docker-compose.yml"
     elif [ ${HOS} == "mac" ]; then
       sed -i "" "s/%TPL_PROJECT_NAME%/${projectname}/g" "${FOLDERPATH}/docker-compose.yml"
       sed -i "" "s/%DOILPATH%/\/usr\/local\/lib\/doil/g" "${FOLDERPATH}/docker-compose.yml"
