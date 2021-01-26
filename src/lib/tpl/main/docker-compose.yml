@@ -8,7 +8,7 @@ services:
     container_name: saltmain
     volumes:
       - ./../stack/states:/srv/salt/states
-      - ./../stack/config/master.cnf:/etc/salt/master.d/master.cnf
+      - ./../stack/config/master.cnf:/etc/salt/master
       - ./salt-main.conf:/etc/supervisor/conf.d/salt-main.conf
     networks:
       saltnet:

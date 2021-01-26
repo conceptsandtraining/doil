@@ -233,27 +233,27 @@ DIALOG=dialog
 
     # remove the old version of doil because we need to be sure
     # that we are running a clean version here
-    if [ $OPS == "linux" ]; then
-      if [ -f "/usr/loca/bin/doil" ]; then
-        rm /usr/loca/bin/doil
-      fi
-      if [ -d "/usr/lib/doil" ]; then
-        rm -r /usr/lib/doil
-      fi
-      if [ -f "/usr/share/man/man1/doil.1" ]; then
-        rm /usr/share/man/man1/doil.1
-      fi
-      if [ -f "/usr/share/man/man1/doil.1.gz" ]; then
-        rm "/usr/share/man/man1/doil.1.gz"
-      fi
-    elif [ $OPS == "mac" ]; then
-      if [ -f "/usr/local/bin/doil" ]; then
-        rm /usr/local/bin/doil
-      fi
-      if [ -d "/usr/local/lib/doil" ]; then
-        rm -rf /usr/local/lib/doil
-      fi
-    fi
+#    if [ $OPS == "linux" ]; then
+#      if [ -f "/usr/loca/bin/doil" ]; then
+#        rm /usr/loca/bin/doil
+#      fi
+#      if [ -d "/usr/lib/doil" ]; then
+#        rm -r /usr/lib/doil
+#      fi
+#      if [ -f "/usr/share/man/man1/doil.1" ]; then
+#        rm /usr/share/man/man1/doil.1
+#      fi
+#      if [ -f "/usr/share/man/man1/doil.1.gz" ]; then
+#        rm "/usr/share/man/man1/doil.1.gz"
+#      fi
+#    elif [ $OPS == "mac" ]; then
+#      if [ -f "/usr/local/bin/doil" ]; then
+#        rm /usr/local/bin/doil
+#      fi
+#      if [ -d "/usr/local/lib/doil" ]; then
+#        rm -rf /usr/local/lib/doil
+#      fi
+#    fi
   )
 
   #########################
@@ -305,13 +305,13 @@ DIALOG=dialog
     NOW=$(date +'%d.%m.%Y %I:%M:%S')
     echo "[${NOW}] Installing manpage"
 
-    if [ $OPS == "linux" ]; then
-      install -g 0 -o 0 -m 0644 src/man/doil.1 /usr/share/man/man1/
-      gzip /usr/share/man/man1/doil.1
-    elif [ $OPS == "mac" ]; then
-      # TODO THIS!
-      echo "Manpage for mac is currently not supported..."
-    fi
+#    if [ $OPS == "linux" ]; then
+#      install -g 0 -o 0 -m 0644 src/man/doil.1 /usr/share/man/man1/
+#      gzip /usr/share/man/man1/doil.1
+#    elif [ $OPS == "mac" ]; then
+#      # TODO THIS!
+#      echo "Manpage for mac is currently not supported..."
+#    fi
   )
 
   ################################

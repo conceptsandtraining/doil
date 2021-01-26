@@ -370,7 +370,7 @@ DIALOG=dialog
     # replacer
     if [ ${HOS} == "linux" ]; then
       sed -i "s/%TPL_PROJECT_NAME%/${projectname}/g" "${FOLDERPATH}/docker-compose.yml"
-      sed -i "s/%DOILPATH%/\/usr\/local\/lib\/doil/g" "${FOLDERPATH}/docker-compose.yml"
+      sed -i "s/%DOILPATH%/\/usr\/lib\/doil/g" "${FOLDERPATH}/docker-compose.yml"
     elif [ ${HOS} == "mac" ]; then
       sed -i "" "s/%TPL_PROJECT_NAME%/${projectname}/g" "${FOLDERPATH}/docker-compose.yml"
       sed -i "" "s/%DOILPATH%/\/usr\/local\/lib\/doil/g" "${FOLDERPATH}/docker-compose.yml"
