@@ -458,7 +458,7 @@ DIALOG=dialog
     # start the docker service
     cd ${FOLDERPATH}
     docker-compose up -d
-    sleep 5
+    sleep 10
   )
 
   ##############################
@@ -484,7 +484,7 @@ DIALOG=dialog
     then
       echo "Minion service not ready ... starting"
       docker exec -ti ${DCMINIONHASH} bash -c "salt-minion -d"
-      sleep 5
+      sleep 10
     fi
 
     # check if the new key is registered
@@ -494,12 +494,21 @@ DIALOG=dialog
 
     if [ ! -z ${SALTKEYS} ]
     then
-      docker exec -ti ${DCMAINHASH} bash -c "killall -9 salt-master"
-      sleep 5
-      docker exec -ti ${DCMAINHASH} bash -c "salt-master -d"
-      sleep 7
+      echo "Key not ready yet"
+      sleep 10
+
+      SALTKEYS=$(docker exec -t -i ${DCMAINHASH} /bin/bash -c "salt-key -L" | grep "${projectname}.local")
+
+          if [ ! -z ${SALTKEYS} ]
+          then
+            echo "Key not ready yet"
+            sleep 10
+          else
+            echo "Key ready"
+          fi
+    else
+      echo "Key ready"
     fi
-    echo "Key ready."
   )
 
   ##################
