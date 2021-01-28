@@ -459,6 +459,10 @@ DIALOG=dialog
     cd ${FOLDERPATH}
     docker-compose up -d
     sleep 10
+    docker-compose down
+    sleep 3
+    docker-compose up -d
+    sleep 10
   )
 
   ##############################
@@ -499,13 +503,13 @@ DIALOG=dialog
 
       SALTKEYS=$(docker exec -t -i ${DCMAINHASH} /bin/bash -c "salt-key -L" | grep "${projectname}.local")
 
-          if [ ! -z ${SALTKEYS} ]
-          then
-            echo "Key not ready yet"
-            sleep 10
-          else
-            echo "Key ready"
-          fi
+      if [ ! -z ${SALTKEYS} ]
+      then
+        echo "Key not ready yet"
+        sleep 10
+      else
+        echo "Key ready"
+      fi
     else
       echo "Key ready"
     fi
