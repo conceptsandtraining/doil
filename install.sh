@@ -26,10 +26,71 @@
 # Last revised 2021-mm-dd
 
 # sudo user check
-if [ "$EUID" -ne 0 ]
-  then echo "Error: Please run this script as sudo-user"
+if [ "$EUID" -ne 0 ]; then
+  echo -e "\033[1mREQUIREMENT ERROR:\033[0m"
+  echo -e "\tPlease execute this script as sudo user!"
   exit
 fi
+
+# check dependencies
+CHECK_DIALOG=$(which dialog)
+if [ -z ${CHECK_DIALOG} ]; then
+  echo -e "\033[1mREQUIREMENT ERROR:\033[0m"
+  echo -e "\tPlease install the tool dialog!"
+  echo -e "\tFor ubuntu user: \033[1msudo apt-get install dialog\033[0m"
+  echo -e "\tFor mac user: \033[1mbrew install dialog\033[0m"
+  exit
+fi
+
+CHECK_DOCKER=$(docker --version | tac | tail -n 1 | cut -d " " -f 3 | cut -c 1-5)
+
+vercomp () {
+    if [[ $1 == $2 ]]
+    then
+        return 0
+    fi
+    local IFS=.
+    local i ver1=($1) ver2=($2)
+    # fill empty fields in ver1 with zeros
+    for ((i=${#ver1[@]}; i<${#ver2[@]}; i++))
+    do
+        ver1[i]=0
+    done
+    for ((i=0; i<${#ver1[@]}; i++))
+    do
+        if [[ -z ${ver2[i]} ]]
+        then
+            # fill empty fields in ver2 with zeros
+            ver2[i]=0
+        fi
+        if ((10#${ver1[i]} > 10#${ver2[i]}))
+        then
+            return 1
+        fi
+        if ((10#${ver1[i]} < 10#${ver2[i]}))
+        then
+            return 2
+        fi
+    done
+    return 0
+}
+
+testvercomp () {
+    vercomp $1 $2
+    case $? in
+        0) op='=';;
+        1) op='>';;
+        2) op='<';;
+    esac
+    if [[ $op != $3 ]]
+    then
+        echo -e "\033[1mREQUIREMENT ERROR:\033[0m"
+        echo -e "\tYour docker version is not supported!"
+        echo -e "\tdoil requires at least docker version \033[1m19.03\033[0m. You have \033[1m${CHECK_DOCKER}\033[0m installed."
+        exit
+    fi
+}
+testvercomp ${CHECK_DOCKER} "19.02" ">"
 
 # check the OS
 OPS=""
@@ -41,7 +102,8 @@ case "$(uname -s)" in
     OPS="linux"
   ;;
   *)
-    echo 'Your system is not supported.' 
+    echo -e "\033[1mREQUIREMENT ERROR:\033[0m"
+    echo -e "\tYour operating system is not supported!"
     exit
   ;;
 esac
@@ -233,27 +295,27 @@ DIALOG=dialog
 
     # remove the old version of doil because we need to be sure
     # that we are running a clean version here
-#    if [ $OPS == "linux" ]; then
-#      if [ -f "/usr/loca/bin/doil" ]; then
-#        rm /usr/loca/bin/doil
-#      fi
-#      if [ -d "/usr/lib/doil" ]; then
-#        rm -r /usr/lib/doil
-#      fi
-#      if [ -f "/usr/share/man/man1/doil.1" ]; then
-#        rm /usr/share/man/man1/doil.1
-#      fi
-#      if [ -f "/usr/share/man/man1/doil.1.gz" ]; then
-#        rm "/usr/share/man/man1/doil.1.gz"
-#      fi
-#    elif [ $OPS == "mac" ]; then
-#      if [ -f "/usr/local/bin/doil" ]; then
-#        rm /usr/local/bin/doil
-#      fi
-#      if [ -d "/usr/local/lib/doil" ]; then
-#        rm -rf /usr/local/lib/doil
-#      fi
-#    fi
+    if [ $OPS == "linux" ]; then
+      if [ -f "/usr/loca/bin/doil" ]; then
+        rm /usr/loca/bin/doil
+      fi
+      if [ -d "/usr/lib/doil" ]; then
+        rm -r /usr/lib/doil
+      fi
+      if [ -f "/usr/share/man/man1/doil.1" ]; then
+        rm /usr/share/man/man1/doil.1
+      fi
+      if [ -f "/usr/share/man/man1/doil.1.gz" ]; then
+        rm "/usr/share/man/man1/doil.1.gz"
+      fi
+    elif [ $OPS == "mac" ]; then
+      if [ -f "/usr/local/bin/doil" ]; then
+        rm /usr/local/bin/doil
+      fi
+      if [ -d "/usr/local/lib/doil" ]; then
+        rm -rf /usr/local/lib/doil
+      fi
+    fi
   )
 
   #########################
@@ -305,13 +367,13 @@ DIALOG=dialog
     NOW=$(date +'%d.%m.%Y %I:%M:%S')
     echo "[${NOW}] Installing manpage"
 
-#    if [ $OPS == "linux" ]; then
-#      install -g 0 -o 0 -m 0644 src/man/doil.1 /usr/share/man/man1/
-#      gzip /usr/share/man/man1/doil.1
+    if [ $OPS == "linux" ]; then
+      install -g 0 -o 0 -m 0644 src/man/doil.1 /usr/share/man/man1/
+      gzip -f /usr/share/man/man1/doil.1
 #    elif [ $OPS == "mac" ]; then
 #      # TODO THIS!
 #      echo "Manpage for mac is currently not supported..."
-#    fi
+    fi
   )
 
   ################################
@@ -346,8 +408,8 @@ DIALOG=dialog
     chown -R ${SUDO_USER}:${SODU_USER} "${HOME}/.doil"
 
     # echo configuration
-    echo "${ilias_repo_name}=${ilias_repo_location}" >> "${HOME}/.doil/config/repos"
-    echo "${salt_repo_location}" >> "${HOME}/.doil/config/saltstack"
+    echo "${ilias_repo_name}=${ilias_repo_location}" > "${HOME}/.doil/config/repos"
+    echo "${salt_repo_location}" > "${HOME}/.doil/config/saltstack"
   )
 
   ###########################

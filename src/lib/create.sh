@@ -458,11 +458,10 @@ DIALOG=dialog
     # start the docker service
     cd ${FOLDERPATH}
     docker-compose up -d
-    sleep 10
-    docker-compose down
     sleep 3
+    docker-compose down
     docker-compose up -d
-    sleep 10
+    sleep 5
   )
 
   ##############################
@@ -488,7 +487,7 @@ DIALOG=dialog
     then
       echo "Minion service not ready ... starting"
       docker exec -ti ${DCMINIONHASH} bash -c "salt-minion -d"
-      sleep 10
+      sleep 5
     fi
 
     # check if the new key is registered
@@ -499,14 +498,14 @@ DIALOG=dialog
     if [ ! -z ${SALTKEYS} ]
     then
       echo "Key not ready yet"
-      sleep 10
+      sleep 5
 
       SALTKEYS=$(docker exec -t -i ${DCMAINHASH} /bin/bash -c "salt-key -L" | grep "${projectname}.local")
 
       if [ ! -z ${SALTKEYS} ]
       then
         echo "Key not ready yet"
-        sleep 10
+        sleep 5
       else
         echo "Key ready"
       fi
@@ -530,7 +529,16 @@ DIALOG=dialog
     # apply base state
     DCMAIN=$(docker ps | grep "saltmain")
     DCMAINHASH=${DCMAIN:0:12}
-    docker exec -t -i ${DCMAINHASH} /bin/bash -c "salt '${projectname}.local' state.highstate saltenv=base --state-output=terse"
+    STATEAPPLY=$(docker exec -t -i ${DCMAINHASH} /bin/bash -c "salt '${projectname}.local' state.highstate saltenv=base --state-output=terse")
+    CHECK_STATEAPPLY=$(echo ${STATEAPPLY} | grep "Salt request timed out. The master is not responding")
+    if [ -z ${CHECK_STATEAPPLY} ]; then
+      # restart start service
+      cd ${DOILPATH}/tpl/main
+      docker-compose down
+      docker-compose up -d
+      sleep 5
+      STATEAPPLY=$(docker exec -t -i ${DCMAINHASH} /bin/bash -c "salt '${projectname}.local' state.highstate saltenv=base --state-output=terse")
+    fi
   )
 
   #################
