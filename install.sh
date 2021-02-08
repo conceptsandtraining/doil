@@ -23,7 +23,7 @@
 #    ,' | /  ;'
 #   (,,/ (,,/      Thanks to Concepts and Training for supporting doil
 #
-# Last revised 2021-mm-dd
+# Last revised 2021-02-08
 
 # sudo user check
 if [ "$EUID" -ne 0 ]; then

@@ -23,7 +23,7 @@
 #    ,' | /  ;'
 #   (,,/ (,,/      Thanks to Concepts and Training for supporting doil
 #
-# Last revised 2021-mm-dd
+# Last revised 2021-02-08
 
 # Display the manpage
 complete -W "create delete up down login instances cd" doil

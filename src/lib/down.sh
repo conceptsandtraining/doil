@@ -23,7 +23,7 @@
 #    ,' | /  ;'
 #   (,,/ (,,/      Thanks to Concepts and Training for supporting doil
 #
-# Last revised 2021-mm-dd
+# Last revised 2021-02-08
 
 # set the doilpath
 case "$(uname -s)" in

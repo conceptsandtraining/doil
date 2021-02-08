@@ -23,7 +23,7 @@
 #    ,' | /  ;'
 #   (,,/ (,,/      Thanks to Concepts and Training for supporting doil
 #
-# Last revised 2021-mm-dd
+# Last revised 2021-02-08
 
 # Display the log
 tail -f /var/log/doil.log

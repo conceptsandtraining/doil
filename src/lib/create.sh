@@ -23,7 +23,7 @@
 #    ,' | /  ;'
 #   (,,/ (,,/      Thanks to Concepts and Training for supporting doil
 #
-# Last revised 2021-mm-dd
+# Last revised 2021-02-08
 
 # set the doilpath
 case "$(uname -s)" in
@@ -287,19 +287,20 @@ then
 fi
 
 # ask for autoinstaller
-dialog \
-  --backtitle "doil - create" \
-  --title "doil - create - (5/5)" \
-  --clear \
-  --yesno "Sometimes it is possible to install ILIAS automatically. Do you want to try it?" ${HEIGHT} ${WIDTH}
-projectautoinstall=$?
-clear
-if [[ ${projectautoinstall} == 0 ]]
-then
-  projectautoinstall="yes"
-else
-  projectautoinstall="no"
-fi
+#dialog \
+#  --backtitle "doil - create" \
+#  --title "doil - create - (5/5)" \
+#  --clear \
+#  --yesno "Sometimes it is possible to install ILIAS automatically. Do you want to try it?" ${HEIGHT} ${WIDTH}
+#projectautoinstall=$?
+#clear
+#if [[ ${projectautoinstall} == 0 ]]
+#then
+#  projectautoinstall="yes"
+#else
+#  projectautoinstall="no"
+#fi
+projectautoinstall="no"
 
 # set the most important var
 FOLDERPATH="${CWD}/${projectname}"
@@ -529,16 +530,7 @@ DIALOG=dialog
     # apply base state
     DCMAIN=$(docker ps | grep "saltmain")
     DCMAINHASH=${DCMAIN:0:12}
-    STATEAPPLY=$(docker exec -t -i ${DCMAINHASH} /bin/bash -c "salt '${projectname}.local' state.highstate saltenv=base --state-output=terse")
-    CHECK_STATEAPPLY=$(echo ${STATEAPPLY} | grep "Salt request timed out. The master is not responding")
-    if [ -z ${CHECK_STATEAPPLY} ]; then
-      # restart start service
-      cd ${DOILPATH}/tpl/main
-      docker-compose down
-      docker-compose up -d
-      sleep 5
-      STATEAPPLY=$(docker exec -t -i ${DCMAINHASH} /bin/bash -c "salt '${projectname}.local' state.highstate saltenv=base --state-output=terse")
-    fi
+    docker exec -t -i ${DCMAINHASH} /bin/bash -c "salt '${projectname}.local' state.highstate saltenv=base --state-output=terse"
   )
 
   #################

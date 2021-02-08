@@ -23,7 +23,7 @@
 #    ,' | /  ;'
 #   (,,/ (,,/      Thanks to Concepts and Training for supporting doil
 #
-# Last revised 2021-mm-dd
+# Last revised 2021-02-08
 
 # Display the manpage
-echo "doil 0.6 (built: Jan x 2020 hh:mm:ss)"
+echo "doil 0.6 (built: Feb 8 2020 07:56:23)"
