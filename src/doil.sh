@@ -23,7 +23,7 @@
 #    ,' | /  ;'
 #   (,,/ (,,/      Thanks to Concepts and Training for supporting doil
 #
-# Last revised 2021-02-08
+# Last revised 2021-02-17
 
 # set the doilpath
 case "$(uname -s)" in
@@ -121,5 +121,19 @@ fi
 if [ "${CMD}" == "log" ]
 then
   eval "${DOILPATH}/log.sh"
+  exit 1
+fi
+
+# update
+if [ "${CMD}" == "update" ]
+then
+  eval "${DOILPATH}/update.sh"
+  exit 1
+fi
+
+# repair
+if [ "${CMD}" == "repair" ]
+then
+  eval "${DOILPATH}/repair.sh" $2
   exit 1
 fi
