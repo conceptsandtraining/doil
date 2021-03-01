@@ -5,7 +5,7 @@ NAME
   doil repo:update - updates a repository
 
 SYNOPSIS
-  doil repo:update
+  doil repo:update <instance>
 
 DESCRIPTION
   This command updates a local repository so that it won't be

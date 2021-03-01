@@ -19,7 +19,7 @@ while [[ $# -gt 0 ]]
       VERBOSE=YES
       shift # past argument
       ;;
-    *)    # unknown option
+    *)    # set name
       NAME=$1
       break
       ;;

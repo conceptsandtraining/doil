@@ -5,7 +5,7 @@ NAME
   doil repo:list - lists the repositories
 
 SYNOPSIS
-  doil repo:list [--name|-n <name>]
+  doil repo:list
 
 DESCRIPTION
   This command lists all registered repositories from the configuration file

@@ -54,6 +54,9 @@ then
   exit
 fi
 
+# before anything we check the aliases
+source /usr/local/lib/doil/lib/include/aliases.sh
+
 # check if the section exists
 if [ ! -d "/usr/local/lib/doil/lib/${SECTION}" ]
 then

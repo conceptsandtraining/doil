@@ -13,7 +13,7 @@ DESCRIPTION
   doil repo:[command] help for more information
 
 EXAMPLE:
-  doil repo:update --name ilias
+  doil repo:update ilias
 
 COMMANDS
   list   lists the registered repositories

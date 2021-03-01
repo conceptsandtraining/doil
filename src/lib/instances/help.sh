@@ -17,6 +17,7 @@ COMMANDS
   cd     switches the active directory to the instances folder
   create creates an instance for ILIAS with a certain configuration
   delete deletes an instance completely
+  login  logges into the running instance
   up     starts an instance
   down   stops an instance
   list   lists the instances

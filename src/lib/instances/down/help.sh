@@ -5,7 +5,7 @@ NAME
   doil instances:down - stops an instance
 
 SYNOPSIS
-  doil instances:down <instance>
+  doil instances:down [instance]
 
 DESCRIPTION
   This command stops an instance

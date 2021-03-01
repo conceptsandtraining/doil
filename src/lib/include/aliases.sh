@@ -25,3 +25,69 @@
 #
 # Last revised 2021-02-08
 
+if [ $1 == "up" ]
+then
+  if [ -z ${2:+x} ]
+  then
+    doil instances:up
+  else
+    doil instances:up $2
+  fi
+  exit
+fi
+
+if [ $1 == "down" ]
+then
+  if [ -z ${2:+x} ]
+  then
+    doil instances:down
+  else
+    doil instances:down $2
+  fi
+  exit
+fi
+
+if [ $1 == "create" ]
+then
+  if [ -z ${2:+x} ]
+  then
+    doil instances:create
+  else
+    shift
+    doil instances:create $@
+  fi
+  exit
+fi
+
+if [ $1 == "delete" ]
+then
+  if [ -z ${2:+x} ]
+  then
+    doil instances:delete
+  else
+    doil instances:delete $2
+  fi
+  exit
+fi
+
+if [ $1 == "login" ]
+then
+  if [ -z ${2:+x} ]
+  then
+    doil instances:login
+  else
+    doil instances:login $2
+  fi
+  exit
+fi
+
+if [ $1 == "cd" ]
+then
+  if [ -z ${2:+x} ]
+  then
+    doil instances:cd
+  else
+    doil instances:cd $2
+  fi
+  exit
+fi

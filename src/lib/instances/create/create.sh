@@ -88,7 +88,18 @@ fi
 # check repository
 if [[ -z "${REPOSITORY}" ]]
 then
-  read -p "Name the repository: " REPOSITORY
+  declare -a REPOSITORIES
+  i=1
+  while read LINE
+  do
+    REPONAME="$(cut -d'=' -f1 <<<${LINE})"
+
+    REPOSITORIES[ $i ]=${REPONAME}
+    (( i=($i+2) ))
+  done < "${HOME}/.doil/config/repos"
+  REPOSITORIES_STRING="${REPOSITORIES[*]}"
+
+  read -p "Chose the repository [${REPOSITORIES_STRING//${IFS:0:1}/, }]: " REPOSITORY
 fi
 LINE=$(sed -n -e "/^${REPOSITORY}=/p" "${HOME}/.doil/config/repos")
 if [ -z ${LINE} ]
@@ -115,10 +126,11 @@ do
   BRANCHES[ $i ]=${LINE#"remotes/origin/"}
   (( i=($i+2) ))
 done < <(git branch -a | grep "remotes/origin")
+BRANCHES_STRING="${BRANCHES[*]}"
 
 if [[ -z "${BRANCH}" ]]
 then
-  read -p "Name the branch: " BRANCH
+  read -p "Chose the branch [${BRANCHES_STRING//${IFS:0:1}/, }]: " BRANCH
 fi
 
 if [[ ! " ${BRANCHES[@]} " =~ " ${BRANCH} " ]]
@@ -134,7 +146,7 @@ cd ${CWD}
 # check php version
 if [[ -z "${PHPVERSION}" ]]
 then
-  read -p "Name the PHP Version: " PHPVERSION
+  read -p "Chose the PHP Version [7.0, 7.1, 7.2, 7.3, 7.4]: " PHPVERSION
 fi
 if [[ "${PHPVERSION}" != "7.0" ]] \
   && [[ "${PHPVERSION}" != "7.1" ]] \

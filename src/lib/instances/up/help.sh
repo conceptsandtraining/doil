@@ -5,7 +5,7 @@ NAME
   doil instances:up - starts an instance
 
 SYNOPSIS
-  doil instances:up <instance>
+  doil instances:up [instance]
 
 DESCRIPTION
   This command starts an instance
