@@ -331,18 +331,11 @@ docker exec -t -i ${DCMAINHASH} /bin/bash -c "salt '${NAME}.local' state.highsta
 NOW=$(date +'%d.%m.%Y %I:%M:%S')
 echo "[${NOW}] Apply ilias state"
 
-if [[ ${REPOSITORY} == "cate" ]]
-then
-  ILIASSTATE="cate"
-elif [[ ${BRANCH} == "release_5-4" ]]
+if [[ ${BRANCH} == "release_5-4" ]]
 then
   ILIASSTATE="ilias54"
-elif [[ ${BRANCH} == "release_6" ]]
-then
+else
   ILIASSTATE="ilias6"
-elif [[ ${BRANCH} == "release_7" ]]
-then
-  ILIASSTATE="ilias7"
 fi
 
 if [ ! -z ${ILIASSTATE} ]

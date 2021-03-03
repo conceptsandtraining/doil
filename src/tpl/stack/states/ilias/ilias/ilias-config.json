@@ -1,0 +1,50 @@
+{
+        "common" : {
+                "client_id" : "{{ client_id }}",
+                "master_password" : "{{ master_password }}",
+                "server_timezone" : "{{ server_timezone }}"
+        },
+        "database" : {
+                "user" : "{{ db_user }}",
+                "database" : "{{ db_name }}",
+                "type" : "{{ db_type }}",
+                "create_database" : {{ db_create }},
+                "password" : "{{ db_pass }}"
+        },
+        "filesystem" : {
+                "data_dir" : "{{ data_dir }}/"
+        },
+        "systemfolder" : {
+            "client" : {
+                "name" : "{{ client_id }}",
+                "description" : "ILIAS",
+                "institution" : "{{ contact_firstname }}"
+            },
+                "contact" : {
+                        "firstname" : "{{ contact_firstname }}",
+                        "lastname" : "{{ contact_lastname }}",
+                        "email" : "{{ contact_mail }}"
+                }
+        },
+        "language" : {
+            "default_language" : "{{ language }}"
+        },
+        "http" : {
+            "path" : "{{ http_path }}" 
+        },
+        "logging" : {
+            "enable" : true,
+            "path_to_logfile" : "{{ log_dir }}/ilias.log",
+            "errorlog_dir" : "{{ log_dir }}"
+        },
+        "utilities" : {
+            "path_to_convert" : "/usr/bin/convert",
+            "path_to_zip" : "/usr/bin/zip",
+            "path_to_unzip" : "/usr/bin/unzip"
+        },
+        "virusscanner" : {
+            "virusscanner" : "none"
+        }
+}
+
+
