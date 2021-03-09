@@ -1,101 +1,131 @@
-# ILIAS Tool Docker
+# doil - Create ILIAS Development Environments with Docker and ILIAS
 
-This tool creates and manages multiple docker container with ILIAS and comes with several tools to help manage everything. It is able to download ILIAS and other ILIAS related software like cate.
+**doil** provides you with a simple way to create and manage development and
+testing environments for ILIAS. It will create and provision a docker container
+according to your requirements, pull the ILIAS version you want to use and even
+install it if possible.
+
 
 ## Setup
 
-1. Download and unpack this repository wherever you want
-2. Execute `sudo ./install.sh` in order to install doil (you can remove the downloaded folder afterwards)
-3. Check `doil help` for available commands and further instructions
+1. download and unpack the [latest release](https://github.com/conceptsandtraining/ilias-tool-doil/releases)
+1. execute `sudo ./install.sh` in order to install **doil**
+1. you can remove the downloaded folder afterwards
+1. check `doil help` for available commands and further instructions
+
 
 ## Dependencies
 
-doil tries to use as little 3rd party software as possible. However doil needs definitly the docker software in order to function:
+**doil** tries to use as little 3rd party software on the host system as possible.
+However **doil** needs [Docker](https://www.docker.com/) in order to work:
 
 * docker version >= 19.03
 * docker-compose version >= 1.25.0
+
 
 ## Usage
 
 ### Help
 
-Each command for doil comes with its own help. If you struggle to use a command, just add `-h` or `--help` to display the help page. For example: `doil instances:create --help`.
+Each command for doil comes with its own help. If you struggle to use a command,
+just add `-h` or `--help` to display the according help page. For example:
+`doil instances:create --help`. Use `doil --help` if you have no idea where too
+start.
 
 ### Instances
 
-To create, delete and manage doil instances these commands are available:
+An *instance* is one environment for and installation of ILIAS. The purpose of
+**doil** is to make the management of these instances as simple as possible.
+The following commands are available:
 
-* `doil instances:create` - Creates an instance
-* `doil instances:delete` - Deletes an instance
-* `doil instances:up` - Starts an instance
-* `doil instances:down` - Stops an instance
-* `doil instances:login` - Loggs the user into the container
-* `doil instances:list` - Lists all currently created instances
-* `doil instances:cd` - Switches the active directory to the instances one
-* `doil instances:repair` - Tries to repair the instance
+* `doil create` (alias for `doil instances:create`) creates a new instance in
+  the current working directory
+* `doil up` starts an instance that you have created before
+* `doil cd` switches the current working directoryto the location of the instance
+* `doil list` lists all available instances
+* `doil login` logs you into the container running the instance
+* `doil down` stops an instance to free the ressources it needs
+* `doil delete` deletes an instance you do not need anymore
+* look into `doil instances --help` for further commands related to instances
 
-#### Backward Compatibility and Aliases
 
-In old versions of doil it was possible to use shorter command chains to manage the instances. These commands are still available and are basically aliases for the commands above:
+## Contributions and Support
 
-* `doil create` translates to `doil instances:create`
-* `doil delete` translates to `doil instances:delete`
-* `doil up` translates to `doil instances:up`
-* `doil down` translates to `doil instances:down`
-* `doil login` translates to `doil instances:login`
-* `doil cd` translates to `doil instances:cd`
+Contributions to doil are very welcome!
+
+* Have a look into the [Contributor's Guide](.github/CONTRIBUTING.md) before
+  you start.
+* If you face any issues or want to suggest a feature or improvement, open an
+  [issue](https://github.com/conceptsandtraining/doil/discussions").
+* Make sure to understand that this is a voluntary offer which requires time,
+  passion and effort and does not guarantee anything to anyone. Be gentle.
+
+If doil saved your precious time and brain power, please consider supporting
+**doil**:
+
+* Buy Laura a coffee and tell her about your doil experiences if you meet her
+  somewhere.
+* Star the project and share it. If you blog, please share your experience of
+  using this software.
+* Look into [CaT's products and services](https://www.concepts-and-training.de)
+  and consider to place an order or hire us.
+* Reach out to [Laura](laura.herzog@concepts-and-training.de) and [Richard](richard.klees@concepts-and-training.de)
+  if you have requirements, ideas or questions that you don't want to discuss
+  publicly.
+* Reach out to [Richard](richard.klees@concepts-and-training.de) if you need
+  more support than we can offer for free or want to get involved with **doil**
+  in other ways.
+
+
+## Background, Troubleshooting and Development
+
+**doil** uses [SaltStack](https://www.saltstack.com/) to provision and maintain
+the instances. [Docker](https://www.docker.com/) is only used as a light weight
+and widely available VM-like technology to run sufficiently isolated linux
+environments. SaltStack uses an architecture where one master acts as a central
+control server. **doil** runs this master in a dedicated container. The instances
+then are deployed into separate containers as minions that are controlled and
+provisioned by the master. Required folders are mounted in the users filesystem
+via Dockers volumes and can be accessed from the host system.
+
+If you have the suspicion that something went wrong here or you accidentally
+messed up an instance, try `doil instances:repair` to make **doil** attempt to
+fix the problem.
 
 ### Repository
 
-doil is able to manage different ILIAS repositories to create instances. If you or your company forked ILIAS to an own repository you still can use it within doil. The steps to add and use a different repository are:
+**doil** can use different ILIAS repositories to create instances. Per default,
+the [repository of the ILIAS society](https://github.com/ILIAS-eLearning/ILIAS)
+will be used to pull the ILIAS code. If you want to use another repository to get
+the ILIAS code, you can use commands from `doil repo` to add and manage these
+other repositories:
 
-1. `doil repo:add --name $myreponame --repo git@github.com:myorg/ILIAS.git` to add the repository to the configuration whileas $myreponame is a lower case single word to identify the repository (it's basically the same like `git remote add $name $repo`)
-2. `doil repo:update $myreponame` to download the repository to the local cache
-3. `doil instances:create --repo $myreponame` to use the repository as instance base
-
-#### Commands
-
-* `doil repo:add` - Adds a repository
-* `doil repo:remove` - Removes a repository
-* `doil repo:list` - Lists currently registered repositories
-* `doil repo:update` - Updates the cache of a repository
-
-### Saltstack
-
-To manage the technology stack in the background doil uses the salt technology. Usually these commands are only necessary for a deep dive into the doil technology.
-
-* `doil salt:set` - Sets the repository for the saltstack
-* `doil salt:reset` - Resets the saltstack to the buildin saltstack
-* `doil salt:update` - Updates the saltstack if you are using a custom saltstack
-* `doil salt:login` - Logs the user into the main salt server
-* `doil salt:prune` - Prunes the main salt server
+* `doil repo:add` will add a repository to the configuration
+* `doil repo:update` will download the repo to **doil**'s local cache or update
+  it if it is already downloaded
+* `doil instances:create --repo REPO_NAME` will use the repo to create a new
+   instance
+* `doil repo:remove` - removes a repository
+* `doil repo:list` - lists currently registered repositories
 
 ### System
 
-The doil system comes with some little helpers which are usefull if you help develop doil:
+**doil** comes with some helpers which are usefull if you want to hack on **doil**:
 
-* `doil system:deinstall`- doil will be removed from your system
-* `doil system:prune`- Resets the configurations and cached data of doil
-* `doil system:version`- Displays the version
-* `doil system:help`- Displays the main help page
+* `doil system:deinstall` will be remove doil from your system
+* `doil system:prune` will reset the configurations and cached data of doil
+* `doil system:version` displays the version
+* `doil system:help` displays the main help page
 
-#### Aliases
+### SaltStack
 
-* `doil -v|--version` translates to `doil system:version`
-* `doil`, `doil -h|--help` translates to `doil system:help`
+To be able to dive deeper into the inner workings of **doil** or customize it
+to fit your workflow or requirements, **doil** provides commands to tamper with
+the saltstack in the background. These commands will not be required by ordinary
+users, so make sure to understand what you are doing.
 
-## Contributing
-
-Contributions are welcome!
-
-- See [Contributor's Guide](.github/CONTRIBUTING.md "conceptsandtraining/doil contribution guide") before you start.
-- If you face any issues or want to suggest a feature/improvement, start a discussion [here](https://github.com/conceptsandtraining/doil/discussions "doil discussions").
-
-### Support This Project
-
-- If doil saved your developer time, please consider sponsoring doil:
-  - Buy me a [coffee](https://paypal.me/lauraquellmalz)
-  - Buy [premium support](mailto:ilias-dev@concepts-and-training.de)
-  - Checkout [our services](http://concepts-and-training.de)
-- Please [reach out](mailto:ilias-dev@concepts-and-training.de) if you have any questions regarding sponsoring doil.
-- Please star the project and share it. If you blog, please share your experience of using this software.
+* `doil salt:set` sets the repository for the saltstack
+* `doil salt:reset` resets the saltstack to the buildin saltstack
+* `doil salt:update` updates the saltstack if you are using a custom saltstack
+* `doil salt:login` logs the user into the main salt server
+* `doil salt:prune` prunes the main salt server
