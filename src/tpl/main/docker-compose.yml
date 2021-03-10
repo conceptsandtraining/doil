@@ -6,6 +6,8 @@ services:
       dockerfile: Dockerfile
     image: debian:stable
     container_name: saltmain
+    hostname: saltmain
+    domainname: local
     volumes:
       - ./../stack/states:/srv/salt/states
       - ./../stack/config/master.cnf:/etc/salt/master

@@ -126,6 +126,7 @@ users, so make sure to understand what you are doing.
 
 * `doil salt:set` sets the repository for the saltstack
 * `doil salt:reset` resets the saltstack to the buildin saltstack
+* `doil salt:restart` restarts the salt main server
 * `doil salt:update` updates the saltstack if you are using a custom saltstack
 * `doil salt:login` logs the user into the main salt server
 * `doil salt:prune` prunes the main salt server

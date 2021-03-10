@@ -91,3 +91,9 @@ then
   fi
   exit
 fi
+
+if [ $1 == "list" ]
+then
+  doil instances:list
+  exit
+fi

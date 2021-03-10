@@ -46,11 +46,20 @@ unset $oIFS
 # check if section is just plain help
 # if we don't have any command we load the help
 if [ -z "${SECTION}" ] \
-	|| [ "${SECTION}" == "help" ] \
+  || [ "${SECTION}" == "help" ] \
   || [ "${SECTION}" == "--help" ] \
   || [ "${SECTION}" == "-h" ]
 then
   eval "/usr/local/lib/doil/lib/system/help.sh"
+  exit
+fi
+
+# check if section is just plain help
+# if we don't have any command we load the help
+if [ "${SECTION}" == "--version" ] \
+  || [ "${SECTION}" == "-v" ]
+then
+  eval "/usr/local/lib/doil/lib/system/version/version.sh"
   exit
 fi
 
