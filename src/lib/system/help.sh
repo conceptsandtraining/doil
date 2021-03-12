@@ -14,7 +14,8 @@ EXAMPLE:
   doil repo:update --name ilias
 
 SECTIONS
-  instances
-  repo
+  instances manages everything regarding to the instances
+  repo      
   system
+  salt
 EOF

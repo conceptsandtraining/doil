@@ -16,8 +16,10 @@ services:
       - ./volumes/logs:/var/ilias/logs
       - ./volumes/logs/error/:/var/ilias/logs/error
       - ./volumes/logs/apache:/var/log/apache2
-      - %DOILPATH%/tpl/stack/config/minion.cnf:/etc/salt/minion
-      - %DOILPATH%/tpl/minion/salt-minion.conf:/etc/supervisor/conf.d/salt-minion.conf
+      - ./conf/minion.cnf:/etc/salt/minion
+      - type: bind
+        source: ./conf/salt-minion.conf
+        target: /etc/supervisor/conf.d/salt-minion.conf
     environment:
       - ILIAS_INI_PATH=/var/www/html/ilias.ini.php
       - TZ=Europe/Berlin

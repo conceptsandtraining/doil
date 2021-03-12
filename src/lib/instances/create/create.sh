@@ -192,14 +192,16 @@ echo "[${NOW}] Copying necessary files"
 cp "/usr/local/lib/doil/tpl/minion/run-supervisor.sh" "${FOLDERPATH}/conf/run-supervisor.sh"
 cp "/usr/local/lib/doil/tpl/minion/docker-compose.yml" "${FOLDERPATH}/docker-compose.yml"
 cp "/usr/local/lib/doil/tpl/minion/Dockerfile" "${FOLDERPATH}/Dockerfile"
+cp "/usr/local/lib/doil/tpl/stack/config/minion.cnf" "${FOLDERPATH}/conf/minion.cnf"
+cp "/usr/local/lib/doil/tpl/minion/salt-minion.conf" "${FOLDERPATH}/conf/salt-minion.conf"
 
 # copy ilias
-cd "/usr/local/lib/doil/tpl/repo/${REPOSITORY}"
+cd "/usr/local/lib/doil/tpl/repos/${REPOSITORY}"
 git config core.fileMode false
 git fetch origin
 git checkout ${BRANCH}
 git pull origin ${BRANCH}
-cp -r "/usr/local/lib/doil/tpl/repo/${REPOSITORY}" "${FOLDERPATH}/volumes/ilias"
+cp -r "/usr/local/lib/doil/tpl/repos/${REPOSITORY}" "${FOLDERPATH}/volumes/ilias"
 cd ${FOLDERPATH}
 
 ############################
