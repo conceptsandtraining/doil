@@ -33,8 +33,7 @@ then
   exit
 fi
 
-CHECK_DOCKER=$(docker --version | tac | tail -n 1 | cut -d " " -f 3 | cut -c 1-5)
-
+CHECK_DOCKER=$(docker --version | tail -n 1 | cut -d " " -f 3 | cut -c 1-5)
 vercomp () {
   if [[ $1 == $2 ]]
   then
@@ -190,23 +189,6 @@ chown -R ${SUDO_USER}:${SODU_USER} "${HOME}/.doil"
 
 # echo configuration
 echo "ilias=git@github.com:ILIAS-eLearning/ILIAS.git" > "${HOME}/.doil/config/repos"
-#echo "git@github.com:conceptsandtraining/ilias-tool-salt.git" > "${HOME}/.doil/config/saltstack"
-
-###########################
-# Cloning ILIAS (if needed)
-#NOW=$(date +'%d.%m.%Y %I:%M:%S')
-#echo "[${NOW}] Cloning ILIAS"
-#sudo -i -u $SUDO_USER bash << EOF
-#git clone git@github.com:ILIAS-eLearning/ILIAS.git "/usr/local/lib/doil/tpl/repo/ilias"
-#EOF
-
-############################
-# Cloning salt configuration
-#NOW=$(date +'%d.%m.%Y %I:%M:%S')
-#echo "[${NOW}] Cloning salt configuration"
-#sudo -i -u $SUDO_USER bash << EOF
-#git clone git@github.com:conceptsandtraining/ilias-tool-salt.git /usr/local/lib/doil/tpl/stack
-#EOF
 
 #################
 # Everything done

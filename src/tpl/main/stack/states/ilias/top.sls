@@ -1,5 +1,0 @@
-ilias:
-  '*':
-    - ilias
-    - ilCron
-    - ilServer

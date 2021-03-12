@@ -113,7 +113,6 @@ other repositories:
 **doil** comes with some helpers which are usefull if you want to hack on **doil**:
 
 * `doil system:deinstall` will be remove doil from your system
-* `doil system:prune` will reset the configurations and cached data of doil
 * `doil system:version` displays the version
 * `doil system:help` displays the main help page
 

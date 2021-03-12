@@ -195,6 +195,15 @@ cp "/usr/local/lib/doil/tpl/minion/Dockerfile" "${FOLDERPATH}/Dockerfile"
 cp "/usr/local/lib/doil/tpl/stack/config/minion.cnf" "${FOLDERPATH}/conf/minion.cnf"
 cp "/usr/local/lib/doil/tpl/minion/salt-minion.conf" "${FOLDERPATH}/conf/salt-minion.conf"
 
+# setting up config file
+touch "${FOLDERPATH}/conf/doil.conf"
+echo "#!/bin/bash" > "${FOLDERPATH}/conf/doil.conf"
+echo "PROJECT_NAME=\"${NAME}\"" >> "${FOLDERPATH}/conf/doil.conf"
+echo "PROJECT_REPOSITORY=\"${REPOSITORY}\"" >> "${FOLDERPATH}/conf/doil.conf"
+echo "PROJECT_BRANCH=\"${BRANCH}\"" >> "${FOLDERPATH}/conf/doil.conf"
+echo "PROJECT_PHP_VERSION=\"${PHPVERSION}\"" >> "${FOLDERPATH}/conf/doil.conf"
+chmod a+x "${FOLDERPATH}/conf/doil.conf"
+
 # copy ilias
 cd "/usr/local/lib/doil/tpl/repos/${REPOSITORY}"
 git config core.fileMode false

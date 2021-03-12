@@ -43,6 +43,9 @@ then
 fi
 
 $(echo "${REPOSITORY}" > "${HOME}/.doil/config/saltstack")
-rm -rf /usr/local/lib/doil/tpl/stack
+if [[ ! -d /usr/local/lib/doil/tpl/main/stack ]]
+then
+  mv /usr/local/lib/doil/tpl/stack /usr/local/lib/doil/tpl/main/stack
+fi
 git clone ${REPOSITORY} /usr/local/lib/doil/tpl/stack
 echo "saltstack ${REPOSITORY} set."

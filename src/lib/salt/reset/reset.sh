@@ -28,6 +28,6 @@ rm ${HOME}/.doil/config/saltstack
 touch ${HOME}/.doil/config/saltstack
 
 rm -rf /usr/local/lib/doil/tpl/stack
-cp -r /usr/local/lib/doil/tpl/main/stack /usr/local/lib/doil/tpl/stack
+mv /usr/local/lib/doil/tpl/main/stack /usr/local/lib/doil/tpl/stack
 
 echo "saltstack resetted."
