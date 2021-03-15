@@ -55,7 +55,35 @@ then
   DCDOMAIN=$(doil_get_data $DCHASH "domainname")
 
   # sends the repair commands to the salt main server
-  
+  CWD=$(pwd)
+  PROJECT_CONFIG="${CWD}/conf/doil.conf"
+  source ${PROJECT_CONFIG}
+
+  # get the ILIAS version of this project
+  # to apply the correct ILIAS state
+  ILIAS_VERSION_FILE=$(cat -e ${CWD}/volumes/ilias/include/inc.ilias_version.php | grep "ILIAS_VERSION_NUMERIC")
+  ILIAS_VERSION=${ILIAS_VERSION_FILE:33:1}
+
+  DCMAIN=$(docker ps | grep "saltmain")
+  DCMAINHASH=${DCMAIN:0:12}
+
+  NOW=$(date +'%d.%m.%Y %I:%M:%S')
+  echo "[$NOW] Applying states. This will take a while."
+
+  docker exec -t -i ${DCMAINHASH} /bin/bash -c "salt '${PROJECT_NAME}.local' state.highstate saltenv=base --state-output=terse"
+  docker exec -t -i ${DCMAINHASH} /bin/bash -c "salt '${PROJECT_NAME}.local' state.highstate saltenv=dev --state-output=terse"
+  docker exec -t -i ${DCMAINHASH} /bin/bash -c "salt '${PROJECT_NAME}.local' state.highstate saltenv=php${PROJECT_PHP_VERSION} --state-output=terse"
+  docker exec -t -i ${DCMAINHASH} /bin/bash -c "salt '${PROJECT_NAME}.local' state.highstate saltenv=ilias --state-output=terse"
+  if (( ${ILIAS_VERSION} == 6 ))
+  then
+    docker exec -t -i ${DCMAINHASH} /bin/bash -c "salt '${PROJECT_NAME}.local' state.highstate saltenv=composer --state-output=terse"
+  elif (( ${ILIAS_VERSION} > 6 ))
+  then
+    docker exec -t -i ${DCMAINHASH} /bin/bash -c "salt '${PROJECT_NAME}.local' state.highstate saltenv=composer2 --state-output=terse"
+  elif (( ${ILIAS_VERSION} < 6 ))
+  then
+    docker exec -t -i ${DCMAINHASH} /bin/bash -c "salt '${PROJECT_NAME}.local' state.highstate saltenv=composer54 --state-output=terse"
+  fi
 
   NOW=$(date +'%d.%m.%Y %I:%M:%S')
   echo "[$NOW] Instance repaired"
@@ -63,7 +91,7 @@ else
   LINKNAME="${HOME}/.doil/${INSTANCE}"
   if [ -h "${LINKNAME}" ]
   then
-    TARGET=$(readlink -f ${LINKNAME})
+    TARGET=$(readlink ${LINKNAME})
     cd ${TARGET}
     eval "doil instances:repair"
   else

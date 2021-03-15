@@ -48,7 +48,7 @@ else
   LINKNAME="${HOME}/.doil/$INSTANCE"
   if [ -h "${LINKNAME}" ]
   then
-    TARGET=$(readlink -f ${LINKNAME})
+    TARGET=$(readlink ${LINKNAME})
     cd ${TARGET}
     eval "doil instances:down"
   else

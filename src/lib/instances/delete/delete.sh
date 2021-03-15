@@ -1,5 +1,9 @@
 #!/bin/bash
 
+# get the helper
+source /usr/local/lib/doil/lib/include/env.sh
+source /usr/local/lib/doil/lib/include/helper.sh
+
 # we can move the pointer one position
 shift
 
@@ -35,14 +39,18 @@ then
   cd $CAD
 
   # remove directory
-  the_path=$(realpath ${LINKNAME})
+  the_path=$(readlink ${LINKNAME})
   sudo rm -rf $the_path
 
   # remove link
   rm -f "${HOME}/.doil/$INSTANCE"
 
   # remove entry from the hosts
-  sudo sed -i "/${INSTANCE}.local$/d" /etc/hosts
+  if [ ${HOST} == "linux" ]; then
+    sudo sed -i "/${INSTANCE}.local$/d" /etc/hosts
+  elif [ ${HOST} == "mac" ]; then
+    sudo sed -i "" "/${INSTANCE}.local$/d" /etc/hosts
+  fi
 
   NOW=$(date +'%d.%m.%Y %I:%M:%S')
   echo "[$NOW] Instance deleted"

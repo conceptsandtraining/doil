@@ -1,0 +1,3 @@
+composer2:
+  '*':
+    - composer

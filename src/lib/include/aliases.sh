@@ -92,6 +92,17 @@ then
   exit
 fi
 
+if [ $1 == "repair" ]
+then
+  if [ -z ${2:+x} ]
+  then
+    doil instances:repair
+  else
+    doil instances:repair $2
+  fi
+  exit
+fi
+
 if [ $1 == "list" ]
 then
   doil instances:list

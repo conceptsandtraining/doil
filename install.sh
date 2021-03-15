@@ -143,6 +143,8 @@ elif [ $OPS == "mac" ]
     rm -rf /usr/local/lib/doil
   fi
 fi
+#rm -rf /usr/local/lib/doil/lib/
+#rm -rf /usr/local/lib/doil/tpl/stack
 
 #########################
 # Copying the doil system

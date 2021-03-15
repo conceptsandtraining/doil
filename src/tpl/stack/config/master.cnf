@@ -662,10 +662,14 @@ file_roots:
     - /srv/salt/states/php7.3
   php7.4:
     - /srv/salt/states/php7.4
-  ilias54:
-    - /srv/salt/states/ilias54
   ilias:
     - /srv/salt/states/ilias
+  composer:
+  - /srv/salt/states/composer
+  composer2:
+  - /srv/salt/states/composer2
+  composer54:
+  - /srv/salt/states/composer54
 
 # The master_roots setting configures a master-only copy of the file_roots dictionary,
 # used by the state compiler.

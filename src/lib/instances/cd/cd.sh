@@ -27,7 +27,7 @@ then
   LINKNAME="${HOME}/.doil/${INSTANCE}"
   if [ -h "${LINKNAME}" ]
   then
-    TARGET=$(readlink -f ${LINKNAME})
+    TARGET=$(readlink ${LINKNAME})
     builtin cd ${TARGET} 2> /dev/null
     exec bash
   else

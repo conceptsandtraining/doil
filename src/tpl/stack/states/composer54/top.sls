@@ -1,0 +1,3 @@
+composer54:
+  '*':
+    - composer

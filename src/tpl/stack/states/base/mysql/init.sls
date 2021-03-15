@@ -51,6 +51,9 @@ mysql_adduser:
     - name: ilias
     - host: 'localhost'
     - password: ilias
+    - unless:
+      - fun: mysql_user.exists
+      - name: 'ilias'
 
 mysql_grant:
   mysql_grants.present:

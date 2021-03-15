@@ -341,17 +341,24 @@ docker exec -t -i ${DCMAINHASH} /bin/bash -c "salt '${NAME}.local' state.highsta
 # apply ilias state
 NOW=$(date +'%d.%m.%Y %I:%M:%S')
 echo "[${NOW}] Apply ilias state"
+docker exec -t -i ${DCMAINHASH} /bin/bash -c "salt '${NAME}.local' state.highstate saltenv=ilias --state-output=terse"
 
-if [[ ${BRANCH} == "release_5-4" ]]
-then
-  ILIASSTATE="ilias54"
-else
-  ILIASSTATE="ilias6"
-fi
+######################
+# apply composer state
+NOW=$(date +'%d.%m.%Y %I:%M:%S')
+echo "[${NOW}] Apply composer state"
 
-if [ ! -z ${ILIASSTATE} ]
+ILIAS_VERSION_FILE=$(cat -e ${FOLDERPATH}/volumes/ilias/include/inc.ilias_version.php | grep "ILIAS_VERSION_NUMERIC")
+ILIAS_VERSION=${ILIAS_VERSION_FILE:33:1}
+if (( ${ILIAS_VERSION} == 6 ))
 then
-  docker exec -t -i ${DCMAINHASH} /bin/bash -c "salt '${NAME}.local' state.highstate saltenv=${ILIASSTATE} --state-output=terse"
+  docker exec -t -i ${DCMAINHASH} /bin/bash -c "salt '${NAME}.local' state.highstate saltenv=composer --state-output=terse"
+elif (( ${ILIAS_VERSION} > 6 ))
+then
+  docker exec -t -i ${DCMAINHASH} /bin/bash -c "salt '${NAME}.local' state.highstate saltenv=composer2 --state-output=terse"
+elif (( ${ILIAS_VERSION} < 6 ))
+then
+  docker exec -t -i ${DCMAINHASH} /bin/bash -c "salt '${NAME}.local' state.highstate saltenv=composer54 --state-output=terse"
 fi
 
 #########################
