@@ -5,14 +5,12 @@ testing environments for ILIAS. It will create and provision a docker container
 according to your requirements, pull the ILIAS version you want to use and even
 install it if possible.
 
-
 ## Setup
 
 1. download and unpack the [latest release](https://github.com/conceptsandtraining/ilias-tool-doil/releases)
 1. execute `sudo ./install.sh` in order to install **doil**
 1. you can remove the downloaded folder afterwards
 1. check `doil help` for available commands and further instructions
-
 
 ## Dependencies
 
@@ -21,7 +19,6 @@ However **doil** needs [Docker](https://www.docker.com/) in order to work:
 
 * docker version >= 19.03
 * docker-compose version >= 1.25.0
-
 
 ## Usage
 
@@ -46,8 +43,9 @@ The following commands are available:
 * `doil login` logs you into the container running the instance
 * `doil down` stops an instance to free the ressources it needs
 * `doil delete` deletes an instance you do not need anymore
+* `doil repair` repairs the system of an instance
+* `doil update` updates the system of an instance
 * look into `doil instances --help` for further commands related to instances
-
 
 ## Contributions and Support
 
@@ -75,7 +73,6 @@ If doil saved your precious time and brain power, please consider supporting
 * Reach out to [Richard](richard.klees@concepts-and-training.de) if you need
   more support than we can offer for free or want to get involved with **doil**
   in other ways.
-
 
 ## Background, Troubleshooting and Development
 

@@ -8,10 +8,12 @@ SYNOPSIS
   doil instances:[command]
 
 DESCRIPTION
-  This section manages ...
+  This section provides everything belonging to the management of
+  the instances. Every command comes with its own help which you
+  can access by adding --help|-h to it.
 
 EXAMPLE:
-  doil instances:list - shows all currently registered instances
+  doil instances:list
 
 COMMANDS
   cd     switches the active directory to the instances folder
@@ -21,5 +23,6 @@ COMMANDS
   up     starts an instance
   down   stops an instance
   list   lists the instances
-  repair repairs an instance
+  repair repairs the system of an instance
+  update updates the system of an instance
 EOF

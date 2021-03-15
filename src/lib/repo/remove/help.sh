@@ -14,6 +14,5 @@ EXAMPLE:
   doil repo:remove --name ilias
 
 OPTIONS
-  -v|--verbose be verbose
   -h|--help    displays this help message
 EOF

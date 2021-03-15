@@ -8,12 +8,12 @@ SYNOPSIS
   doil salt:set <--repo|-r <repository>>
 
 DESCRIPTION
-  This command ...
+  This command sets a personal saltstack for the salt master server.
 
 EXAMPLE:
   doil salt:set --repo git@github.com:ILIAS-eLearning/ILIAS.git
 
 OPTIONS
-  -r|--repo    sets the url of the repository
-  -h|--help    displays this help message
+  -r|--repo sets the url of the repository
+  -h|--help displays this help message
 EOF

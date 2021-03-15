@@ -15,6 +15,5 @@ EXAMPLE:
   doil repo:update ilias
 
 OPTIONS
-  -v|--verbose be verbose
   -h|--help    displays this help message
 EOF

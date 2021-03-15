@@ -15,5 +15,5 @@ EXAMPLE:
   doil salt:restart
 
 OPTIONS
-  -h|--help       displays this help message
+  -h|--help displays this help message
 EOF

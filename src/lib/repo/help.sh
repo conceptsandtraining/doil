@@ -9,8 +9,9 @@ SYNOPSIS
 
 DESCRIPTION
   This command manages the registered repositories in doil. You
-  can add, remove, list and update the repositories. See
-  doil repo:[command] help for more information
+  can add, remove, list and update the repositories. Every command
+  comes with its own help which you can access by
+  adding --help|-h to it.
 
 EXAMPLE:
   doil repo:update ilias

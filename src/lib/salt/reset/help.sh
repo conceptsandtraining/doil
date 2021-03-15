@@ -8,11 +8,12 @@ SYNOPSIS
   doil salt:reset
 
 DESCRIPTION
-  This command ...
+  This commands switches the saltstack back to the the buildin
+  saltstack and removes the personal saltstack
 
 EXAMPLE:
   doil salt:reset
 
 OPTIONS
-  -h|--help    displays this help message
+  -h|--help displays this help message
 EOF

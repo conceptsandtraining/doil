@@ -12,4 +12,7 @@ DESCRIPTION
 
 EXAMPLE:
   doil repo:list
+
+OPTIONS
+  -h|--help    displays this help message
 EOF

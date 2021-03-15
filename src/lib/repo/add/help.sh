@@ -2,7 +2,7 @@
 
 cat <<-EOF
 NAME
-  doil repo:add - adds a repository to the configuration file
+  doil repo:add - adds a repository
 
 SYNOPSIS
   doil repo:add [--name|-n <name>] [--repo|-r <repository>]
@@ -18,6 +18,5 @@ EXAMPLE:
 OPTIONS
   -n|--name    sets the name of the repository
   -r|--repo    sets the url of the repository
-  -v|--verbose be verbose
   -h|--help    displays this help message
 EOF

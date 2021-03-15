@@ -10,7 +10,8 @@ SYNOPSIS
 DESCRIPTION
   This section helps to manage the saltstack. You can use some commands
   to troubleshoot and debug if you encounter problems with the main
-  salt server.
+  salt server. Every command comes with its own help which you can
+  access by adding --help|-h to it.
 
 EXAMPLE:
   doil salt:set --repo https://github.com/lauraquellmalz/sample-salt-configuration

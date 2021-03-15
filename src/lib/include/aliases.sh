@@ -103,6 +103,17 @@ then
   exit
 fi
 
+if [ $1 == "update" ]
+then
+  if [ -z ${2:+x} ]
+  then
+    doil instances:update
+  else
+    doil instances:update $2
+  fi
+  exit
+fi
+
 if [ $1 == "list" ]
 then
   doil instances:list

@@ -5,20 +5,26 @@ NAME
   doil instances:create - creates an instance
 
 SYNOPSIS
-  doil instances:create \
-    <--name|-n <name>> \
-    <--repo|-r <repository>> \
-    <--branch|-b <branch>> \
-    <--phpversion|-p <php version>> \
+  doil instances:create
+    [--name|-n <name>]
+    [--repo|-r <repository>]
+    [--branch|-b <branch>]
+    [--phpversion|-p <php version>]
     [--target|-t <path to target folder>]
 
+ALIAS
+  doil create
+
 DESCRIPTION
-  This command creates an instance ...
+  This command creates an instance depending on the given
+  parameters. If you donot specify any parameter you will
+  be promted with a wizard.
 
 EXAMPLE:
-  doil instances:create --name ilias \
-    --repo ilias \
-    --branch release_6 \
+  doil instances:create
+    --name ilias
+    --repo ilias
+    --branch release_6
     --phpversion 7.3
 
 OPTIONS
@@ -28,6 +34,5 @@ OPTIONS
   -p|--phpversion sets the php version
   -t|--target     optional: sets the target destination for the instance.
                   If the folder does not exist, it will be created
-  -v|--verbose    be verbose
   -h|--help       displays this help message
 EOF
