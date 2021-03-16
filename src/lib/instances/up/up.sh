@@ -55,14 +55,11 @@ then
   DCDOMAIN=$(doil_get_data $DCHASH "domainname")
 
   HOS="linux"
-  if [ ${HOS} == "linux" ]
+  if [ ${HOST} == "linux" ]
   then
     sudo sed -i "/${DCHOSTNAME}.${DCDOMAIN}$/d" /etc/hosts
-  elif [ ${HOS} == "mac" ]
-  then
-    sudo sed -i  "" "/${DCHOSTNAME}.${DCDOMAIN}$/d" /etc/hosts
+    sudo /bin/bash -c "echo \"$DCIP $DCHOSTNAME.$DCDOMAIN\" >> /etc/hosts"
   fi
-  sudo /bin/bash -c "echo \"$DCIP $DCHOSTNAME.$DCDOMAIN\" >> /etc/hosts"
 
   NOW=$(date +'%d.%m.%Y %I:%M:%S')
   echo "[$NOW] Instance started"

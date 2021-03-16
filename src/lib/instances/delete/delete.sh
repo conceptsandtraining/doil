@@ -48,9 +48,10 @@ then
   # remove entry from the hosts
   if [ ${HOST} == "linux" ]; then
     sudo sed -i "/${INSTANCE}.local$/d" /etc/hosts
-  elif [ ${HOST} == "mac" ]; then
-    sudo sed -i "" "/${INSTANCE}.local$/d" /etc/hosts
   fi
+
+  # docker
+  docker image rm doil/$INSTANCE
 
   NOW=$(date +'%d.%m.%Y %I:%M:%S')
   echo "[$NOW] Instance deleted"
