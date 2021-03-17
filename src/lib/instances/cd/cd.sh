@@ -29,7 +29,7 @@ then
   then
     TARGET=$(readlink ${LINKNAME})
     builtin cd ${TARGET} 2> /dev/null
-    exec bash
+    exec $SHELL
   else
     echo -e "\033[1mERROR:\033[0m"
     echo -e "\tInstance not found!"
