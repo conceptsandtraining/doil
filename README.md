@@ -86,7 +86,7 @@ If doil saved your precious time and brain power, please consider supporting
 
 ## Background, Troubleshooting and Development
 
-**doil** uses [SaltStack](https://www.saltstack.com/) to provision and maintain
+**doil** uses [SaltStack](https://docs.saltproject.io/en/latest/) to provision and maintain
 the instances. [Docker](https://www.docker.com/) is only used as a light weight
 and widely available VM-like technology to run sufficiently isolated linux
 environments. SaltStack uses an architecture where one master acts as a central
