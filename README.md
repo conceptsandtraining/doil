@@ -5,12 +5,20 @@ testing environments for ILIAS. It will create and provision a docker container
 according to your requirements, pull the ILIAS version you want to use and even
 install it if possible.
 
-## Setup
+## Installation
 
-1. download and unpack the [latest release](https://github.com/conceptsandtraining/ilias-tool-doil/releases)
+1. download and unpack the [latest release](https://github.com/conceptsandtraining/doil/releases)
 1. execute `sudo ./install.sh` in order to install **doil**
 1. you can remove the downloaded folder afterwards
 1. check `doil help` for available commands and further instructions
+
+## Update
+
+If you alread installed **doil** you can easily update with following steps:
+
+1. download and unpack the [latest release](https://github.com/conceptsandtraining/doil/releases)
+1. execute `sudo ./update.sh` in order to update **doil**
+1. you can remove the downloaded folder afterwards
 
 ## Dependencies
 
@@ -136,3 +144,12 @@ users, so make sure to understand what you are doing.
 * `doil salt:update` updates the saltstack if you are using a custom saltstack
 * `doil salt:login` logs the user into the main salt server
 * `doil salt:prune` prunes the main salt server
+
+## Changelog
+
+### 1.0.1
+
+* Fixed a bug in linux templates where the port 80 is blocked so no machine
+  could be started
+* Added update script
+* Changed readme (thanks @Rillke)

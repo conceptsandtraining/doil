@@ -190,10 +190,16 @@ echo "[${NOW}] Copying necessary files"
 
 # docker stuff
 cp "/usr/local/lib/doil/tpl/minion/run-supervisor.sh" "${FOLDERPATH}/conf/run-supervisor.sh"
-cp "/usr/local/lib/doil/tpl/minion/docker-compose.yml" "${FOLDERPATH}/docker-compose.yml"
 cp "/usr/local/lib/doil/tpl/minion/Dockerfile" "${FOLDERPATH}/Dockerfile"
 cp "/usr/local/lib/doil/tpl/stack/config/minion.cnf" "${FOLDERPATH}/conf/minion.cnf"
 cp "/usr/local/lib/doil/tpl/minion/salt-minion.conf" "${FOLDERPATH}/conf/salt-minion.conf"
+if [[ ${HOST} == 'linux' ]]
+then
+  cp "/usr/local/lib/doil/tpl/minion/docker-compose.yml" "${FOLDERPATH}/docker-compose.yml"
+elif [[ ${HOST} == 'mac' ]]
+then
+  cp "/usr/local/lib/doil/tpl/minion/docker-compose-mac.yml" "${FOLDERPATH}/docker-compose.yml"
+fi 
 
 # setting up config file
 touch "${FOLDERPATH}/conf/doil.conf"
@@ -254,7 +260,7 @@ fi
 until [[ ! -z ${DCMAINSALTSERVICE} ]]
 do
   echo "Master service not ready ..."
-  sleep 0.1
+  doil salt:restart
 done
 echo "Master service ready."
 
@@ -301,14 +307,14 @@ fi
 # check if the new key is registered
 SALTKEYS=$(docker exec -t -i ${DCMAINHASH} /bin/bash -c "salt-key -L" | grep "${NAME}.local")
 
-if [ ! -z ${SALTKEYS} ]
+if [[ ! -z ${SALTKEYS} ]]
 then
   echo "Key not ready yet"
   sleep 5
 
   SALTKEYS=$(docker exec -t -i ${DCMAINHASH} /bin/bash -c "salt-key -L" | grep "${NAME}.local")
 
-  if [ ! -z ${SALTKEYS} ]
+  if [[ ! -z ${SALTKEYS} ]]
   then
     echo "Key not ready yet"
     sleep 5

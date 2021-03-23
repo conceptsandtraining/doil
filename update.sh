@@ -98,50 +98,18 @@ case "$(uname -s)" in
     ;;
 esac
 
-#####################
-# create the log file
-NOW=$(date +'%d.%m.%Y %I:%M:%S')
-echo "[${NOW}] Started installing doil"
-touch /var/log/doil.log
-chown ${SUDO_USER}:${SODU_USER} "/var/log/doil.log"
-
 ################################
 # Removing old version if needed
 NOW=$(date +'%d.%m.%Y %I:%M:%S')
-echo "[${NOW}] Removing old version if needed"
+echo "[${NOW}] Removing old version"
 
-if [ $OPS == "linux" ]
+if [ -f "/usr/local/bin/doil" ]
 then
-  if [ -f "/usr/local/bin/doil" ]
-  then
-    rm /usr/local/bin/doil
-  fi
-  if [ -d "/usr/local/lib/doil" ]
-  then
-    rm -rf /usr/local/lib/doil
-  fi
-  if [ -d "/usr/lib/doil" ]
-  then
-    rm -r /usr/lib/doil
-  fi
-  if [ -f "/usr/share/man/man1/doil.1" ]
-  then
-    rm /usr/share/man/man1/doil.1
-  fi
-  if [ -f "/usr/share/man/man1/doil.1.gz" ]
-  then
-    rm "/usr/share/man/man1/doil.1.gz"
-  fi
-elif [ $OPS == "mac" ]
-  then
-  if [ -f "/usr/local/bin/doil" ]
-  then
-    rm /usr/local/bin/doil
-  fi
-  if [ -d "/usr/local/lib/doil" ]
-  then
-    rm -rf /usr/local/lib/doil
-  fi
+  rm /usr/local/bin/doil
+fi
+if [ -d "/usr/local/lib/doil" ]
+then
+  rm -rf /usr/local/lib/doil/lib
 fi
 
 #########################
@@ -159,36 +127,7 @@ then
   mkdir /usr/local/lib/doil
 fi
 cp -r src/lib /usr/local/lib/doil/lib
-cp -r src/tpl /usr/local/lib/doil/tpl
-chmod -R 777 /usr/local/lib/doil/
 chmod -R a+x /usr/local/lib/doil/lib
-
-################################
-# Setting up local configuration
-NOW=$(date +'%d.%m.%Y %I:%M:%S')
-echo "[${NOW}] Setting up local configuration"
-
-# setup local doil folder
-HOME=$(eval echo "~${SUDO_USER}")
-if [ ! -d "${HOME}/.doil" ]
-then
-  mkdir "${HOME}/.doil"
-fi
-
-# setup the local configuration for the repos and the stack
-if [ ! -d "${HOME}/.doil/config" ]
-then
-  mkdir "${HOME}/.doil/config"
-fi
-
-touch "${HOME}/.doil/config/repos"
-touch "${HOME}/.doil/config/saltstack"
-
-# for the user
-chown -R ${SUDO_USER}:${SODU_USER} "${HOME}/.doil"
-
-# echo configuration
-echo "ilias=git@github.com:ILIAS-eLearning/ILIAS.git" > "${HOME}/.doil/config/repos"
 
 #################
 # Everything done
