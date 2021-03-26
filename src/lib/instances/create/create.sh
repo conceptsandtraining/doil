@@ -241,6 +241,7 @@ echo "[${NOW}] Starting master salt service"
 # start service
 cd /usr/local/lib/doil/tpl/main
 docker-compose up -d
+sleep 5
 
 ##############################
 # checking master salt service
@@ -251,7 +252,7 @@ echo "[${NOW}] Checking master salt service"
 DCMAIN=$(docker ps | grep "saltmain")
 DCMAINHASH=${DCMAIN:0:12}
 
-DCMAINSALTSERVICE=$(docker exec -ti ${DCMAINHASH} bash -c "ps -aux | grep salt-master" | grep "/usr/bin/salt-master -d")
+DCMAINSALTSERVICE=$(docker top ${DCMAINHASH} | grep "salt-master")
 if [[ -z ${DCMAINSALTSERVICE} ]]
 then
   $(docker exec -ti ${DCMAINHASH} bash -c "salt-master -d")
@@ -261,7 +262,7 @@ until [[ ! -z ${DCMAINSALTSERVICE} ]]
 do
   echo "Master service not ready ..."
   doil salt:restart
-  DCMAINSALTSERVICE=$(docker exec -ti ${DCMAINHASH} bash -c "ps -aux | grep salt-master" | grep "/usr/bin/salt-master -d")
+  DCMAINSALTSERVICE=$(docker top ${DCMAINHASH} | grep "salt-master")
 done
 echo "Master service ready."
 
@@ -305,7 +306,7 @@ fi
 
 # check if the new key is registered
 SALTKEYS=$(docker exec -t -i ${DCMAINHASH} /bin/bash -c "salt-key -L" | grep "${NAME}.local")
-until [[ -z ${SALTKEYS} ]]
+until [[ ! -z ${SALTKEYS} ]]
 do
   echo "Key not ready yet ... waiting"
   sleep 5
