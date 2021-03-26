@@ -266,6 +266,10 @@ do
 done
 echo "Master service ready."
 
+# set the saltmain again because we maybe did restart the service
+DCMAIN=$(docker ps | grep "saltmain")
+DCMAINHASH=${DCMAIN:0:12}
+
 #######################
 # building minion image
 NOW=$(date +'%d.%m.%Y %I:%M:%S')
