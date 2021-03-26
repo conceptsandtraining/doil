@@ -261,6 +261,7 @@ until [[ ! -z ${DCMAINSALTSERVICE} ]]
 do
   echo "Master service not ready ..."
   doil salt:restart
+  DCMAINSALTSERVICE=$(docker exec -ti ${DCMAINHASH} bash -c "ps -aux | grep salt-master" | grep "/usr/bin/salt-master -d")
 done
 echo "Master service ready."
 
@@ -281,8 +282,6 @@ echo "[${NOW}] Starting salt minion service"
 # start the docker service
 cd ${FOLDERPATH}
 docker-compose up -d
-docker-compose down
-docker-compose up -d
 sleep 5
 
 #########################
@@ -297,7 +296,7 @@ DCMINIONHASH=$(doil_get_hash ${DCMINIONFOLDER})
 DCMINIONSALTSERVICE=$(docker container top ${DCMINIONHASH} | grep "salt-minion")
 
 # wait until the service is there
-if [[ ! -z ${DCMINIONSALTSERVICE} ]]
+if [[ -z ${DCMINIONSALTSERVICE} ]]
 then
   echo "Minion service not ready ... starting"
   docker exec -ti ${DCMINIONHASH} bash -c "salt-minion -d"
@@ -306,28 +305,17 @@ fi
 
 # check if the new key is registered
 SALTKEYS=$(docker exec -t -i ${DCMAINHASH} /bin/bash -c "salt-key -L" | grep "${NAME}.local")
-
-if [[ ! -z ${SALTKEYS} ]]
-then
-  echo "Key not ready yet"
+until [[ -z ${SALTKEYS} ]]
+do
+  echo "Key not ready yet ... waiting"
   sleep 5
-
   SALTKEYS=$(docker exec -t -i ${DCMAINHASH} /bin/bash -c "salt-key -L" | grep "${NAME}.local")
-
-  if [[ ! -z ${SALTKEYS} ]]
-  then
-    echo "Key not ready yet"
-    sleep 5
-  else
-    echo "Key ready"
-  fi
-else
-  echo "Key ready"
-fi
+done
+echo "Key ready"
 
 ##################
 # apply base state
-NOW=$(date +'%D.%M.%Y %I:%M:%S')
+NOW=$(date +'%d.%m.%Y %I:%M:%S')
 echo "[${NOW}] Apply base state"
 docker exec -t -i ${DCMAINHASH} /bin/bash -c "salt '${NAME}.local' state.highstate saltenv=base --state-output=terse"
 
@@ -390,7 +378,7 @@ cp "/usr/local/lib/doil/tpl/minion/README.md" "${FOLDERPATH}/README.md"
 if [ ${HOST} == "linux" ]; then
   sed -i "s/%TPL_PROJECT_NAME%/${NAME}/g" "${FOLDERPATH}/README.md"
 elif [ ${HOST} == "mac" ]; then
-  sed -i "s/%TPL_PROJECT_NAME%/${NAME}/g" "${FOLDERPATH}/README.md"
+  sed -i "" "s/%TPL_PROJECT_NAME%/${NAME}/g" "${FOLDERPATH}/README.md"
 fi
 
 #################
