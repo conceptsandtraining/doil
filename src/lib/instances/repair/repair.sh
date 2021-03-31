@@ -48,12 +48,11 @@ then
   $(doil salt:restart)
   sleep 5
 
-  DCMAINSALTSERVICE=$(docker exec -ti ${DCMAINHASH} bash -c "ps -aux | grep salt-master" | grep "/usr/bin/salt-master -d")
+  DCMAINSALTSERVICE=$(docker exec -ti ${DCMAINHASH} bash -c "ps -aux | grep salt-master")
   until [[ ! -z ${DCMAINSALTSERVICE} ]]
   do
     echo "Master service not ready ..."
-    $(doil salt:restart)
-    DCMAINSALTSERVICE=$(docker exec -ti ${DCMAINHASH} bash -c "ps -aux | grep salt-master" | grep "/usr/bin/salt-master -d")
+    DCMAINSALTSERVICE=$(docker exec -ti ${DCMAINHASH} bash -c "ps -aux | grep salt-master")
   done
   echo "Master service ready."
 
