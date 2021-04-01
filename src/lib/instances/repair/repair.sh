@@ -44,8 +44,25 @@ then
   NOW=$(date +'%d.%m.%Y %I:%M:%S')
   echo "[$NOW] Rapairing instance"
 
+  # get the salt server ready
+  $(doil salt:restart)
+  sleep 5
+
+  DCMAINSALTSERVICE=$(docker exec -ti ${DCMAINHASH} bash -c "ps -aux | grep salt-master")
+  until [[ ! -z ${DCMAINSALTSERVICE} ]]
+  do
+    echo "Master service not ready ..."
+    DCMAINSALTSERVICE=$(docker exec -ti ${DCMAINHASH} bash -c "ps -aux | grep salt-master")
+  done
+  echo "Master service ready."
+
+  # prune system
+  $(docker exec -t -i ${DCMAINHASH} /bin/bash -c 'echo "y" | salt-key -D')
+  $(docker rmi $(docker images "doil/${INSTANCE}" -a -q))
+
   # Start the container
   docker-compose up -d
+  sleep 5
 
   # remove the current ip from the host file and add the new one
   DCFOLDER=${PWD##*/}
@@ -53,6 +70,25 @@ then
   DCIP=$(doil_get_data $DCHASH "ip")
   DCHOSTNAME=$(doil_get_data $DCHASH "hostname")
   DCDOMAIN=$(doil_get_data $DCHASH "domainname")
+
+  DCMINIONSALTSERVICE=$(docker container top ${DCHASH} | grep "salt-minion")
+  # wait until the service is there
+  if [[ -z ${DCMINIONSALTSERVICE} ]]
+  then
+    echo "Minion service not ready ... starting"
+    docker exec -ti ${DCMINIONHASH} bash -c "salt-minion -d"
+    sleep 5
+  fi
+
+  # check if the new key is registered
+  SALTKEYS=$(docker exec -t -i ${DCMAINHASH} /bin/bash -c "salt-key -L" | grep "${NAME}.local")
+  until [[ -z ${SALTKEYS} ]]
+  do
+    echo "Key not ready yet ... waiting"
+    sleep 5
+    SALTKEYS=$(docker exec -t -i ${DCMAINHASH} /bin/bash -c "salt-key -L" | grep "${NAME}.local")
+  done
+  echo "Key ready"
 
   # sends the repair commands to the salt main server
   CWD=$(pwd)
@@ -84,6 +120,9 @@ then
   then
     docker exec -t -i ${DCMAINHASH} /bin/bash -c "salt '${PROJECT_NAME}.local' state.highstate saltenv=composer54 --state-output=terse"
   fi
+
+  # commit docker container
+  docker commit ${DCHASH} doil/${PROJECT_NAME}:stable
 
   NOW=$(date +'%d.%m.%Y %I:%M:%S')
   echo "[$NOW] Instance repaired"
