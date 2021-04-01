@@ -147,6 +147,11 @@ users, so make sure to understand what you are doing.
 
 ## Changelog
 
+### 1.0.2
+
+* Made the salt master and minion comunication more solid
+* Fixed minor issues
+
 ### 1.0.1
 
 * Fixed a bug in linux templates where the port 80 is blocked so no machine
