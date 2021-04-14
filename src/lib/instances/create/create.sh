@@ -263,6 +263,7 @@ until [[ ! -z ${DCMAINSALTSERVICE} ]]
 do
   echo "Master service not ready ..."
   doil salt:restart
+  sleep 5
   DCMAINSALTSERVICE=$(docker top ${DCMAINHASH} | grep "salt-master")
 done
 echo "Master service ready."
@@ -308,6 +309,11 @@ then
   docker exec -ti ${DCMINIONHASH} bash -c "salt-minion -d"
   sleep 5
 fi
+
+##############
+# checking key
+NOW=$(date +'%d.%m.%Y %I:%M:%S')
+echo "[${NOW}] Checking key"
 
 # check if the new key is registered
 SALTKEYS=$(docker exec -t -i ${DCMAINHASH} /bin/bash -c "salt-key -L" | grep "${NAME}.local")
