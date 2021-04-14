@@ -133,6 +133,9 @@ chmod -R a+x /usr/local/lib/doil/lib
 rm -rf /usr/local/lib/doil/tpl/main
 cp -r src/tpl/main /usr/local/lib/doil/tpl/main
 
+rm -rf /usr/local/lib/doil/tpl/minion
+cp -r src/tpl/minion /usr/local/lib/doil/tpl/minion
+
 #################
 # Everything done
 NOW=$(date +'%d.%m.%Y %I:%M:%S')
