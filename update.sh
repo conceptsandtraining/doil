@@ -129,6 +129,10 @@ fi
 cp -r src/lib /usr/local/lib/doil/lib
 chmod -R a+x /usr/local/lib/doil/lib
 
+# rk
+rm -rf /usr/local/lib/doil/tpl/main
+cp -r src/tpl/main /usr/local/lib/doil/tpl/main
+
 #################
 # Everything done
 NOW=$(date +'%d.%m.%Y %I:%M:%S')
