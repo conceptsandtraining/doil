@@ -144,17 +144,3 @@ users, so make sure to understand what you are doing.
 * `doil salt:update` updates the saltstack if you are using a custom saltstack
 * `doil salt:login` logs the user into the main salt server
 * `doil salt:prune` prunes the main salt server
-
-## Changelog
-
-### 1.0.2
-
-* Made the salt master and minion comunication more solid
-* Fixed minor issues
-
-### 1.0.1
-
-* Fixed a bug in linux templates where the port 80 is blocked so no machine
-  could be started
-* Added update script
-* Changed readme (thanks @Rillke)

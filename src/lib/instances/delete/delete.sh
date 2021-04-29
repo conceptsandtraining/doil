@@ -51,7 +51,7 @@ then
   fi
 
   # docker
-  $(docker rmi $(docker images "doil/${INSTANCE}" -a -q))
+  DELETE=$(docker rmi $(docker images "doil/${INSTANCE}" -a -q))
 
   NOW=$(date +'%d.%m.%Y %I:%M:%S')
   echo "[$NOW] Instance deleted"
