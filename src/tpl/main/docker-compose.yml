@@ -1,11 +1,10 @@
-version: "3.7"
+version: "3.5"
 services:
   saltmain:
     build:
       context: .
       dockerfile: Dockerfile
-    image: debian:stable
-    init: true
+    image: saltmain
     container_name: saltmain
     hostname: saltmain
     domainname: local
