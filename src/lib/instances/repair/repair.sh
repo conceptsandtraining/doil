@@ -43,7 +43,7 @@ then
   fi
 
   NOW=$(date +'%d.%m.%Y %I:%M:%S')
-  echo "[$NOW] Rapairing instance"
+  echo "[$NOW] Repairing instance"
 
   docker-compose down
 
