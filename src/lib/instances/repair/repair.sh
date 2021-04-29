@@ -9,7 +9,7 @@ shift
 
 # check if command is just plain help
 # if we don't have any command we load the help
-POSITIONAL=()
+INSTANCE=""
 while [[ $# -gt 0 ]]
 	do
 	key="$1"
@@ -29,6 +29,7 @@ done
 if [ -z "${INSTANCE}" ]
 then
   # if the instance is empty we are working with the current directory
+  INSTANCE=${PWD##*/}
 
   # check if docker-compose.yml exists and bail if not
   if [ ! -f "docker-compose.yml" ]
@@ -44,27 +45,67 @@ then
   NOW=$(date +'%d.%m.%Y %I:%M:%S')
   echo "[$NOW] Rapairing instance"
 
-  # get the salt server ready
-  $(doil salt:restart)
-  sleep 5
+  docker-compose down
+
+  # get main salt server ready
+  DCMAIN=$(docker ps | grep "saltmain")
+  DCMAINHASH=${DCMAIN:0:12}
+
+  # check if the salt main server is defunct
+  DCMAINSALTSERVICEDEFUNCT=$(docker exec -ti ${DCMAINHASH} bash -c "ps -u salt")
+  DCMAINSALTSERVICEDEFUNCT=$(echo ${DCMAINSALTSERVICEDEFUNCT} | grep "defunct")
+  until [[ -z ${DCMAINSALTSERVICEDEFUNCT} ]]
+  do
+    doil salt:restart
+    sleep 5
+
+    DCMAIN=$(docker ps | grep "saltmain")
+    DCMAINHASH=${DCMAIN:0:12}
+
+    DCMAINSALTSERVICEDEFUNCT=$(docker exec -ti ${DCMAINHASH} bash -c "ps -u salt")
+    DCMAINSALTSERVICEDEFUNCT=$(echo ${DCMAINSALTSERVICEDEFUNCT} | grep "defunct")
+  done
 
   DCMAINSALTSERVICE=$(docker exec -ti ${DCMAINHASH} bash -c "ps -aux | grep salt-master")
   until [[ ! -z ${DCMAINSALTSERVICE} ]]
   do
     echo "Master service not ready ..."
+    doil salt:restart
+    sleep 5
     DCMAINSALTSERVICE=$(docker exec -ti ${DCMAINHASH} bash -c "ps -aux | grep salt-master")
+    DCMAIN=$(docker ps | grep "saltmain")
+    DCMAINHASH=${DCMAIN:0:12}
   done
   echo "Master service ready."
 
   # prune system
-  $(docker exec -t -i ${DCMAINHASH} /bin/bash -c 'echo "y" | salt-key -D')
-  $(docker rmi $(docker images "doil/${INSTANCE}" -a -q))
+  DELETEKEY=$(docker exec -ti ${DCMAINHASH} bash -c 'echo "y" | salt-key -D')
+  DELETEKEY=$(docker exec -ti ${DCMAINHASH} bash -c 'rm /var/cache/salt/master/.*key')
+  sleep 3
+
+  DCIMAGE=$(docker images "doil/${INSTANCE}" -q)
+  if [ ! -z ${DCIMAGE} ]
+  then
+      DELETEIMAGE=$(docker rmi ${DCIMAGE} --force)
+  fi
 
   # Start the container
   docker-compose up -d
   sleep 5
 
   # remove the current ip from the host file and add the new one
+  DCFOLDER=${PWD##*/}
+  DCHASH=$(doil_get_hash $DCFOLDER)
+  DCIP=$(doil_get_data $DCHASH "ip")
+  DCHOSTNAME=$(doil_get_data $DCHASH "hostname")
+  DCDOMAIN=$(doil_get_data $DCHASH "domainname")
+
+  # remove salt public key
+  PUBKEY=$(docker exec -ti ${DCHASH} bash -c "rm /var/lib/salt/pki/minion/minion_master.pub")
+  docker-compose down
+  docker-compose up -d
+  sleep 5
+
   DCFOLDER=${PWD##*/}
   DCHASH=$(doil_get_hash $DCFOLDER)
   DCIP=$(doil_get_data $DCHASH "ip")
@@ -81,12 +122,12 @@ then
   fi
 
   # check if the new key is registered
-  SALTKEYS=$(docker exec -t -i ${DCMAINHASH} /bin/bash -c "salt-key -L" | grep "${NAME}.local")
-  until [[ -z ${SALTKEYS} ]]
+  SALTKEYS=$(docker exec -t -i ${DCMAINHASH} /bin/bash -c "salt-key -L" | grep "${INSTANCE}.local")
+  until [[ ! -z ${SALTKEYS} ]]
   do
     echo "Key not ready yet ... waiting"
     sleep 5
-    SALTKEYS=$(docker exec -t -i ${DCMAINHASH} /bin/bash -c "salt-key -L" | grep "${NAME}.local")
+    SALTKEYS=$(docker exec -t -i ${DCMAINHASH} /bin/bash -c "salt-key -L" | grep "${INSTANCE}.local")
   done
   echo "Key ready"
 

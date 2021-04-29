@@ -126,10 +126,11 @@ if [ ! -d "/usr/local/lib/doil" ]
 then
   mkdir /usr/local/lib/doil
 fi
+
+# copy the files
 cp -r src/lib /usr/local/lib/doil/lib
 chmod -R a+x /usr/local/lib/doil/lib
 
-# rk
 rm -rf /usr/local/lib/doil/tpl/main
 cp -r src/tpl/main /usr/local/lib/doil/tpl/main
 

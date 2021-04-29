@@ -193,7 +193,6 @@ cp "/usr/local/lib/doil/tpl/minion/run-supervisor.sh" "${FOLDERPATH}/conf/run-su
 cp "/usr/local/lib/doil/tpl/minion/Dockerfile" "${FOLDERPATH}/Dockerfile"
 cp "/usr/local/lib/doil/tpl/stack/config/minion.cnf" "${FOLDERPATH}/conf/minion.cnf"
 cp "/usr/local/lib/doil/tpl/minion/salt-minion.conf" "${FOLDERPATH}/conf/salt-minion.conf"
-cp "/usr/local/lib/doil/tpl/minion/run-salt-minion.sh" "${FOLDERPATH}/conf/run-salt-minion.sh"
 if [[ ${HOST} == 'linux' ]]
 then
   cp "/usr/local/lib/doil/tpl/minion/docker-compose.yml" "${FOLDERPATH}/docker-compose.yml"
@@ -265,6 +264,21 @@ do
   doil salt:restart
   sleep 5
   DCMAINSALTSERVICE=$(docker top ${DCMAINHASH} | grep "salt-master")
+done
+
+# check if the salt main server is defunct
+DCMAINSALTSERVICEDEFUNCT=$(docker exec -ti ${DCMAINHASH} bash -c "ps -u salt")
+DCMAINSALTSERVICEDEFUNCT=$(echo ${DCMAINSALTSERVICEDEFUNCT} | grep "defunct")
+until [[ -z ${DCMAINSALTSERVICEDEFUNCT} ]]
+do
+  doil salt:restart
+  sleep 5
+
+  DCMAIN=$(docker ps | grep "saltmain")
+  DCMAINHASH=${DCMAIN:0:12}
+
+  DCMAINSALTSERVICEDEFUNCT=$(docker exec -ti ${DCMAINHASH} bash -c "ps -u salt")
+  DCMAINSALTSERVICEDEFUNCT=$(echo ${DCMAINSALTSERVICEDEFUNCT} | grep "defunct")
 done
 echo "Master service ready."
 

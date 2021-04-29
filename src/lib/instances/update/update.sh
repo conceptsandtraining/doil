@@ -74,6 +74,8 @@ then
   docker exec -t -i ${DCMAINHASH} /bin/bash -c "salt '${PROJECT_NAME}.local' state.highstate saltenv=dev --state-output=terse"
   docker exec -t -i ${DCMAINHASH} /bin/bash -c "salt '${PROJECT_NAME}.local' state.highstate saltenv=php${PROJECT_PHP_VERSION} --state-output=terse"
 
+  docker commit ${DCHASH} doil/${PROJECT_NAME}:stable
+
   NOW=$(date +'%d.%m.%Y %I:%M:%S')
   echo "[$NOW] Instance updated"
 else
