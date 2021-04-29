@@ -9,6 +9,8 @@
 * Fixed zombie process spawning
 * Fixed version and build id
 * Moved changelog to separate file
+* Fixed typos
+* repo:add now behaves like expected
 
 ## 1.0.2
 

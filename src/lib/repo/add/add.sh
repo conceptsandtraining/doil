@@ -62,7 +62,7 @@ then
 fi
 
 # check repo
-if [[ -z "${NAME}" ]]
+if [[ -z "${REPOSITORY}" ]]
 then
   read -p "URL of the repository: " REPOSITORY
 fi
