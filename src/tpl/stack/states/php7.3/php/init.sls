@@ -13,6 +13,18 @@ php7.3:
       - php7.3-zip
       - php7.3-mbstring
 
+/root/cleanup.sh:
+  file.managed:
+    - source: salt://php/cleanup.sh
+    - user: root
+    - group: root
+    - mode: 740
+
+cleanup:
+  cmd.run:
+    - cwd: /root/
+    - name: ./cleanup.sh
+
 a2_disable_php74:
   module.run:
     - name: apache.a2dismod
