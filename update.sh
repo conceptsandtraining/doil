@@ -137,7 +137,7 @@ cp -r src/tpl/main /usr/local/lib/doil/tpl/main
 rm -rf /usr/local/lib/doil/tpl/minion
 cp -r src/tpl/minion /usr/local/lib/doil/tpl/minion
 
-# TODO Ask for it!
+# TODO ask for it!
 rm -rf /usr/local/lib/doil/tpl/stack
 cp -r src/tpl/stack /usr/local/lib/doil/tpl/stack
 
