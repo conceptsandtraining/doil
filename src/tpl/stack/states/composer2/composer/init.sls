@@ -6,7 +6,7 @@ get-composer:
 
 install-composer:
   cmd.wait:
-    - name: php composer-setup.php --version=2
+    - name: php composer-setup.php
     - cwd: /root/
     - watch:
       - cmd: get-composer

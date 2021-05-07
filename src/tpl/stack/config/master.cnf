@@ -662,6 +662,8 @@ file_roots:
     - /srv/salt/states/php7.3
   php7.4:
     - /srv/salt/states/php7.4
+  php8.0:
+    - /srv/salt/states/php8.0
   ilias:
     - /srv/salt/states/ilias
   composer:
