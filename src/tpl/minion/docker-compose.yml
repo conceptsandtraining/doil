@@ -17,6 +17,7 @@ services:
       - ./volumes/logs/error/:/var/ilias/logs/error
       - ./volumes/logs/apache:/var/log/apache2
       - ./conf/minion.cnf:/etc/salt/minion
+      - ~/.ssh/:/root/.ssh/
       - type: bind
         source: ./conf/salt-minion.conf
         target: /etc/supervisor/conf.d/salt-minion.conf
