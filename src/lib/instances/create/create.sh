@@ -146,17 +146,18 @@ cd ${CWD}
 # check php version
 if [[ -z "${PHPVERSION}" ]]
 then
-  read -p "Chose the PHP Version [7.0, 7.1, 7.2, 7.3, 7.4]: " PHPVERSION
+  read -p "Chose the PHP Version [7.0, 7.1, 7.2, 7.3, 7.4, 8.0]: " PHPVERSION
 fi
 if [[ "${PHPVERSION}" != "7.0" ]] \
   && [[ "${PHPVERSION}" != "7.1" ]] \
   && [[ "${PHPVERSION}" != "7.2" ]] \
   && [[ "${PHPVERSION}" != "7.3" ]] \
-  && [[ "${PHPVERSION}" != "7.4" ]]
+  && [[ "${PHPVERSION}" != "7.4" ]] \
+  && [[ "${PHPVERSION}" != "8.0" ]]
 then
   echo -e "\033[1mERROR:\033[0m"
   echo -e "\tPHP Version ${PHPVERSION} is not supported!"
-  echo -e "\tYou can use following versions: 7.0, 7.1, 7.2, 7.3, 7.4"
+  echo -e "\tYou can use following versions: 7.0, 7.1, 7.2, 7.3, 7.4, 8.0"
   exit 255
 fi
 
