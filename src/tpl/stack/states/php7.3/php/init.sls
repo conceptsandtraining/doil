@@ -12,6 +12,7 @@ php7.3:
       - php7.3-cli
       - php7.3-zip
       - php7.3-mbstring
+      - php7.3-soap
 
 /root/cleanup.sh:
   file.managed:
