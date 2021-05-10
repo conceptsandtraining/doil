@@ -1,0 +1,3 @@
+autoinstall:
+  '*':
+    - autoinstall
