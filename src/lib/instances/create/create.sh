@@ -405,6 +405,16 @@ then
   docker exec -t -i ${DCMAINHASH} /bin/bash -c "salt '${NAME}.local' state.highstate saltenv=composer54 --state-output=terse"
 fi
 
+###################
+# try autoinstaller
+if (( ${ILIAS_VERSION} > 6 ))
+then
+  NOW=$(date +'%d.%m.%Y %I:%M:%S')
+  echo "[${NOW}] Trying autoinstaller"
+
+  docker exec -t -i ${DCMAINHASH} /bin/bash -c "salt '${NAME}.local' state.highstate saltenv=autoinstall --state-output=terse"
+fi
+
 #########################
 # finalizing docker image
 NOW=$(date +'%d.%m.%Y %I:%M:%S')
