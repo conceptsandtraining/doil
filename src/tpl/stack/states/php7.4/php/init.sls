@@ -26,6 +26,7 @@ php7.4:
       - php7.4-cli
       - php7.4-zip
       - php7.4-mbstring
+      - php7.4-soap
 
 /root/cleanup.sh:
   file.managed:

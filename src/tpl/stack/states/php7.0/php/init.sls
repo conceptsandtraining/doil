@@ -27,6 +27,7 @@ php7.0:
       - php7.0-zip
       - php7.0-mbstring
       - php7.0-xml
+      - php7.0-soap
 
 /root/cleanup.sh:
   file.managed:
