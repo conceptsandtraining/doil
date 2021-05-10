@@ -22,8 +22,6 @@
 #     `--'_|\  )
 #    ,' | /  ;'
 #   (,,/ (,,/      Thanks to Concepts and Training for supporting doil
-#
-# Last revised 2021-xx-xx
 
 # saner programming env: these switches turn some bugs into errors
 set -o errexit -o pipefail -o noclobber -o nounset

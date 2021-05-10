@@ -38,3 +38,7 @@ If you chosed the automatic installation you can login to your ILIAS installatio
 User: root
 Passwort: homer
 ```
+
+## Additional Information
+
+You can find adminer at `%TPL_PROJECT_NAME%.local/adminer`

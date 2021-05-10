@@ -22,8 +22,6 @@
 #     `--'_|\  )
 #    ,' | /  ;'
 #   (,,/ (,,/      Thanks to Concepts and Training for supporting doil
-#
-# Last revised 2021-03-23
 
 # sudo user check
 if [ "$EUID" -ne 0 ]
@@ -138,8 +136,14 @@ rm -rf /usr/local/lib/doil/tpl/minion
 cp -r src/tpl/minion /usr/local/lib/doil/tpl/minion
 
 # TODO ask for it!
-rm -rf /usr/local/lib/doil/tpl/stack
-cp -r src/tpl/stack /usr/local/lib/doil/tpl/stack
+echo "Do you want to update the salt stack aswell? [Yn]"
+read UPDATE_SALTSTACK
+if [[ ${UPDATE_SALTSTACK} != "n" ]] &&
+   [[ ${UPDATE_SALTSTACK} != "N" ]]
+then
+  rm -rf /usr/local/lib/doil/tpl/stack
+  cp -r src/tpl/stack /usr/local/lib/doil/tpl/stack
+fi
 
 #################
 # Everything done

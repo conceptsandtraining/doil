@@ -22,8 +22,6 @@
 #     `--'_|\  )
 #    ,' | /  ;'
 #   (,,/ (,,/      Thanks to Concepts and Training for supporting doil
-#
-# Last revised 2021-02-08
 
 # set the host
 case "$(uname -s)" in
