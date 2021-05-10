@@ -22,8 +22,6 @@
 #     `--'_|\  )
 #    ,' | /  ;'
 #   (,,/ (,,/      Thanks to Concepts and Training for supporting doil
-#
-# Last revised 2021-02-08
 
 if [ $1 == "up" ]
 then
@@ -59,7 +57,7 @@ then
   exit
 fi
 
-if [ $1 == "delete" ]
+if [ $1 == "delete" ] || [ $1 == "rm" ]
 then
   if [ -z ${2:+x} ]
   then
@@ -114,7 +112,7 @@ then
   exit
 fi
 
-if [ $1 == "list" ]
+if [ $1 == "list" ] || [ $1 == "ls" ]
 then
   doil instances:list
   exit

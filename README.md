@@ -47,12 +47,12 @@ The following commands are available:
   the current working directory
 * `doil up` starts an instance that you have created before
 * `doil cd` switches the current working directoryto the location of the instance
-* `doil list` lists all available instances
+* `doil ls` lists all available instances
 * `doil login` logs you into the container running the instance
 * `doil down` stops an instance to free the ressources it needs
-* `doil delete` deletes an instance you do not need anymore
-* `doil repair` repairs the system of an instance
-* `doil update` updates the system of an instance
+* `doil rm` deletes an instance you do not need anymore
+* [deprecated] `doil repair` repairs the system of an instance
+* [deprecated] `doil update` updates the system of an instance
 * look into `doil instances --help` for further commands related to instances
 
 ## Known Restrictions

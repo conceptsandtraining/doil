@@ -1,5 +1,16 @@
 # Changelog
 
+## 1.1
+
+* Added PHP 8.0 suppot
+* Added adminer for easy MySQL Access from the browser
+* Fixed several composer issues
+* Added auto installer for ILIAS >= 7
+* Implemented possibility to update php, apache and mysql configs
+* Added SSH Key to access private github repositories
+* Set `doil update` and `doil repair` to deprecated
+* Added aliases `doil rm` and `doil ls`
+
 ## 1.0.3
 
 * Fixed occasions where the salt master couldn't communicate due to the
