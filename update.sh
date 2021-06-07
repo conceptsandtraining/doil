@@ -137,6 +137,7 @@ cp -r src/tpl/minion /usr/local/lib/doil/tpl/minion
 
 rm -rf /usr/local/lib/doil/tpl/proxy
 cp -r src/tpl/proxy /usr/local/lib/doil/tpl/proxy
+mkdir -p /usr/local/lib/doil/tpl/proxy/conf
 
 chown -R ${SUDO_USER}:${SODU_USER} /usr/local/lib/doil
 

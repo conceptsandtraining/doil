@@ -4,7 +4,7 @@
 
 * Added proxy server as replacement for the `/etc/hosts` hacks
 
-### Backwardcompatibility
+### Backwardcompatibility from doil 1.1
 
 Due to technical restictions we can't provide a backwardcompatibility for
 the handling of the addresses within instances created by doil. Though it
@@ -59,6 +59,12 @@ networks:
 ```
 
 After `doil up` your instance will be available at `http://doil/$instance`
+
+### Backwardcompatibility prior doil 1.1
+
+* remove _web
+* add hostname (same as container-name)
+* add doil_proxy network to main container (see above)
 
 ## 1.1
 
