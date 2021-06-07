@@ -3,6 +3,7 @@
 ## 1.2
 
 * Added proxy server as replacement for the `/etc/hosts` hacks
+* removed `doil repair` and `doil update` due to misfunction
 
 ### Backwardcompatibility from doil 1.1
 
