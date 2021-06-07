@@ -135,6 +135,11 @@ cp -r src/tpl/main /usr/local/lib/doil/tpl/main
 rm -rf /usr/local/lib/doil/tpl/minion
 cp -r src/tpl/minion /usr/local/lib/doil/tpl/minion
 
+rm -rf /usr/local/lib/doil/tpl/proxy
+cp -r src/tpl/proxy /usr/local/lib/doil/tpl/proxy
+
+chown -R ${SUDO_USER}:${SODU_USER} /usr/local/lib/doil
+
 # TODO ask for it!
 echo "Do you want to update the salt stack aswell? [Yn]"
 read UPDATE_SALTSTACK
@@ -144,6 +149,9 @@ then
   rm -rf /usr/local/lib/doil/tpl/stack
   cp -r src/tpl/stack /usr/local/lib/doil/tpl/stack
 fi
+
+# send IP to hosts
+echo "173.100.0.2 doil" >> "/etc/hosts"
 
 #################
 # Everything done

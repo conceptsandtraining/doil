@@ -188,6 +188,9 @@ chown -R ${SUDO_USER}:${SODU_USER} "${HOME}/.doil"
 # echo configuration
 echo "ilias=git@github.com:ILIAS-eLearning/ILIAS.git" > "${HOME}/.doil/config/repos"
 
+# send IP to hosts
+echo "173.100.0.2 doil" >> "/etc/hosts"
+
 #################
 # Everything done
 NOW=$(date +'%d.%m.%Y %I:%M:%S')

@@ -191,10 +191,36 @@ then
 fi
 FOLDERPATH="${TARGET}/${NAME}"
 
+NOW=$(date +'%d.%m.%Y %I:%M:%S')
+echo "[${NOW}] Start creating project ${NAME}"
+
+# check saltmain
+DCMAIN=$(docker ps | grep "saltmain")
+if [ -z "${DCMAIN}" ]
+then
+  echo "Warning: main salt service is not running. Starting now."
+
+  CWD=$(pwd)
+  cd /usr/local/lib/doil/tpl/main || return
+  docker-compose up -d
+  cd "${CWD}" || return
+fi
+
+# check proxy server
+DCPROXY=$(docker ps | grep "doil_proxy")
+if [ -z "${DCPROXY}" ]
+then
+  echo "Warning: proxy server is not running. Starting now."
+
+  CWD=$(pwd)
+  cd /usr/local/lib/doil/tpl/proxy || return
+  docker-compose up -d
+  cd "${CWD}" || return
+fi
+
 ##########################
 # create the basic folders
 NOW=$(date +'%d.%m.%Y %I:%M:%S')
-echo "[${NOW}] Start creating project ${NAME}"
 echo "[${NOW}] Create basic folders"
 
 mkdir -p "${FOLDERPATH}/conf"

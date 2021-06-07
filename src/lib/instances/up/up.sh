@@ -67,6 +67,30 @@ then
   NOW=$(date +'%d.%m.%Y %I:%M:%S')
   echo "[$NOW] Starting instance"
 
+  # check saltmain
+  DCMAIN=$(docker ps | grep "saltmain")
+  if [ -z "${DCMAIN}" ]
+  then
+    echo "Warning: main salt service is not running. Starting now."
+
+    CWD=$(pwd)
+    cd /usr/local/lib/doil/tpl/main || return
+    docker-compose up -d
+    cd "${CWD}" || return
+  fi
+
+  # check proxy server
+  DCPROXY=$(docker ps | grep "doil_proxy")
+  if [ -z "${DCPROXY}" ]
+  then
+    echo "Warning: proxy server is not running. Starting now."
+
+    CWD=$(pwd)
+    cd /usr/local/lib/doil/tpl/proxy || return
+    docker-compose up -d
+    cd "${CWD}" || return
+  fi
+
   # Start the container
   docker-compose up -d
 
@@ -75,17 +99,28 @@ then
   DCHASH=$(doil_get_hash $DCFOLDER)
   DCIP=$(doil_get_data $DCHASH "ip")
   DCHOSTNAME=$(doil_get_data $DCHASH "hostname")
-  DCDOMAIN=$(doil_get_data $DCHASH "domainname")
 
-  HOS="linux"
-  if [ ${HOST} == "linux" ]
+  if [ -f "/usr/local/lib/doil/tpl/proxy/conf/${DCHOSTNAME}.conf" ]
   then
-    sudo sed -i "/${DCHOSTNAME}.${DCDOMAIN}$/d" /etc/hosts
-    sudo /bin/bash -c "echo \"$DCIP $DCHOSTNAME.$DCDOMAIN\" >> /etc/hosts"
+    rm "/usr/local/lib/doil/tpl/proxy/conf/${DCHOSTNAME}.conf"
+  fi
+  cp "/usr/local/lib/doil/tpl/proxy/service-config.tpl" "/usr/local/lib/doil/tpl/proxy/conf/${DCHOSTNAME}.conf"
+  if [ ${HOST} == "linux" ]; then
+    sed -i "s/%IP%/${DCIP}/g" "/usr/local/lib/doil/tpl/proxy/conf/${DCHOSTNAME}.conf"
+    sed -i "s/%DOMAIN%/${DCHOSTNAME}/g" "/usr/local/lib/doil/tpl/proxy/conf/${DCHOSTNAME}.conf"
+  elif [ ${HOST} == "mac" ]; then
+    sed -i "" "s/%IP%/${DCIP}/g" "/usr/local/lib/doil/tpl/proxy/conf/${DCHOSTNAME}.conf"
+    sed -i "" "s/%DOMAIN%/${DCHOSTNAME}/g" "/usr/local/lib/doil/tpl/proxy/conf/${DCHOSTNAME}.conf"
   fi
 
+  CWD=$(pwd)
+  cd /usr/local/lib/doil/tpl/proxy || return
+  docker-compose down
+  docker-compose up -d
+  cd "${CWD}" || return
+
   NOW=$(date +'%d.%m.%Y %I:%M:%S')
-  echo "[$NOW] Instance started"
+  echo "[$NOW] Instance started. Navigate to http://doil/${DCHOSTNAME}"
 else
   LINKNAME="${HOME}/.doil/${INSTANCE}"
   if [ -h "${LINKNAME}" ]

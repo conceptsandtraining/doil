@@ -1,0 +1,25 @@
+version: "3.5"
+services:
+  doil_proxy:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: doil_proxy
+    container_name: doil_proxy
+    networks:
+      main_saltnet:
+      doil_proxy:
+        ipv4_address: 173.100.0.2
+    volumes:
+      - ./conf/:/etc/nginx/conf.d/
+networks:
+  doil_proxy:
+    name: doil_proxy
+    ipam:
+      driver: default
+      config:
+        - subnet: 173.100.0.0/16
+  main_saltnet:
+    external: true
+volumes:
+    persistent:
