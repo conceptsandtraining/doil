@@ -189,7 +189,7 @@ chown -R ${SUDO_USER}:${SODU_USER} "${HOME}/.doil"
 echo "ilias=git@github.com:ILIAS-eLearning/ILIAS.git" > "${HOME}/.doil/config/repos"
 
 # send IP to hosts
-echo "172.16.0.255 doil" >> "/etc/hosts"
+echo "172.21.0.255 doil" >> "/etc/hosts"
 
 #################
 # Everything done
