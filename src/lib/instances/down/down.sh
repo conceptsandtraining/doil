@@ -65,6 +65,15 @@ then
 
   docker-compose down
 
+  DCFOLDER=${PWD##*/}
+  DCHASH=$(doil_get_hash $DCFOLDER)
+  DCIP=$(doil_get_data $DCHASH "ip")
+  DCHOSTNAME=$(doil_get_data $DCHASH "hostname")
+  if [ -f "/usr/local/lib/doil/tpl/proxy/conf/sites/${DCHOSTNAME}.conf" ]
+  then
+    rm "/usr/local/lib/doil/tpl/proxy/conf/sites/${DCHOSTNAME}.conf"
+  fi
+
   NOW=$(date +'%d.%m.%Y %I:%M:%S')
   echo "[$NOW] Instance stopped"
 else

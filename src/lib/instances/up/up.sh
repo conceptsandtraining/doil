@@ -100,24 +100,20 @@ then
   DCIP=$(doil_get_data $DCHASH "ip")
   DCHOSTNAME=$(doil_get_data $DCHASH "hostname")
 
-  if [ -f "/usr/local/lib/doil/tpl/proxy/conf/${DCHOSTNAME}.conf" ]
+  if [ -f "/usr/local/lib/doil/tpl/proxy/conf/sites/${DCHOSTNAME}.conf" ]
   then
-    rm "/usr/local/lib/doil/tpl/proxy/conf/${DCHOSTNAME}.conf"
+    rm "/usr/local/lib/doil/tpl/proxy/conf/sites/${DCHOSTNAME}.conf"
   fi
-  cp "/usr/local/lib/doil/tpl/proxy/service-config.tpl" "/usr/local/lib/doil/tpl/proxy/conf/${DCHOSTNAME}.conf"
+  cp "/usr/local/lib/doil/tpl/proxy/service-config.tpl" "/usr/local/lib/doil/tpl/proxy/conf/sites/${DCHOSTNAME}.conf"
   if [ ${HOST} == "linux" ]; then
-    sed -i "s/%IP%/${DCIP}/g" "/usr/local/lib/doil/tpl/proxy/conf/${DCHOSTNAME}.conf"
-    sed -i "s/%DOMAIN%/${DCHOSTNAME}/g" "/usr/local/lib/doil/tpl/proxy/conf/${DCHOSTNAME}.conf"
+    sed -i "s/%IP%/${DCIP}/g" "/usr/local/lib/doil/tpl/proxy/conf/sites/${DCHOSTNAME}.conf"
+    sed -i "s/%DOMAIN%/${DCHOSTNAME}/g" "/usr/local/lib/doil/tpl/proxy/conf/sites/${DCHOSTNAME}.conf"
   elif [ ${HOST} == "mac" ]; then
-    sed -i "" "s/%IP%/${DCIP}/g" "/usr/local/lib/doil/tpl/proxy/conf/${DCHOSTNAME}.conf"
-    sed -i "" "s/%DOMAIN%/${DCHOSTNAME}/g" "/usr/local/lib/doil/tpl/proxy/conf/${DCHOSTNAME}.conf"
+    sed -i "" "s/%IP%/${DCIP}/g" "/usr/local/lib/doil/tpl/proxy/conf/sites/${DCHOSTNAME}.conf"
+    sed -i "" "s/%DOMAIN%/${DCHOSTNAME}/g" "/usr/local/lib/doil/tpl/proxy/conf/sites/${DCHOSTNAME}.conf"
   fi
 
-  CWD=$(pwd)
-  cd /usr/local/lib/doil/tpl/proxy || return
-  docker-compose down
-  docker-compose up -d
-  cd "${CWD}" || return
+  RELOAD=$(docker exec -ti doil_proxy bash -c "/etc/init.d/nginx reload")
 
   NOW=$(date +'%d.%m.%Y %I:%M:%S')
   echo "[$NOW] Instance started. Navigate to http://doil/${DCHOSTNAME}"
