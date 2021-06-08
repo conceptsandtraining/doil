@@ -152,7 +152,7 @@ then
 fi
 
 # send IP to hosts
-echo "173.100.0.2 doil" >> "/etc/hosts"
+echo "172.16.0.255 doil" >> "/etc/hosts"
 
 #################
 # Everything done
