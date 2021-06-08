@@ -9,7 +9,7 @@ services:
     networks:
       main_saltnet:
       doil_proxy:
-        ipv4_address: 172.21.0.255
+        ipv4_address: 172.21.0.254
     volumes:
       - ./conf/:/etc/nginx/conf.d/
 networks:

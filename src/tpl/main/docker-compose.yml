@@ -13,7 +13,7 @@ services:
       - ./../stack/config/master.cnf:/etc/salt/master
     networks:
       saltnet:
-        ipv4_address: 172.20.0.255
+        ipv4_address: 172.20.0.254
 networks:
   saltnet:
     ipam:
