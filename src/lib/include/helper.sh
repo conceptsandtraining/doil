@@ -30,7 +30,7 @@ function doil_get_hash() {
     exit
   fi
 
-  DCPROC=$(docker ps | grep $1)
+  DCPROC=$(docker ps | grep $1 -w)
   DCPROCHASH=${DCPROC:0:12}
   echo $DCPROCHASH
 }
