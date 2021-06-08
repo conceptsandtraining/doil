@@ -23,6 +23,10 @@
 #    ,' | /  ;'
 #   (,,/ (,,/      Thanks to Concepts and Training for supporting doil
 
+# get the helper
+source /usr/local/lib/doil/lib/include/env.sh
+source /usr/local/lib/doil/lib/include/helper.sh
+
 # we can move the pointer one position
 shift
 
