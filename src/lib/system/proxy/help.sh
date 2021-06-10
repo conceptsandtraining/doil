@@ -23,36 +23,23 @@
 #    ,' | /  ;'
 #   (,,/ (,,/      Thanks to Concepts and Training for supporting doil
 
-# get the command
-CMD=""
-oIFS=$IFS
-IFS=":"
-declare -a COMMANDS=(${1})
-if [ ! -z ${COMMANDS[1]} ]
-then
-  CMD=${COMMANDS[1]}
-fi
-IFS=$oIFS
-unset $oIFS
+cat <<-EOF
+NAME
+  doil system:proxy - manages the proxy server
 
-# check if command is just plain help
-# if we don't have any command we load the help
-if [ -z "${CMD}" ] \
-	|| [ "${CMD}" == "help" ] \
-  || [ "${CMD}" == "--help" ] \
-  || [ "${CMD}" == "-h" ]
-then
-  eval "/usr/local/lib/doil/lib/salt/help.sh"
-  exit
-fi
+SYNOPSIS
+  doil system:salt [command]
 
-# check if the command exists
-if [ ! -f "/usr/local/lib/doil/lib/salt/${CMD}/${CMD}.sh" ]
-then
-  echo -e "\033[1mERROR:\033[0m"
-  echo -e "\tCan't find a suitable command."
-  echo -e "\tUse \033[1mdoil salt:help\033[0m for more information"
-  exit 255
-fi
+DESCRIPTION
+  This section helps to manage the proxy server. You can use some commands
+  to troubleshoot and debug if you encounter problems with the proxy
+  server.
 
-eval "/usr/local/lib/doil/lib/salt/${CMD}/${CMD}.sh" $@
+EXAMPLE:
+  doil system:proxy login
+
+COMMANDS
+  login   logs the user into the proxy server
+  prune   prunes the proxy server
+  restart restarts the proxy server
+EOF

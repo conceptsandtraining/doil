@@ -25,18 +25,21 @@
 
 cat <<-EOF
 NAME
-  doil salt:set - sets the repository for the saltstack configuration
+  doil system:salt - manages the saltstack
 
 SYNOPSIS
-  doil salt:set <--repo|-r <repository>>
+  doil system:salt [command]
 
 DESCRIPTION
-  This command sets a personal saltstack for the salt master server.
+  This section helps to manage the saltstack. You can use some commands
+  to troubleshoot and debug if you encounter problems with the main
+  salt server.
 
 EXAMPLE:
-  doil salt:set --repo git@github.com:ILIAS-eLearning/ILIAS.git
+  doil system:salt login
 
-OPTIONS
-  -r|--repo sets the url of the repository
-  -h|--help displays this help message
+COMMANDS
+  login   logs the user into the main salt server
+  prune   prunes the main salt server
+  restart restarts the salt main server
 EOF

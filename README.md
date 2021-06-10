@@ -51,8 +51,6 @@ The following commands are available:
 * `doil login` logs you into the container running the instance
 * `doil down` stops an instance to free the ressources it needs
 * `doil rm` deletes an instance you do not need anymore
-* [deprecated] `doil repair` repairs the system of an instance
-* [deprecated] `doil update` updates the system of an instance
 * look into `doil instances --help` for further commands related to instances
 
 ## Known Restrictions
@@ -138,9 +136,17 @@ to fit your workflow or requirements, **doil** provides commands to tamper with
 the saltstack in the background. These commands will not be required by ordinary
 users, so make sure to understand what you are doing.
 
-* `doil salt:set` sets the repository for the saltstack
-* `doil salt:reset` resets the saltstack to the buildin saltstack
-* `doil salt:restart` restarts the salt main server
-* `doil salt:update` updates the saltstack if you are using a custom saltstack
-* `doil salt:login` logs the user into the main salt server
-* `doil salt:prune` prunes the main salt server
+* `doil system:salt restart` restarts the salt main server
+* `doil system:salt login` logs the user into the main salt server
+* `doil system:salt prune` prunes the main salt server
+
+### Proxy Server
+
+To be able to dive deeper into the inner workings of **doil** or customize it
+to fit your workflow or requirements, **doil** provides commands to tamper with
+the proxy in the background. These commands will not be required by ordinary
+users, so make sure to understand what you are doing.
+
+* `doil system:proxy restart` restarts the proxy server
+* `doil system:proxy login` logs the user into the proxy server
+* `doil system:proxy prune` prunes the proxy server

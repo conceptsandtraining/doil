@@ -45,7 +45,6 @@ SECTIONS
   instances manages everything regarding to the instances
   repo      manages the repositories
   system    everything which affects the doil system itself
-  salt      manages the salt master server
 
 COMMANDS
   deinstall deinstalls the whole doil system

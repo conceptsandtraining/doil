@@ -23,4 +23,4 @@
 #    ,' | /  ;'
 #   (,,/ (,,/      Thanks to Concepts and Training for supporting doil
 
-echo "doil version 1.2 - build 2021-06-07"
+echo "doil version 1.2 - build 2021-06-11"
