@@ -45,7 +45,7 @@ if [ -z "${SECTION}" ] \
   || [ "${SECTION}" == "--help" ] \
   || [ "${SECTION}" == "-h" ]
 then
-  eval "/usr/local/lib/doil/lib/system/help.sh"
+  eval "/usr/local/lib/doil/lib/help.sh"
   exit
 fi
 

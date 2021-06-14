@@ -23,14 +23,6 @@
 #    ,' | /  ;'
 #   (,,/ (,,/      Thanks to Concepts and Training for supporting doil
 
-# sudo user check
-if [ "$EUID" -ne 0 ]
-then
-  echo -e "\033[1mREQUIREMENT ERROR:\033[0m"
-  echo -e "\tPlease execute this script as sudo user!"
-  exit
-fi
-
 # we can move the pointer one position
 shift
 
@@ -54,6 +46,14 @@ while [[ $# -gt 0 ]]
       ;;
 	esac
 done
+
+# sudo user check
+if [ "$EUID" -ne 0 ]
+then
+  echo -e "\033[1mREQUIREMENT ERROR:\033[0m"
+  echo -e "\tPlease execute this script as sudo user!"
+  exit
+fi
 
 read -p "Please confirm that you want to deinstall doil [yN]: " CONFIRM
 if [[ ${CONFIRM} == "y" ]]

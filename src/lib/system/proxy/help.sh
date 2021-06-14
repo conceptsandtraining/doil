@@ -28,7 +28,7 @@ NAME
   doil system:proxy - manages the proxy server
 
 SYNOPSIS
-  doil system:salt [command]
+  doil system:proxy [command]
 
 DESCRIPTION
   This section helps to manage the proxy server. You can use some commands
