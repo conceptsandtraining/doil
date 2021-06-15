@@ -30,7 +30,7 @@ function doil_get_hash() {
     exit
   fi
 
-  DCPROC=$(docker ps | grep $1)
+  DCPROC=$(docker ps | grep $1 -w)
   DCPROCHASH=${DCPROC:0:12}
   echo $DCPROCHASH
 }
@@ -50,7 +50,7 @@ doil_get_data() {
 
   case $2 in
     "ip")
-      echo $(docker inspect -f '{{range.NetworkSettings.Networks}}{{.IPAddress}}{{end}}' $1)
+      echo $(docker inspect --format "{{ .NetworkSettings.Networks.doil_proxy.IPAddress }}" $1)
       ;;
     "hostname")
       echo $(docker inspect -f '{{.Config.Hostname}}' $1)

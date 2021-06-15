@@ -4,11 +4,13 @@ This is an automatically created instance of %TPL_PROJECT_NAME%.
 
 ## Usage
 
-Within your projectfolder (where this readme file is located) you can use following commands to manage your instance:
+Within your projectfolder (where this readme file is located)
+you can use following commands to manage your instance:
 
-* `doil up` - starts the docker instance and adds the generated IP address to your `/etc/hosts` file
-* `doil down` - stops the docker instance and removes the IP from your `/etc/hosts` file
-* `doil login` - if the docker instance is started the you can login to your machine with this command
+* `doil up` - starts the docker instance
+* `doil down` - stops the docker instance
+* `doil login` - if the docker instance is started the you can
+  login to your machine with this command
 * See `man doil` for more information, commands and their usage
 
 ## Paths
@@ -17,9 +19,11 @@ Within your projectfolder (where this readme file is located) you can use follow
 * Path to ILIAS log file: `/var/ilias/logs/ilias.log`
 * Path to ILIAS error log folder: `/var/ilias/logs/error/`
 
-### /etc/hosts
+### URL
 
-The host file will be written automatically when your container is started with `doil up`. However it is possible that some IP addresses overlap due to unknown circumstances. If your project is not available under `%TPL_PROJECT_NAME%.local` check your `/etc/hosts` file.
+The proxy server will automatically change its configuration when
+using `doil up`. Your instance will be available under the address
+`http://doil/%TPL_PROJECT_NAME%`
 
 ## Users and Password
 
@@ -32,7 +36,8 @@ MYSQL_USER: ilias
 MYSQL_PASSWORD: ilias
 ```
 
-If you chosed the automatic installation you can login to your ILIAS installation with following credentials:
+If the automatic installation was successful you can login to your ILIAS
+installation with following credentials:
 
 ```
 User: root
@@ -41,4 +46,4 @@ Passwort: homer
 
 ## Additional Information
 
-You can find adminer at `%TPL_PROJECT_NAME%.local/adminer`
+You can find adminer at `http://doil/%TPL_PROJECT_NAME%/adminer`

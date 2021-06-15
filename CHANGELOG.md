@@ -1,5 +1,72 @@
 # Changelog
 
+## 1.2
+
+* Added proxy server as replacement for the `/etc/hosts` hacks
+* removed `doil repair` and `doil update` due to misfunction
+
+### Backwardcompatibility from doil 1.1
+
+Due to technical restictions we can't provide a backwardcompatibility for
+the handling of the addresses within instances created by doil. Though it
+is still possibile to use instances created with older versions of doil
+by editing the `docker-compose.yml` in your project root folder:
+
+Add following lines to the network section of the service:
+
+```
+- doil_proxy
+- default
+```
+
+so that it looks like this:
+
+```
+version: "3.5"
+services:
+  $instance:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: doil/$instance:stable
+    container_name: $instance
+    hostname: $instance
+    domainname: local
+    volumes:
+      [...]
+    environment:
+      [...]
+    networks:
+      - main_saltnet
+      - doil_proxy
+      - default
+```
+
+At the end of the file add following lines to the network section
+
+```
+doil_proxy:
+  external: true
+```
+
+so that it lookes like this:
+
+```
+networks:
+  doil_proxy:
+    external: true
+  main_saltnet:
+    external: true
+```
+
+After `doil up` your instance will be available at `http://doil/$instance`
+
+### Backwardcompatibility prior doil 1.1
+
+* remove _web
+* add hostname (same as container-name)
+* add doil_proxy network to main container (see above)
+
 ## 1.1
 
 * Added PHP 8.0 suppot

@@ -25,10 +25,10 @@
 
 cat <<-EOF
 NAME
-  doil - ILIAS docker tool
+  doil system - manages the doil system
 
 SYNOPSIS
-  doil <section>:<command>
+  doil system:<command>
 
 DESCRIPTION
   doil provides you with a simple way to create and manage
@@ -39,14 +39,12 @@ DESCRIPTION
   its own help which you can access by adding --help|-h to it.
 
 EXAMPLE:
-  doil repo:update --name ilias
-
-SECTIONS
-  instances manages everything regarding to the instances
-  repo      manages the repositories
-  system    everything which affects the doil system itself
-  salt      manages the salt master server
+  doil system:proxy login
 
 COMMANDS
-  deinstall deinstalls the whole doil system
+  deinstall deinstalles doil
+  version   shows the currently installed version 
+  salt      manages the salt server
+  proxy     manages the proxy server
+
 EOF

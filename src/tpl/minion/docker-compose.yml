@@ -31,7 +31,11 @@ services:
       - JAVA_SERVER_START
     networks:
       - main_saltnet
+      - doil_proxy
+      - default
 networks:
+  doil_proxy:
+    external: true
   main_saltnet:
     external: true
 volumes:

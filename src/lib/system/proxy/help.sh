@@ -25,18 +25,21 @@
 
 cat <<-EOF
 NAME
-  doil salt:set - sets the repository for the saltstack configuration
+  doil system:proxy - manages the proxy server
 
 SYNOPSIS
-  doil salt:set <--repo|-r <repository>>
+  doil system:proxy [command]
 
 DESCRIPTION
-  This command sets a personal saltstack for the salt master server.
+  This section helps to manage the proxy server. You can use some commands
+  to troubleshoot and debug if you encounter problems with the proxy
+  server.
 
 EXAMPLE:
-  doil salt:set --repo git@github.com:ILIAS-eLearning/ILIAS.git
+  doil system:proxy login
 
-OPTIONS
-  -r|--repo sets the url of the repository
-  -h|--help displays this help message
+COMMANDS
+  login   logs the user into the proxy server
+  prune   prunes the proxy server
+  restart restarts the proxy server
 EOF

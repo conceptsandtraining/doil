@@ -13,12 +13,12 @@ services:
       - ./../stack/config/master.cnf:/etc/salt/master
     networks:
       saltnet:
-        ipv4_address: 172.100.0.2
+        ipv4_address: 172.20.0.254
 networks:
   saltnet:
     ipam:
       driver: default
       config:
-        - subnet: 172.100.0.0/16
+        - subnet: 172.20.0.0/16
 volumes:
     persistent:

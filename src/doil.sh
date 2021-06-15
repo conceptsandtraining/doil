@@ -23,9 +23,6 @@
 #    ,' | /  ;'
 #   (,,/ (,,/      Thanks to Concepts and Training for supporting doil
 
-# saner programming env: these switches turn some bugs into errors
-set -o errexit -o pipefail -o noclobber -o nounset
-
 # check the most basic thing
 if [ -z ${1:+x} ]
 then
@@ -38,7 +35,7 @@ oIFS=$IFS
 IFS=":"
 declare -a COMMANDS=(${1})
 SECTION=${COMMANDS[0]}
-IFS=$oIFS
+IFS=${oIFS}
 unset $oIFS
 
 # check if section is just plain help
@@ -48,7 +45,7 @@ if [ -z "${SECTION}" ] \
   || [ "${SECTION}" == "--help" ] \
   || [ "${SECTION}" == "-h" ]
 then
-  eval "/usr/local/lib/doil/lib/system/help.sh"
+  eval "/usr/local/lib/doil/lib/help.sh"
   exit
 fi
 

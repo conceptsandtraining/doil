@@ -23,6 +23,10 @@
 #    ,' | /  ;'
 #   (,,/ (,,/      Thanks to Concepts and Training for supporting doil
 
+# get the helper
+source /usr/local/lib/doil/lib/include/env.sh
+source /usr/local/lib/doil/lib/include/helper.sh
+
 # we can move the pointer one position
 shift
 
@@ -63,7 +67,19 @@ then
   NOW=$(date +'%d.%m.%Y %I:%M:%S')
   echo "[$NOW] Stopping instance"
 
+  DCFOLDER=${PWD##*/}
+  DCHASH=$(doil_get_hash $DCFOLDER)
+  DCIP=$(doil_get_data $DCHASH "ip")
+  DCHOSTNAME=$(doil_get_data $DCHASH "hostname")
+
+  if [ -f "/usr/local/lib/doil/tpl/proxy/conf/sites/${DCHOSTNAME}.conf" ]
+  then
+    rm "/usr/local/lib/doil/tpl/proxy/conf/sites/${DCHOSTNAME}.conf"
+  fi
+  RELOAD=$(docker exec -ti doil_proxy bash -c "/etc/init.d/nginx reload")
+
   docker-compose down
+
 
   NOW=$(date +'%d.%m.%Y %I:%M:%S')
   echo "[$NOW] Instance stopped"

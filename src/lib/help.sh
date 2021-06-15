@@ -23,36 +23,29 @@
 #    ,' | /  ;'
 #   (,,/ (,,/      Thanks to Concepts and Training for supporting doil
 
-# get the command
-CMD=""
-oIFS=$IFS
-IFS=":"
-declare -a COMMANDS=(${1})
-if [ ! -z ${COMMANDS[1]} ]
-then
-  CMD=${COMMANDS[1]}
-fi
-IFS=$oIFS
-unset $oIFS
+cat <<-EOF
+NAME
+  doil - ILIAS docker tool
 
-# check if command is just plain help
-# if we don't have any command we load the help
-if [ -z "${CMD}" ] \
-	|| [ "${CMD}" == "help" ] \
-  || [ "${CMD}" == "--help" ] \
-  || [ "${CMD}" == "-h" ]
-then
-  eval "/usr/local/lib/doil/lib/salt/help.sh"
-  exit
-fi
+SYNOPSIS
+  doil <section>:<command>
 
-# check if the command exists
-if [ ! -f "/usr/local/lib/doil/lib/salt/${CMD}/${CMD}.sh" ]
-then
-  echo -e "\033[1mERROR:\033[0m"
-  echo -e "\tCan't find a suitable command."
-  echo -e "\tUse \033[1mdoil salt:help\033[0m for more information"
-  exit 255
-fi
+DESCRIPTION
+  doil provides you with a simple way to create and manage
+  development and testing environments for ILIAS. It will
+  create and provision a docker container according to your
+  requirements, pull the ILIAS version you want to use and even
+  install it if possible. Every section and command comes with
+  its own help which you can access by adding --help|-h to it.
 
-eval "/usr/local/lib/doil/lib/salt/${CMD}/${CMD}.sh" $@
+EXAMPLE:
+  doil repo:update --name ilias
+
+SECTIONS
+  instances manages everything regarding to the instances
+  repo      manages the repositories
+  system    everything which affects the doil system itself
+
+COMMANDS
+  deinstall deinstalls the whole doil system
+EOF

@@ -46,6 +46,4 @@ COMMANDS
   up     starts an instance
   down   stops an instance
   list   lists the instances
-  repair repairs the system of an instance [deprecated]
-  update updates the system of an instance [deprecated]
 EOF
