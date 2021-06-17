@@ -79,7 +79,7 @@ then
 fi
 
 # prune
-if [[ ${COMMAND} == "login" ]]
+if [[ ${COMMAND} == "prune" ]]
 then
   # check saltmain
   DCMAIN=$(docker ps | grep "saltmain")

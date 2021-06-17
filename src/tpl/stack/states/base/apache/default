@@ -2,8 +2,10 @@
   ServerAdmin root@concepts-and-training.de
   DocumentRoot /var/www/html/
 
-    <Directory /var/www/html/>
-       AllowOverride All
-       Require all granted
-    </Directory>
+  Alias /adminer /var/www/adminer
+
+  <Directory /var/www/html/>
+    AllowOverride All
+    Require all granted
+  </Directory>
 </VirtualHost>
