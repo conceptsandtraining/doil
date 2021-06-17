@@ -68,10 +68,12 @@ then
   # remove link
   rm -f "${HOME}/.doil/$INSTANCE"
 
-  # remove entry from the hosts
-  if [ ${HOST} == "linux" ]; then
-    sudo sed -i "/${INSTANCE}.local$/d" /etc/hosts
+  if [ -f "/usr/local/lib/doil/tpl/proxy/conf/sites/${INSTANCE}.conf" ]
+  then
+    rm "/usr/local/lib/doil/tpl/proxy/conf/sites/${INSTANCE}.conf"
   fi
+
+  docker exec -ti saltmain bash -c "echo 'y' | salt-key -d ${INSTANCE}.local"
 
   # docker
   DELETE=$(docker rmi $(docker images "doil/${INSTANCE}" -a -q))

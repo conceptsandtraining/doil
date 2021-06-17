@@ -151,9 +151,6 @@ then
   cp -r src/tpl/stack /usr/local/lib/doil/tpl/stack
 fi
 
-# send IP to hosts
-echo "172.24.0.254 doil" >> "/etc/hosts"
-
 #################
 # Everything done
 NOW=$(date +'%d.%m.%Y %I:%M:%S')
