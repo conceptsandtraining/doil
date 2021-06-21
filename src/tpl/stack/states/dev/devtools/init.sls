@@ -10,7 +10,7 @@ devtools_packages:
 
 ### Implement Adminer
 # adminer-4.8.0-mysql-en.php
-/var/www/html/adminer/index.php:
+/var/www/adminer/index.php:
   file.managed:
     - source: salt://devtools/adminer-4.8.0-mysql-en.php
     - mode: 755
