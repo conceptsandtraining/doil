@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.2.1
+
+* Increased timeout of nginx
+* moved adminer to docroot and out of the way of the unit tests
+* implemented missing PHP packages
+* `doil rm` now removes the salt key
+
 ## 1.2
 
 * Added proxy server as replacement for the `/etc/hosts` hacks
