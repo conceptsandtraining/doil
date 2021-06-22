@@ -53,33 +53,37 @@ CAD=$(pwd)
 LINKNAME="${HOME}/.doil/$INSTANCE"
 if [ -h "${LINKNAME}" ]
 then
-  NOW=$(date +'%d.%m.%Y %I:%M:%S')
-  echo "[$NOW] Deleting instance"
-
-  # set machine inactive
-  cd ${LINKNAME}
-  docker-compose down
-  cd $CAD
-
-  # remove directory
-  the_path=$(readlink ${LINKNAME})
-  sudo rm -rf $the_path
-
-  # remove link
-  rm -f "${HOME}/.doil/$INSTANCE"
-
-  if [ -f "/usr/local/lib/doil/tpl/proxy/conf/sites/${INSTANCE}.conf" ]
+  read -p "Please confirm that you want to delete ${INSTANCE} [yN]: " CONFIRM
+  if [[ ${CONFIRM} == "y" ]]
   then
-    rm "/usr/local/lib/doil/tpl/proxy/conf/sites/${INSTANCE}.conf"
+    NOW=$(date +'%d.%m.%Y %I:%M:%S')
+    echo "[$NOW] Deleting instance"
+
+    # set machine inactive
+    cd ${LINKNAME}
+    docker-compose down
+    cd $CAD
+
+    # remove directory
+    the_path=$(readlink ${LINKNAME})
+    sudo rm -rf $the_path
+
+    # remove link
+    rm -f "${HOME}/.doil/$INSTANCE"
+
+    if [ -f "/usr/local/lib/doil/tpl/proxy/conf/sites/${INSTANCE}.conf" ]
+    then
+      rm "/usr/local/lib/doil/tpl/proxy/conf/sites/${INSTANCE}.conf"
+    fi
+
+    docker exec -ti saltmain bash -c "echo 'y' | salt-key -d ${INSTANCE}.local"
+
+    # docker
+    DELETE=$(docker rmi $(docker images "doil/${INSTANCE}" -a -q))
+
+    NOW=$(date +'%d.%m.%Y %I:%M:%S')
+    echo "[$NOW] Instance deleted"
   fi
-
-  docker exec -ti saltmain bash -c "echo 'y' | salt-key -d ${INSTANCE}.local"
-
-  # docker
-  DELETE=$(docker rmi $(docker images "doil/${INSTANCE}" -a -q))
-
-  NOW=$(date +'%d.%m.%Y %I:%M:%S')
-  echo "[$NOW] Instance deleted"
 else
   echo -e "\033[1mERROR:\033[0m"
   echo -e "\tInstance not found!"
