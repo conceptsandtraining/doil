@@ -26,6 +26,8 @@ php8.0:
       - php8.0-zip
       - php8.0-mbstring
       - php8.0-soap
+      - php8.0-bcmath
+      - php8.0-imap
 
 /root/cleanup.sh:
   file.managed:

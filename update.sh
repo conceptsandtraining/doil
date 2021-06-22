@@ -141,15 +141,10 @@ mkdir -p /usr/local/lib/doil/tpl/proxy/conf
 
 chown -R ${SUDO_USER}:${SODU_USER} /usr/local/lib/doil
 
-# TODO ask for it!
-echo "Do you want to update the salt stack aswell? [Yn]"
-read UPDATE_SALTSTACK
-if [[ ${UPDATE_SALTSTACK} != "n" ]] &&
-   [[ ${UPDATE_SALTSTACK} != "N" ]]
-then
-  rm -rf /usr/local/lib/doil/tpl/stack
-  cp -r src/tpl/stack /usr/local/lib/doil/tpl/stack
-fi
+rm -rf /usr/local/lib/doil/tpl/stack
+cp -r src/tpl/stack /usr/local/lib/doil/tpl/stack
+
+doil system:salt restart
 
 # send IP to hosts
 echo "172.24.0.254 doil" >> "/etc/hosts"

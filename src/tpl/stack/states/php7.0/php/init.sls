@@ -28,6 +28,8 @@ php7.0:
       - php7.0-mbstring
       - php7.0-xml
       - php7.0-soap
+      - php7.0-bcmath
+      - php7.0-imap
 
 /root/cleanup.sh:
   file.managed:
