@@ -81,7 +81,7 @@ fi
 # prune
 if [[ ${COMMAND} == "prune" ]]
 then
-  rm -rf /usr/local/lib/doil/tpl/doil_proxy/conf/sites/*
+  rm -rf /usr/local/lib/doil/tpl/proxy/conf/sites/*
   doil system:proxy restart
   exit
 fi
@@ -90,7 +90,7 @@ fi
 if [[ ${COMMAND} == "restart" ]]
 then
   # restart service
-  cd /usr/local/lib/doil/tpl/doil_proxy || return
+  cd /usr/local/lib/doil/tpl/proxy || return
   docker-compose down
   docker-compose up -d
 fi
