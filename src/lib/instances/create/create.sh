@@ -194,6 +194,9 @@ FOLDERPATH="${TARGET}/${NAME}"
 NOW=$(date +'%d.%m.%Y %I:%M:%S')
 echo "[${NOW}] Start creating project ${NAME}"
 
+# update debian
+docker pull debian:stable
+
 # check saltmain
 DCMAIN=$(docker ps | grep "saltmain")
 if [ -z "${DCMAIN}" ]
