@@ -144,10 +144,10 @@ chown -R ${SUDO_USER}:${SODU_USER} /usr/local/lib/doil
 rm -rf /usr/local/lib/doil/tpl/stack
 cp -r src/tpl/stack /usr/local/lib/doil/tpl/stack
 
-doil system:salt restart
+#doil system:salt restart
 
 # send IP to hosts
-echo "172.24.0.254 doil" >> "/etc/hosts"
+#echo "172.24.0.254 doil" >> "/etc/hosts"
 
 #################
 # Everything done

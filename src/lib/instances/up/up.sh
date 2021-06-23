@@ -32,7 +32,6 @@ shift
 
 # check if command is just plain help
 # if we don't have any command we load the help
-POSITIONAL=()
 while [[ $# -gt 0 ]]
 	do
 	key="$1"
@@ -41,6 +40,10 @@ while [[ $# -gt 0 ]]
     -h|--help|help)
       eval "/usr/local/lib/doil/lib/instances/up/help.sh"
       exit
+      ;;
+    -q|--quiet)
+      QUIET=TRUE
+      shift
       ;;
     *)    # start the instance
       INSTANCE=$1
@@ -64,32 +67,29 @@ then
     exit
   fi
 
-  NOW=$(date +'%d.%m.%Y %I:%M:%S')
-  echo "[$NOW] Starting instance"
+  # Pipe output to null if needed
+  if [[ ${QUIET} == TRUE ]]
+  then
+    exec >>/var/log/doil.log 2>&1
+  fi
+
+  # set instance
+  INSTANCE=${PWD##*/}
+
+  # check if we are running
+  DCMINION=$(docker ps | grep ${INSTANCE} -w)
+  if [ ! -z "${DCMINION}" ]
+  then
+    exit
+  fi
+
+  doil_send_log "Starting instance"
 
   # check saltmain
-  DCMAIN=$(docker ps | grep "saltmain")
-  if [ -z "${DCMAIN}" ]
-  then
-    echo "Warning: main salt service is not running. Starting now."
-
-    CWD=$(pwd)
-    cd /usr/local/lib/doil/tpl/main || return
-    docker-compose up -d
-    cd "${CWD}" || return
-  fi
+  doil system:salt start --quiet
 
   # check proxy server
-  DCPROXY=$(docker ps | grep "doil_proxy")
-  if [ -z "${DCPROXY}" ]
-  then
-    echo "Warning: proxy server is not running. Starting now."
-
-    CWD=$(pwd)
-    cd /usr/local/lib/doil/tpl/proxy || return
-    docker-compose up -d
-    cd "${CWD}" || return
-  fi
+  doil system:proxy start --quiet
 
   # Start the container
   docker-compose up -d
@@ -98,25 +98,23 @@ then
   DCFOLDER=${PWD##*/}
   DCHASH=$(doil_get_hash $DCFOLDER)
   DCIP=$(doil_get_data $DCHASH "ip")
-  DCHOSTNAME=$(doil_get_data $DCHASH "hostname")
 
-  if [ -f "/usr/local/lib/doil/tpl/proxy/conf/sites/${DCHOSTNAME}.conf" ]
+  if [ -f "/usr/local/lib/doil/tpl/proxy/conf/sites/${INSTANCE}.conf" ]
   then
-    rm "/usr/local/lib/doil/tpl/proxy/conf/sites/${DCHOSTNAME}.conf"
+    rm "/usr/local/lib/doil/tpl/proxy/conf/sites/${INSTANCE}.conf"
   fi
-  cp "/usr/local/lib/doil/tpl/proxy/service-config.tpl" "/usr/local/lib/doil/tpl/proxy/conf/sites/${DCHOSTNAME}.conf"
+  cp "/usr/local/lib/doil/tpl/proxy/service-config.tpl" "/usr/local/lib/doil/tpl/proxy/conf/sites/${INSTANCE}.conf"
   if [ ${HOST} == "linux" ]; then
-    sed -i "s/%IP%/${DCIP}/g" "/usr/local/lib/doil/tpl/proxy/conf/sites/${DCHOSTNAME}.conf"
-    sed -i "s/%DOMAIN%/${DCHOSTNAME}/g" "/usr/local/lib/doil/tpl/proxy/conf/sites/${DCHOSTNAME}.conf"
+    sed -i "s/%IP%/${DCIP}/g" "/usr/local/lib/doil/tpl/proxy/conf/sites/${INSTANCE}.conf"
+    sed -i "s/%DOMAIN%/${INSTANCE}/g" "/usr/local/lib/doil/tpl/proxy/conf/sites/${INSTANCE}.conf"
   elif [ ${HOST} == "mac" ]; then
-    sed -i "" "s/%IP%/${DCIP}/g" "/usr/local/lib/doil/tpl/proxy/conf/sites/${DCHOSTNAME}.conf"
-    sed -i "" "s/%DOMAIN%/${DCHOSTNAME}/g" "/usr/local/lib/doil/tpl/proxy/conf/sites/${DCHOSTNAME}.conf"
+    sed -i "" "s/%IP%/${DCIP}/g" "/usr/local/lib/doil/tpl/proxy/conf/sites/${INSTANCE}.conf"
+    sed -i "" "s/%DOMAIN%/${INSTANCE}/g" "/usr/local/lib/doil/tpl/proxy/conf/sites/${INSTANCE}.conf"
   fi
+  
+  doil system:proxy reload --quiet
 
-  RELOAD=$(docker exec -ti doil_proxy bash -c "/etc/init.d/nginx reload")
-
-  NOW=$(date +'%d.%m.%Y %I:%M:%S')
-  echo "[$NOW] Instance started. Navigate to http://doil/${DCHOSTNAME}"
+  doil_send_log "Instance started. Navigate to http://doil/${INSTANCE}"
 else
   LINKNAME="${HOME}/.doil/${INSTANCE}"
   if [ -h "${LINKNAME}" ]

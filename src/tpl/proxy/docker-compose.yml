@@ -7,7 +7,6 @@ services:
     image: doil_proxy
     container_name: doil_proxy
     networks:
-      main_saltnet:
       doil_proxy:
         ipv4_address: 172.24.0.254
     volumes:
@@ -21,7 +20,5 @@ networks:
       driver: default
       config:
         - subnet: 172.24.0.0/16
-  main_saltnet:
-    external: true
 volumes:
     persistent:

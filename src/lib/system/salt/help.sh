@@ -41,5 +41,10 @@ EXAMPLE:
 COMMANDS
   login   logs the user into the main salt server
   prune   prunes the main salt server
+  start   starts the salt main server
+  stop    stops the salt main server
   restart restarts the salt main server
+
+OPTIONS
+  -q|--quiet no output will be displayed
 EOF

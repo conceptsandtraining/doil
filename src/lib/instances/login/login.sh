@@ -32,7 +32,6 @@ shift
 
 # check if command is just plain help
 # if we don't have any command we load the help
-POSITIONAL=()
 while [[ $# -gt 0 ]]
 	do
 	key="$1"
@@ -65,20 +64,14 @@ then
     exit
   fi
 
-  # get the proc
-  DCFOLDER=${PWD##*/}
-  DCPROCHASH=$(doil_get_hash $DCFOLDER)
+  # set instance
+  INSTANCE=${PWD##*/}
 
-  # check if instance is running, if not, start it
-  if [ -z $DCPROCHASH ]; then
-    docker-compose up -d
-
-    DCFOLDER=${PWD##*/}
-    DCPROCHASH=$(doil_get_hash $DCFOLDER)
-  fi
-
+  # start if not done
+  doil up ${INSTANCE} --quiet
+  
   # login
-  docker exec -t -i $DCPROCHASH /bin/bash -c "export TERM=xterm-color; exec bash"
+  docker exec -ti ${INSTANCE} bash
 else
   LINKNAME="${HOME}/.doil/$INSTANCE"
   if [ -h "${LINKNAME}" ]
