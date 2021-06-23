@@ -199,6 +199,9 @@ FOLDERPATH="${TARGET}/${NAME}"
 
 doil_send_log "Start creating project ${NAME}"
 
+# update debian
+docker pull debian:stable
+
 # check saltmain
 doil system:salt start --quiet
 
