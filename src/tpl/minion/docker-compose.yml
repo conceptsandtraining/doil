@@ -32,7 +32,6 @@ services:
     networks:
       - main_saltnet
       - doil_proxy
-      - default
 networks:
   doil_proxy:
     external: true

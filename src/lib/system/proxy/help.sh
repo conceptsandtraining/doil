@@ -41,5 +41,11 @@ EXAMPLE:
 COMMANDS
   login   logs the user into the proxy server
   prune   prunes the proxy server
+  start   starts the proxy server
+  stop    stops the proxy server
   restart restarts the proxy server
+  reload  reloads the configuration
+
+OPTIONS
+  -q|--quiet no output will be displayed
 EOF

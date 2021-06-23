@@ -1,7 +1,6 @@
 get-composer:
   cmd.run:
     - name: php -r "copy('https://getcomposer.org/installer', 'composer-setup.php');"
-    - unless: test -f /usr/local/bin/composer
     - cwd: /root/
 
 install-composer:

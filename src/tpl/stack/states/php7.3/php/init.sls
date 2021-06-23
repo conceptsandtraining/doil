@@ -14,7 +14,7 @@ php7.3:
       - php7.3-mbstring
       - php7.3-soap
       - php7.3-bcmath
-      - php7.4-imap
+      - php7.3-imap
 
 /root/cleanup.sh:
   file.managed:

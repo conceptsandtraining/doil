@@ -69,8 +69,8 @@ while [[ $# -gt 0 ]]
       eval "/usr/local/lib/doil/lib/instances/create/help.sh"
       exit
       ;;
-    -v|--verbose)
-      VERBOSE="YES"
+    -q|--quiet)
+      QUIET=TRUE
       shift # past argument
       ;;
     *)    # unknown option
@@ -81,6 +81,12 @@ while [[ $# -gt 0 ]]
       ;;
 	esac
 done
+
+# Pipe output to null if needed
+if [[ ${QUIET} == TRUE ]]
+then
+  exec >>/var/log/doil.log 2>&1
+fi
 
 # check name
 LINKPATH="${HOME}/.doil/${NAME}"
@@ -191,37 +197,17 @@ then
 fi
 FOLDERPATH="${TARGET}/${NAME}"
 
-NOW=$(date +'%d.%m.%Y %I:%M:%S')
-echo "[${NOW}] Start creating project ${NAME}"
+doil_send_log "Start creating project ${NAME}"
 
 # check saltmain
-DCMAIN=$(docker ps | grep "saltmain")
-if [ -z "${DCMAIN}" ]
-then
-  echo "Warning: main salt service is not running. Starting now."
-
-  CWD=$(pwd)
-  cd /usr/local/lib/doil/tpl/main || return
-  docker-compose up -d
-  cd "${CWD}" || return
-fi
+doil system:salt start --quiet
 
 # check proxy server
-DCPROXY=$(docker ps | grep "doil_proxy")
-if [ -z "${DCPROXY}" ]
-then
-  echo "Warning: proxy server is not running. Starting now."
-
-  CWD=$(pwd)
-  cd /usr/local/lib/doil/tpl/proxy || return
-  docker-compose up -d
-  cd "${CWD}" || return
-fi
+doil system:proxy start --quiet
 
 ##########################
 # create the basic folders
-NOW=$(date +'%d.%m.%Y %I:%M:%S')
-echo "[${NOW}] Create basic folders"
+doil_send_log "Create basic folders"
 
 mkdir -p "${FOLDERPATH}/conf"
 mkdir -p "${FOLDERPATH}/volumes/db"
@@ -235,8 +221,7 @@ ln -s "${FOLDERPATH}" "${HOME}/.doil/${NAME}"
 
 #########################
 # Copying necessary files
-NOW=$(date +'%d.%m.%Y %I:%M:%S')
-echo "[${NOW}] Copying necessary files"
+doil_send_log "Copying necessary files"
 
 # docker stuff
 cp "/usr/local/lib/doil/tpl/minion/run-supervisor.sh" "${FOLDERPATH}/conf/run-supervisor.sh"
@@ -271,8 +256,7 @@ cd ${FOLDERPATH}
 
 ############################
 # replace the templates vars
-NOW=$(date +'%d.%m.%Y %I:%M:%S')
-echo "[${NOW}] Replacing template vars"
+doil_send_log "Replacing template vars"
 
 # replacer
 if [ ${HOST} == "linux" ]; then
@@ -283,182 +267,96 @@ elif [ ${HOST} == "mac" ]; then
   sed -i "" "s/%DOILPATH%/\/usr\/local\/lib\/doil/g" "${FOLDERPATH}/docker-compose.yml"
 fi
 
-##############################
-# starting master salt service
-NOW=$(date +'%d.%m.%Y %I:%M:%S')
-echo "[${NOW}] Starting master salt service"
-
-# start service
-cd /usr/local/lib/doil/tpl/main
-docker-compose up -d
-sleep 5
-
-##############################
-# checking master salt service
-NOW=$(date +'%d.%m.%Y %I:%M:%S')
-echo "[${NOW}] Checking master salt service"
-
-# check if the salt-master service is running the service
-DCMAIN=$(docker ps | grep "saltmain")
-DCMAINHASH=${DCMAIN:0:12}
-
-DCMAINSALTSERVICE=$(docker top ${DCMAINHASH} | grep "salt-master")
-if [[ -z ${DCMAINSALTSERVICE} ]]
-then
-  $(docker exec -ti ${DCMAINHASH} bash -c "salt-master -d")
-fi
-
-until [[ ! -z ${DCMAINSALTSERVICE} ]]
-do
-  echo "Master service not ready ..."
-  doil salt:restart
-  sleep 5
-  DCMAINSALTSERVICE=$(docker top ${DCMAINHASH} | grep "salt-master")
-done
-
-# check if the salt main server is defunct
-DCMAINSALTSERVICEDEFUNCT=$(docker exec -ti ${DCMAINHASH} bash -c "ps -u salt")
-DCMAINSALTSERVICEDEFUNCT=$(echo ${DCMAINSALTSERVICEDEFUNCT} | grep "defunct")
-until [[ -z ${DCMAINSALTSERVICEDEFUNCT} ]]
-do
-  doil salt:restart
-  sleep 5
-
-  DCMAIN=$(docker ps | grep "saltmain")
-  DCMAINHASH=${DCMAIN:0:12}
-
-  DCMAINSALTSERVICEDEFUNCT=$(docker exec -ti ${DCMAINHASH} bash -c "ps -u salt")
-  DCMAINSALTSERVICEDEFUNCT=$(echo ${DCMAINSALTSERVICEDEFUNCT} | grep "defunct")
-done
-echo "Master service ready."
-
-# set the saltmain again because we maybe did restart the service
-DCMAIN=$(docker ps | grep "saltmain")
-DCMAINHASH=${DCMAIN:0:12}
-
 #######################
 # building minion image
-NOW=$(date +'%d.%m.%Y %I:%M:%S')
-echo "[${NOW}] Building minion image"
+doil_send_log "Building minion image"
 
 # build the image
 cd ${FOLDERPATH}
 docker-compose up --force-recreate --no-start --renew-anon-volumes
-
-##############################
-# starting salt minion service
-NOW=$(date +'%d.%m.%Y %I:%M:%S')
-echo "[${NOW}] Starting salt minion service"
-
-# start the docker service
-cd ${FOLDERPATH}
-docker-compose up -d
+docker-compose up -d --force-recreate
 sleep 5
-
-#########################
-# checking minion service
-NOW=$(date +'%d.%m.%Y %I:%M:%S')
-echo "[${NOW}] Checking minion service"
-
-# check if the service is running
-cd ${FOLDERPATH}
-DCMINIONFOLDER=${PWD##*/}
-DCMINIONHASH=$(doil_get_hash ${DCMINIONFOLDER})
-DCMINIONSALTSERVICE=$(docker container top ${DCMINIONHASH} | grep "salt-minion")
-
-# wait until the service is there
-if [[ -z ${DCMINIONSALTSERVICE} ]]
-then
-  echo "Minion service not ready ... starting"
-  docker exec -ti ${DCMINIONHASH} bash -c "salt-minion -d"
-  sleep 5
-fi
 
 ##############
 # checking key
-NOW=$(date +'%d.%m.%Y %I:%M:%S')
-echo "[${NOW}] Checking key"
+doil_send_log "Checking key"
 
 # check if the new key is registered
-SALTKEYS=$(docker exec -t -i ${DCMAINHASH} /bin/bash -c "salt-key -L" | grep "${NAME}.local")
+SALTKEYS=$(docker exec -t -i saltmain /bin/bash -c "salt-key -L" | grep "${NAME}.local")
 until [[ ! -z ${SALTKEYS} ]]
 do
   echo "Key not ready yet ... waiting"
   sleep 5
-  SALTKEYS=$(docker exec -t -i ${DCMAINHASH} /bin/bash -c "salt-key -L" | grep "${NAME}.local")
+  SALTKEYS=$(docker exec -t -i saltmain /bin/bash -c "salt-key -L" | grep "${NAME}.local")
 done
 echo "Key ready"
 
 ##################
 # apply base state
-NOW=$(date +'%d.%m.%Y %I:%M:%S')
-echo "[${NOW}] Apply base state"
-docker exec -t -i ${DCMAINHASH} /bin/bash -c "salt '${NAME}.local' state.highstate saltenv=base --state-output=terse"
+doil_send_log "Apply base state"
+doil apply ${NAME} base --quiet
 
 #################
 # apply dev state
-NOW=$(date +'%d.%m.%Y %I:%M:%S')
-echo "[${NOW}] Apply dev state"
-docker exec -t -i ${DCMAINHASH} /bin/bash -c "salt '${NAME}.local' state.highstate saltenv=dev --state-output=terse"
+doil_send_log "Apply dev state"
+doil apply ${NAME} dev --quiet
 
 #################
 # apply php state
-NOW=$(date +'%d.%m.%Y %I:%M:%S')
-echo "[${NOW}] Apply php state"
-docker exec -t -i ${DCMAINHASH} /bin/bash -c "salt '${NAME}.local' state.highstate saltenv=php${PHPVERSION} --state-output=terse"
+doil_send_log "Apply php state"
+doil apply ${NAME} php${PHPVERSION} --quiet
 
 ###################
 # apply ilias state
-NOW=$(date +'%d.%m.%Y %I:%M:%S')
-echo "[${NOW}] Apply ilias state"
-docker exec -t -i ${DCMAINHASH} /bin/bash -c "salt '${NAME}.local' state.highstate saltenv=ilias --state-output=terse"
+doil_send_log "Apply ilias state"
+doil apply ${NAME} ilias --quiet
 
 ######################
 # apply composer state
-NOW=$(date +'%d.%m.%Y %I:%M:%S')
-echo "[${NOW}] Apply composer state"
+doil_send_log "Apply composer state"
 
 ILIAS_VERSION_FILE=$(cat -e ${FOLDERPATH}/volumes/ilias/include/inc.ilias_version.php | grep "ILIAS_VERSION_NUMERIC")
 ILIAS_VERSION=${ILIAS_VERSION_FILE:33:1}
 if (( ${ILIAS_VERSION} == 6 ))
 then
-  docker exec -t -i ${DCMAINHASH} /bin/bash -c "salt '${NAME}.local' state.highstate saltenv=composer --state-output=terse"
+  doil apply ${NAME} composer --quiet
 elif (( ${ILIAS_VERSION} > 6 ))
 then
-  docker exec -t -i ${DCMAINHASH} /bin/bash -c "salt '${NAME}.local' state.highstate saltenv=composer2 --state-output=terse"
+  doil apply ${NAME} composer2 --quiet
 elif (( ${ILIAS_VERSION} < 6 ))
 then
-  docker exec -t -i ${DCMAINHASH} /bin/bash -c "salt '${NAME}.local' state.highstate saltenv=composer54 --state-output=terse"
+  doil apply ${NAME} composer54 --quiet
 fi
 
 ###################
 # try autoinstaller
 if (( ${ILIAS_VERSION} > 6 ))
 then
-  NOW=$(date +'%d.%m.%Y %I:%M:%S')
-  echo "[${NOW}] Trying autoinstaller"
-
-  docker exec -t -i ${DCMAINHASH} /bin/bash -c "salt '${NAME}.local' state.highstate saltenv=autoinstall --state-output=terse"
+  doil_send_log "Trying autoinstaller"
+  doil apply ${NAME} autoinstall --quiet
 fi
+
+#####
+# apply access
+doil_send_log "Apply access state"
+doil apply ${NAME} access --quiet
 
 #########################
 # finalizing docker image
-NOW=$(date +'%d.%m.%Y %I:%M:%S')
-echo "[${NOW}] Finalizing docker image"
+doil_send_log "Finalizing docker image"
 
 # go to the minion and save the machine
 cd ${FOLDERPATH}
 DCFOLDER=${PWD##*/}
 DCHASH=$(doil_get_hash ${DCFOLDER})
-docker commit ${DCHASH} doil/${NAME}:stable
+docker commit ${NAME} doil/${NAME}:stable
 
 # stop the server
-doil down
+doil down ${NAME}
 
 ###########################
 # Copying readme to project
-NOW=$(date +'%d.%m.%Y %I:%M:%S')
-echo "[${NOW}] Copying readme to project"
+doil_send_log "Copying readme to project"
 
 cp "/usr/local/lib/doil/tpl/minion/README.md" "${FOLDERPATH}/README.md"
 if [ ${HOST} == "linux" ]; then
@@ -469,7 +367,6 @@ fi
 
 #################
 # Everything done
-NOW=$(date +'%d.%m.%Y %I:%M:%S')
-echo "[${NOW}] Everything done"
+doil_send_log "Everything done"
 
 echo -e "Your project is successfully installed. Head to your project via 'doil instances:cd ${NAME}' and see the readme file for more information about the usage with doil."

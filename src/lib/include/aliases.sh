@@ -117,3 +117,9 @@ then
   doil instances:list
   exit
 fi
+
+if [ $1 == "apply" ]
+then
+  doil instances:apply $@
+  exit
+fi
