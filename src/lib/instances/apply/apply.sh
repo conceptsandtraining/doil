@@ -33,30 +33,31 @@ shift
 
 # check if command is just plain help
 # if we don't have any command we load the help
+POSITION=1
 while [[ $# -gt 0 ]]
 	do
 	key="$1"
 
 	case $key in
-    -i|--instance)
-      INSTANCE="$2"
-      shift # past argument
-      shift # past value
-      ;;
-    -s|--state)
-      STATE="$2"
-      shift # past argument
-      shift # past value
+    -q|--quiet)
+      QUIET=TRUE
+      shift
       ;;
     -h|--help|help)
       eval "/usr/local/lib/doil/lib/instances/apply/help.sh"
       exit
       ;;
-    *)    # unknown option
-      echo -e "\033[1mERROR:\033[0m"
-      echo -e "\tUnknown parameter!"
-      echo -e "\tUse \033[1mdoil instances:apply --help\033[0m for more information"
-      exit 255
+    *)
+      if (( ${POSITION} == 1 ))
+      then
+        INSTANCE=${key}
+      fi
+      if (( ${POSITION} == 2 ))
+      then
+        STATE=${key}
+      fi
+      POSITION=$((POSITION+1))
+      shift
       ;;
 	esac
 done
@@ -111,24 +112,28 @@ then
   exit
 fi
 
-NOW=$(date +'%d.%m.%Y %I:%M:%S')
-echo "[${NOW}] Apply state ${STATE} to instance ${INSTANCE}"
+# Pipe output to null if needed
+if [[ ${QUIET} == TRUE ]]
+then
+  exec >>/var/log/doil.log 2>&1
+fi
 
-# start minion
-doil up ${INSTANCE}
+doil_send_log "Apply state ${STATE} to instance ${INSTANCE}"
+
+doil system:salt start --quiet
+doil up ${INSTANCE} --quiet
 
 # check key
 SALTKEYS=$(docker exec -t -i saltmain bash -c "salt-key -L" | grep "${INSTANCE}.local")
 until [[ ! -z ${SALTKEYS} ]]
 do
-  echo "Key not ready yet ... waiting"
+  doil_send_log "Key not ready yet ... waiting"
   sleep 5
   SALTKEYS=$(docker exec -t -i saltmain bash -c "salt-key -L" | grep "${INSTANCE}.local")
 done
-echo "Key ready"
+doil_send_log "Key ready"
 
-echo "Apply state"
-docker exec -ti saltmain bash -c "salt '${INSTANCE}.local' state.highstate saltenv=${STATE} --state-output=terse"
+doil_send_log "Apply state ${STATE}"
+docker exec -ti saltmain bash -c "salt '${INSTANCE}.local' state.highstate saltenv=${STATE}"
 
-NOW=$(date +'%d.%m.%Y %I:%M:%S')
-echo "[${NOW}] Done"
+doil_send_log "Done"

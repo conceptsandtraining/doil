@@ -60,3 +60,8 @@ doil_get_data() {
       ;;
   esac
 }
+
+doil_send_log() {
+  NOW=$(date +'%d.%m.%Y %I:%M:%S')
+  echo "[$NOW] $1"
+}

@@ -28,7 +28,7 @@ NAME
   doil instances:apply - applies a state to the instance
 
 SYNOPSIS
-  doil instances:apply <-i|--instance instance> <-s|--state <state>>
+  doil instances:apply <instance> <<state>>
 
 ALIAS
   doil apply
@@ -37,8 +37,9 @@ DESCRIPTION
   
 
 EXAMPLE:
-  doil instances:apply -i ilias -s composer
+  doil instances:apply ilias composer
 
 OPTIONS
-  -h|--help       displays this help message
+  -h|--help  displays this help message
+  -q|--quiet no output will be displayed
 EOF

@@ -46,4 +46,5 @@ COMMANDS
   up     starts an instance
   down   stops an instance
   list   lists the instances
+  apply  applys a certain state to your instance
 EOF

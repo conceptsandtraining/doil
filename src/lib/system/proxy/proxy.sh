@@ -23,21 +23,27 @@
 #    ,' | /  ;'
 #   (,,/ (,,/      Thanks to Concepts and Training for supporting doil
 
+# get the helper
+source /usr/local/lib/doil/lib/include/env.sh
+source /usr/local/lib/doil/lib/include/helper.sh
+
 # we can move the pointer one position
 shift
 
 # check if command is just plain help
 # if we don't have any command we load the help
-POSITIONAL=()
 while [[ $# -gt 0 ]]
   do
   key="$1"
 
   case $key in
-    login|restart|prune)
+    login|prune|start|stop|restart|reload)
       COMMAND="$key"
-      shift # past argument
-      shift # past value
+      shift
+      ;;
+    -q|--quiet)
+      QUIET=TRUE
+      shift
       ;;
     -h|--help|help)
       eval "/usr/local/lib/doil/lib/system/proxy/help.sh"
@@ -61,36 +67,82 @@ then
   exit 255
 fi
 
+# Pipe output to null if needed
+if [[ ${QUIET} == TRUE ]]
+then
+  exec >>/var/log/doil.log 2>&1
+fi
+
 # login
 if [[ ${COMMAND} == "login" ]]
 then
-  # check doil_proxy
-  DCMAIN=$(docker ps | grep "doil_proxy")
-  if [ -z "${DCMAIN}" ]
-  then
-    CWD=$(pwd)
-    cd /usr/local/lib/doil/tpl/proxy || return
-    docker-compose up -d
-    cd "${CWD}" || return
-  fi
+  doil system:proxy start --quiet
 
   docker exec -t -i doil_proxy bash
-  exit
 fi
 
 # prune
 if [[ ${COMMAND} == "prune" ]]
 then
+  doil_send_log "Pruning proxy server"
+
+  doil system:proxy start --quiet
   rm -rf /usr/local/lib/doil/tpl/proxy/conf/sites/*
-  doil system:proxy restart
-  exit
+  doil system:proxy restart --quiet
+  
+  doil_send_log "Finished pruning proxy server"
+fi
+
+# start
+if [[ ${COMMAND} == "start" ]]
+then
+  doil_send_log "Starting proxy server"
+
+  DCMAIN=$(docker ps | grep "doil_proxy")
+  if [ -z "${DCMAIN}" ]
+  then
+    # start service
+    cd /usr/local/lib/doil/tpl/proxy || return
+    docker-compose up -d --force-recreate
+  fi
+
+  doil_send_log "proxy server started"
+fi
+
+# stop
+if [[ ${COMMAND} == "stop" ]]
+then
+  doil_send_log "Stopping proxy server"
+
+  DCMAIN=$(docker ps | grep "doil_proxy")
+  if [ ! -z "${DCMAIN}" ]
+  then
+    # stop service
+    cd /usr/local/lib/doil/tpl/proxy || return
+    docker-compose down
+  fi
+
+  doil_send_log "proxy server stopped"
 fi
 
 # restart
 if [[ ${COMMAND} == "restart" ]]
 then
-  # restart service
-  cd /usr/local/lib/doil/tpl/proxy || return
-  docker-compose down
-  docker-compose up -d
+  doil_send_log "Restarting proxy server"
+
+  doil system:proxy stop --quiet
+  doil system:proxy start --quiet
+
+  doil_send_log "proxy server restarted"
+fi
+
+# reload
+if [[ ${COMMAND} == "reload" ]]
+then
+  doil_send_log "Reloading proxy server"
+
+  doil system:proxy start --quiet
+  docker exec -ti doil_proxy bash -c "/etc/init.d/nginx reload"
+
+  doil_send_log "proxy server reloaded"
 fi

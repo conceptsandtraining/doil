@@ -58,4 +58,5 @@ OPTIONS
   -t|--target     optional: sets the target destination for the instance.
                   If the folder does not exist, it will be created
   -h|--help       displays this help message
+  -q|--quiet      no output will be displayed
 EOF
