@@ -3,6 +3,7 @@
   DocumentRoot /var/www/html/
 
   Alias /adminer /var/www/adminer
+  Alias /%DOMAIN% /var/www/html
 
   <Directory /var/www/html/>
     AllowOverride All

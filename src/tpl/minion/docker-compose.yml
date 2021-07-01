@@ -20,6 +20,7 @@ services:
       - ./volumes/logs/error/:/var/ilias/logs/error
       - ./volumes/logs/apache:/var/log/apache2
       - ./conf/minion.cnf:/etc/salt/minion
+      - ./conf:/root/conf
       - ~/.ssh/:/root/.ssh/
       - ~/.bashrc:/root/.bashrc
       - ~/.vimrc:/root/.vimrc

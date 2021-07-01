@@ -14,6 +14,18 @@ apache_packages:
     - group: root
     - mode: 644
 
+/root/apache-config-replace.sh:
+  file.managed:
+    - source: salt://base/apache-config-replace.sh
+    - user: root
+    - group: root
+    - mode: 740
+
+config-replace:
+  cmd.run:
+    - cwd: /root/
+    - name: ./apache-config-replace.sh
+
 /etc/apache2/sites-enabled/000-default.conf:
   file.symlink:
     - target: /etc/apache2/sites-available/000-default.conf
