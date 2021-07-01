@@ -22,9 +22,23 @@
     - group: www-data
     - mode: 640
 
-ilias-setup:
+/root/config-replace.sh:
+  file.managed:
+    - source: salt://autoinstall/config-replace.sh
+    - user: root
+    - group: root
+    - mode: 740
+
+config-replace:
   cmd.run:
-    - name: "php /var/www/html/setup/setup.php install -y /var/ilias/data/ilias-config.json"
+    - cwd: /root/
+    - name: ./config-replace.sh
+
+ilias-setup:
+  cmd.wait:
+    - name: php /var/www/html/setup/setup.php install -y /var/ilias/data/ilias-config.json
+    - watch:
+      - cmd: config-replace
 
 /var/www/html/:
   file.directory:
