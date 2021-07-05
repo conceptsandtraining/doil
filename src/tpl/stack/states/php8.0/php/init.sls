@@ -19,6 +19,7 @@ php8.0:
       - libapache2-mod-php8.0
       - php8.0-curl
       - php8.0-gd
+      - php8.0-json
       - php8.0-mysql
       - php8.0-readline
       - php8.0-xsl

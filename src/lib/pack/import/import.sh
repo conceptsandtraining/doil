@@ -157,6 +157,9 @@ docker exec -ti ${INSTANCE} bash -c "mysql -u ilias -p ilias < /var/ilias/data/i
 doil_send_log "Setting permissions"
 
 # set access
+doil down ${INSTANCE}
+doil up ${INSTANCE}
+sleep 5
 doil apply ${INSTANCE} access --quiet
 
 doil_send_log "Import of ${INSTANCE} done"

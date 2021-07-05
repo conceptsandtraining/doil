@@ -40,7 +40,7 @@ EXAMPLE:
 
 COMMANDS
   login   logs the user into the proxy server
-  prune   prunes the proxy server
+  prune   removes the configuration of the proxy server
   start   starts the proxy server
   stop    stops the proxy server
   restart restarts the proxy server

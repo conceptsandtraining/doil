@@ -31,7 +31,9 @@ SYNOPSIS
   doil pack:export <instance>
 
 DESCRIPTION
-  
+  This command exports an instance to an archive with all
+  the data needed for an import. The final archivename will be
+  <instance>-doilpack.zip. You will be asked for some passwords.
 
 EXAMPLE:
   doil pack:export ilias

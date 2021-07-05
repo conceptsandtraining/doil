@@ -42,7 +42,7 @@ EXAMPLE:
   doil system:proxy login
 
 COMMANDS
-  deinstall deinstalles doil
+  deinstall deinstalls doil
   version   shows the currently installed version 
   salt      manages the salt server
   proxy     manages the proxy server

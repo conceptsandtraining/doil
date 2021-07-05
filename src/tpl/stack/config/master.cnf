@@ -672,6 +672,8 @@ file_roots:
   - /srv/salt/states/composer2
   composer54:
   - /srv/salt/states/composer54
+  composerupdate:
+  - /srv/salt/states/composerupdate
   autoinstall:
     - /srv/salt/states/autoinstall
   access:
