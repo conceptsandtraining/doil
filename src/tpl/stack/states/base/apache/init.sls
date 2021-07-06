@@ -16,7 +16,7 @@ apache_packages:
 
 /root/apache-config-replace.sh:
   file.managed:
-    - source: salt://base/apache-config-replace.sh
+    - source: salt://apache/apache-config-replace.sh
     - user: root
     - group: root
     - mode: 740

@@ -94,6 +94,11 @@ then
   # Start the container
   docker-compose up -d
 
+  # renew key
+  docker exec -ti ${INSTANCE} bash -c "rm /var/lib/salt/pki/minion/minion_master.pub"
+  docker exec -ti ${INSTANCE} bash -c "service salt-minion stop"
+  docker exec -ti ${INSTANCE} bash -c "salt-minion -d"
+
   # remove the current ip from the host file and add the new one
   DCFOLDER=${PWD##*/}
   DCHASH=$(doil_get_hash $DCFOLDER)

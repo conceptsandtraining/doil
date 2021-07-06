@@ -144,7 +144,8 @@ chown -R ${SUDO_USER}:${SODU_USER} /usr/local/lib/doil
 rm -rf /usr/local/lib/doil/tpl/stack
 cp -r src/tpl/stack /usr/local/lib/doil/tpl/stack
 
-#doil system:salt restart
+doil system:salt restart
+doil system:proxy restart
 
 # send IP to hosts
 IPEXIST=$(grep "172.24.0.254" /etc/hosts)

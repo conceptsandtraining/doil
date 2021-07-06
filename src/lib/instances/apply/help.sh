@@ -28,13 +28,14 @@ NAME
   doil instances:apply - applies a state to the instance
 
 SYNOPSIS
-  doil instances:apply <instance> <<state>>
+  doil instances:apply <instance> <state>
 
 ALIAS
   doil apply
 
 DESCRIPTION
-  
+  doil apply is a command to apply states for the instances. This is
+  useful for re-applying singlular states to your instance.
 
 EXAMPLE:
   doil instances:apply ilias composer

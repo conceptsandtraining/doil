@@ -122,6 +122,7 @@ doil_send_log "Apply state ${STATE} to instance ${INSTANCE}"
 
 doil system:salt start --quiet
 doil up ${INSTANCE} --quiet
+sleep 5
 
 # check key
 SALTKEYS=$(docker exec -t -i saltmain bash -c "salt-key -L" | grep "${INSTANCE}.local")

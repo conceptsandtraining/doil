@@ -51,7 +51,43 @@ The following commands are available:
 * `doil login` logs you into the container running the instance
 * `doil down` stops an instance to free the ressources it needs
 * `doil rm` deletes an instance you do not need anymore
-* look into `doil instances --help` for further commands related to instances
+* `doil apply` applys a certain state to the instance
+
+See `doil instances --help` for more information
+
+### Repository
+
+**doil** can use different ILIAS repositories to create instances. Per default,
+the [repository of the ILIAS society](https://github.com/ILIAS-eLearning/ILIAS)
+will be used to pull the ILIAS code. If you want to use another repository to get
+the ILIAS code, you can use commands from `doil repo` to add and manage these
+other repositories:
+
+* `doil repo:add` will add a repository to the configuration
+* `doil repo:update` will download the repo to **doil**'s local cache or update
+  it if it is already downloaded
+* `doil instances:create --repo REPO_NAME` will use the repo to create a new
+   instance
+* `doil repo:remove` - removes a repository
+* `doil repo:list` - lists currently registered repositories
+
+See `doil repo --help` for more information
+
+### Pack
+
+**doil** lets you transfer the data of one installation of ILIAS ot another. Instances
+build with doil (instances from version >=1.1) are able to be exported.
+
+* `doil pack:export` exports an instance
+* `doil pack:import` imports an instance
+
+See `doil pack --help` for more information
+
+### Quietmode and Logs
+
+Most of the commands come with a `--quiet` flag to omit the log messages.
+However these logs are not lost, they are stored in `/var/log/doil.log`. You may
+want to add a rotation to this logfile.
 
 ## Known Restrictions
 
@@ -62,6 +98,88 @@ The following commands are available:
 * **doil** works on Windows with the WSL enabled. We are aware that there might
   be a bug with routing the traffic from WSL to the browser. If you can find a
   solution for this, let us know
+
+## Known Problems
+
+### 404 after doil up
+
+Sometimes it is possible that the proxy server doesn't accept the configuration. This results
+in a 404 when heading to your instance after using `doil up`. To fix this you just need to restart
+the proxy server with `doil system:proxy restart`. If the 404 still occurs restart your instance
+with `doil down` and `doil up`.
+
+### The key not ready loop
+
+While creating an instance or using `doil apply` it is possible that there will be a "Key not ready"
+loop. This loop tries to find a certain key in the salt main server. To fix this issue let the loop
+run and open a new terminal and do following steps:
+
+* `doil system:salt prune`
+* `doil system:salt restart`
+* `doil down ${instance}`
+* `doil up ${instance}`
+
+Usually the loop will then resolve itself and the creation or apply process will continue. If the loop
+continues then there might be a problem with the public key of the salt main server. To fix this do
+following steps:
+
+* `doil login ${instance}`
+* `rm /var/lib/salt/pki/minion/minion_master.pub`
+* `exit`
+* `doil down ${instance}`
+* `doil up ${instance}`
+
+## Background, Troubleshooting and Development
+
+**doil** uses [SaltStack](https://docs.saltproject.io/en/latest/) to provision and maintain
+the instances. [Docker](https://www.docker.com/) is only used as a light weight
+and widely available VM-like technology to run sufficiently isolated linux
+environments. SaltStack uses an architecture where one master acts as a central
+control server. **doil** runs this master in a dedicated container. The instances
+then are deployed into separate containers as minions that are controlled and
+provisioned by the master. Required folders are mounted in the users filesystem
+via Dockers volumes and can be accessed from the host system.
+
+### System
+
+**doil** comes with some helpers which are usefull if you want to hack on **doil**:
+
+* `doil system:deinstall` will be remove doil from your system
+* `doil system:version` displays the version
+* `doil system:help` displays the main help page
+
+See `doil system --help` for more information
+
+### SaltStack
+
+To be able to dive deeper into the inner workings of **doil** or customize it
+to fit your workflow or requirements, **doil** provides commands to tamper with
+the saltstack in the background. These commands will not be required by ordinary
+users, so make sure to understand what you are doing.
+
+* `doil system:salt login` logs the user into the main salt server
+* `doil system:salt prune` prunes the main salt server
+* `doil system:salt start` starts the salt main server
+* `doil system:salt stop` stops the salt main server
+* `doil system:salt restart` restarts the salt main server
+
+See `doil system:salt --help` for more information
+
+### Proxy Server
+
+To be able to dive deeper into the inner workings of **doil** or customize it
+to fit your workflow or requirements, **doil** provides commands to tamper with
+the proxy in the background. These commands will not be required by ordinary
+users, so make sure to understand what you are doing.
+
+* `doil system:proxy login` logs the user into the proxy server
+* `doil system:proxy prune` removes the configuration of the proxy server
+* `doil system:proxy start` starts the proxy server
+* `doil system:proxy stop` stops the proxy server
+* `doil system:proxy restart` restarts the proxy server
+* `doil system:proxy reload` reloads the configuration
+
+See `doil system:proxy --help` for more information
 
 ## Contributions and Support
 
@@ -89,64 +207,3 @@ If doil saved your precious time and brain power, please consider supporting
 * Reach out to [Richard](richard.klees@concepts-and-training.de) if you need
   more support than we can offer for free or want to get involved with **doil**
   in other ways.
-
-## Background, Troubleshooting and Development
-
-**doil** uses [SaltStack](https://docs.saltproject.io/en/latest/) to provision and maintain
-the instances. [Docker](https://www.docker.com/) is only used as a light weight
-and widely available VM-like technology to run sufficiently isolated linux
-environments. SaltStack uses an architecture where one master acts as a central
-control server. **doil** runs this master in a dedicated container. The instances
-then are deployed into separate containers as minions that are controlled and
-provisioned by the master. Required folders are mounted in the users filesystem
-via Dockers volumes and can be accessed from the host system.
-
-If you have the suspicion that something went wrong here or you accidentally
-messed up an instance, try `doil instances:repair` to make **doil** attempt to
-fix the problem.
-
-### Repository
-
-**doil** can use different ILIAS repositories to create instances. Per default,
-the [repository of the ILIAS society](https://github.com/ILIAS-eLearning/ILIAS)
-will be used to pull the ILIAS code. If you want to use another repository to get
-the ILIAS code, you can use commands from `doil repo` to add and manage these
-other repositories:
-
-* `doil repo:add` will add a repository to the configuration
-* `doil repo:update` will download the repo to **doil**'s local cache or update
-  it if it is already downloaded
-* `doil instances:create --repo REPO_NAME` will use the repo to create a new
-   instance
-* `doil repo:remove` - removes a repository
-* `doil repo:list` - lists currently registered repositories
-
-### System
-
-**doil** comes with some helpers which are usefull if you want to hack on **doil**:
-
-* `doil system:deinstall` will be remove doil from your system
-* `doil system:version` displays the version
-* `doil system:help` displays the main help page
-
-### SaltStack
-
-To be able to dive deeper into the inner workings of **doil** or customize it
-to fit your workflow or requirements, **doil** provides commands to tamper with
-the saltstack in the background. These commands will not be required by ordinary
-users, so make sure to understand what you are doing.
-
-* `doil system:salt restart` restarts the salt main server
-* `doil system:salt login` logs the user into the main salt server
-* `doil system:salt prune` prunes the main salt server
-
-### Proxy Server
-
-To be able to dive deeper into the inner workings of **doil** or customize it
-to fit your workflow or requirements, **doil** provides commands to tamper with
-the proxy in the background. These commands will not be required by ordinary
-users, so make sure to understand what you are doing.
-
-* `doil system:proxy restart` restarts the proxy server
-* `doil system:proxy login` logs the user into the proxy server
-* `doil system:proxy prune` prunes the proxy server
