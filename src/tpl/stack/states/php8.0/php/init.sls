@@ -17,15 +17,15 @@ php8.0:
     - refresh: true
     - pkgs:
       - libapache2-mod-php8.0
-      - php8.0-curl
-      - php8.0-gd
-      - php8.0-json
+      - php-curl
+      - php-gd
+      - php-json
       - php8.0-mysql
       - php8.0-readline
       - php8.0-xsl
       - php8.0-cli
-      - php8.0-zip
-      - php8.0-mbstring
+      - php-zip
+      - php-mbstring
       - php8.0-soap
       - php8.0-bcmath
       - php8.0-imap
