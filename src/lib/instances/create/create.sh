@@ -309,9 +309,9 @@ doil_send_log "Key ready"
 # set grains
 doil_send_log "Setting up local configuration"
 GRAIN_MYSQL_PASSWORD=$(tr -dc A-Za-z0-9 </dev/urandom | head -c 13 ; echo '')
-docker exec -ti saltmain bash -c "salt '${NAME}.local' grains.set 'mysql_password' ${GRAIN_MYSQL_PASSWORD}"
-docker exec -ti saltmain bash -c "salt '${NAME}.local' grains.set 'doil_domain' http://doil/${NAME}"
-docker exec -ti saltmain bash -c "salt '${NAME}.local' grains.set 'doil_project_name' ${NAME}"
+docker exec -ti saltmain bash -c "salt '${NAME}.local' grains.set 'mysql_password' ${GRAIN_MYSQL_PASSWORD} --out=quiet"
+docker exec -ti saltmain bash -c "salt '${NAME}.local' grains.set 'doil_domain' http://doil/${NAME} --out=quiet"
+docker exec -ti saltmain bash -c "salt '${NAME}.local' grains.set 'doil_project_name' ${NAME} --out=quiet"
 sleep 5
 
 ##################
