@@ -69,6 +69,10 @@ while [[ $# -gt 0 ]]
       eval "/usr/local/lib/doil/lib/instances/create/help.sh"
       exit
       ;;
+    --skip-readme)
+      SKIP_README=TRUE
+      shift # past argument
+      ;;
     -q|--quiet)
       QUIET=TRUE
       shift # past argument
@@ -200,7 +204,8 @@ FOLDERPATH="${TARGET}/${NAME}"
 doil_send_log "Start creating project ${NAME}"
 
 # update debian
-docker pull debian:stable
+doil_send_log "Updating local system"
+docker pull debian:stable --quiet
 
 # check saltmain
 doil system:salt start --quiet
@@ -251,9 +256,9 @@ chmod a+x "${FOLDERPATH}/conf/doil.conf"
 # copy ilias
 cd "/usr/local/lib/doil/tpl/repos/${REPOSITORY}"
 git config core.fileMode false
-git fetch origin
-git checkout ${BRANCH}
-git pull origin ${BRANCH}
+git fetch origin --quiet
+git checkout ${BRANCH} --quiet
+git pull origin ${BRANCH} --quiet
 cp -r "/usr/local/lib/doil/tpl/repos/${REPOSITORY}" "${FOLDERPATH}/volumes/ilias"
 cd ${FOLDERPATH}
 
@@ -282,7 +287,7 @@ doil_send_log "Building minion image"
 
 # build the image
 cd ${FOLDERPATH}
-docker-compose up --force-recreate --no-start --renew-anon-volumes
+docker-compose up --force-recreate --no-start --renew-anon-volumes --quiet-pull
 doil up --quiet
 sleep 5
 
@@ -294,11 +299,20 @@ doil_send_log "Checking key"
 SALTKEYS=$(docker exec -t -i saltmain /bin/bash -c "salt-key -L" | grep "${NAME}.local")
 until [[ ! -z ${SALTKEYS} ]]
 do
-  echo "Key not ready yet ... waiting"
+  doil_send_log "Key not ready yet ... waiting"
   sleep 5
   SALTKEYS=$(docker exec -t -i saltmain /bin/bash -c "salt-key -L" | grep "${NAME}.local")
 done
-echo "Key ready"
+doil_send_log "Key ready"
+
+############
+# set grains
+doil_send_log "Setting up local configuration"
+GRAIN_MYSQL_PASSWORD=$(tr -dc A-Za-z0-9 </dev/urandom | head -c 13 ; echo '')
+docker exec -ti saltmain bash -c "salt '${NAME}.local' grains.set 'mysql_password' ${GRAIN_MYSQL_PASSWORD}"
+docker exec -ti saltmain bash -c "salt '${NAME}.local' grains.set 'doil_domain' http://doil/${NAME}"
+docker exec -ti saltmain bash -c "salt '${NAME}.local' grains.set 'doil_project_name' ${NAME}"
+sleep 5
 
 ##################
 # apply base state
@@ -363,15 +377,20 @@ docker commit ${NAME} doil/${NAME}:stable
 # stop the server
 doil down ${NAME}
 
-###########################
-# Copying readme to project
-doil_send_log "Copying readme to project"
+if [[ ${SKIP_README} != TRUE ]]
+then
+  ###########################
+  # Copying readme to project
+  doil_send_log "Copying readme to project"
 
-cp "/usr/local/lib/doil/tpl/minion/README.md" "${FOLDERPATH}/README.md"
-if [ ${HOST} == "linux" ]; then
-  sed -i "s/%TPL_PROJECT_NAME%/${NAME}/g" "${FOLDERPATH}/README.md"
-elif [ ${HOST} == "mac" ]; then
-  sed -i "" "s/%TPL_PROJECT_NAME%/${NAME}/g" "${FOLDERPATH}/README.md"
+  cp "/usr/local/lib/doil/tpl/minion/README.md" "${FOLDERPATH}/README.md"
+  if [ ${HOST} == "linux" ]; then
+    sed -i "s/%TPL_PROJECT_NAME%/${NAME}/g" "${FOLDERPATH}/README.md"
+    sed -i "s/%GRAIN_MYSQL_PASSWORD%/${GRAIN_MYSQL_PASSWORD}/g" "${FOLDERPATH}/README.md"
+  elif [ ${HOST} == "mac" ]; then
+    sed -i "" "s/%TPL_PROJECT_NAME%/${NAME}/g" "${FOLDERPATH}/README.md"
+    sed -i "" "s/%GRAIN_MYSQL_PASSWORD%/${GRAIN_MYSQL_PASSWORD}/g" "${FOLDERPATH}/README.md"
+  fi
 fi
 
 #################

@@ -1,3 +1,6 @@
+{% set mysql_password = salt['grains.get']('mysql_password', 'ilias') %}
+{% set doil_domain = salt['grains.get']('doil_domain', 'http://ilias.local') %}
+
 /var/ilias/data/ilias-config.json:
   file.managed:
     - source: salt://autoinstall/ilias-config.json
@@ -10,35 +13,21 @@
       db_name: ilias
       db_type: 'innodb'
       db_create: 'true'
-      db_pass: ilias
+      db_pass: {{ mysql_password }}
       data_dir: /var/ilias/data
       contact_firstname: 'CaT'
       contact_lastname: 'Concepts and Training GmbH'
       contact_mail: 'noreply@concepts-and-training.de'
       language: 'de'
       log_dir: /var/ilias/logs
-      http_path: http://ilias.local
+      http_path: {{ doil_domain }}
     - user: www-data
     - group: www-data
     - mode: 640
 
-/root/config-replace.sh:
-  file.managed:
-    - source: salt://autoinstall/config-replace.sh
-    - user: root
-    - group: root
-    - mode: 740
-
-config-replace:
-  cmd.run:
-    - cwd: /root/
-    - name: ./config-replace.sh
-
 ilias-setup:
-  cmd.wait:
+  cmd.run:
     - name: php /var/www/html/setup/setup.php install -y /var/ilias/data/ilias-config.json
-    - watch:
-      - cmd: config-replace
 
 /var/www/html/:
   file.directory:

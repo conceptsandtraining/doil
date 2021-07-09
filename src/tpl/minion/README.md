@@ -33,7 +33,7 @@ The included database environment comes with following setup:
 MYSQL_HOST: localhost
 MYSQL_DB: ilias
 MYSQL_USER: ilias
-MYSQL_PASSWORD: ilias
+MYSQL_PASSWORD: %GRAIN_MYSQL_PASSWORD%
 ```
 
 If the automatic installation was successful you can login to your ILIAS
