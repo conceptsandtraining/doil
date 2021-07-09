@@ -12,6 +12,18 @@ php_repo_key:
     - name: wget -O /etc/apt/trusted.gpg.d/php.gpg https://packages.sury.org/php/apt.gpg
     - unless: test -f /etc/apt/trusted.gpg.d/php.gpg
 
+/root/clean-php-packages.sh:
+  file.managed:
+    - source: salt://php/clean-php-packages.sh
+    - user: root
+    - group: root
+    - mode: 740
+
+clean-php-packages:
+  cmd.run:
+    - cwd: /root/
+    - name: ./clean-php-packages.sh
+
 php8.0:
   pkg.installed:
     - refresh: true
