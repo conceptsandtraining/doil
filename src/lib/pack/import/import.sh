@@ -128,7 +128,7 @@ then
   REPO_EXISTS=$(doil repo:list | grep ${PROJECT_REPOSITORY_URL} -w)
   if [[ -z ${REPO_EXISTS} ]]
   then
-    doil repo:add "${INSTANCE}_import" ${PROJECT_REPOSITORY_URL}
+    doil repo:add --name "${INSTANCE}_import" --repo ${PROJECT_REPOSITORY_URL}
     REPOSITORY="${INSTANCE}_import"
   else
     REPOSITORY=$(doil repo:list | grep ${PROJECT_REPOSITORY_URL} -w | cut -d\  -f1 | tr -d '\t')
