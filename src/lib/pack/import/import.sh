@@ -123,8 +123,21 @@ then
 
   # create project
   doil_send_log "Creating instance ${INSTANCE}. This will take a while."
-  doil create -n ${INSTANCE} -r ${PROJECT_REPOSITORY} -b ${PROJECT_BRANCH} -p ${PROJECT_PHP_VERSION}
+
+  # check if repo exists
+  REPO_EXISTS=$(doil repo:list | grep ${PROJECT_REPOSITORY_URL} -w)
+  if [[ -z ${REPO_EXISTS} ]]
+  then
+    doil repo:add "${INSTANCE}_import" ${PROJECT_REPOSITORY_URL}
+    REPOSITORY="${INSTANCE}_import"
+  else
+    REPOSITORY=$(doil repo:list | grep ${PROJECT_REPOSITORY_URL} -w | cut -d\  -f1 | tr -d '\t')
+  fi
+
+  doil create -n ${INSTANCE} -r ${REPOSITORY} -b ${PROJECT_BRANCH} -p ${PROJECT_PHP_VERSION}
 fi
+
+exit
 
 doil_send_log "Copying necessary files"
 

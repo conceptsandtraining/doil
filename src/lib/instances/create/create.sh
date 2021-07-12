@@ -249,6 +249,8 @@ touch "${FOLDERPATH}/conf/doil.conf"
 echo "#!/bin/bash" > "${FOLDERPATH}/conf/doil.conf"
 echo "PROJECT_NAME=\"${NAME}\"" >> "${FOLDERPATH}/conf/doil.conf"
 echo "PROJECT_REPOSITORY=\"${REPOSITORY}\"" >> "${FOLDERPATH}/conf/doil.conf"
+PROJECT_REPOSITORY_URL=$(doil repo:list | grep ${REPOSITORY} -w | cut -d\   -f3)
+echo "PROJECT_REPOSITORY_URL=\"${PROJECT_REPOSITORY_URL}\"" >> "${FOLDERPATH}/conf/doil.conf"
 echo "PROJECT_BRANCH=\"${BRANCH}\"" >> "${FOLDERPATH}/conf/doil.conf"
 echo "PROJECT_PHP_VERSION=\"${PHPVERSION}\"" >> "${FOLDERPATH}/conf/doil.conf"
 chmod a+x "${FOLDERPATH}/conf/doil.conf"
