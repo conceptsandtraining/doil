@@ -137,10 +137,7 @@ then
   doil create -n ${INSTANCE} -r ${REPOSITORY} -b ${PROJECT_BRANCH} -p ${PROJECT_PHP_VERSION}
 fi
 
-exit
-
 doil_send_log "Copying necessary files"
-
 
 # stop the instance
 doil down ${INSTANCE}
