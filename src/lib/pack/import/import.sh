@@ -158,8 +158,9 @@ sudo mkdir -p ${TARGET}/volumes/data/
 sudo cp -r ${PWD}/${PACKNAME}/var/www/html/ilias.ini.php ${TARGET}/volumes/ilias/ilias.ini.php
 sudo cp -r ${PWD}/${PACKNAME}/var/www/html/data ${TARGET}/volumes/ilias/
 sudo cp -r ${PWD}/${PACKNAME}/var/ilias/data/* ${TARGET}/volumes/data/*
-sudo cp -r ${PWD}/${PACKNAME}/var/ilias/index/* ${TARGET}/volumes/index/*
-sudo cp -r ${PWD}/${PACKNAME}/var/ilias/logs/* ${TARGET}/volumes/logs/*
+sudo cp -r ${PWD}/${PACKNAME}/var/ilias/ilias.sql ${TARGET}/volumes/data/ilias.sql
+#sudo cp -r ${PWD}/${PACKNAME}/var/ilias/index/* ${TARGET}/volumes/index/*
+#sudo cp -r ${PWD}/${PACKNAME}/var/ilias/logs/* ${TARGET}/volumes/logs/*
 
 sudo chown -R ${USER}:${USER} ${TARGET}
 
