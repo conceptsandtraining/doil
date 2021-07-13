@@ -2,7 +2,7 @@
   ServerAdmin root@concepts-and-training.de
   DocumentRoot /var/www/html/
 
-  Alias /adminer /var/www/adminer
+  Alias /{{ doil_project_name }}/adminer /var/www/adminer
   Alias /{{ doil_project_name }} /var/www/html
 
   <Directory /var/www/html/>
