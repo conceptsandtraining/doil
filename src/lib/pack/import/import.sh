@@ -165,13 +165,15 @@ doil up ${INSTANCE}
 doil_send_log "Importing database"
 
 # import database
-docker exec -ti ${INSTANCE} bash -c 'mysql -u ilias -p -e="DROP DATABASE ilias;"'
-docker exec -ti ${INSTANCE} bash -c 'mysql -u ilias -p -e="CREATE DATABASE ilias;"'
+docker exec -ti ${INSTANCE} bash -c 'mysql -u ilias -p -e "DROP DATABASE IF EXISTS ilias;"'
+docker exec -ti ${INSTANCE} bash -c 'mysql -u ilias -p -e "CREATE DATABASE ilias;"'
 docker exec -ti ${INSTANCE} bash -c "mysql -u ilias -p ilias < /var/ilias/data/ilias.sql"
 
 echo "Please enter your MySQL password again: "
 read -s SQLPW
-docker exec -ti ${INSTANCE} bash -c "sed -i 's/pass =.*/pass = \"${SQLPW}\"/' /var/www/html/data/ilias/client.ini.php"
+
+CLIENT_FILE_LOCATION=$(find ${TARGET}/volumes/ilias/data/ -iname client.ini.php)
+sed -i "s/pass =.*/pass = '${SQLPW}'/" ${CLIENT_FILE_LOCATION}
 
 doil_send_log "Setting permissions"
 
