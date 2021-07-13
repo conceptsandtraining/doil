@@ -114,7 +114,6 @@ unzip ${PACK}
 
 # PACKNAME
 PACKNAME=${PACK%.zip}
-TARGET=$(readlink ${LINKPATH})
 
 if [[ ${CREATE} == TRUE ]]
 then
@@ -135,7 +134,13 @@ then
   fi
 
   doil create -n ${INSTANCE} -r ${REPOSITORY} -b ${PROJECT_BRANCH} -p ${PROJECT_PHP_VERSION}
+
+  # reset linkpath because we created a new instance
+  LINKPATH="${HOME}/.doil/${INSTANCE}"
 fi
+
+# set target
+TARGET=$(readlink ${LINKPATH})
 
 doil_send_log "Copying necessary files"
 
@@ -148,8 +153,8 @@ sudo rm -rf ${TARGET}/volumes/ilias/data
 sudo rm -rf ${TARGET}/volumes/ilias/ilias.ini.php
 
 # import the files
-sudo mkdir ${TARGET}/volumes/ilias/data/
-sudo mkdir ${TARGET}/volumes/data/
+sudo mkdir -p ${TARGET}/volumes/ilias/data/
+sudo mkdir -p ${TARGET}/volumes/data/
 sudo cp -r ${PWD}/${PACKNAME}/var/www/html/ilias.ini.php ${TARGET}/volumes/ilias/ilias.ini.php
 sudo cp -r ${PWD}/${PACKNAME}/var/www/html/data ${TARGET}/volumes/ilias/
 sudo cp -r ${PWD}/${PACKNAME}/var/ilias/* ${TARGET}/volumes/data/
@@ -167,9 +172,19 @@ docker exec -ti ${INSTANCE} bash -c "mysql -u ilias -p ilias < /var/ilias/data/i
 doil_send_log "Setting permissions"
 
 # set access
-doil down ${INSTANCE}
-doil up ${INSTANCE}
+sudo chown -R ${USER}:${USER} ${TARGET}
+docker exec -ti ${INSTANCE} bash -c "chown -R mysql:mysql /var/lib/mysql"
+docker exec -ti ${INSTANCE} bash -c "service mysql restart"
+docker exec -ti ${INSTANCE} bash -c "mkdir -p /var/ilias/data/ilias/mail"
+
+doil down ${INSTANCE} --quiet
+doil up ${INSTANCE} --quiet
 sleep 5
 doil apply ${INSTANCE} access --quiet
+
+doil_send_log "Cleanup"
+
+rm -rf ${PWD}/${PACKNAME}
+docker exec -ti ${INSTANCE} bash -c "rm /var/ilias/data/ilias.sql"
 
 doil_send_log "Import of ${INSTANCE} done"
