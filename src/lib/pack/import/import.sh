@@ -157,7 +157,10 @@ sudo mkdir -p ${TARGET}/volumes/ilias/data/
 sudo mkdir -p ${TARGET}/volumes/data/
 sudo cp -r ${PWD}/${PACKNAME}/var/www/html/ilias.ini.php ${TARGET}/volumes/ilias/ilias.ini.php
 sudo cp -r ${PWD}/${PACKNAME}/var/www/html/data ${TARGET}/volumes/ilias/
-sudo cp -r ${PWD}/${PACKNAME}/var/ilias/* ${TARGET}/volumes/data/
+sudo cp -r ${PWD}/${PACKNAME}/var/ilias/data/* ${TARGET}/volumes/data/*
+sudo cp -r ${PWD}/${PACKNAME}/var/ilias/index/* ${TARGET}/volumes/index/*
+sudo cp -r ${PWD}/${PACKNAME}/var/ilias/logs/* ${TARGET}/volumes/logs/*
+
 sudo chown -R ${USER}:${USER} ${TARGET}
 
 # start the instance
@@ -186,8 +189,8 @@ docker exec -ti ${INSTANCE} bash -c "chown -R mysql:mysql /var/lib/mysql"
 docker exec -ti ${INSTANCE} bash -c "service mysql restart"
 
 # set mail folder
-CLIENT=$(grep "name" ${CLIENT_FILE_LOCATION} | head -1 | cut -d\  -f3 | tr -d '"')
-docker exec -ti ${INSTANCE} bash -c "mkdir -p /var/ilias/data/${CLIENT}/mail"
+#CLIENT=$(grep "name" ${CLIENT_FILE_LOCATION} | head -1 | cut -d\  -f3 | tr -d '"')
+#docker exec -ti ${INSTANCE} bash -c "mkdir -p /var/ilias/data/${CLIENT}/mail"
 
 doil down ${INSTANCE} --quiet
 doil up ${INSTANCE} --quiet
