@@ -169,6 +169,10 @@ docker exec -ti ${INSTANCE} bash -c "mysql -u ilias -p -e DROP DATABASE ilias;"
 docker exec -ti ${INSTANCE} bash -c "mysql -u ilias -p -e CREATE DATABASE ilias;"
 docker exec -ti ${INSTANCE} bash -c "mysql -u ilias -p ilias < /var/ilias/data/ilias.sql"
 
+echo "Please enter your MySQL password again: "
+read -s SQLPW
+docker exec -ti importsec bash -c "sed -i 's/pass =.*/pass = \"${SQLPW}\"/' /var/www/html/data/ilias/client.ini.php"
+
 doil_send_log "Setting permissions"
 
 # set access
