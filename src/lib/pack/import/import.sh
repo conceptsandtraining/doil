@@ -145,7 +145,7 @@ TARGET=$(readlink ${LINKPATH})
 doil_send_log "Copying necessary files"
 
 # stop the instance
-doil down ${INSTANCE}
+doil down ${INSTANCE} --quiet
 
 # remove all the files
 sudo rm -rf ${TARGET}/volumes/data
@@ -158,9 +158,11 @@ sudo mkdir -p ${TARGET}/volumes/data/
 sudo cp -r ${PWD}/${PACKNAME}/var/www/html/ilias.ini.php ${TARGET}/volumes/ilias/ilias.ini.php
 sudo cp -r ${PWD}/${PACKNAME}/var/www/html/data ${TARGET}/volumes/ilias/
 sudo cp -r ${PWD}/${PACKNAME}/var/ilias/* ${TARGET}/volumes/data/
+sudo chown -R ${USER}:${USER} ${TARGET}
 
 # start the instance
-doil up ${INSTANCE}
+doil up ${INSTANCE} --quiet
+sleep 5
 
 doil_send_log "Importing database"
 
@@ -181,7 +183,10 @@ doil_send_log "Setting permissions"
 sudo chown -R ${USER}:${USER} ${TARGET}
 docker exec -ti ${INSTANCE} bash -c "chown -R mysql:mysql /var/lib/mysql"
 docker exec -ti ${INSTANCE} bash -c "service mysql restart"
-docker exec -ti ${INSTANCE} bash -c "mkdir -p /var/ilias/data/ilias/mail"
+
+# set mail folder
+CLIENT=$(grep "name" ${CLIENT_FILE_LOCATION} | head -1 | cut -d\  -f3 | tr -d '"')
+docker exec -ti ${INSTANCE} bash -c "mkdir -p /var/ilias/data/${CLIENT}/mail"
 
 doil down ${INSTANCE} --quiet
 doil up ${INSTANCE} --quiet
