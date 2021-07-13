@@ -162,9 +162,9 @@ sudo chown -R ${USER}:${USER} ${TARGET}
 
 # start the instance
 doil up ${INSTANCE} --quiet
-sleep 5
+docker exec -ti ${INSTANCE} bash -c "chown -R mysql:mysql /var/lib/mysql"
 docker exec -ti ${INSTANCE} bash -c "service mysql restart"
-sleep 3
+sleep 5
 doil_send_log "Importing database"
 
 # import database
