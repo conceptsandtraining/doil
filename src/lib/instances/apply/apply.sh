@@ -29,7 +29,6 @@ source /usr/local/lib/doil/lib/include/helper.sh
 
 # we need to move the pointer two positions
 shift
-shift
 
 # check if command is just plain help
 # if we don't have any command we load the help
