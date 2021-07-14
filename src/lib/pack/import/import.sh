@@ -159,8 +159,6 @@ sudo cp -r ${PWD}/${PACKNAME}/var/www/html/ilias.ini.php ${TARGET}/volumes/ilias
 sudo cp -r ${PWD}/${PACKNAME}/var/www/html/data ${TARGET}/volumes/ilias/
 sudo cp -r ${PWD}/${PACKNAME}/var/ilias/data/* ${TARGET}/volumes/data
 sudo cp -r ${PWD}/${PACKNAME}/var/ilias/ilias.sql ${TARGET}/volumes/data/ilias.sql
-#sudo cp -r ${PWD}/${PACKNAME}/var/ilias/index/* ${TARGET}/volumes/index/*
-#sudo cp -r ${PWD}/${PACKNAME}/var/ilias/logs/* ${TARGET}/volumes/logs/*
 
 sudo chown -R ${USER}:${USER} ${TARGET}
 
@@ -172,12 +170,17 @@ sleep 5
 doil_send_log "Importing database"
 
 # import database
-docker exec -ti ${INSTANCE} bash -c 'mysql -u ilias -p -e "DROP DATABASE IF EXISTS ilias;"'
-docker exec -ti ${INSTANCE} bash -c 'mysql -u ilias -p -e "CREATE DATABASE ilias;"'
-docker exec -ti ${INSTANCE} bash -c "mysql -u ilias -p ilias < /var/ilias/data/ilias.sql"
-
-echo "Please enter your MySQL password again: "
+echo "Please enter your MySQL password: "
 read -s SQLPW
+
+touch ${TARGET}/volumes/data/mysql-client.conf
+echo "[client]" > ${TARGET}/volumes/data/mysql-client.conf
+echo "user=ilias" >> ${TARGET}/volumes/data/mysql-client.conf
+echo "password=${SQLPW}"  >> ${TARGET}/volumes/data/mysql-client.conf
+
+docker exec -ti ${INSTANCE} bash -c 'mysql --defaults-extra-file=/var/ilias/data/mysql-client.conf -e "DROP DATABASE IF EXISTS ilias;"'
+docker exec -ti ${INSTANCE} bash -c 'mysql --defaults-extra-file=/var/ilias/data/mysql-client.conf -e "CREATE DATABASE ilias;"'
+docker exec -ti ${INSTANCE} bash -c "mysql --defaults-extra-file=/var/ilias/data/mysql-client.conf ilias < /var/ilias/data/ilias.sql"
 
 CLIENT_FILE_LOCATION=$(find ${TARGET}/volumes/ilias/data/ -iname client.ini.php)
 sed -i "s/pass =.*/pass = '${SQLPW}'/" ${CLIENT_FILE_LOCATION}
@@ -188,10 +191,6 @@ doil_send_log "Setting permissions"
 sudo chown -R ${USER}:${USER} ${TARGET}
 docker exec -ti ${INSTANCE} bash -c "chown -R mysql:mysql /var/lib/mysql"
 docker exec -ti ${INSTANCE} bash -c "service mysql restart"
-
-# set mail folder
-#CLIENT=$(grep "name" ${CLIENT_FILE_LOCATION} | head -1 | cut -d\  -f3 | tr -d '"')
-#docker exec -ti ${INSTANCE} bash -c "mkdir -p /var/ilias/data/${CLIENT}/mail"
 
 doil down ${INSTANCE} --quiet
 doil up ${INSTANCE} --quiet
