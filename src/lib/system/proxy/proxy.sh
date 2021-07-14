@@ -96,33 +96,30 @@ fi
 # start
 if [[ ${COMMAND} == "start" ]]
 then
-  doil_send_log "Starting proxy server"
 
   DCMAIN=$(docker ps | grep "doil_proxy")
   if [ -z "${DCMAIN}" ]
   then
+    doil_send_log "Starting proxy server"
     # start service
     cd /usr/local/lib/doil/tpl/proxy || return
     docker-compose up -d --force-recreate
+    doil_send_log "proxy server started"
   fi
-
-  doil_send_log "proxy server started"
 fi
 
 # stop
 if [[ ${COMMAND} == "stop" ]]
 then
-  doil_send_log "Stopping proxy server"
-
   DCMAIN=$(docker ps | grep "doil_proxy")
   if [ ! -z "${DCMAIN}" ]
   then
+    doil_send_log "Stopping proxy server"
     # stop service
     cd /usr/local/lib/doil/tpl/proxy || return
     docker-compose down
+    doil_send_log "proxy server stopped"
   fi
-
-  doil_send_log "proxy server stopped"
 fi
 
 # restart

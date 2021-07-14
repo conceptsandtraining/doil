@@ -290,7 +290,7 @@ doil_send_log "Building minion image"
 # build the image
 cd ${FOLDERPATH}
 docker-compose up --force-recreate --no-start --renew-anon-volumes --quiet-pull
-doil up --quiet
+docker-compose up -d
 sleep 5
 
 ##############

@@ -97,33 +97,29 @@ fi
 # start
 if [[ ${COMMAND} == "start" ]]
 then
-  doil_send_log "Starting main salt server"
-
   DCMAIN=$(docker ps | grep "saltmain")
   if [ -z "${DCMAIN}" ]
   then
+    doil_send_log "Starting main salt server"
     # start service
     cd /usr/local/lib/doil/tpl/main || return
     docker-compose up -d --force-recreate
+    doil_send_log "Main salt server started"
   fi
-
-  doil_send_log "Main salt server started"
 fi
 
 # stop
 if [[ ${COMMAND} == "stop" ]]
 then
-  doil_send_log "Stopping main salt server"
-
   DCMAIN=$(docker ps | grep "saltmain")
   if [ ! -z "${DCMAIN}" ]
   then
+    doil_send_log "Stopping main salt server"
     # stop service
     cd /usr/local/lib/doil/tpl/main || return
     docker-compose down
+    doil_send_log "Main salt server stopped"
   fi
-
-  doil_send_log "Main salt server stopped"
 fi
 
 # restart
