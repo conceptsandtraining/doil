@@ -120,6 +120,7 @@ fi
 
 if [ $1 == "apply" ]
 then
+  shift
   doil instances:apply $@
   exit
 fi
