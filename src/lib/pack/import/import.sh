@@ -172,6 +172,7 @@ doil_send_log "Importing database"
 # import database
 echo "Please enter your MySQL password: "
 read -s SQLPW
+echo "Ok"
 
 touch ${TARGET}/volumes/data/mysql-client.conf
 echo "[client]" > ${TARGET}/volumes/data/mysql-client.conf
