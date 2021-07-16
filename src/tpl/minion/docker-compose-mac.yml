@@ -19,7 +19,11 @@ services:
       - ./volumes/logs/error/:/var/ilias/logs/error
       - ./volumes/logs/apache:/var/log/apache2
       - ./conf/minion.cnf:/etc/salt/minion
+      - ./conf:/root/conf
       - ~/.ssh/:/root/.ssh/
+      - ~/.bashrc:/root/.bashrc
+      - ~/.vimrc:/root/.vimrc
+      - ~/.gitconfig:/root/.gitconfig
       - type: bind
         source: ./conf/salt-minion.conf
         target: /etc/supervisor/conf.d/salt-minion.conf
@@ -31,7 +35,6 @@ services:
     networks:
       - main_saltnet
       - doil_proxy
-      - default
 networks:
   doil_proxy:
     external: true

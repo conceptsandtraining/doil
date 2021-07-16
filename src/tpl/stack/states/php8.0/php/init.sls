@@ -12,19 +12,32 @@ php_repo_key:
     - name: wget -O /etc/apt/trusted.gpg.d/php.gpg https://packages.sury.org/php/apt.gpg
     - unless: test -f /etc/apt/trusted.gpg.d/php.gpg
 
+/root/clean-php-packages.sh:
+  file.managed:
+    - source: salt://php/clean-php-packages.sh
+    - user: root
+    - group: root
+    - mode: 740
+
+clean-php-packages:
+  cmd.run:
+    - cwd: /root/
+    - name: ./clean-php-packages.sh
+
 php8.0:
   pkg.installed:
     - refresh: true
     - pkgs:
       - libapache2-mod-php8.0
-      - php8.0-curl
-      - php8.0-gd
+      - php-curl
+      - php-gd
+      - php-json
       - php8.0-mysql
       - php8.0-readline
       - php8.0-xsl
       - php8.0-cli
-      - php8.0-zip
-      - php8.0-mbstring
+      - php-zip
+      - php-mbstring
       - php8.0-soap
       - php8.0-bcmath
       - php8.0-imap

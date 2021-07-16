@@ -25,26 +25,21 @@
 
 cat <<-EOF
 NAME
-  doil instances - manages the instances
+  doil pack:import - imports an intance
 
 SYNOPSIS
-  doil instances:[command]
+  doil pack:import <instance> <package>
 
 DESCRIPTION
-  This section provides everything belonging to the management of
-  the instances. Every command comes with its own help which you
-  can access by adding --help|-h to it.
+  With this command doil is able to import an archive of 
+  doilpack into an ILIAS installation. If the installation is
+  not present, it will be created with the properties of the
+  configuration inside of the pack.
 
 EXAMPLE:
-  doil instances:list
+  doil pack:import ilias ilias-doilpack.zip
 
-COMMANDS
-  cd     switches the active directory to the instances folder
-  create creates an instance for ILIAS with a certain configuration
-  delete deletes an instance completely
-  login  logges into the running instance
-  up     starts an instance
-  down   stops an instance
-  list   lists the instances
-  apply  applys a certain state to your instance
+OPTIONS
+  -h|--help  displays this help message
+  -q|--quiet no output will be displayed
 EOF

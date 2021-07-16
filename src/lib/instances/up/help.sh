@@ -42,5 +42,6 @@ EXAMPLE:
   doil instances:up ilias
 
 OPTIONS
-  -h|--help       displays this help message
+  -h|--help  displays this help message
+  -q|--quiet no output will be displayed
 EOF

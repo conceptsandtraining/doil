@@ -145,9 +145,14 @@ rm -rf /usr/local/lib/doil/tpl/stack
 cp -r src/tpl/stack /usr/local/lib/doil/tpl/stack
 
 doil system:salt restart
+doil system:proxy restart
 
 # send IP to hosts
-echo "172.24.0.254 doil" >> "/etc/hosts"
+IPEXIST=$(grep "172.24.0.254" /etc/hosts)
+if [[ -z ${IPEXIST} ]]
+then
+  echo "172.24.0.254 doil" >> "/etc/hosts"
+fi
 
 #################
 # Everything done

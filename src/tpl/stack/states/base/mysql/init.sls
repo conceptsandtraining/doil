@@ -1,5 +1,6 @@
 {% set cpu = salt['grains.get']('num_cpus', '4') %}
 {% set ram = salt['grains.get']('mem_total', '4096') %}
+{% set mysql_password = salt['grains.get']('mysql_password', 'ilias') %}
 
 mysql_packages:
   pkg.installed:
@@ -21,12 +22,12 @@ mysql_packages:
         cpu: {{ cpu }}
         ram: {{ ram }}
 
-/etc/supervisor/conf.d/mysql.conf:                                                                                 
-  file.managed:                                                                                                    
-    - source: salt://mysql/mysql.conf                                                                         
-    - user: root                                                                                                   
-    - group: root                                                                                                  
-    - mode: 644                                                                                                    
+/etc/supervisor/conf.d/mysql.conf:
+  file.managed:
+    - source: salt://mysql/mysql.conf
+    - user: root
+    - group: root
+    - mode: 644
 
 mysql_supervisor_signal:
   supervisord.running:
@@ -50,7 +51,7 @@ mysql_adduser:
   mysql_user.present:
     - name: ilias
     - host: 'localhost'
-    - password: ilias
+    - password: {{ mysql_password }}
     - unless:
       - fun: mysql_user.exists
       - name: 'ilias'

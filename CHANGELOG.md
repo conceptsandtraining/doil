@@ -1,5 +1,17 @@
 # Changelog
 
+## 1.3
+
+* implemented the dotfiles .bashrc, .vimrc, and .gitconfig for more
+  comfort on the console
+* introduced `doil instances:apply`
+* introduced `doil pack`
+* fixed problem with deprecated docker images
+* fixed several permission problems
+* fixed the http_path problem
+* made proxy and salt server more solid and moved their commands to
+  the system command
+
 ## 1.2.1
 
 * Increased timeout of nginx

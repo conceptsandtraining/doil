@@ -57,5 +57,7 @@ OPTIONS
   -p|--phpversion sets the php version
   -t|--target     optional: sets the target destination for the instance.
                   If the folder does not exist, it will be created
+  --skip-readme   Doesn't create the readme.md file
   -h|--help       displays this help message
+  -q|--quiet      no output will be displayed
 EOF

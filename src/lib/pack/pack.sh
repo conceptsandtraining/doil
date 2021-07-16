@@ -23,28 +23,36 @@
 #    ,' | /  ;'
 #   (,,/ (,,/      Thanks to Concepts and Training for supporting doil
 
-cat <<-EOF
-NAME
-  doil instances - manages the instances
+# get the command
+CMD=""
+oIFS=$IFS
+IFS=":"
+declare -a COMMANDS=(${1})
+if [ ! -z ${COMMANDS[1]} ]
+then
+  CMD=${COMMANDS[1]}
+fi
+IFS=$oIFS
+unset $oIFS
 
-SYNOPSIS
-  doil instances:[command]
+# check if command is just plain help
+# if we don't have any command we load the help
+if [ -z "${CMD}" ] \
+	|| [ "${CMD}" == "help" ] \
+  || [ "${CMD}" == "--help" ] \
+  || [ "${CMD}" == "-h" ]
+then
+  eval "/usr/local/lib/doil/lib/pack/help.sh"
+  exit
+fi
 
-DESCRIPTION
-  This section provides everything belonging to the management of
-  the instances. Every command comes with its own help which you
-  can access by adding --help|-h to it.
+# check if the command exists
+if [ ! -f "/usr/local/lib/doil/lib/pack/${CMD}/${CMD}.sh" ]
+then
+  echo -e "\033[1mERROR:\033[0m"
+  echo -e "\tCan't find a suitable command."
+  echo -e "\tUse \033[1mdoil pack:help\033[0m for more information"
+  exit 255
+fi
 
-EXAMPLE:
-  doil instances:list
-
-COMMANDS
-  cd     switches the active directory to the instances folder
-  create creates an instance for ILIAS with a certain configuration
-  delete deletes an instance completely
-  login  logges into the running instance
-  up     starts an instance
-  down   stops an instance
-  list   lists the instances
-  apply  applys a certain state to your instance
-EOF
+eval "/usr/local/lib/doil/lib/pack/${CMD}/${CMD}.sh" $@

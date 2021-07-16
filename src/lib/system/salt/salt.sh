@@ -23,21 +23,27 @@
 #    ,' | /  ;'
 #   (,,/ (,,/      Thanks to Concepts and Training for supporting doil
 
+# get the helper
+source /usr/local/lib/doil/lib/include/env.sh
+source /usr/local/lib/doil/lib/include/helper.sh
+
 # we can move the pointer one position
 shift
 
 # check if command is just plain help
 # if we don't have any command we load the help
-POSITIONAL=()
 while [[ $# -gt 0 ]]
   do
   key="$1"
 
   case $key in
-    login|restart|prune)
+    login|prune|start|stop|restart)
       COMMAND="$key"
-      shift # past argument
-      shift # past value
+      shift
+      ;;
+    -q|--quiet)
+      QUIET=TRUE
+      shift
       ;;
     -h|--help|help)
       eval "/usr/local/lib/doil/lib/system/salt/help.sh"
@@ -61,18 +67,16 @@ then
   exit 255
 fi
 
+# Pipe output to null if needed
+if [[ ${QUIET} == TRUE ]]
+then
+  exec >>/var/log/doil.log 2>&1
+fi
+
 # login
 if [[ ${COMMAND} == "login" ]]
 then
-  # check saltmain
-  DCMAIN=$(docker ps | grep "saltmain")
-  if [ -z "${DCMAIN}" ]
-  then
-    CWD=$(pwd)
-    cd /usr/local/lib/doil/tpl/main || return
-    docker-compose up -d
-    cd "${CWD}" || return
-  fi
+  doil system:salt start --quiet
 
   docker exec -t -i saltmain bash
   exit
@@ -81,25 +85,50 @@ fi
 # prune
 if [[ ${COMMAND} == "prune" ]]
 then
-  # check saltmain
+  doil_send_log "Pruning main salt server"
+
+  doil system:salt start --quiet
+
+  docker exec -ti saltmain bash -c 'echo "y" | salt-key -D'
+  
+  doil_send_log "Finished pruning main salt server"
+fi
+
+# start
+if [[ ${COMMAND} == "start" ]]
+then
   DCMAIN=$(docker ps | grep "saltmain")
   if [ -z "${DCMAIN}" ]
   then
-    CWD=$(pwd)
+    doil_send_log "Starting main salt server"
+    # start service
     cd /usr/local/lib/doil/tpl/main || return
-    docker-compose up -d
-    cd "${CWD}" || return
+    docker-compose up -d --force-recreate
+    doil_send_log "Main salt server started"
   fi
+fi
 
-  docker exec -ti saltmain bash -c 'echo "y" | salt-key -D'
-  exit
+# stop
+if [[ ${COMMAND} == "stop" ]]
+then
+  DCMAIN=$(docker ps | grep "saltmain")
+  if [ ! -z "${DCMAIN}" ]
+  then
+    doil_send_log "Stopping main salt server"
+    # stop service
+    cd /usr/local/lib/doil/tpl/main || return
+    docker-compose down
+    doil_send_log "Main salt server stopped"
+  fi
 fi
 
 # restart
 if [[ ${COMMAND} == "restart" ]]
 then
-  # restart service
-  cd /usr/local/lib/doil/tpl/main || return
-  docker-compose down
-  docker-compose up -d
+  doil_send_log "Restarting main salt server"
+
+  doil system:salt stop --quiet
+  doil system:salt start --quiet
+
+  doil_send_log "Main salt server restarted"
 fi

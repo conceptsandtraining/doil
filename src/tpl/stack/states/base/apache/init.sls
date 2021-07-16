@@ -1,5 +1,7 @@
 {% set apache_conf = salt['pillar.get']('web:apache_conf', 'salt://apache/default') %}
 {% set apache_docroot = salt['pillar.get']('web:docroot', '/var/www/html/') %}
+{% set doil_domain = salt['grains.get']('doil_domain', 'http://ilias.local') %}
+{% set doil_project_name = salt['grains.get']('doil_project_name', 'ilias') %}
 
 apache_packages:
   pkg.installed:
@@ -10,6 +12,9 @@ apache_packages:
 /etc/apache2/sites-available/000-default.conf:
   file.managed:
     - source: {{ apache_conf }}
+    - template: jinja
+    - context:
+      doil_project_name: {{ doil_project_name }}
     - user: root
     - group: root
     - mode: 644

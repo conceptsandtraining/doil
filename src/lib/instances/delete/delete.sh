@@ -32,7 +32,6 @@ shift
 
 # check if command is just plain help
 # if we don't have any command we load the help
-POSITIONAL=()
 while [[ $# -gt 0 ]]
 	do
 	key="$1"
@@ -41,6 +40,10 @@ while [[ $# -gt 0 ]]
     -h|--help|help)
       eval "/usr/local/lib/doil/lib/instances/delete/help.sh"
       exit
+      ;;
+    -q|--quiet)
+      QUIET=TRUE
+      shift
       ;;
     *)    # delete the instance
       INSTANCE=$1
@@ -53,33 +56,51 @@ CAD=$(pwd)
 LINKNAME="${HOME}/.doil/$INSTANCE"
 if [ -h "${LINKNAME}" ]
 then
-  NOW=$(date +'%d.%m.%Y %I:%M:%S')
-  echo "[$NOW] Deleting instance"
 
-  # set machine inactive
-  cd ${LINKNAME}
-  docker-compose down
-  cd $CAD
-
-  # remove directory
-  the_path=$(readlink ${LINKNAME})
-  sudo rm -rf $the_path
-
-  # remove link
-  rm -f "${HOME}/.doil/$INSTANCE"
-
-  if [ -f "/usr/local/lib/doil/tpl/proxy/conf/sites/${INSTANCE}.conf" ]
+  read -p "Please confirm that you want to delete ${INSTANCE} [yN]: " CONFIRM
+  if [[ ${CONFIRM} == "y" ]]
   then
-    rm "/usr/local/lib/doil/tpl/proxy/conf/sites/${INSTANCE}.conf"
+
+    # Pipe output to null if needed
+    if [[ ${QUIET} == TRUE ]]
+    then
+      exec >>/var/log/doil.log 2>&1
+    fi
+
+    doil_send_log "Deleting instance"
+
+    # check saltmain
+    doil system:salt start --quiet
+
+    # check proxy server
+    doil system:proxy start --quiet
+
+    # set machine inactive
+    doil down ${INSTANCE} --quiet
+
+    # remove directory
+    the_path=$(readlink ${LINKNAME})
+    sudo rm -rf $the_path
+
+    # remove link
+    rm -f "${HOME}/.doil/$INSTANCE"
+
+    # remove key
+    docker exec -ti saltmain bash -c "echo 'y' | salt-key -d ${INSTANCE}.local"
+
+    # remove proxy
+    if [ -f "/usr/local/lib/doil/tpl/proxy/conf/sites/${INSTANCE}.conf" ]
+    then
+      rm "/usr/local/lib/doil/tpl/proxy/conf/sites/${INSTANCE}.conf"
+    fi
+    doil system:proxy reload --quiet
+
+    # remove docker image
+    docker volume rm ${INSTANCE}_persistent
+    docker rmi $(docker images "doil/${INSTANCE}" -a -q)
+
+    doil_send_log "Instance deleted"
   fi
-
-  docker exec -ti saltmain bash -c "echo 'y' | salt-key -d ${INSTANCE}.local"
-
-  # docker
-  DELETE=$(docker rmi $(docker images "doil/${INSTANCE}" -a -q))
-
-  NOW=$(date +'%d.%m.%Y %I:%M:%S')
-  echo "[$NOW] Instance deleted"
 else
   echo -e "\033[1mERROR:\033[0m"
   echo -e "\tInstance not found!"

@@ -32,7 +32,6 @@ shift
 
 # check if command is just plain help
 # if we don't have any command we load the help
-POSITIONAL=()
 while [[ $# -gt 0 ]]
 	do
 	key="$1"
@@ -41,6 +40,10 @@ while [[ $# -gt 0 ]]
     -h|--help|help)
       eval "/usr/local/lib/doil/lib/instances/down/help.sh"
       exit
+      ;;
+    -q|--quiet)
+      QUIET=TRUE
+      shift
       ;;
     *)    # start the instance
       INSTANCE=$1
@@ -64,25 +67,32 @@ then
     exit
   fi
 
-  NOW=$(date +'%d.%m.%Y %I:%M:%S')
-  echo "[$NOW] Stopping instance"
-
-  DCFOLDER=${PWD##*/}
-  DCHASH=$(doil_get_hash $DCFOLDER)
-  DCIP=$(doil_get_data $DCHASH "ip")
-  DCHOSTNAME=$(doil_get_data $DCHASH "hostname")
-
-  if [ -f "/usr/local/lib/doil/tpl/proxy/conf/sites/${DCHOSTNAME}.conf" ]
+  # Pipe output to null if needed
+  if [[ ${QUIET} == TRUE ]]
   then
-    rm "/usr/local/lib/doil/tpl/proxy/conf/sites/${DCHOSTNAME}.conf"
+    exec >>/var/log/doil.log 2>&1
   fi
-  RELOAD=$(docker exec -ti doil_proxy bash -c "/etc/init.d/nginx reload")
+
+  # set instance
+  INSTANCE=${PWD##*/}
+
+  doil_send_log "Stopping instance"
+
+  # check saltmain
+  doil system:salt start --quiet
+
+  # check proxy server
+  doil system:proxy start --quiet
+
+  if [ -f "/usr/local/lib/doil/tpl/proxy/conf/sites/${INSTANCE}.conf" ]
+  then
+    rm "/usr/local/lib/doil/tpl/proxy/conf/sites/${INSTANCE}.conf"
+  fi
+  doil system:proxy reload --quiet
 
   docker-compose down
 
-
-  NOW=$(date +'%d.%m.%Y %I:%M:%S')
-  echo "[$NOW] Instance stopped"
+  doil_send_log "Instance stopped"
 else
   LINKNAME="${HOME}/.doil/$INSTANCE"
   if [ -h "${LINKNAME}" ]
