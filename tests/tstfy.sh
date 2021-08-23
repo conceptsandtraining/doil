@@ -104,6 +104,18 @@ assert_status_code() {
     "expected status code [${EXPECTED_STATUS}] but was ${STATUS}"
 }
 
+assert_contains() {
+  local EXPECTED=$1
+  local ACTUAL=$2
+  
+  if [[ ! " ${ACTUAL[*]} " =~ " ${EXPECTED} " ]]
+  then
+    echo -n "FAILURE"
+    echo -e "\n\t\texpected [${EXPECTED}] in stack but stack contains [${ACTUAL}]"
+    return 1
+  fi
+}
+
 tstfy_run_test() {
   set -e
   "${1}"
