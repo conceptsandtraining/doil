@@ -47,7 +47,7 @@ while [[ $# -gt 0 ]]
       ;;
     *)    # unknown option
       NAME=$1
-      break
+      shift
       ;;
 	esac
 done
