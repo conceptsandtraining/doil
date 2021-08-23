@@ -130,6 +130,8 @@ chown -R root:doil /usr/local/lib/doil
 
 mkdir /etc/doil/
 chown -R root:doil /etc/doil
+chmod -R g+w /etc/doil
+chmod -R g+s /etc/doil
 
 mkdir /usr/local/share/doil
 mkdir /usr/local/share/doil/templates
