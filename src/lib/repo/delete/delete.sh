@@ -79,7 +79,7 @@ fi
 
 if [[ ${GLOBAL} == "TRUE" ]]
 then
-  LINE=$(sed -n -e "/^${NAME}=/p" "/etc/doil/repositories.conf")
+  LINE=$(sed -i "/${NAME}=/d" "/etc/doil/repositories.conf")
   rm -rf "/usr/local/share/doil/repositories/${NAME}"
 else
   LINE=$(sed -i "/${NAME}=/d" "${HOME}/.doil/config/repositories.conf")
