@@ -102,7 +102,7 @@ then
   then
     doil_send_log "Starting main salt server"
     # start service
-    cd /usr/local/lib/doil/tpl/main || return
+    cd //usr/local/lib/doil/server/salt || return
     docker-compose up -d --force-recreate
     doil_send_log "Main salt server started"
   fi
@@ -116,7 +116,7 @@ then
   then
     doil_send_log "Stopping main salt server"
     # stop service
-    cd /usr/local/lib/doil/tpl/main || return
+    cd //usr/local/lib/doil/server/salt || return
     docker-compose down
     doil_send_log "Main salt server stopped"
   fi

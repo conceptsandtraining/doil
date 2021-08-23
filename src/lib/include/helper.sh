@@ -63,5 +63,17 @@ doil_get_data() {
 
 doil_send_log() {
   NOW=$(date +'%d.%m.%Y %I:%M:%S')
-  echo "[$NOW] $1"
+  echo "[$NOW] ${1}"
+}
+
+doil_send_status() {
+  echo -n "${1} ..."
+}
+
+doil_send_okay() {
+  # color support
+  GREEN='\033[0;32m'
+  NC='\033[0m'
+
+  printf " ${GREEN}ok${NC}\n"
 }

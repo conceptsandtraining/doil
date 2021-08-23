@@ -38,5 +38,7 @@ EXAMPLE:
   doil repo:update ilias
 
 OPTIONS
-  -h|--help    displays this help message
+  -g|--global updates the global repository
+  -q|--quiet  silences the output
+  -h|--help   displays this help message
 EOF

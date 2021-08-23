@@ -29,7 +29,7 @@ then
   then
     doil instances:up
   else
-    doil instances:up $2
+    doil instances:up $@
   fi
   exit
 fi
@@ -40,7 +40,7 @@ then
   then
     doil instances:down
   else
-    doil instances:down $2
+    doil instances:down $@
   fi
   exit
 fi
@@ -63,7 +63,7 @@ then
   then
     doil instances:delete
   else
-    doil instances:delete $2
+    doil instances:delete $@
   fi
   exit
 fi
@@ -74,7 +74,7 @@ then
   then
     doil instances:login
   else
-    doil instances:login $2
+    doil instances:login $@
   fi
   exit
 fi
@@ -85,29 +85,7 @@ then
   then
     doil instances:cd
   else
-    doil instances:cd $2
-  fi
-  exit
-fi
-
-if [ $1 == "repair" ]
-then
-  if [ -z ${2:+x} ]
-  then
-    doil instances:repair
-  else
-    doil instances:repair $2
-  fi
-  exit
-fi
-
-if [ $1 == "update" ]
-then
-  if [ -z ${2:+x} ]
-  then
-    doil instances:update
-  else
-    doil instances:update $2
+    doil instances:cd $@
   fi
   exit
 fi

@@ -41,9 +41,13 @@ while [[ $# -gt 0 ]]
       eval "/usr/local/lib/doil/lib/instances/login/help.sh"
       exit
       ;;
+    -g|--global)
+      GLOBAL=TRUE
+      shift # past argument
+      ;;
     *)    # sets the instance
       INSTANCE=$1
-      break
+      shift
       ;;
 	esac
 done
@@ -64,21 +68,37 @@ then
     exit
   fi
 
+  if [[ ${GLOBAL} == TRUE ]]
+  then
+    SUFFIX="global"
+    FLAG="--global"
+  else
+    SUFFIX="local"
+    FLAG=""
+  fi
+
   # set instance
   INSTANCE=${PWD##*/}
 
   # start if not done
-  doil up ${INSTANCE} --quiet
+  doil up ${INSTANCE} --quiet ${FLAG}
   
   # login
   docker exec -ti ${INSTANCE} bash
 else
-  LINKNAME="${HOME}/.doil/$INSTANCE"
+  if [[ ${GLOBAL} == TRUE ]]
+  then
+    LINKNAME="/usr/local/share/doil/instances/${INSTANCE}"
+    FLAG="--global"
+  else
+    LINKNAME="${HOME}/.doil/instances/${INSTANCE}"
+    FLAG=""
+  fi
   if [ -h "${LINKNAME}" ]
   then
     TARGET=$(readlink ${LINKNAME})
     cd ${TARGET}
-    eval "doil login"
+    eval "doil login ${FLAG}"
   else
     echo -e "\033[1mERROR:\033[0m"
     echo -e "\tInstance not found!"

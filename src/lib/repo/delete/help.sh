@@ -25,17 +25,19 @@
 
 cat <<-EOF
 NAME
-  doil repo:remove - removes a repository from the configuration file
+  doil repo:delete - deletes a repository from the configuration file
 
 SYNOPSIS
-  doil repo:remove <repository>
+  doil repo:delete <repository>
 
 DESCRIPTION
-  This command removes a repository from the doil configuration file
+  This command deletes a repository from the doil configuration file
 
 EXAMPLE:
-  doil repo:remove --name ilias
+  doil repo:delete ilias
 
 OPTIONS
-  -h|--help    displays this help message
+  -g|--global deletes the global repository
+  -q|--quiet  silences the output
+  -h|--help   displays this help message
 EOF

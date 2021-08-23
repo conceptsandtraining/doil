@@ -37,16 +37,25 @@ while [[ $# -gt 0 ]]
       eval "/usr/local/lib/doil/lib/instances/cd/help.sh"
       exit
       ;;
+    -g|--global)
+      GLOBAL=TRUE
+      shift # past argument
+      ;;
     *)    # set the instance
       INSTANCE=$1
-      break
+      shift
       ;;
 	esac
 done
 
 if [ ! -z "${INSTANCE}" ]
 then
-  LINKNAME="${HOME}/.doil/${INSTANCE}"
+  if [[ ${GLOBAL} == TRUE ]]
+  then
+    LINKNAME="/usr/local/share/doil/instances/${INSTANCE}"
+  else
+    LINKNAME="${HOME}/.doil/instances/${INSTANCE}"
+  fi
   if [ -h "${LINKNAME}" ]
   then
     TARGET=$(readlink ${LINKNAME})

@@ -45,15 +45,24 @@ while [[ $# -gt 0 ]]
       QUIET=TRUE
       shift
       ;;
+    -g|--global)
+      GLOBAL=TRUE
+      shift # past argument
+      ;;
     *)    # delete the instance
       INSTANCE=$1
-      break
+      shift
       ;;
 	esac
 done
 
 CAD=$(pwd)  
-LINKNAME="${HOME}/.doil/$INSTANCE"
+if [[ ${GLOBAL} == TRUE ]]
+then
+  LINKNAME="/usr/local/share/doil/instances/${INSTANCE}"
+else
+  LINKNAME="${HOME}/.doil/instances/${INSTANCE}"
+fi
 if [ -h "${LINKNAME}" ]
 then
 
@@ -83,21 +92,30 @@ then
     sudo rm -rf $the_path
 
     # remove link
-    rm -f "${HOME}/.doil/$INSTANCE"
+    if [[ ${GLOBAL} == TRUE ]]
+    then
+      rm -f "/usr/local/share/doil/instances/${INSTANCE}"
+      SUFFIX="global"
+      FLAG="--global"
+    else
+      rm -f "${HOME}/.doil/instances/${INSTANCE}"
+      SUFFIX="local"
+      FLAG=""
+    fi
 
     # remove key
-    docker exec -ti saltmain bash -c "echo 'y' | salt-key -d ${INSTANCE}.local"
+    docker exec -ti saltmain bash -c "echo 'y' | salt-key -d ${INSTANCE}.${SUFFIX}"
 
     # remove proxy
-    if [ -f "/usr/local/lib/doil/tpl/proxy/conf/sites/${INSTANCE}.conf" ]
+    if [ -f "/usr/local/lib/doil/server/proxy/conf/sites/${INSTANCE}_${SUFFIX}.conf" ]
     then
-      rm "/usr/local/lib/doil/tpl/proxy/conf/sites/${INSTANCE}.conf"
+      rm "/usr/local/lib/doil/server/proxy/conf/sites/${INSTANCE}_${SUFFIX}.conf"
     fi
     doil system:proxy reload --quiet
 
     # remove docker image
-    docker volume rm ${INSTANCE}_persistent
-    docker rmi $(docker images "doil/${INSTANCE}" -a -q)
+    docker volume rm ${INSTANCE}_${SUFFIX}_persistent
+    docker rmi $(docker images "doil/${INSTANCE}_${SUFFIX}" -a -q)
 
     doil_send_log "Instance deleted"
   fi

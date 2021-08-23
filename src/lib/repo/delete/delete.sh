@@ -34,11 +34,15 @@ while [[ $# -gt 0 ]]
 
 	case $key in
     -h|--help|help)
-      eval "/usr/local/lib/doil/lib/repo/remove/help.sh"
+      eval "/usr/local/lib/doil/lib/repo/delete/help.sh"
       exit
       ;;
-    -v|--verbose)
-      VERBOSE=YES
+    -g|--global)
+      GLOBAL=TRUE
+      shift # past this flag
+      ;;
+    -q|--quiet)
+      QUIET=YES
       shift # past argument
       ;;
     *)    # unknown option
@@ -53,12 +57,18 @@ if [ -z ${NAME} ]
 then
   echo -e "\033[1mERROR:\033[0m"
   echo -e "\tParameter --name not set!"
-  echo -e "\tUse \033[1mdoil repo:remove --help\033[0m for more information"
+  echo -e "\tUse \033[1mdoil repo:delete --help\033[0m for more information"
   exit 255
 fi
 
 # check if repo exists
-LINE=$(sed -n -e "/^${NAME}=/p" "${HOME}/.doil/config/repos")
+if [[ ${GLOBAL} == "TRUE" ]]
+then
+  LINE=$(sed -n -e "/^${NAME}=/p" "/etc/doil/repositories.conf")
+else
+  LINE=$(sed -n -e "/^${NAME}=/p" "${HOME}/.doil/config/repositories.conf")
+fi
+
 if [ -z ${LINE} ]
 then
   echo -e "\033[1mERROR:\033[0m"
@@ -67,9 +77,16 @@ then
   exit 255
 fi
 
-$(sed -i "/${NAME}=/d" "${HOME}/.doil/config/repos")
-rm -rf "/usr/local/lib/doil/tpl/repos/${NAME}"
-if [ -z ${VERBOSE} ]
+if [[ ${GLOBAL} == "TRUE" ]]
 then
-  echo "Repository ${NAME} removed."
+  LINE=$(sed -n -e "/^${NAME}=/p" "/etc/doil/repositories.conf")
+  rm -rf "/usr/local/share/doil/repositories/${NAME}"
+else
+  $(sed -i "/${NAME}=/d" "${HOME}/.doil/config/repositories.conf")
+  rm -rf "${HOME}/.doil/repositories/${NAME}"
+fi
+
+if [ -z ${QUIET} ]
+then
+  echo "Repository ${NAME} deleted."
 fi

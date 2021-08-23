@@ -45,9 +45,13 @@ while [[ $# -gt 0 ]]
       QUIET=TRUE
       shift
       ;;
+    -g|--global)
+      GLOBAL=TRUE
+      shift # past argument
+      ;;
     *)    # start the instance
       INSTANCE=$1
-      break
+      shift
       ;;
 	esac
 done
@@ -83,6 +87,15 @@ then
     exit
   fi
 
+  if [[ ${GLOBAL} == TRUE ]]
+  then
+    SUFFIX="global"
+    FLAG="--global"
+  else
+    SUFFIX="local"
+    FLAG=""
+  fi
+
   doil_send_log "Starting instance"
 
   # check saltmain
@@ -95,41 +108,49 @@ then
   docker-compose up -d
 
   # renew key
-  docker exec -ti ${INSTANCE} bash -c "rm /var/lib/salt/pki/minion/minion_master.pub"
-  docker exec -ti ${INSTANCE} bash -c "service salt-minion stop"
-  docker exec -ti ${INSTANCE} bash -c "salt-minion -d"
+  docker exec -ti ${INSTANCE}_${SUFFIX} bash -c "rm /var/lib/salt/pki/minion/minion_master.pub"
+  docker exec -ti ${INSTANCE}_${SUFFIX} bash -c "service salt-minion stop"
+  docker exec -ti ${INSTANCE}_${SUFFIX} bash -c "salt-minion -d"
 
   # remove the current ip from the host file and add the new one
   DCFOLDER=${PWD##*/}
   DCHASH=$(doil_get_hash $DCFOLDER)
   DCIP=$(doil_get_data $DCHASH "ip")
 
-  if [ -f "/usr/local/lib/doil/tpl/proxy/conf/sites/${INSTANCE}.conf" ]
+  if [ -f "/usr/local/lib/doil/server/proxy/conf/sites/${INSTANCE}_${SUFFIX}.conf" ]
   then
-    rm "/usr/local/lib/doil/tpl/proxy/conf/sites/${INSTANCE}.conf"
+    rm "/usr/local/lib/doil/server/proxy/conf/sites/${INSTANCE}_${SUFFIX}.conf"
   fi
-  cp "/usr/local/lib/doil/tpl/proxy/service-config.tpl" "/usr/local/lib/doil/tpl/proxy/conf/sites/${INSTANCE}.conf"
+  cp "/usr/local/lib/doil/server/proxy/service-config.tpl" "/usr/local/lib/doil/server/proxy/conf/sites/${INSTANCE}_${SUFFIX}.conf"
   if [ ${HOST} == "linux" ]; then
-    sed -i "s/%IP%/${DCIP}/g" "/usr/local/lib/doil/tpl/proxy/conf/sites/${INSTANCE}.conf"
-    sed -i "s/%DOMAIN%/${INSTANCE}/g" "/usr/local/lib/doil/tpl/proxy/conf/sites/${INSTANCE}.conf"
+    sed -i "s/%IP%/${DCIP}/g" "/usr/local/lib/doil/server/proxy/conf/sites/${INSTANCE}_${SUFFIX}.conf"
+    sed -i "s/%DOMAIN%/${INSTANCE}/g" "/usr/local/lib/doil/server/proxy/conf/sites/${INSTANCE}_${SUFFIX}.conf"
   elif [ ${HOST} == "mac" ]; then
-    sed -i "" "s/%IP%/${DCIP}/g" "/usr/local/lib/doil/tpl/proxy/conf/sites/${INSTANCE}.conf"
-    sed -i "" "s/%DOMAIN%/${INSTANCE}/g" "/usr/local/lib/doil/tpl/proxy/conf/sites/${INSTANCE}.conf"
+    sed -i "" "s/%IP%/${DCIP}/g" "/usr/local/lib/doil/server/proxy/conf/sites/${INSTANCE}_${SUFFIX}.conf"
+    sed -i "" "s/%DOMAIN%/${INSTANCE}/g" "/usr/local/lib/doil/server/proxy/conf/sites/${INSTANCE}_${SUFFIX}.conf"
   fi
   
   doil system:proxy reload --quiet
 
   doil_send_log "Instance started. Navigate to http://doil/${INSTANCE}"
 else
-  LINKNAME="${HOME}/.doil/${INSTANCE}"
+  if [[ ${GLOBAL} == TRUE ]]
+  then
+    LINKNAME="/usr/local/share/doil/instances/${INSTANCE}"
+    FLAG="--global"
+  else
+    LINKNAME="${HOME}/.doil/instances/${INSTANCE}"
+    FLAG=""
+  fi
   if [ -h "${LINKNAME}" ]
   then
     TARGET=$(readlink ${LINKNAME})
     cd ${TARGET}
-    eval "doil instances:up"
+    eval "doil instances:up ${FLAG}"
   else
     echo -e "\033[1mERROR:\033[0m"
     echo -e "\tInstance not found!"
     echo -e "\tuse \033[1mdoil instances:list\033[0m to see current installed instances"
+    exit
   fi
 fi

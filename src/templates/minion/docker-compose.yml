@@ -4,13 +4,14 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    image: doil/%TPL_PROJECT_NAME%:stable
-    container_name: %TPL_PROJECT_NAME%
+    image: doil/%TPL_PROJECT_NAME%_%TPL_PROJECT_DOMAINNAME%:stable
+    container_name: %TPL_PROJECT_NAME%_%TPL_PROJECT_DOMAINNAME%
     hostname: %TPL_PROJECT_NAME%
-    domainname: local
-    ports:
-      - "80:80"
+    domainname: %TPL_PROJECT_DOMAINNAME%
     volumes:
+      - ./volumes/etc/apache2:/etc/apache2
+      - ./volumes/etc/php:/etc/php
+      - ./volumes/etc/mysql:/etc/mysql
       - ./volumes/ilias:/var/www/html
       - ./volumes/data:/var/ilias/data
       - ./volumes/db/:/var/lib/mysql
@@ -33,12 +34,12 @@ services:
       - JAVA_SERVER_PATH=/var/www/html/Services/WebServices/RPC/lib
       - JAVA_SERVER_START
     networks:
-      - main_saltnet
       - doil_proxy
+      - salt_saltnet
 networks:
   doil_proxy:
     external: true
-  main_saltnet:
+  salt_saltnet:
     external: true
 volumes:
     persistent:

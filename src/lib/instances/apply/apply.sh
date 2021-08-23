@@ -46,6 +46,10 @@ while [[ $# -gt 0 ]]
       eval "/usr/local/lib/doil/lib/instances/apply/help.sh"
       exit
       ;;
+    -g|--global)
+      GLOBAL=TRUE
+      shift # past argument
+      ;;
     *)
       if (( ${POSITION} == 1 ))
       then
@@ -65,7 +69,13 @@ if [[ -z "${INSTANCE}" ]]
 then
   read -p "Name the instance you'd like to apply a state on: " INSTANCE
 fi
-LINKPATH="${HOME}/.doil/${INSTANCE}"
+
+if [[ ${GLOBAL} == TRUE ]]
+then
+  LINKPATH="/usr/local/share/doil/instances/${INSTANCE}"
+else
+  LINKPATH="${HOME}/.doil/instances/${INSTANCE}"
+fi
 if [[ -z "${INSTANCE}" ]]
 then
   echo -e "\033[1mERROR:\033[0m"
@@ -90,7 +100,7 @@ if [[ -z "${STATE}" ]]
 then
   read -p "Name the state you want to apply: " STATE
 fi
-STATEPATH="/usr/local/lib/doil/tpl/stack/states/${STATE}"
+STATEPATH="/usr/local/share/doil/stack/states/${STATE}"
 if [[ -z "${STATE}" ]]
 then
   echo -e "\033[1mERROR:\033[0m"
@@ -119,20 +129,29 @@ fi
 
 doil_send_log "Apply state ${STATE} to instance ${INSTANCE}"
 
+if [[ ${GLOBAL} == TRUE ]]
+then
+  SUFFIX="global"
+  FLAG="--global"
+else
+  SUFFIX="local"
+  FLAG=""
+fi
+
 doil system:salt start --quiet
-doil up ${INSTANCE} --quiet
+doil up ${INSTANCE} --quiet ${FLAG}
 
 # check key
-SALTKEYS=$(docker exec -t -i saltmain bash -c "salt-key -L" | grep "${INSTANCE}.local")
+doil_send_status "Checking key"
+SALTKEYS=$(docker exec -t -i saltmain bash -c "salt-key -L" | grep "${INSTANCE}.${SUFFIX}")
 until [[ ! -z ${SALTKEYS} ]]
 do
-  doil_send_log "Key not ready yet ... waiting"
   sleep 5
-  SALTKEYS=$(docker exec -t -i saltmain bash -c "salt-key -L" | grep "${INSTANCE}.local")
+  SALTKEYS=$(docker exec -t -i saltmain bash -c "salt-key -L" | grep "${INSTANCE}.${SUFFIX}")
 done
-doil_send_log "Key ready"
+doil_send_okay
 
-doil_send_log "Apply state ${STATE}"
-docker exec -ti saltmain bash -c "salt '${INSTANCE}.local' state.highstate saltenv=${STATE}"
+echo "salt '${INSTANCE}.${SUFFIX}' state.highstate saltenv=${STATE}"
+docker exec -ti saltmain bash -c "salt '${INSTANCE}.${SUFFIX}' state.highstate saltenv=${STATE}"
 
 doil_send_log "Done"

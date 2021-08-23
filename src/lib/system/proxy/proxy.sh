@@ -87,7 +87,7 @@ then
   doil_send_log "Pruning proxy server"
 
   doil system:proxy start --quiet
-  rm -rf /usr/local/lib/doil/tpl/proxy/conf/sites/*
+  rm -rf /usr/local/lib/doil/server/proxy/conf/sites/*
   doil system:proxy restart --quiet
   
   doil_send_log "Finished pruning proxy server"
@@ -102,7 +102,7 @@ then
   then
     doil_send_log "Starting proxy server"
     # start service
-    cd /usr/local/lib/doil/tpl/proxy || return
+    cd /usr/local/lib/doil/server/proxy || return
     docker-compose up -d --force-recreate
     doil_send_log "proxy server started"
   fi
@@ -116,7 +116,7 @@ then
   then
     doil_send_log "Stopping proxy server"
     # stop service
-    cd /usr/local/lib/doil/tpl/proxy || return
+    cd /usr/local/lib/doil/server/proxy || return
     docker-compose down
     doil_send_log "proxy server stopped"
   fi

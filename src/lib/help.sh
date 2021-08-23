@@ -45,7 +45,4 @@ SECTIONS
   instances manages everything regarding to the instances
   repo      manages the repositories
   system    everything which affects the doil system itself
-
-COMMANDS
-  deinstall deinstalls the whole doil system
 EOF
