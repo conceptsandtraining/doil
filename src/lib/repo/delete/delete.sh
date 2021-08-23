@@ -82,7 +82,7 @@ then
   LINE=$(sed -n -e "/^${NAME}=/p" "/etc/doil/repositories.conf")
   rm -rf "/usr/local/share/doil/repositories/${NAME}"
 else
-  $(sed -i "/${NAME}=/d" "${HOME}/.doil/config/repositories.conf")
+  LINE=$(sed -i "/${NAME}=/d" "${HOME}/.doil/config/repositories.conf")
   rm -rf "${HOME}/.doil/repositories/${NAME}"
 fi
 

@@ -457,12 +457,14 @@ doil_send_okay
 doil down ${NAME} ${FLAG} --quiet
 
 # set user rights
+doil_send_status "Setting folder rights"
 if [[ -z ${GLOBAL} ]]
 then
-  doil_send_status "Setting folder rights"
   chown -R ${USER}:${USER} ${FOLDERPATH}
-  doil_send_okay
+else
+  chown -R ${USER}:doil ${FOLDERPATH}
 fi
+doil_send_okay
 
 if [[ ${SKIP_README} != TRUE ]]
 then
