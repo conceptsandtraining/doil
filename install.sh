@@ -197,14 +197,14 @@ usermod -a -G doil ${SUDO_USER}
 printf " ${GREEN}ok${NC}\n"
 
 # start proxy server
-echo -n "Starting proxy server ..."
+echo -n "Installing proxy server ..."
 
 doil system:proxy start --quiet
 
 printf " ${GREEN}ok${NC}\n"
 
 # start salt server
-echo -n "Starting salt server ..."
+echo -n "Installing salt server ..."
 
 doil system:salt start --quiet
 

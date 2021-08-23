@@ -46,6 +46,10 @@ while [[ $# -gt 0 ]]
       eval "/usr/local/lib/doil/lib/pack/import/help.sh"
       exit
       ;;
+    -g|--global)
+      GLOBAL=TRUE
+      shift # past argument
+      ;;
     *)
       if (( ${POSITION} == 1 ))
       then
@@ -65,7 +69,16 @@ if [[ -z "${INSTANCE}" ]]
 then
   read -p "Name the instance you'd like to import: " INSTANCE
 fi
-LINKPATH="${HOME}/.doil/${INSTANCE}"
+if [[ ${GLOBAL} == TRUE ]]
+then
+  LINKPATH="/usr/local/share/doil/instances/${INSTANCE}"
+  FLAG="--global"
+  SUFFIX="global"
+else
+  LINKPATH="${HOME}/.doil/instances/${INSTANCE}"
+  FLAG=""
+  SUFFIX="local"
+fi
 CREATE=FALSE
 if [[ -z "${INSTANCE}" ]]
 then
@@ -133,10 +146,19 @@ then
     REPOSITORY=$(doil repo:list | grep ${PROJECT_REPOSITORY_URL} -w | cut -d\  -f1 | tr -d '\t')
   fi
 
-  doil create -n ${INSTANCE} -r ${REPOSITORY} -b ${PROJECT_BRANCH} -p ${PROJECT_PHP_VERSION}
+  doil create -n ${INSTANCE} -r ${REPOSITORY} -b ${PROJECT_BRANCH} -p ${PROJECT_PHP_VERSION} ${FLAG}
 
   # reset linkpath because we created a new instance
-  LINKPATH="${HOME}/.doil/${INSTANCE}"
+  if [[ ${GLOBAL} == TRUE ]]
+  then
+    LINKPATH="/usr/local/share/doil/instances/${INSTANCE}"
+    FLAG="--global"
+    SUFFIX="global"
+  else
+    LINKPATH="${HOME}/.doil/instances/${INSTANCE}"
+    FLAG=""
+    SUFFIX="local"
+  fi
 fi
 
 # set target
@@ -145,7 +167,7 @@ TARGET=$(readlink ${LINKPATH})
 doil_send_log "Copying necessary files"
 
 # stop the instance
-doil down ${INSTANCE} --quiet
+doil down ${INSTANCE}_${SUFFIX} --quiet
 
 # remove all the files
 sudo rm -rf ${TARGET}/volumes/data
@@ -164,8 +186,8 @@ sudo chown -R ${USER}:${USER} ${TARGET}
 
 # start the instance
 doil up ${INSTANCE} --quiet
-docker exec -ti ${INSTANCE} bash -c "chown -R mysql:mysql /var/lib/mysql"
-docker exec -ti ${INSTANCE} bash -c "service mysql restart"
+docker exec -ti ${INSTANCE}_${SUFFIX} bash -c "chown -R mysql:mysql /var/lib/mysql"
+docker exec -ti ${INSTANCE}_${SUFFIX} bash -c "service mysql restart"
 sleep 5
 doil_send_log "Importing database"
 
@@ -179,9 +201,9 @@ echo "[client]" > ${TARGET}/volumes/data/mysql-client.conf
 echo "user=ilias" >> ${TARGET}/volumes/data/mysql-client.conf
 echo "password=${SQLPW}"  >> ${TARGET}/volumes/data/mysql-client.conf
 
-docker exec -ti ${INSTANCE} bash -c 'mysql --defaults-extra-file=/var/ilias/data/mysql-client.conf -e "DROP DATABASE IF EXISTS ilias;"'
-docker exec -ti ${INSTANCE} bash -c 'mysql --defaults-extra-file=/var/ilias/data/mysql-client.conf -e "CREATE DATABASE ilias;"'
-docker exec -ti ${INSTANCE} bash -c "mysql --defaults-extra-file=/var/ilias/data/mysql-client.conf ilias < /var/ilias/data/ilias.sql"
+docker exec -ti ${INSTANCE}_${SUFFIX} bash -c 'mysql --defaults-extra-file=/var/ilias/data/mysql-client.conf -e "DROP DATABASE IF EXISTS ilias;"'
+docker exec -ti ${INSTANCE}_${SUFFIX} bash -c 'mysql --defaults-extra-file=/var/ilias/data/mysql-client.conf -e "CREATE DATABASE ilias;"'
+docker exec -ti ${INSTANCE}_${SUFFIX} bash -c "mysql --defaults-extra-file=/var/ilias/data/mysql-client.conf ilias < /var/ilias/data/ilias.sql"
 
 CLIENT_FILE_LOCATION=$(find ${TARGET}/volumes/ilias/data/ -iname client.ini.php)
 sed -i "s/pass =.*/pass = '${SQLPW}'/" ${CLIENT_FILE_LOCATION}
@@ -190,17 +212,17 @@ doil_send_log "Setting permissions"
 
 # set access
 sudo chown -R ${USER}:${USER} ${TARGET}
-docker exec -ti ${INSTANCE} bash -c "chown -R mysql:mysql /var/lib/mysql"
-docker exec -ti ${INSTANCE} bash -c "service mysql restart"
+docker exec -ti ${INSTANCE}_${SUFFIX} bash -c "chown -R mysql:mysql /var/lib/mysql"
+docker exec -ti ${INSTANCE}_${SUFFIX} bash -c "service mysql restart"
 
-doil down ${INSTANCE} --quiet
-doil up ${INSTANCE} --quiet
+doil down ${INSTANCE} --quiet ${FLAG}
+doil up ${INSTANCE} --quiet ${FLAG}
 sleep 5
-doil apply ${INSTANCE} access --quiet
+doil apply ${INSTANCE} access --quiet ${FLAG}
 
 doil_send_log "Cleanup"
 
 rm -rf ${PWD}/${PACKNAME}
-docker exec -ti ${INSTANCE} bash -c "rm /var/ilias/data/ilias.sql"
+docker exec -ti ${INSTANCE}_${SUFFIX} bash -c "rm /var/ilias/data/ilias.sql"
 
 doil_send_log "Import of ${INSTANCE} done"

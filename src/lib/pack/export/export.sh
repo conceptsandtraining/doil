@@ -41,6 +41,10 @@ while [[ $# -gt 0 ]]
       QUIET=TRUE
       shift
       ;;
+    -g|--global)
+      GLOBAL=TRUE
+      shift # past argument
+      ;;
     -h|--help|help)
       eval "/usr/local/lib/doil/lib/pack/export/help.sh"
       exit
@@ -56,7 +60,16 @@ if [[ -z "${INSTANCE}" ]]
 then
   read -p "Name the instance you'd like to apply a state on: " INSTANCE
 fi
-LINKPATH="${HOME}/.doil/${INSTANCE}"
+if [[ ${GLOBAL} == TRUE ]]
+then
+  LINKPATH="/usr/local/share/doil/instances/${INSTANCE}"
+  FLAG="--global"
+  SUFFIX="global"
+else
+  LINKPATH="${HOME}/.doil/instances/${INSTANCE}"
+  FLAG=""
+  SUFFIX="local"
+fi
 if [[ -z "${INSTANCE}" ]]
 then
   echo -e "\033[1mERROR:\033[0m"
@@ -86,12 +99,12 @@ fi
 doil_send_log "Exporting instance ${INSTANCE}"
 
 # we need the data so we have to startup the instance
-doil up ${INSTANCE} --quiet
+doil up ${INSTANCE} --quiet ${FLAG}
 sleep 5
 
 # copy database
 doil_send_log "Exporting database. Enter password of database."
-docker exec -ti ${INSTANCE} bash -c "mysqldump ilias -u ilias -p > /var/ilias/ilias.sql"
+docker exec -ti ${INSTANCE}_${SUFFIX} bash -c "mysqldump ilias -u ilias -p > /var/ilias/ilias.sql"
 
 # make a local directory where we are
 if [[ -d "${INSTANCE}-doilpack" ]]
@@ -105,9 +118,9 @@ mkdir -p "${INSTANCE}-doilpack/conf"
 
 # copy data
 doil_send_log "Export data"
-docker cp ${INSTANCE}:/var/ilias ${INSTANCE}-doilpack/var/
-docker cp ${INSTANCE}:/var/www/html/data ${INSTANCE}-doilpack/var/www/html
-docker cp ${INSTANCE}:/var/www/html/ilias.ini.php ${INSTANCE}-doilpack/var/www/html/ilias.ini.php
+docker cp ${INSTANCE}_${SUFFIX}:/var/ilias ${INSTANCE}-doilpack/var/
+docker cp ${INSTANCE}_${SUFFIX}:/var/www/html/data ${INSTANCE}-doilpack/var/www/html
+docker cp ${INSTANCE}_${SUFFIX}:/var/www/html/ilias.ini.php ${INSTANCE}-doilpack/var/www/html/ilias.ini.php
 
 # export conf
 doil_send_log "Export config"
