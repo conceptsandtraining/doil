@@ -31,7 +31,13 @@ SYNOPSIS
   doil system:user [command]
 
 DESCRIPTION
-  
+  This command manages the users which are registered
+  at the doil system. Only they are able to use the full
+  functionality of doil.
+
+  Deleting a user will keep their installed instances.
+
+  This command only works for sudo users.
 
 EXAMPLE:
   doil system:user add john
