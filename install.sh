@@ -177,6 +177,7 @@ cp src/conf/doil.conf /etc/doil/doil.conf
 touch /etc/doil/repositories.conf
 chown -R root:doil /etc/doil/
 chmod g+w /etc/doil/repositories.conf
+touch /etc/doil/user.conf
 
 echo "ilias=git@github.com:ILIAS-eLearning/ILIAS.git" > "/etc/doil/repositories.conf"
 
@@ -195,6 +196,7 @@ mkdir ${HOME}/.doil/repositories
 mkdir ${HOME}/.doil/instances
 chown -R ${SUDO_USER}:${SODU_USER} "${HOME}/.doil"
 usermod -a -G doil ${SUDO_USER}
+echo "${SUDO_USER}">>"/etc/doil/user.conf"
 
 printf " ${GREEN}ok${NC}\n"
 
