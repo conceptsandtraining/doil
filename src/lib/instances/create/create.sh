@@ -183,7 +183,7 @@ fi
 
 # update the repository to get the branch
 doil_send_status "Updating repository ${REPOSITORY}"
-if [[ ${GLOBAL_REPOSITORY} == "TRUE" ]]
+if [[ ${GLOBAL_REPOSITORY} == TRUE ]]
 then
   eval "doil repo:update ${REPOSITORY}" --global --quiet
 else
@@ -284,6 +284,19 @@ else
 fi
 doil_send_okay
 
+# set user rights
+doil_send_status "Setting folder rights"
+if [[ -z ${GLOBAL} ]]
+then
+  chown -R ${USER}:${USER} ${FOLDERPATH}
+else
+  chown -R ${USER}:doil ${FOLDERPATH}
+  chmod g+w ${FOLDERPATH}
+  chmod g+s ${FOLDERPATH}
+  chown ${USER}:doil "/usr/local/share/doil/instances/${NAME}"
+fi
+doil_send_okay
+
 # Copying necessary files
 doil_send_status "Copying necessary files"
 cp "/usr/local/share/doil/templates/minion/run-supervisor.sh" "${FOLDERPATH}/conf/run-supervisor.sh"
@@ -362,7 +375,7 @@ echo "Building minion image ..."
 
 # build the image
 cd ${FOLDERPATH}
-docker-compose up --force-recreate --no-start --renew-anon-volumes --quiet-pull
+docker-compose up --force-recreate --no-start --renew-anon-volumes --quiet-pull > /dev/null
 docker-compose up -d
 sleep 5
 
@@ -455,16 +468,6 @@ doil_send_okay
 
 # stop the server
 doil down ${NAME} ${FLAG} --quiet
-
-# set user rights
-doil_send_status "Setting folder rights"
-if [[ -z ${GLOBAL} ]]
-then
-  chown -R ${USER}:${USER} ${FOLDERPATH}
-else
-  chown -R ${USER}:doil ${FOLDERPATH}
-fi
-doil_send_okay
 
 if [[ ${SKIP_README} != TRUE ]]
 then

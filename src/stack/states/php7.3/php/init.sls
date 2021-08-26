@@ -1,3 +1,17 @@
+apt_https:
+  pkg.installed:
+    - name: software-properties-common
+
+php_repo_list:
+  cmd.run:
+    - name: echo "deb https://packages.sury.org/php/ $(lsb_release -sc) main" > /etc/apt/sources.list.d/php.list
+    - unless: test -f /etc/apt/sources.list.d/php.list
+
+php_repo_key:
+  cmd.run:
+    - name: wget -O /etc/apt/trusted.gpg.d/php.gpg https://packages.sury.org/php/apt.gpg
+    - unless: test -f /etc/apt/trusted.gpg.d/php.gpg
+
 php7.3:
   pkg.installed:
     - refresh: true

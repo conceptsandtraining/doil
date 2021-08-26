@@ -88,9 +88,9 @@ then
   # check proxy server
   doil system:proxy start --quiet
 
-  if [ -f "/usr/local/lib/doil/tpl/proxy/conf/sites/${INSTANCE}.conf" ]
+  if [ -f "/usr/local/lib/doil/server/proxy/conf/sites/${INSTANCE}.conf" ]
   then
-    rm "/usr/local/lib/doil/tpl/proxy/conf/sites/${INSTANCE}.conf"
+    rm "/usr/local/lib/doil/server/proxy/conf/sites/${INSTANCE}.conf"
   fi
   doil system:proxy reload --quiet
 
@@ -110,7 +110,7 @@ else
   then
     TARGET=$(readlink ${LINKNAME})
     cd ${TARGET}
-    eval "doil instances:down  ${FLAG}"
+    eval "doil instances:down ${FLAG}"
   else
     echo -e "\033[1mERROR:\033[0m"
     echo -e "\tInstance not found!"

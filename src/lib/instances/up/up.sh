@@ -80,13 +80,6 @@ then
   # set instance
   INSTANCE=${PWD##*/}
 
-  # check if we are running
-  DCMINION=$(docker ps | grep ${INSTANCE} -w)
-  if [ ! -z "${DCMINION}" ]
-  then
-    exit
-  fi
-
   if [[ ${GLOBAL} == TRUE ]]
   then
     SUFFIX="global"
@@ -94,6 +87,13 @@ then
   else
     SUFFIX="local"
     FLAG=""
+  fi
+
+  # check if we are running
+  DCMINION=$(docker ps | grep ${INSTANCE}_${SUFFIX} -w)
+  if [ ! -z "${DCMINION}" ]
+  then
+    exit
   fi
 
   doil_send_log "Starting instance"
@@ -113,8 +113,7 @@ then
   docker exec -ti ${INSTANCE}_${SUFFIX} bash -c "salt-minion -d"
 
   # remove the current ip from the host file and add the new one
-  DCFOLDER=${PWD##*/}
-  DCHASH=$(doil_get_hash $DCFOLDER)
+  DCHASH=$(doil_get_hash $INSTANCE_$SUFFIX)
   DCIP=$(doil_get_data $DCHASH "ip")
 
   if [ -f "/usr/local/lib/doil/server/proxy/conf/sites/${INSTANCE}_${SUFFIX}.conf" ]

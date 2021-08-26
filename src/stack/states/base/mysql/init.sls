@@ -7,7 +7,6 @@ mysql_packages:
     - pkgs:
       - mariadb-server
       - supervisor
-      - python-mysqldb
       - python3-mysqldb
 
 /etc/mysql/mariadb.conf.d/50-server.cnf:

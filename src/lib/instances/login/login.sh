@@ -53,7 +53,7 @@ while [[ $# -gt 0 ]]
 done
 
 # set the instance to work with
-if [ -z "$INSTANCE" ]
+if [ -z "${INSTANCE}" ]
 then
   # if the instance is empty we are working with the current directory
 
@@ -84,7 +84,8 @@ then
   doil up ${INSTANCE} --quiet ${FLAG}
   
   # login
-  docker exec -ti ${INSTANCE} bash
+  docker exec -ti ${INSTANCE}_${SUFFIX} bash
+  exit
 else
   if [[ ${GLOBAL} == TRUE ]]
   then
@@ -99,9 +100,11 @@ else
     TARGET=$(readlink ${LINKNAME})
     cd ${TARGET}
     eval "doil login ${FLAG}"
+    exit
   else
     echo -e "\033[1mERROR:\033[0m"
     echo -e "\tInstance not found!"
     echo -e "\tuse \033[1mdoil instances:list\033[0m to see current installed instances"
+    exit
   fi
 fi

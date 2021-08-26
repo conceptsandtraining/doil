@@ -76,6 +76,15 @@ then
       exec >>/var/log/doil.log 2>&1
     fi
 
+    if [[ ${GLOBAL} == TRUE ]]
+    then
+      SUFFIX="global"
+      FLAG="--global"
+    else
+      SUFFIX="local"
+      FLAG=""
+    fi
+
     doil_send_log "Deleting instance"
 
     # check saltmain
@@ -85,7 +94,7 @@ then
     doil system:proxy start --quiet
 
     # set machine inactive
-    doil down ${INSTANCE} --quiet
+    doil down ${INSTANCE} --quiet ${FLAG}
 
     # remove directory
     the_path=$(readlink ${LINKNAME})
@@ -95,12 +104,8 @@ then
     if [[ ${GLOBAL} == TRUE ]]
     then
       rm -f "/usr/local/share/doil/instances/${INSTANCE}"
-      SUFFIX="global"
-      FLAG="--global"
     else
       rm -f "${HOME}/.doil/instances/${INSTANCE}"
-      SUFFIX="local"
-      FLAG=""
     fi
 
     # remove key
