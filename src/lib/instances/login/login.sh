@@ -46,7 +46,10 @@ while [[ $# -gt 0 ]]
       shift # past argument
       ;;
     *)    # sets the instance
-      INSTANCE=$1
+      if [[ ${1} != "--global" ]] && [[ ${1} != "login" ]]
+      then
+        INSTANCE=$1
+      fi
       shift
       ;;
 	esac
@@ -95,6 +98,7 @@ else
     LINKNAME="${HOME}/.doil/instances/${INSTANCE}"
     FLAG=""
   fi
+
   if [ -h "${LINKNAME}" ]
   then
     TARGET=$(readlink ${LINKNAME})
