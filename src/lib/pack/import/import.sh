@@ -136,15 +136,8 @@ then
   # create project
   doil_send_log "Creating instance ${INSTANCE}. This will take a while."
 
-  # check if repo exists
-  REPO_EXISTS=$(doil repo:list | grep ${PROJECT_REPOSITORY_URL} -w)
-  if [[ -z ${REPO_EXISTS} ]]
-  then
-    doil repo:add --name "${INSTANCE}_import" --repo ${PROJECT_REPOSITORY_URL}
-    REPOSITORY="${INSTANCE}_import"
-  else
-    REPOSITORY=$(doil repo:list | grep ${PROJECT_REPOSITORY_URL} -w | cut -d\  -f1 | tr -d '\t')
-  fi
+  doil repo:add --name "${INSTANCE}_import" --repo ${PROJECT_REPOSITORY_URL}
+  REPOSITORY="${INSTANCE}_import"
 
   doil create -n ${INSTANCE} -r ${REPOSITORY} -b ${PROJECT_BRANCH} -p ${PROJECT_PHP_VERSION} ${FLAG}
 
@@ -167,7 +160,7 @@ TARGET=$(readlink ${LINKPATH})
 doil_send_log "Copying necessary files"
 
 # stop the instance
-doil down ${INSTANCE}_${SUFFIX} --quiet
+doil down ${INSTANCE} ${FLAG} --quiet
 
 # remove all the files
 sudo rm -rf ${TARGET}/volumes/data
@@ -185,7 +178,7 @@ sudo cp -r ${PWD}/${PACKNAME}/var/ilias/ilias.sql ${TARGET}/volumes/data/ilias.s
 sudo chown -R ${USER}:${USER} ${TARGET}
 
 # start the instance
-doil up ${INSTANCE} --quiet
+doil up ${INSTANCE} --quiet ${FLAG}
 docker exec -ti ${INSTANCE}_${SUFFIX} bash -c "chown -R mysql:mysql /var/lib/mysql"
 docker exec -ti ${INSTANCE}_${SUFFIX} bash -c "service mysql restart"
 sleep 5
