@@ -1,3 +1,5 @@
+{% set cron_password = salt['grains.get']('cron_password', 'ilias') %}
+
 ilCron_packages:
   pkg.installed:
     - pkgs:
@@ -39,7 +41,7 @@ ilias_cron:
     - mode: 750
     - template: jinja
     - context:
-      passwd: changeme
-      cronuser: root
+      passwd: {{ cron_password }}
+      cronuser: cron
       path: /var/www/html/
-      instance: ilias6
+      instance: ilias

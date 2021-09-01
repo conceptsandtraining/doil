@@ -44,6 +44,13 @@ User: root
 Passwort: homer
 ```
 
+For the ILIAS user "cron" following password has been generated. Be sure that the user
+has been added to your system.
+
+```
+%GRAIN_CRON_PASSWORD%
+```
+
 ## Additional Information
 
 You can find adminer at `http://doil/%TPL_PROJECT_NAME%/adminer`
