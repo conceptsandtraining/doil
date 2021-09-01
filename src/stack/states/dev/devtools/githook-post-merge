@@ -1,0 +1,14 @@
+#!/bin/sh
+composer install --no-dev
+
+SKIN_PATH="./Customizing/global/skin/custom"
+
+echo "Compile css with lessc "
+
+TEMPLATES=$(grep "style" ${SKIN_PATH}/template.xml | cut -d\ -f4 | tr -d '"')
+for TEMPLATE in ${TEMPLATES};
+do
+	echo ${TEMPLATE}
+	lessc -m=always "${SKIN_PATH}/${TEMPLATE}/skin.less" "${SKIN_PATH}/${TEMPLATE}/skin.css" --source-map="${SKIN_PATH}/${TEMPLATE}/skin.css.map"
+	lessc -m=always "${SKIN_PATH}/${TEMPLATE}/mail.less" "${SKIN_PATH}/${TEMPLATE}/mail.css"
+done
