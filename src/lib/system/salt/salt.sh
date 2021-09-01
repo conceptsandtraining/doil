@@ -37,7 +37,7 @@ while [[ $# -gt 0 ]]
   key="$1"
 
   case $key in
-    login|prune|start|stop|restart)
+    login|prune|start|stop|restart|states)
       COMMAND="$key"
       shift
       ;;
@@ -131,4 +131,12 @@ then
   doil system:salt start --quiet
 
   doil_send_log "Main salt server restarted"
+fi
+
+# states
+if [[ ${COMMAND} == "states" ]]
+then
+  echo "Currently available states to apply:"
+
+  ls /usr/local/share/doil/stack/states
 fi
