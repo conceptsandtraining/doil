@@ -46,5 +46,6 @@ COMMANDS
   version   shows the currently installed version 
   salt      manages the salt server
   proxy     manages the proxy server
+  user      manages the doil user
 
 EOF

@@ -38,13 +38,17 @@ while [[ $# -gt 0 ]]
       eval "/usr/local/lib/doil/lib/repo/update/help.sh"
       exit
       ;;
-    -v|--verbose)
-      VERBOSE=YES
+    -g|--global)
+      GLOBAL=TRUE
+      shift # past this flag
+      ;;
+    -q|--quiet)
+      QUIET=YES
       shift # past argument
       ;;
     *)    # set name
       NAME=$1
-      break
+      shift
       ;;
 	esac
 done
@@ -59,7 +63,13 @@ then
 fi
 
 # check if repo exists
-LINE=$(sed -n -e "/^${NAME}=/p" "${HOME}/.doil/config/repos")
+if [[ ${GLOBAL} == "TRUE" ]]
+then
+  LINE=$(sed -n -e "/^${NAME}=/p" "/etc/doil/repositories.conf")
+else
+  LINE=$(sed -n -e "/^${NAME}=/p" "${HOME}/.doil/config/repositories.conf")
+fi
+
 if [ -z ${LINE} ]
 then
   echo -e "\033[1mERROR:\033[0m"
@@ -69,22 +79,45 @@ then
 fi
 
 REPO="$(cut -d'=' -f2 <<<${LINE})"
-if [ -z ${VERBOSE} ]
+if [ -z ${QUIET} ]
 then
-  echo "Updating repository ${NAME} ..."
-  if [ -d "/usr/local/lib/doil/tpl/repos/${NAME}" ]
+  echo -n "Updating repository ${NAME} ..."
+
+  if [[ ${GLOBAL} == "TRUE" ]]
   then
-    cd "/usr/local/lib/doil/tpl/repos/${NAME}"
-    git fetch origin
+    if [ -d "/usr/local/share/doil/repositories/${NAME}" ]
+    then
+      cd "/usr/local/share/doil/repositories/${NAME}"
+      git fetch origin
+    else
+      git clone "${REPO}" "/usr/local/share/doil/repositories/${NAME}"
+    fi
   else
-    git clone "${REPO}" "/usr/local/lib/doil/tpl/repos/${NAME}"
+    if [ -d "${HOME}/.doil/repositories/${NAME}" ]
+    then
+      cd "${HOME}/.doil/repositories/${NAME}"
+      git fetch origin
+    else
+      git clone "${REPO}" "${HOME}/.doil/repositories/${NAME}"
+    fi
   fi
 else
-  if [ -d "/usr/local/lib/doil/tpl/repos/${NAME}" ]
+    if [[ ${GLOBAL} == "TRUE" ]]
   then
-    cd "/usr/local/lib/doil/tpl/repos/${NAME}"
-    git fetch --quiet origin
+    if [ -d "/usr/local/share/doil/repositories/${NAME}" ]
+    then
+      cd "/usr/local/share/doil/repositories/${NAME}"
+      git fetch origin --quiet
+    else
+      git clone "${REPO}" "/usr/local/share/doil/repositories/${NAME}" --quiet
+    fi
   else
-    git clone --quiet "${REPO}" "/usr/local/lib/doil/tpl/repos/${NAME}"
+    if [ -d "${HOME}/.doil/repositories/${NAME}" ]
+    then
+      cd "${HOME}/.doil/repositories/${NAME}"
+      git fetch origin --quiet
+    else
+      git clone "${REPO}" "${HOME}/.doil/repositories/${NAME}" --quiet
+    fi
   fi
 fi

@@ -48,9 +48,13 @@ while [[ $# -gt 0 ]]
       eval "/usr/local/lib/doil/lib/repo/add/help.sh"
       exit
       ;;
-    -v|--verbose)
-      VERBOSE=YES
-      shift # past argument
+    -g|--global)
+      GLOBAL=TRUE
+      shift # past this flag
+      ;;
+    -q|--quiet)
+      QUIET=YES
+      shift # past this flag
       ;;
     *)    # unknown option
       echo -e "\033[1mERROR:\033[0m"
@@ -75,7 +79,13 @@ then
 fi
 
 # check if repo exists
-LINE=$(sed -n -e "/^${NAME}=/p" "${HOME}/.doil/config/repos")
+if [[ ${GLOBAL} == "TRUE" ]]
+then
+  LINE=$(sed -n -e "/^${NAME}=/p" "/etc/doil/repositories.conf")
+else
+  LINE=$(sed -n -e "/^${NAME}=/p" "${HOME}/.doil/config/repositories.conf")
+fi
+
 if [ ! -z ${LINE} ]
 then
   echo -e "\033[1mERROR:\033[0m"
@@ -97,8 +107,14 @@ then
   exit 255
 fi
 
-$(echo "${NAME}=${REPOSITORY}" >> "${HOME}/.doil/config/repos")
-if [ -z ${VERBOSE} ]
+if [[ ${GLOBAL} == "TRUE" ]]
+then
+  $(echo "${NAME}=${REPOSITORY}" >> "/etc/doil/repositories.conf")
+else
+  $(echo "${NAME}=${REPOSITORY}" >> "${HOME}/.doil/config/repositories.conf")
+fi
+
+if [ -z ${QUIET} ]
 then
   echo "Repository ${NAME} added."
 fi

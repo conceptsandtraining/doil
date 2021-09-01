@@ -41,15 +41,22 @@ while [[ $# -gt 0 ]]
       eval "/usr/local/lib/doil/lib/instances/login/help.sh"
       exit
       ;;
+    -g|--global)
+      GLOBAL=TRUE
+      shift # past argument
+      ;;
     *)    # sets the instance
-      INSTANCE=$1
-      break
+      if [[ ${1} != "--global" ]] && [[ ${1} != "login" ]]
+      then
+        INSTANCE=$1
+      fi
+      shift
       ;;
 	esac
 done
 
 # set the instance to work with
-if [ -z "$INSTANCE" ]
+if [ -z "${INSTANCE}" ]
 then
   # if the instance is empty we are working with the current directory
 
@@ -64,24 +71,44 @@ then
     exit
   fi
 
+  if [[ ${GLOBAL} == TRUE ]]
+  then
+    SUFFIX="global"
+    FLAG="--global"
+  else
+    SUFFIX="local"
+    FLAG=""
+  fi
+
   # set instance
   INSTANCE=${PWD##*/}
 
   # start if not done
-  doil up ${INSTANCE} --quiet
+  doil up ${INSTANCE} --quiet ${FLAG}
   
   # login
-  docker exec -ti ${INSTANCE} bash
+  docker exec -ti ${INSTANCE}_${SUFFIX} bash
+  exit
 else
-  LINKNAME="${HOME}/.doil/$INSTANCE"
+  if [[ ${GLOBAL} == TRUE ]]
+  then
+    LINKNAME="/usr/local/share/doil/instances/${INSTANCE}"
+    FLAG="--global"
+  else
+    LINKNAME="${HOME}/.doil/instances/${INSTANCE}"
+    FLAG=""
+  fi
+
   if [ -h "${LINKNAME}" ]
   then
     TARGET=$(readlink ${LINKNAME})
     cd ${TARGET}
-    eval "doil login"
+    eval "doil login ${FLAG}"
+    exit
   else
     echo -e "\033[1mERROR:\033[0m"
     echo -e "\tInstance not found!"
     echo -e "\tuse \033[1mdoil instances:list\033[0m to see current installed instances"
+    exit
   fi
 fi

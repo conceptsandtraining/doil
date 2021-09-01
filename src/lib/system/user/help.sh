@@ -25,20 +25,28 @@
 
 cat <<-EOF
 NAME
-  doil repo:update - updates a repository
+  doil system:user - manages the doil users
 
 SYNOPSIS
-  doil repo:update <instance>
+  doil system:user [command]
 
 DESCRIPTION
-  This command updates a local repository so that it won't be
-  fetched when an instances is created
+  This command manages the users which are registered
+  at the doil system. Only they are able to use the full
+  functionality of doil.
+
+  Deleting a user will keep their installed instances.
+
+  This command only works for sudo users.
 
 EXAMPLE:
-  doil repo:update ilias
+  doil system:user add john
+
+COMMANDS
+  add    adds a user to the doil system
+  delete removes a user from the doil system
+  list   lists registered doil users
 
 OPTIONS
-  -g|--global updates the global repository
-  -q|--quiet  silences the output
-  -h|--help   displays this help message
+  -q|--quiet no output will be displayed
 EOF

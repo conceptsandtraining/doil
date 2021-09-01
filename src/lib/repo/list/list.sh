@@ -47,11 +47,21 @@ while [[ $# -gt 0 ]]
 	esac
 done
 
-echo "Currently registered repositories:"
+echo "Currently registered private repositories:"
 while read line
 do
   NAME="$(cut -d'=' -f1 <<<${line})"
   REPO="$(cut -d'=' -f2 <<<${line})"
 
   echo -e "\t${NAME} - ${REPO}"
-done < "${HOME}/.doil/config/repos"
+done < "${HOME}/.doil/config/repositories.conf"
+
+echo " "
+echo "Currently registered global repositories:"
+while read line
+do
+  NAME="$(cut -d'=' -f1 <<<${line})"
+  REPO="$(cut -d'=' -f2 <<<${line})"
+
+  echo -e "\t${NAME} - ${REPO}"
+done < "/etc/doil/repositories.conf"

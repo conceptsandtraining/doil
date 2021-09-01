@@ -47,8 +47,22 @@ while [[ $# -gt 0 ]]
 	esac
 done
 
-echo "Currently registered instances:"
-LIST=$(ls "${HOME}/.doil/")
+echo "Currently registered local instances:"
+LIST=$(ls "${HOME}/.doil/instances")
+
+declare -a INSTANCES=(${LIST})
+for LINE in "${INSTANCES[@]}"
+do
+  if [ "${LINE}" != "config" ] \
+    && [ "${LINE}" != "help" ]
+  then
+    echo "${LINE}"
+  fi
+done
+
+echo ""
+echo "Currently registered global instances:"
+LIST=$(ls "/usr/local/share/doil/instances/")
 
 declare -a INSTANCES=(${LIST})
 for LINE in "${INSTANCES[@]}"

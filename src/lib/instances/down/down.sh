@@ -45,9 +45,13 @@ while [[ $# -gt 0 ]]
       QUIET=TRUE
       shift
       ;;
+    -g|--global)
+      GLOBAL=TRUE
+      shift # past argument
+      ;;
     *)    # start the instance
       INSTANCE=$1
-      break
+      shift
       ;;
 	esac
 done
@@ -84,9 +88,9 @@ then
   # check proxy server
   doil system:proxy start --quiet
 
-  if [ -f "/usr/local/lib/doil/tpl/proxy/conf/sites/${INSTANCE}.conf" ]
+  if [ -f "/usr/local/lib/doil/server/proxy/conf/sites/${INSTANCE}.conf" ]
   then
-    rm "/usr/local/lib/doil/tpl/proxy/conf/sites/${INSTANCE}.conf"
+    rm "/usr/local/lib/doil/server/proxy/conf/sites/${INSTANCE}.conf"
   fi
   doil system:proxy reload --quiet
 
@@ -94,12 +98,19 @@ then
 
   doil_send_log "Instance stopped"
 else
-  LINKNAME="${HOME}/.doil/$INSTANCE"
+  if [[ ${GLOBAL} == TRUE ]]
+  then
+    LINKNAME="/usr/local/share/doil/instances/${INSTANCE}"
+    FLAG="--global"
+  else
+    LINKNAME="${HOME}/.doil/instances/${INSTANCE}"
+    FLAG=""
+  fi
   if [ -h "${LINKNAME}" ]
   then
     TARGET=$(readlink ${LINKNAME})
     cd ${TARGET}
-    eval "doil instances:down"
+    eval "doil instances:down ${FLAG}"
   else
     echo -e "\033[1mERROR:\033[0m"
     echo -e "\tInstance not found!"

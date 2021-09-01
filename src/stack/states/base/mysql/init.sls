@@ -7,7 +7,6 @@ mysql_packages:
     - pkgs:
       - mariadb-server
       - supervisor
-      - python-mysqldb
       - python3-mysqldb
 
 /etc/mysql/mariadb.conf.d/50-server.cnf:
@@ -52,9 +51,6 @@ mysql_adduser:
     - name: ilias
     - host: 'localhost'
     - password: {{ mysql_password }}
-    - unless:
-      - fun: mysql_user.exists
-      - name: 'ilias'
 
 mysql_grant:
   mysql_grants.present:

@@ -96,100 +96,123 @@ case "$(uname -s)" in
     ;;
 esac
 
-#####################
-# create the log file
+# color support
+GREEN='\033[0;32m'
+NC='\033[0m'
+
+# log
 NOW=$(date +'%d.%m.%Y %I:%M:%S')
 echo "[${NOW}] Started installing doil"
+
+# create doil group
+echo -n "Adding group doil ..."
+
+groupadd doil
+
+printf " ${GREEN}ok${NC}\n"
+
+# create the log file
+echo -n "Creating log file in /var/log/doil.log ..."
+
 touch /var/log/doil.log
-chown ${SUDO_USER}:${SODU_USER} "/var/log/doil.log"
+chown root:doil /var/log/doil.log
+chmod 777 /var/log/doil.log
 
-################################
-# Removing old version if needed
-NOW=$(date +'%d.%m.%Y %I:%M:%S')
-echo "[${NOW}] Removing old version if needed"
+printf " ${GREEN}ok${NC}\n"
 
-if [ $OPS == "linux" ]
-then
-  if [ -f "/usr/local/bin/doil" ]
-  then
-    rm /usr/local/bin/doil
-  fi
-  if [ -d "/usr/local/lib/doil" ]
-  then
-    rm -rf /usr/local/lib/doil
-  fi
-  if [ -d "/usr/lib/doil" ]
-  then
-    rm -r /usr/lib/doil
-  fi
-  if [ -f "/usr/share/man/man1/doil.1" ]
-  then
-    rm /usr/share/man/man1/doil.1
-  fi
-  if [ -f "/usr/share/man/man1/doil.1.gz" ]
-  then
-    rm "/usr/share/man/man1/doil.1.gz"
-  fi
-elif [ $OPS == "mac" ]
-  then
-  if [ -f "/usr/local/bin/doil" ]
-  then
-    rm /usr/local/bin/doil
-  fi
-  if [ -d "/usr/local/lib/doil" ]
-  then
-    rm -rf /usr/local/lib/doil
-  fi
-fi
+# create mandatory folders
+echo -n "Creating mandatory folders ..."
 
-#########################
-# Copying the doil system
-NOW=$(date +'%d.%m.%Y %I:%M:%S')
-echo "[${NOW}] Copying the doil system"
+mkdir /usr/local/lib/doil
+mkdir /usr/local/lib/doil/lib
+mkdir /usr/local/lib/doil/server
+chown -R root:doil /usr/local/lib/doil
 
-# Move the base script to the /usr/local/bin folder and make it executeable
+mkdir /etc/doil/
+chown -R root:doil /etc/doil
+chmod -R g+w /etc/doil
+chmod -R g+s /etc/doil
+
+mkdir /usr/local/share/doil
+mkdir /usr/local/share/doil/templates
+mkdir /usr/local/share/doil/stack
+mkdir /usr/local/share/doil/instances
+mkdir /usr/local/share/doil/repositories
+chown -R root:doil /usr/local/share/doil
+chmod -R g+w /usr/local/share/doil/repositories
+chmod -R g+w /usr/local/share/doil/instances
+chmod -R g+s /usr/local/share/doil/repositories
+chmod -R g+s /usr/local/share/doil/instances
+
+printf " ${GREEN}ok${NC}\n"
+
+# copy doil system
+echo -n "Copy doil system ..."
+
 cp src/doil.sh /usr/local/bin/doil
-chmod a+x /usr/local/bin/doil
+chown root:doil /usr/local/bin/doil
+chmod +x /usr/local/bin/doil
 
-# Move the script library to /usr/local/lib/doil
-if [ ! -d "/usr/local/lib/doil" ]
-then
-  mkdir /usr/local/lib/doil
-fi
-cp -r src/lib /usr/local/lib/doil/lib
-cp -r src/tpl /usr/local/lib/doil/tpl
-chmod -R 777 /usr/local/lib/doil/
-chmod -R a+x /usr/local/lib/doil/lib
+cp -r src/lib/* /usr/local/lib/doil/lib/
+chown -R root:doil /usr/local/lib/doil/lib
+chmod -R +x /usr/local/lib/doil/lib
 
-################################
-# Setting up local configuration
-NOW=$(date +'%d.%m.%Y %I:%M:%S')
-echo "[${NOW}] Setting up local configuration"
+cp -r src/server/* /usr/local/lib/doil/server/
+chown -R root:doil /usr/local/lib/doil/server
+chmod -R g+w /usr/local/lib/doil/server/proxy/conf/sites
+chmod -R g+s /usr/local/lib/doil/server/proxy/conf/sites
 
-# setup local doil folder
-HOME=$(eval echo "~${SUDO_USER}")
-if [ ! -d "${HOME}/.doil" ]
-then
-  mkdir "${HOME}/.doil"
-fi
+cp -r src/templates/* /usr/local/share/doil/templates
+chown root:doil /usr/local/share/doil/templates
 
-# setup the local configuration for the repos and the stack
-if [ ! -d "${HOME}/.doil/config" ]
-then
-  mkdir "${HOME}/.doil/config"
-fi
+cp -r src/stack/* /usr/local/share/doil/stack
+chown -R root:doil /usr/local/share/doil/stack
 
-touch "${HOME}/.doil/config/repos"
-touch "${HOME}/.doil/config/saltstack"
+printf " ${GREEN}ok${NC}\n"
 
-# for the user
-chown -R ${SUDO_USER}:${SODU_USER} "${HOME}/.doil"
+# setting up basic configuration
+echo -n "Setting up basic configuration ..."
 
-# echo configuration
-echo "ilias=git@github.com:ILIAS-eLearning/ILIAS.git" > "${HOME}/.doil/config/repos"
+cp src/conf/doil.conf /etc/doil/doil.conf
+touch /etc/doil/repositories.conf
+chown -R root:doil /etc/doil/
+chmod g+w /etc/doil/repositories.conf
+touch /etc/doil/user.conf
 
-# send IP to hosts
+echo "ilias=git@github.com:ILIAS-eLearning/ILIAS.git" > "/etc/doil/repositories.conf"
+
 echo "172.24.0.254 doil" >> "/etc/hosts"
+
+printf " ${GREEN}ok${NC}\n"
+
+# setting up local configuration
+echo -n "Setting up local configuration ..."
+
+HOME=$(eval echo "~${SUDO_USER}")
+mkdir ${HOME}/.doil
+mkdir ${HOME}/.doil/config/
+touch ${HOME}/.doil/config/repositories.conf
+mkdir ${HOME}/.doil/repositories
+mkdir ${HOME}/.doil/instances
+chown -R ${SUDO_USER}:${SODU_USER} "${HOME}/.doil"
+usermod -a -G doil ${SUDO_USER}
+echo "${SUDO_USER}">>"/etc/doil/user.conf"
+
+printf " ${GREEN}ok${NC}\n"
+
+# start proxy server
+echo -n "Installing proxy server ..."
+
+doil system:proxy start --quiet
+
+printf " ${GREEN}ok${NC}\n"
+
+# start salt server
+echo -n "Installing salt server ..."
+
+doil system:salt start --quiet
+
+printf " ${GREEN}ok${NC}\n"
 
 #################
 # Everything done

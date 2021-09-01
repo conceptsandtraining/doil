@@ -41,29 +41,40 @@ while [[ $# -gt 0 ]]
 
 	case $key in
     -n|--name)
-      NAME="$2"
+      NAME="${2}"
       shift # past argument
       shift # past value
       ;;
     -r|--repo)
-      REPOSITORY="$2"
+      LOCAL_REPOSITORY=TRUE
+      REPOSITORY="${2}"
+      shift # past argument
+      shift # past value
+      ;;
+    -gr|--global-repo)
+      GLOBAL_REPOSITORY=TRUE
+      REPOSITORY="${2}"
       shift # past argument
       shift # past value
       ;;
     -b|--branch)
-      BRANCH="$2"
+      BRANCH="${2}"
       shift # past argument
       shift # past value
       ;;
     -p|--phpversion)
-      PHPVERSION="$2"
+      PHPVERSION="${2}"
       shift # past argument
       shift # past value
       ;;
     -t|--target)
-      TARGET="$2"
+      TARGET="${2}"
       shift # past argument
       shift # past value
+      ;;
+    -g|--global)
+      GLOBAL=TRUE
+      shift # past argument
       ;;
     -h|--help|help)
       eval "/usr/local/lib/doil/lib/instances/create/help.sh"
@@ -120,7 +131,7 @@ fi
 
 # check repository
 if [[ -z "${REPOSITORY}" ]]
-then
+then  
   declare -a REPOSITORIES
   i=1
   while read LINE
@@ -129,12 +140,39 @@ then
 
     REPOSITORIES[ $i ]=${REPONAME}
     (( i=($i+2) ))
-  done < "${HOME}/.doil/config/repos"
-  REPOSITORIES_STRING="${REPOSITORIES[*]}"
+  done < "${HOME}/.doil/config/repositories.conf"
 
+  while read LINE
+  do
+    REPONAME="$(cut -d'=' -f1 <<<${LINE})"
+
+    REPOSITORIES[ $i ]="${REPONAME}_global"
+    (( i=($i+2) ))
+  done < "/etc/doil/repositories.conf"
+  REPOSITORIES_STRING="${REPOSITORIES[*]}"
   read -p "Chose the repository [${REPOSITORIES_STRING//${IFS:0:1}/, }]: " REPOSITORY
 fi
-LINE=$(sed -n -e "/^${REPOSITORY}=/p" "${HOME}/.doil/config/repos")
+
+if [[ ! -z ${GLOBAL_REPOSITORY} ]] # check if we got the repository from -gr
+then
+  LINE=$(sed -n -e "/^${REPOSITORY}=/p" "/etc/doil/repositories.conf")
+  SKIP_WIZZARD=TRUE
+elif [[ ! -z ${LOCAL_REPOSITORY} ]] # check if we got a local repository from -r
+then
+  LINE=$(sed -n -e "/^${REPOSITORY}=/p" "${HOME}/.doil/config/repositories.conf")
+  SKIP_WIZZARD=TRUE
+else # we got the repository from the wizzard
+  if [[ ${REPOSITORY} == *"_global"* ]] # check for _global suffix
+  then
+    REPOSITORY=${REPOSITORY%"_global"}
+    LINE=$(sed -n -e "/^${REPOSITORY}=/p" "/etc/doil/repositories.conf")
+    GLOBAL_REPOSITORY=TRUE
+  else
+    LINE=$(sed -n -e "/^${REPOSITORY}=/p" "${HOME}/.doil/config/repositories.conf")
+    LOCAL_REPOSITORY=TRUE
+  fi
+fi
+
 if [ -z ${LINE} ]
 then
   echo -e "\033[1mERROR:\033[0m"
@@ -144,11 +182,24 @@ then
 fi
 
 # update the repository to get the branch
-eval "doil repo:update ${REPOSITORY}"
+doil_send_status "Updating repository ${REPOSITORY}"
+if [[ ${GLOBAL_REPOSITORY} == TRUE ]]
+then
+  eval "doil repo:update ${REPOSITORY}" --global --quiet
+else
+  eval "doil repo:update ${REPOSITORY}" --quiet
+fi
+doil_send_okay
 
 # check branch
 declare -a BRANCHES
-cd "/usr/local/lib/doil/tpl/repos/${REPOSITORY}"
+if [[ ${GLOBAL_REPOSITORY} == "TRUE" ]]
+then
+  cd "/usr/local/share/doil/repositories/${REPOSITORY}"
+else
+  cd "${HOME}/.doil/repositories/${REPOSITORY}"
+fi
+
 while read LINE
 do
   if [[ ${LINE} == *['!'HEAD]* ]]
@@ -204,18 +255,18 @@ FOLDERPATH="${TARGET}/${NAME}"
 doil_send_log "Start creating project ${NAME}"
 
 # update debian
-doil_send_log "Updating local system"
-docker pull debian:stable --quiet
+doil_send_status "Updating debian image"
+docker pull debian:stable --quiet > /dev/null
+doil_send_okay
 
-# check saltmain
+# salt and proxy server
+doil_send_status "Starting mandatory doil services"
 doil system:salt start --quiet
-
-# check proxy server
 doil system:proxy start --quiet
+doil_send_okay
 
-##########################
 # create the basic folders
-doil_send_log "Create basic folders"
+doil_send_status "Create basic folders"
 
 mkdir -p "${FOLDERPATH}/conf"
 mkdir -p "${FOLDERPATH}/volumes/db"
@@ -225,26 +276,38 @@ mkdir -p "${FOLDERPATH}/volumes/logs/error"
 mkdir -p "${FOLDERPATH}/volumes/logs/apache"
 
 # set the link
-ln -s "${FOLDERPATH}" "${HOME}/.doil/${NAME}"
+if [[ ${GLOBAL} == "TRUE" ]]
+then
+  ln -s "${FOLDERPATH}" "/usr/local/share/doil/instances/${NAME}"
+else
+  ln -s "${FOLDERPATH}" "${HOME}/.doil/instances/${NAME}"
+fi
+doil_send_okay
 
-#########################
+# set user rights
+doil_send_status "Setting folder rights"
+if [[ -z ${GLOBAL} ]]
+then
+  chown -R ${USER}:${USER} ${FOLDERPATH}
+else
+  chown -R ${USER}:doil ${FOLDERPATH}
+  chmod g+w ${FOLDERPATH}
+  chmod g+s ${FOLDERPATH}
+  chown ${USER}:doil "/usr/local/share/doil/instances/${NAME}"
+fi
+doil_send_okay
+
 # Copying necessary files
-doil_send_log "Copying necessary files"
-
-# docker stuff
-cp "/usr/local/lib/doil/tpl/minion/run-supervisor.sh" "${FOLDERPATH}/conf/run-supervisor.sh"
-cp "/usr/local/lib/doil/tpl/minion/Dockerfile" "${FOLDERPATH}/Dockerfile"
-cp "/usr/local/lib/doil/tpl/stack/config/minion.cnf" "${FOLDERPATH}/conf/minion.cnf"
-cp "/usr/local/lib/doil/tpl/minion/salt-minion.conf" "${FOLDERPATH}/conf/salt-minion.conf"
-if [[ ${HOST} == 'linux' ]]
-then
-  cp "/usr/local/lib/doil/tpl/minion/docker-compose.yml" "${FOLDERPATH}/docker-compose.yml"
-elif [[ ${HOST} == 'mac' ]]
-then
-  cp "/usr/local/lib/doil/tpl/minion/docker-compose-mac.yml" "${FOLDERPATH}/docker-compose.yml"
-fi 
+doil_send_status "Copying necessary files"
+cp "/usr/local/share/doil/templates/minion/run-supervisor.sh" "${FOLDERPATH}/conf/run-supervisor.sh"
+cp "/usr/local/share/doil/templates/minion/Dockerfile" "${FOLDERPATH}/Dockerfile"
+cp "/usr/local/share/doil/templates/minion/salt-minion.conf" "${FOLDERPATH}/conf/salt-minion.conf"
+cp "/usr/local/share/doil/templates/minion/docker-compose.yml" "${FOLDERPATH}/docker-compose.yml"
+cp "/usr/local/share/doil/stack/config/minion.cnf" "${FOLDERPATH}/conf/minion.cnf"
+doil_send_okay
 
 # setting up config file
+doil_send_status "Setting up configuration"
 touch "${FOLDERPATH}/conf/doil.conf"
 echo "#!/bin/bash" > "${FOLDERPATH}/conf/doil.conf"
 echo "PROJECT_NAME=\"${NAME}\"" >> "${FOLDERPATH}/conf/doil.conf"
@@ -254,138 +317,165 @@ echo "PROJECT_REPOSITORY_URL=\"${PROJECT_REPOSITORY_URL}\"" >> "${FOLDERPATH}/co
 echo "PROJECT_BRANCH=\"${BRANCH}\"" >> "${FOLDERPATH}/conf/doil.conf"
 echo "PROJECT_PHP_VERSION=\"${PHPVERSION}\"" >> "${FOLDERPATH}/conf/doil.conf"
 chmod a+x "${FOLDERPATH}/conf/doil.conf"
+doil_send_okay
 
 # copy ilias
-cd "/usr/local/lib/doil/tpl/repos/${REPOSITORY}"
+doil_send_status "Copying repository to target"
+if [[ ${GLOBAL_REPOSITORY} == "TRUE" ]]
+then
+  cd "/usr/local/share/doil/repositories/${REPOSITORY}"
+else
+  cd "${HOME}/.doil/repositories/${REPOSITORY}"
+fi
 git config core.fileMode false
-git fetch origin --quiet
-git checkout ${BRANCH} --quiet
-git pull origin ${BRANCH} --quiet
-cp -r "/usr/local/lib/doil/tpl/repos/${REPOSITORY}" "${FOLDERPATH}/volumes/ilias"
+git fetch origin --quiet > /dev/null
+git checkout ${BRANCH} --quiet > /dev/null> /dev/null
+git pull origin ${BRANCH} --quiet > /dev/null
+if [[ ${GLOBAL_REPOSITORY} == "TRUE" ]]
+then
+  cp -r "/usr/local/share/doil/repositories/${REPOSITORY}" "${FOLDERPATH}/volumes/ilias"
+else
+  cp -r "${HOME}/.doil/repositories/${REPOSITORY}" "${FOLDERPATH}/volumes/ilias"
+fi
 cd ${FOLDERPATH}
+doil_send_okay
 
 ############################
 # replace the templates vars
-doil_send_log "Replacing template vars"
+doil_send_status "Replacing template vars"
+
+if [[ ${GLOBAL} == TRUE ]]
+then
+  SUFFIX="global"
+  FLAG="--global"
+else
+  SUFFIX="local"
+  FLAG=""
+fi
 
 # replacer
 if [ ${HOST} == "linux" ]; then
   sed -i "s/%TPL_PROJECT_NAME%/${NAME}/g" "${FOLDERPATH}/docker-compose.yml"
-  sed -i "s/%DOILPATH%/\/usr\/lib\/doil/g" "${FOLDERPATH}/docker-compose.yml"
+  sed -i "s/%TPL_PROJECT_DOMAINNAME%/${SUFFIX}/g" "${FOLDERPATH}/docker-compose.yml"
 
   sed -i "s/%USER_ID%/$(id -u ${USER})/g" "${FOLDERPATH}/Dockerfile"
   sed -i "s/%GROUP_ID%/$(id -g ${USER})/g" "${FOLDERPATH}/Dockerfile"
 elif [ ${HOST} == "mac" ]; then
   sed -i "" "s/%TPL_PROJECT_NAME%/${NAME}/g" "${FOLDERPATH}/docker-compose.yml"
-  sed -i "" "s/%DOILPATH%/\/usr\/local\/lib\/doil/g" "${FOLDERPATH}/docker-compose.yml"
+  sed -i "" "s/%TPL_PROJECT_DOMAINNAME%/${SUFFIX}/g" "${FOLDERPATH}/docker-compose.yml"
 
   sed -i "" "s/%USER_ID%/$(id -u ${USER})/g" "${FOLDERPATH}/Dockerfile"
   sed -i "" "s/%GROUP_ID%/$(id -g ${USER})/g" "${FOLDERPATH}/Dockerfile"
 fi
+doil_send_okay
 
 #######################
 # building minion image
-doil_send_log "Building minion image"
+echo "Building minion image ..."
 
 # build the image
 cd ${FOLDERPATH}
-docker-compose up --force-recreate --no-start --renew-anon-volumes --quiet-pull
+docker-compose up --force-recreate --no-start --renew-anon-volumes --quiet-pull > /dev/null
 docker-compose up -d
 sleep 5
 
 ##############
 # checking key
-doil_send_log "Checking key"
+doil_send_status "Checking key"
 
 # check if the new key is registered
-SALTKEYS=$(docker exec -t -i saltmain /bin/bash -c "salt-key -L" | grep "${NAME}.local")
+SALTKEYS=$(docker exec -t -i saltmain /bin/bash -c "salt-key -L" | grep "${NAME}.${SUFFIX}")
 until [[ ! -z ${SALTKEYS} ]]
 do
-  doil_send_log "Key not ready yet ... waiting"
   sleep 5
-  SALTKEYS=$(docker exec -t -i saltmain /bin/bash -c "salt-key -L" | grep "${NAME}.local")
+  SALTKEYS=$(docker exec -t -i saltmain /bin/bash -c "salt-key -L" | grep "${NAME}.${SUFFIX}")
 done
-doil_send_log "Key ready"
+doil_send_okay
 
 ############
 # set grains
-doil_send_log "Setting up local configuration"
+doil_send_status "Setting up instance configuration"
 GRAIN_MYSQL_PASSWORD=$(tr -dc A-Za-z0-9 </dev/urandom | head -c 13 ; echo '')
-docker exec -ti saltmain bash -c "salt '${NAME}.local' grains.set 'mysql_password' ${GRAIN_MYSQL_PASSWORD} --out=quiet"
-docker exec -ti saltmain bash -c "salt '${NAME}.local' grains.set 'doil_domain' http://doil/${NAME} --out=quiet"
-docker exec -ti saltmain bash -c "salt '${NAME}.local' grains.set 'doil_project_name' ${NAME} --out=quiet"
+docker exec -ti saltmain bash -c "salt '${NAME}.${SUFFIX}' grains.set 'mysql_password' ${GRAIN_MYSQL_PASSWORD} --out=quiet"
+docker exec -ti saltmain bash -c "salt '${NAME}.${SUFFIX}' grains.set 'doil_domain' http://doil/${NAME} --out=quiet"
+docker exec -ti saltmain bash -c "salt '${NAME}.${SUFFIX}' grains.set 'doil_project_name' ${NAME} --out=quiet"
 sleep 5
+doil_send_okay
 
 ##################
 # apply base state
-doil_send_log "Apply base state"
-doil apply ${NAME} base --quiet
+doil_send_status "Apply base state"
+doil apply ${NAME} base --quiet ${FLAG}
+doil_send_okay
 
 #################
 # apply dev state
-doil_send_log "Apply dev state"
-doil apply ${NAME} dev --quiet
+doil_send_status "Apply dev state"
+doil apply ${NAME} dev --quiet ${FLAG}
+doil_send_okay
 
 #################
 # apply php state
-doil_send_log "Apply php state"
-doil apply ${NAME} php${PHPVERSION} --quiet
+doil_send_status "Apply php state"
+doil apply ${NAME} php${PHPVERSION} --quiet ${FLAG}
+doil_send_okay
 
 ###################
 # apply ilias state
-doil_send_log "Apply ilias state"
-doil apply ${NAME} ilias --quiet
+doil_send_status "Apply ilias state"
+doil apply ${NAME} ilias --quiet ${FLAG}
+doil_send_okay
 
 ######################
 # apply composer state
-doil_send_log "Apply composer state"
+doil_send_status "Apply composer state"
 
 ILIAS_VERSION_FILE=$(cat -e ${FOLDERPATH}/volumes/ilias/include/inc.ilias_version.php | grep "ILIAS_VERSION_NUMERIC")
 ILIAS_VERSION=${ILIAS_VERSION_FILE:33:1}
 if (( ${ILIAS_VERSION} == 6 ))
 then
-  doil apply ${NAME} composer --quiet
+  doil apply ${NAME} composer --quiet ${FLAG}
 elif (( ${ILIAS_VERSION} > 6 ))
 then
-  doil apply ${NAME} composer2 --quiet
+  doil apply ${NAME} composer2 --quiet ${FLAG}
 elif (( ${ILIAS_VERSION} < 6 ))
 then
-  doil apply ${NAME} composer54 --quiet
+  doil apply ${NAME} composer54 --quiet ${FLAG}
 fi
+doil_send_okay
 
 ###################
 # try autoinstaller
 if (( ${ILIAS_VERSION} > 6 ))
 then
-  doil_send_log "Trying autoinstaller"
-  doil apply ${NAME} autoinstall --quiet
+  doil_send_status "Trying autoinstaller"
+  doil apply ${NAME} autoinstall --quiet ${FLAG}
+  doil_send_okay
 fi
 
 #####
 # apply access
-doil_send_log "Apply access state"
-doil apply ${NAME} access --quiet
+doil_send_status "Apply access state"
+doil apply ${NAME} access --quiet ${FLAG}
+doil_send_okay
 
 #########################
 # finalizing docker image
-doil_send_log "Finalizing docker image"
-
-# go to the minion and save the machine
+doil_send_status "Finalizing docker image"
 cd ${FOLDERPATH}
-DCFOLDER=${PWD##*/}
-DCHASH=$(doil_get_hash ${DCFOLDER})
-docker commit ${NAME} doil/${NAME}:stable
+docker commit ${NAME}_${SUFFIX} doil/${NAME}_${SUFFIX}:stable > /dev/null
+doil_send_okay
 
 # stop the server
-doil down ${NAME}
+doil down ${NAME} ${FLAG} --quiet
 
 if [[ ${SKIP_README} != TRUE ]]
 then
   ###########################
   # Copying readme to project
-  doil_send_log "Copying readme to project"
+  doil_send_status "Copying readme to project"
 
-  cp "/usr/local/lib/doil/tpl/minion/README.md" "${FOLDERPATH}/README.md"
+  cp "/usr/local/share/doil/templates/minion/README.md" "${FOLDERPATH}/README.md"
   if [ ${HOST} == "linux" ]; then
     sed -i "s/%TPL_PROJECT_NAME%/${NAME}/g" "${FOLDERPATH}/README.md"
     sed -i "s/%GRAIN_MYSQL_PASSWORD%/${GRAIN_MYSQL_PASSWORD}/g" "${FOLDERPATH}/README.md"
@@ -393,6 +483,8 @@ then
     sed -i "" "s/%TPL_PROJECT_NAME%/${NAME}/g" "${FOLDERPATH}/README.md"
     sed -i "" "s/%GRAIN_MYSQL_PASSWORD%/${GRAIN_MYSQL_PASSWORD}/g" "${FOLDERPATH}/README.md"
   fi
+
+  doil_send_okay
 fi
 
 #################

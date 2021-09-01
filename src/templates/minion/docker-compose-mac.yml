@@ -4,14 +4,13 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    image: doil/%TPL_PROJECT_NAME%:stable
-    container_name: %TPL_PROJECT_NAME%
+    image: doil/%TPL_PROJECT_NAME%_%TPL_PROJECT_DOMAINNAME%:stable
+    container_name: %TPL_PROJECT_NAME%_%TPL_PROJECT_DOMAINNAME%
     hostname: %TPL_PROJECT_NAME%
-    domainname: local
+    domainname: %TPL_PROJECT_DOMAINNAME%
+    ports:
+      - "80:80"
     volumes:
-      - ./volumes/etc/apache2:/etc/apache2
-      - ./volumes/etc/php:/etc/php
-      - ./volumes/etc/mysql:/etc/mysql
       - ./volumes/ilias:/var/www/html
       - ./volumes/data:/var/ilias/data
       - ./volumes/db/:/var/lib/mysql
