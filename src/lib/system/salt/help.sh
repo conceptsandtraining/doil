@@ -44,6 +44,7 @@ COMMANDS
   start   starts the salt main server
   stop    stops the salt main server
   restart restarts the salt main server
+  states  lists the current available states
 
 OPTIONS
   -q|--quiet no output will be displayed
