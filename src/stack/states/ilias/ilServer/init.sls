@@ -19,7 +19,7 @@ javaport_grain:
     - context:
       port: 11111
       path: /var/www/html
-      clientid: ilias6
+      clientid: ilias
       ip: salt['grains.get']('ip_interfaces')['eth0'][0]
       
 /etc/supervisor/conf.d/ilServer.conf:
