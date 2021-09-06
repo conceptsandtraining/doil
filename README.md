@@ -27,8 +27,24 @@ However **doil** needs [Docker](https://www.docker.com/) in order to work:
 
 * docker version >= 19.03
 * docker-compose version >= 1.25.0
+* zip
 
 ## Usage
+
+### Quick Start
+
+After you installed doil the basic system is ready to go. To get an instance of
+ILIAS running you simply need to do following steps:
+
+1. Head to a folder where you want to store your project. Usually `~/Projects`
+1. Enter following command: `doil create -n ilias -gr ilias -b release_7 -p 7.4`
+
+Don't worry, this will take a while. It creates and instance of ILIAS named `ilias`
+in your location from the repository `ilias` (see `doil repo:list`) with the known
+branch `release_7` and the PHP version `7.4`.
+
+After this job is finished you can start your instance with `doil up ilias` and head
+to `http://doil/ilias/` to see your fresh ILIAS installation.
 
 ### Help
 
@@ -178,6 +194,7 @@ users, so make sure to understand what you are doing.
 * `doil system:proxy stop` stops the proxy server
 * `doil system:proxy restart` restarts the proxy server
 * `doil system:proxy reload` reloads the configuration
+* `doil system:proxy host <host>` changes the default host
 
 See `doil system:proxy --help` for more information
 
