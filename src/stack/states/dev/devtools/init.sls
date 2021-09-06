@@ -6,6 +6,28 @@ devtools_packages:
       - curl
       - imagemagick
       - ghostscript
+      - npm
+
+# Install lessc
+/root/install-lessc.sh:
+  file.managed:
+    - source: salt://devtools/install-lessc.sh
+    - user: root
+    - group: root
+    - mode: 740
+
+install-lessc:
+  cmd.run:
+    - cwd: /root/
+    - name: ./install-lessc.sh
+
+# Install githook
+/var/www/html/.git/hooks/post-merge:
+  file.managed:
+    - source: salt://devtools/githook-post-merge
+    - user: www-data
+    - group: www-data
+    - mode: 744
 
 ### Implement Adminer
 # adminer-4.8.0-mysql-en.php
