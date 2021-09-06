@@ -399,6 +399,7 @@ doil_send_okay
 # set grains
 doil_send_status "Setting up instance configuration"
 GRAIN_MYSQL_PASSWORD=$(tr -dc A-Za-z0-9 </dev/urandom | head -c 13 ; echo '')
+GRAIN_CRON_PASSWORD=$(tr -dc A-Za-z0-9 </dev/urandom | head -c 13 ; echo '')
 docker exec -ti saltmain bash -c "salt '${NAME}.${SUFFIX}' grains.set 'mysql_password' ${GRAIN_MYSQL_PASSWORD} --out=quiet"
 docker exec -ti saltmain bash -c "salt '${NAME}.${SUFFIX}' grains.set 'doil_domain' http://${DOIL_HOST}/${NAME} --out=quiet"
 docker exec -ti saltmain bash -c "salt '${NAME}.${SUFFIX}' grains.set 'doil_project_name' ${NAME} --out=quiet"
@@ -482,9 +483,11 @@ then
   if [ ${HOST} == "linux" ]; then
     sed -i "s/%TPL_PROJECT_NAME%/${NAME}/g" "${FOLDERPATH}/README.md"
     sed -i "s/%GRAIN_MYSQL_PASSWORD%/${GRAIN_MYSQL_PASSWORD}/g" "${FOLDERPATH}/README.md"
+    sed -i "s/%GRAIN_CRON_PASSWORD%/${GRAIN_CRON_PASSWORD}/g" "${FOLDERPATH}/README.md"
   elif [ ${HOST} == "mac" ]; then
     sed -i "" "s/%TPL_PROJECT_NAME%/${NAME}/g" "${FOLDERPATH}/README.md"
     sed -i "" "s/%GRAIN_MYSQL_PASSWORD%/${GRAIN_MYSQL_PASSWORD}/g" "${FOLDERPATH}/README.md"
+    sed -i "" "s/%GRAIN_CRON_PASSWORD%/${GRAIN_CRON_PASSWORD}/g" "${FOLDERPATH}/README.md"
   fi
 
   doil_send_okay

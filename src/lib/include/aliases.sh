@@ -102,3 +102,10 @@ then
   doil instances:apply $@
   exit
 fi
+
+if [ $1 == "ps" ]
+then
+  shift
+  doil instances:processstatus
+  exit
+fi

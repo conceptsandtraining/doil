@@ -23,29 +23,28 @@
 #    ,' | /  ;'
 #   (,,/ (,,/      Thanks to Concepts and Training for supporting doil
 
-cat <<-EOF
-NAME
-  doil system:salt - manages the saltstack
+# we can move the pointer one position
+shift
 
-SYNOPSIS
-  doil system:salt [command]
+# check if command is just plain help
+# if we don't have any command we load the help
+while [[ $# -gt 0 ]]
+	do
+	key="$1"
 
-DESCRIPTION
-  This section helps to manage the saltstack. You can use some commands
-  to troubleshoot and debug if you encounter problems with the main
-  salt server.
+	case $key in
+    -h|--help|help)
+      eval "/usr/local/lib/doil/lib/instances/processstatus/help.sh"
+      exit
+      ;;
+    *)    # unknown option
+      echo -e "\033[1mERROR:\033[0m"
+      echo -e "\tUnknown parameter!"
+      echo -e "\tUse \033[1mdoil instances:processstatus --help\033[0m for more information"
+      exit 255
+      ;;
+	esac
+done
 
-EXAMPLE:
-  doil system:salt login
-
-COMMANDS
-  login   logs the user into the main salt server
-  prune   prunes the main salt server
-  start   starts the salt main server
-  stop    stops the salt main server
-  restart restarts the salt main server
-  states  lists the current available states
-
-OPTIONS
-  -q|--quiet no output will be displayed
-EOF
+echo "Currently running instances:"
+docker ps | grep doil
