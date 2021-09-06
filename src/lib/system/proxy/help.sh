@@ -45,6 +45,7 @@ COMMANDS
   stop    stops the proxy server
   restart restarts the proxy server
   reload  reloads the configuration
+  host    changes the host of the doil system. Needs sudo priviledges.
 
 OPTIONS
   -q|--quiet no output will be displayed
