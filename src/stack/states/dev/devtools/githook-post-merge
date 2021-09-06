@@ -1,5 +1,5 @@
 #!/bin/sh
-composer install --no-dev
+composer install
 
 SKIN_PATH="./Customizing/global/skin/custom"
 
