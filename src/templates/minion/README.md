@@ -45,7 +45,7 @@ Passwort: homer
 ```
 
 For the ILIAS user "cron" following password has been generated. Be sure that the user
-has been added to your system.
+has been added to your system. The user "cron" also needs admin priviledges.
 
 ```
 %GRAIN_CRON_PASSWORD%
