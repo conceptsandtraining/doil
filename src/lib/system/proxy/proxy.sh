@@ -37,7 +37,7 @@ while [[ $# -gt 0 ]]
   key="$1"
 
   case $key in
-    login|prune|start|stop|restart|reload)
+    login|prune|start|stop|restart|reload|host)
       COMMAND="$key"
       shift
       ;;
@@ -50,10 +50,8 @@ while [[ $# -gt 0 ]]
       exit
       ;;
     *)    # unknown option
-      echo -e "\033[1mERROR:\033[0m"
-      echo -e "\tUnknown parameter!"
-      echo -e "\tUse \033[1mdoil system:proxy --help\033[0m for more information"
-      exit 255
+      HOST=${1}
+      shift
       ;;
   esac
 done
@@ -142,4 +140,31 @@ then
   docker exec -ti doil_proxy bash -c "/etc/init.d/nginx reload"
 
   doil_send_log "proxy server reloaded"
+fi
+
+# host
+if [[ ${COMMAND} == "host" ]]
+then
+  # sudo user check
+  if [ "$EUID" -ne 0 ]
+  then
+    echo -e "\033[1mREQUIREMENT ERROR:\033[0m"
+    echo -e "\tPlease execute this script as sudo user!"
+    exit
+  fi
+  
+  doil_send_status "Changing host to ${HOST}"
+
+  # doil conf
+  CHANGE=$(sed -i "/host=/s/.*/host=${HOST}/" /etc/doil/doil.conf)
+
+  # proxy conf
+  CHANGE=$(sed -i "/server_name/s/.*/    server_name ${HOST};/" /usr/local/lib/doil/server/proxy/conf/local.conf)
+
+  # host conf
+  CHANGE=$(sed -i "/172.24.0.254/s/.*/172.24.0.254 ${HOST};/" /etc/hosts)
+
+  doil system:proxy restart --quiet
+
+  doil_send_okay
 fi

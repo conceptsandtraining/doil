@@ -252,6 +252,9 @@ then
 fi
 FOLDERPATH="${TARGET}/${NAME}"
 
+# config
+DOIL_HOST=$(doil_get_conf host)
+
 doil_send_log "Start creating project ${NAME}"
 
 # update debian
@@ -398,8 +401,7 @@ doil_send_status "Setting up instance configuration"
 GRAIN_MYSQL_PASSWORD=$(tr -dc A-Za-z0-9 </dev/urandom | head -c 13 ; echo '')
 GRAIN_CRON_PASSWORD=$(tr -dc A-Za-z0-9 </dev/urandom | head -c 13 ; echo '')
 docker exec -ti saltmain bash -c "salt '${NAME}.${SUFFIX}' grains.set 'mysql_password' ${GRAIN_MYSQL_PASSWORD} --out=quiet"
-docker exec -ti saltmain bash -c "salt '${NAME}.${SUFFIX}' grains.set 'cron_password' ${GRAIN_CRON_PASSWORD} --out=quiet"
-docker exec -ti saltmain bash -c "salt '${NAME}.${SUFFIX}' grains.set 'doil_domain' http://doil/${NAME} --out=quiet"
+docker exec -ti saltmain bash -c "salt '${NAME}.${SUFFIX}' grains.set 'doil_domain' http://${DOIL_HOST}/${NAME} --out=quiet"
 docker exec -ti saltmain bash -c "salt '${NAME}.${SUFFIX}' grains.set 'doil_project_name' ${NAME} --out=quiet"
 sleep 5
 doil_send_okay
