@@ -8,20 +8,10 @@
 # Copyright (C) 2020 - 2021 Laura Herzog (laura.herzog@concepts-and-training.de)
 # Permission to copy and modify is granted under the AGPL license
 #
-# Contribute: https://github.com/conceptsandtraining/ilias-tool-doil
+# Contribute: https://github.com/conceptsandtraining/doil
 #
-#                    .-.
-#                   / /
-#                  / |
-#    |\     ._ ,-""  `.
-#    | |,,_/  7        ;
-#  `;=     ,=(     ,  /
-#   |`q  q  ` |    \_,|
-#  .=; <> _ ; /  ,/'/ |
-# ';|\,j_ \;=\ ,/   `-'
-#     `--'_|\  )
-#    ,' | /  ;'
-#   (,,/ (,,/      Thanks to Concepts and Training for supporting doil
+# /ᐠ｡‸｡ᐟ\
+# Thanks to Concepts and Training for supporting doil
 
 cat <<-EOF
 NAME
@@ -41,6 +31,7 @@ EXAMPLE:
   doil instances:apply ilias composer
 
 OPTIONS
-  -h|--help  displays this help message
-  -q|--quiet no output will be displayed
+  -g|--global determines if an instance is global or not 
+  -h|--help   displays this help message
+  -q|--quiet  no output will be displayed
 EOF

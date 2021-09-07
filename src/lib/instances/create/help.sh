@@ -8,20 +8,10 @@
 # Copyright (C) 2020 - 2021 Laura Herzog (laura.herzog@concepts-and-training.de)
 # Permission to copy and modify is granted under the AGPL license
 #
-# Contribute: https://github.com/conceptsandtraining/ilias-tool-doil
+# Contribute: https://github.com/conceptsandtraining/doil
 #
-#                    .-.
-#                   / /
-#                  / |
-#    |\     ._ ,-""  `.
-#    | |,,_/  7        ;
-#  `;=     ,=(     ,  /
-#   |`q  q  ` |    \_,|
-#  .=; <> _ ; /  ,/'/ |
-# ';|\,j_ \;=\ ,/   `-'
-#     `--'_|\  )
-#    ,' | /  ;'
-#   (,,/ (,,/      Thanks to Concepts and Training for supporting doil
+# /ᐠ｡‸｡ᐟ\
+# Thanks to Concepts and Training for supporting doil
 
 cat <<-EOF
 NAME
@@ -51,13 +41,15 @@ EXAMPLE:
     --phpversion 7.3
 
 OPTIONS
-  -n|--name       sets the name of the instance
-  -r|--repo       sets the repository to use
-  -b|--branch     sets the branch to use
-  -p|--phpversion sets the php version
-  -t|--target     optional: sets the target destination for the instance.
-                  If the folder does not exist, it will be created
-  --skip-readme   Doesn't create the readme.md file
-  -h|--help       displays this help message
-  -q|--quiet      no output will be displayed
+  -n|--name         sets the name of the instance
+  -r|--repo         sets the repository to use
+  -gr|--global-repo sets the global repository to use
+  -b|--branch       sets the branch to use
+  -p|--phpversion   sets the php version
+  -g|--global       determines if an instance is global or not
+  -t|--target       optional: sets the target destination for the instance.
+                    If the folder does not exist, it will be created
+  --skip-readme     Doesn't create the readme.md file
+  -h|--help         displays this help message
+  -q|--quiet        no output will be displayed
 EOF

@@ -68,6 +68,7 @@ The following commands are available:
 * `doil down` stops an instance to free the ressources it needs
 * `doil rm` deletes an instance you do not need anymore
 * `doil apply` applys a certain state to the instance
+* `doil ps` lists the current running doil instances
 
 See `doil instances --help` for more information
 
@@ -84,10 +85,57 @@ other repositories:
   it if it is already downloaded
 * `doil instances:create --repo REPO_NAME` will use the repo to create a new
    instance
-* `doil repo:remove` - removes a repository
+* `doil repo:delete` - removes a repository
 * `doil repo:list` - lists currently registered repositories
 
 See `doil repo --help` for more information
+
+### Global User Support
+
+If you are running `doil` on a system with multiple users you can manage your
+repositories and instances globally for all user. For that we implemented several
+helper and flags.
+
+#### Adding user to doil
+
+The user who installed doil on the machine is already registered at doil. To add
+another user simply use `doil system:user add <username>`. You can manage the users
+with following commands:
+
+* `doil system:user add <username>` adds a user
+* `doil system:user delete <username>` deletes a user
+* `doil system:user list` lists the available users
+
+#### The `--global` flag
+
+Most commands in doil come with a `--global` flag. For instance if you created an
+ILIAS instance with `doil create --global` the instance will then be available to
+all registered users. You can start the instance with `doil up <instance> --global`.
+
+If you want to create an instance with a global repository you have to use the flag
+`-gr|--global-repo`, e.g, `doil create -gr ilias`
+
+Following commands come with the `--global` flag:
+
+**`doil instances`**
+* `doil instances:create`
+* `doil instances:up`
+* `doil instances:down`
+* `doil instances:delete`
+* `doil instances:apply`
+* `doil instances:cd`
+* `doil instances:login`
+
+**`doil repo`**
+* `doil repo:add`
+* `doil repo:delete`
+* `doil repo:update`
+
+**doil pack**
+* `doil pack:import`
+* `doil pack:export`
+
+You can also create global instances with private repositories and vice versa.
 
 ### Pack
 
@@ -178,6 +226,7 @@ users, so make sure to understand what you are doing.
 * `doil system:salt start` starts the salt main server
 * `doil system:salt stop` stops the salt main server
 * `doil system:salt restart` restarts the salt main server
+* `doil system:salt states` to list the available states
 
 See `doil system:salt --help` for more information
 
