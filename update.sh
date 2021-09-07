@@ -96,10 +96,13 @@ case "$(uname -s)" in
     ;;
 esac
 
+# color support
+GREEN='\033[0;32m'
+NC='\033[0m'
+
 ################################
 # Removing old version if needed
-NOW=$(date +'%d.%m.%Y %I:%M:%S')
-echo "[${NOW}] Removing old version"
+echo -n "Removing old version ..."
 
 if [ -f "/usr/local/bin/doil" ]
 then
@@ -110,49 +113,128 @@ then
   rm -rf /usr/local/lib/doil/lib
 fi
 
-#########################
-# Copying the doil system
-NOW=$(date +'%d.%m.%Y %I:%M:%S')
-echo "[${NOW}] Copying the doil system"
+printf " ${GREEN}ok${NC}\n"
 
-# Move the base script to the /usr/local/bin folder and make it executeable
+echo -n "Adding group doil ..."
+
+groupadd doil
+
+printf " ${GREEN}ok${NC}\n"
+
+# create the log file
+echo -n "Creating log file in /var/log/doil.log ..."
+
+touch /var/log/doil.log
+chown root:doil /var/log/doil.log
+chmod 777 /var/log/doil.log
+
+printf " ${GREEN}ok${NC}\n"
+
+# create mandatory folders
+echo -n "Creating mandatory folders ..."
+
+mkdir /usr/local/lib/doil
+mkdir /usr/local/lib/doil/lib
+mkdir /usr/local/lib/doil/server
+chown -R root:doil /usr/local/lib/doil
+
+mkdir /etc/doil/
+chown -R root:doil /etc/doil
+chmod -R g+w /etc/doil
+chmod -R g+s /etc/doil
+
+mkdir /usr/local/share/doil
+mkdir /usr/local/share/doil/templates
+mkdir /usr/local/share/doil/stack
+mkdir /usr/local/share/doil/instances
+mkdir /usr/local/share/doil/repositories
+chown -R root:doil /usr/local/share/doil
+chmod -R g+w /usr/local/share/doil/repositories
+chmod -R g+w /usr/local/share/doil/instances
+chmod -R g+s /usr/local/share/doil/repositories
+chmod -R g+s /usr/local/share/doil/instances
+
+printf " ${GREEN}ok${NC}\n"
+
+# copy doil system
+echo -n "Copy doil system ..."
+
 cp src/doil.sh /usr/local/bin/doil
-chmod a+x /usr/local/bin/doil
+chown root:doil /usr/local/bin/doil
+chmod +x /usr/local/bin/doil
 
-# Move the script library to /usr/local/lib/doil
-if [ ! -d "/usr/local/lib/doil" ]
-then
-  mkdir /usr/local/lib/doil
-fi
+cp -r src/lib/* /usr/local/lib/doil/lib/
+chown -R root:doil /usr/local/lib/doil/lib
+chmod -R +x /usr/local/lib/doil/lib
 
-# copy the files
-cp -r src/lib /usr/local/lib/doil/lib
-chmod -R a+x /usr/local/lib/doil/lib
+cp -r src/server/* /usr/local/lib/doil/server/
+chown -R root:doil /usr/local/lib/doil/server
+chmod -R g+w /usr/local/lib/doil/server/proxy/conf/sites
+chmod -R g+s /usr/local/lib/doil/server/proxy/conf/sites
 
-rm -rf /usr/local/lib/doil/tpl/main
-cp -r src/tpl/main /usr/local/lib/doil/tpl/main
+cp -r src/templates/* /usr/local/share/doil/templates
+chown root:doil /usr/local/share/doil/templates
 
-rm -rf /usr/local/lib/doil/tpl/minion
-cp -r src/tpl/minion /usr/local/lib/doil/tpl/minion
+cp -r src/stack/* /usr/local/share/doil/stack
+chown -R root:doil /usr/local/share/doil/stack
 
-rm -rf /usr/local/lib/doil/tpl/proxy
-cp -r src/tpl/proxy /usr/local/lib/doil/tpl/proxy
-mkdir -p /usr/local/lib/doil/tpl/proxy/conf
+printf " ${GREEN}ok${NC}\n"
 
-chown -R ${SUDO_USER}:${SODU_USER} /usr/local/lib/doil
+# setting up basic configuration
+echo -n "Setting up basic configuration ..."
 
-rm -rf /usr/local/lib/doil/tpl/stack
-cp -r src/tpl/stack /usr/local/lib/doil/tpl/stack
+cp src/conf/doil.conf /etc/doil/doil.conf
+touch /etc/doil/repositories.conf
+chown -R root:doil /etc/doil/
+chmod g+w /etc/doil/repositories.conf
+touch /etc/doil/user.conf
 
-doil system:salt restart
-doil system:proxy restart
+echo "ilias=git@github.com:ILIAS-eLearning/ILIAS.git" > "/etc/doil/repositories.conf"
 
-# send IP to hosts
 IPEXIST=$(grep "172.24.0.254" /etc/hosts)
 if [[ -z ${IPEXIST} ]]
 then
   echo "172.24.0.254 doil" >> "/etc/hosts"
 fi
+
+printf " ${GREEN}ok${NC}\n"
+
+echo -n "Move userdata ..."
+
+HOME=$(eval echo "~${SUDO_USER}")
+mv ${HOME}/.doil/config/repos ${HOME}/.doil/config/repositories.conf
+
+mkdir ${HOME}/.doil/repositories
+mv /usr/local/lib/doil/tpl/repos ${HOME}/.doil/repositories
+
+mkdir ${HOME}/.doil/instances
+for LINK in $(ls ${HOME}/.doil)
+do
+  if [[ ${LINK} == "config" ]]
+  then
+    continue
+  fi
+  mv ${LINK} ${HOME}/.doil/instances/${LINK}
+done
+
+chown -R ${SUDO_USER}:${SODU_USER} "${HOME}/.doil"
+usermod -a -G doil ${SUDO_USER}
+echo "${SUDO_USER}">>"/etc/doil/user.conf"
+
+printf " ${GREEN}ok${NC}\n"
+
+echo -n "Cleanup ..."
+
+rm -rf /usr/local/lib/doil/tpl/
+
+printf " ${GREEN}ok${NC}\n"
+
+echo -n "Restarting server ..."
+
+doil system:proxy restart --quiet
+doil system:salt restart --quiet
+
+printf " ${GREEN}ok${NC}\n"
 
 #################
 # Everything done
