@@ -31,7 +31,11 @@ SYNOPSIS
   doil pack:<command>
 
 DESCRIPTION
-  
+  doil pack exports and imports instances which are created with doil.
+  With doil pack:export you receive a .zip-file with all the important
+  data needed to import that package into an existing or new instance
+  of ILIAS. See doil pack:import --help and doil pack:export --help
+  for more information.
 
 EXAMPLE:
   doil pack:export ilias

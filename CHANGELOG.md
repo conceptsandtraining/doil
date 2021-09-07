@@ -1,5 +1,17 @@
 # Changelog
 
+## 1.4
+
+* Implemented globla user support
+* Added `doil system:proxy host` to change the internal host
+* Added `doil instances:processstatus` with `doil ps` as alias
+* Added `doil system:user` as user managment
+* Added `doil system:salt states` to list the available states
+* Implemented lessc in container
+* Fixed several states for debian 11
+* Fixed Java-Server
+* Fixed Cron-Server
+
 ## 1.3
 
 * implemented the dotfiles .bashrc, .vimrc, and .gitconfig for more

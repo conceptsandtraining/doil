@@ -42,6 +42,7 @@ EXAMPLE:
   doil instances:down ilias
 
 OPTIONS
-  -h|--help  displays this help message
-  -q|--quiet no output will be displayed
+  -g|--global determines if an instance is global or not
+  -h|--help   displays this help message
+  -q|--quiet  no output will be displayed
 EOF

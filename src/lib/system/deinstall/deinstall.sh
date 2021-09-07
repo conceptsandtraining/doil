@@ -23,6 +23,10 @@
 #    ,' | /  ;'
 #   (,,/ (,,/      Thanks to Concepts and Training for supporting doil
 
+# get the helper
+source /usr/local/lib/doil/lib/include/env.sh
+source /usr/local/lib/doil/lib/include/helper.sh
+
 # we can move the pointer one position
 shift
 
@@ -58,14 +62,40 @@ fi
 read -p "Please confirm that you want to deinstall doil [yN]: " CONFIRM
 if [[ ${CONFIRM} == "y" ]]
 then
-  if [ -f "/usr/local/bin/doil" ]
-  then
-    rm /usr/local/bin/doil
-  fi
-  if [ -d "/usr/local/lib/doil" ]
-  then
-    rm -rf /usr/local/lib/doil
-  fi
+
+  doil_send_status "Removing proxy server"
+  doil system:proxy stop --quiet
+  docker image rm doil_proxy > /dev/null
+  docker volume rm proxy_persistent > /dev/null
+  doil_send_okay
+
+  doil_send_status "Removing salt server"
+  doil system:salt stop --quiet
+  docker image rm saltmain > /dev/null
+  docker volume rm salt_persistent > /dev/null
+  doil_send_okay
+
+  doil_send_status "Deleting registered users"
+  for THEUSER in cat /etc/doil/user.conf
+  do
+    doil system:user delete ${THEUSER} --quiet
+  done
+  doil_send_okay
+
+  doil_send_status "Deleting group doil"
+  groupdel doil
+  doil_send_okay
+
+  doil_send_status "Deleting log"
   rm -rf /var/log/doil.log
-  rm -rf "${HOME}/.doil"
+  doil_send_okay
+
+  doil_send_status "Removing doil"
+  rm -rf /etc/doil/
+  rm -rf /usr/local/lib/doil
+  rm -rf /usr/local/share/doil
+  rm -rf /usr/local/bin/doil
+  doil_send_okay
+
+  echo "Doil successfully deleted"
 fi

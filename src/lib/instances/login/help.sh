@@ -43,5 +43,6 @@ EXAMPLE:
   doil instances:login ilias
 
 OPTIONS
-  -h|--help       displays this help message
+  -g|--global determines if an instance is global or not
+  -h|--help   displays this help message
 EOF

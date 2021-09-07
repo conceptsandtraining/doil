@@ -39,6 +39,7 @@ EXAMPLE:
   doil pack:export ilias
 
 OPTIONS
-  -h|--help  displays this help message
-  -q|--quiet no output will be displayed
+  -g|--global determines if the instance is global or not
+  -h|--help   displays this help message
+  -q|--quiet  no output will be displayed
 EOF
