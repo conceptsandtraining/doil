@@ -8,20 +8,10 @@
 # Copyright (C) 2020 - 2021 Laura Herzog (laura.herzog@concepts-and-training.de)
 # Permission to copy and modify is granted under the AGPL license
 #
-# Contribute: https://github.com/conceptsandtraining/ilias-tool-doil
+# Contribute: https://github.com/conceptsandtraining/doil
 #
-#                    .-.
-#                   / /
-#                  / |
-#    |\     ._ ,-""  `.
-#    | |,,_/  7        ;
-#  `;=     ,=(     ,  /
-#   |`q  q  ` |    \_,|
-#  .=; <> _ ; /  ,/'/ |
-# ';|\,j_ \;=\ ,/   `-'
-#     `--'_|\  )
-#    ,' | /  ;'
-#   (,,/ (,,/      Thanks to Concepts and Training for supporting doil
+# /ᐠ｡‸｡ᐟ\
+# Thanks to Concepts and Training for supporting doil
 
 # set the host
 case "$(uname -s)" in
