@@ -5,7 +5,7 @@ SKIN_PATH="./Customizing/global/skin/custom"
 
 echo "Compile css with lessc "
 
-TEMPLATES=$(grep "style" ${SKIN_PATH}/template.xml | cut -d\ -f4 | tr -d '"')
+TEMPLATES=$(grep "style" ${SKIN_PATH}/template.xml | cut -d\  -f4 | tr -d '"')
 for TEMPLATE in ${TEMPLATES};
 do
 	echo ${TEMPLATE}
