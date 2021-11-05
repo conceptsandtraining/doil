@@ -109,7 +109,7 @@ then
     doil system:proxy reload --quiet
 
     # remove docker image
-    docker volume rm ${INSTANCE}_${SUFFIX}_persistent
+    docker volume rm ${INSTANCE}_persistent
     docker rmi $(docker images "doil/${INSTANCE}_${SUFFIX}" -a -q)
 
     doil_send_log "Instance deleted"

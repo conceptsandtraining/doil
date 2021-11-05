@@ -157,11 +157,17 @@ want to add a rotation to this logfile.
 
 * **doil** was developed and tested on debian and ubuntu systems. It might run
   on other linux based platforms but there is no guarantee
+
+### doil on MacOS
+
 * due to network restrictions on MacOS **doil** can only operate run one instance
   at once. Though it's possible to create as many environments as you want
-* **doil** works on Windows with the WSL enabled. We are aware that there might
-  be a bug with routing the traffic from WSL to the browser. If you can find a
-  solution for this, let us know
+
+### doil on Windiws
+
+* **doil** works on Windows with the WSL enabled. Due to network restrictions you
+  need to change the host to `localhost` via the doil proxy settings:
+  `doil system:proxy host localhost`
 
 ## Known Problems
 
