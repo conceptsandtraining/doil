@@ -149,10 +149,7 @@ chmod -R +x /usr/local/lib/doil/lib
 
 cp -r src/server/* /usr/local/lib/doil/server/
 chown -R root:doil /usr/local/lib/doil/server
-chmod -R g+w /usr/local/lib/doil/server/proxy/conf
-chmod -R g+s /usr/local/lib/doil/server/proxy/conf
-chmod -R g+w /usr/local/lib/doil/server/proxy/conf/sites
-chmod -R g+s /usr/local/lib/doil/server/proxy/conf/sites
+chmod -R 777 /usr/local/lib/doil/server/proxy/conf/
 
 cp -r src/templates/* /usr/local/share/doil/templates
 chown root:doil /usr/local/share/doil/templates

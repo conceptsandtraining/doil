@@ -94,7 +94,22 @@ sleep 5
 
 # copy database
 doil_send_log "Exporting database. Enter password of database."
-docker exec -ti ${INSTANCE}_${SUFFIX} bash -c "mysqldump ilias -u ilias -p > /var/ilias/ilias.sql"
+
+TARGET=$(readlink ${LINKPATH})
+if [[ -f "${TARGET}/README.md" ]]
+then
+  SQLPW=$(cat "${TARGET}/README.md" | grep MYSQL_PASSWORD | cut -d\   -f2)
+else
+  echo "Please enter your MySQL password: "
+  read -s SQLPW
+  echo "Ok"
+fi
+
+touch ${TARGET}/volumes/data/mysql-client.conf
+echo "[client]" > ${TARGET}/volumes/data/mysql-client.conf
+echo "user=ilias" >> ${TARGET}/volumes/data/mysql-client.conf
+echo "password=${SQLPW}" >> ${TARGET}/volumes/data/mysql-client.conf
+docker exec -ti ${INSTANCE}_${SUFFIX} bash -c "mysqldump --defaults-extra-file=/var/ilias/data/mysql-client.conf ilias > /var/ilias/ilias.sql"
 
 # make a local directory where we are
 if [[ -d "${INSTANCE}-doilpack" ]]
@@ -114,18 +129,18 @@ docker cp ${INSTANCE}_${SUFFIX}:/var/www/html/ilias.ini.php ${INSTANCE}-doilpack
 
 # export conf
 doil_send_log "Export config"
-TARGET=$(readlink ${LINKPATH})
 cp -r "${TARGET}/conf/doil.conf" "${INSTANCE}-doilpack/conf/doil.conf"
 
 # pack
-doil_send_log "Packing data. Enter a password for the archive file"
+doil_send_log "Packing data."
 if [[ -f "${INSTANCE}-doilpack.zip" ]]
 then
   rm "${INSTANCE}-doilpack.zip"
 fi
-zip -r -e "${INSTANCE}-doilpack.zip" "${INSTANCE}-doilpack"
+zip -r "${INSTANCE}-doilpack.zip" "${INSTANCE}-doilpack"
 
 # cleanup
 rm -rf "${INSTANCE}-doilpack"
+doil down ${INSTANCE} --quiet ${FLAG}
 
 doil_send_log "Done"

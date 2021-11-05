@@ -1,5 +1,14 @@
 # Changelog
 
+## 1.4.2
+
+* Added compatibility to Windows and WSL with ubuntu
+* Implemented improvements to `doil pack`
+
+## 1.4.1
+
+* Fixed small issues with permissions
+
 ## 1.4
 
 * Implemented globla user support

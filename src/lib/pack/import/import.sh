@@ -175,14 +175,19 @@ sleep 5
 doil_send_log "Importing database"
 
 # import database
-echo "Please enter your MySQL password: "
-read -s SQLPW
-echo "Ok"
+if [[ -f "${TARGET}/README.md" ]]
+then
+  SQLPW=$(cat "${TARGET}/README.md" | grep MYSQL_PASSWORD | cut -d\   -f2)
+else
+  echo "Please enter your MySQL password: "
+  read -s SQLPW
+  echo "Ok"
+fi
 
 touch ${TARGET}/volumes/data/mysql-client.conf
 echo "[client]" > ${TARGET}/volumes/data/mysql-client.conf
 echo "user=ilias" >> ${TARGET}/volumes/data/mysql-client.conf
-echo "password=${SQLPW}"  >> ${TARGET}/volumes/data/mysql-client.conf
+echo "password=${SQLPW}" >> ${TARGET}/volumes/data/mysql-client.conf
 
 docker exec -ti ${INSTANCE}_${SUFFIX} bash -c 'mysql --defaults-extra-file=/var/ilias/data/mysql-client.conf -e "DROP DATABASE IF EXISTS ilias;"'
 docker exec -ti ${INSTANCE}_${SUFFIX} bash -c 'mysql --defaults-extra-file=/var/ilias/data/mysql-client.conf -e "CREATE DATABASE ilias;"'

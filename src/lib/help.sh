@@ -35,4 +35,5 @@ SECTIONS
   instances manages everything regarding to the instances
   repo      manages the repositories
   system    everything which affects the doil system itself
+  pack      exports and imports ILIAS instances created with doil
 EOF
