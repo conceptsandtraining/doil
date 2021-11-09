@@ -13,4 +13,4 @@
 # /ᐠ｡‸｡ᐟ\
 # Thanks to Concepts and Training for supporting doil
 
-echo "doil version 1.4.2 - build 2021-10-07"
+echo "doil version 1.4.3 - build 2021-11-09"
