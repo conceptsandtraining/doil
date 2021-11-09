@@ -36,9 +36,6 @@ services:
     networks:
       - doil_proxy
       - salt_saltnet
-    ports:
-      - "80:80"
-      - "443:443"
 networks:
   doil_proxy:
     external: true
