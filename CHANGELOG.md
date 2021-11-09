@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.4.3
+
+* Fixed problem with binding adresses
+
 ## 1.4.2
 
 * Added compatibility to Windows and WSL with ubuntu
