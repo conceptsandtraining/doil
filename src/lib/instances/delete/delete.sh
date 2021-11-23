@@ -35,6 +35,10 @@ while [[ $# -gt 0 ]]
       QUIET=TRUE
       shift
       ;;
+    -y|--yes)
+      CONFIRM="y"
+      shift
+      ;;
     -g|--global)
       GLOBAL=TRUE
       shift # past argument
@@ -56,7 +60,11 @@ fi
 if [ -h "${LINKNAME}" ]
 then
 
-  read -p "Please confirm that you want to delete ${INSTANCE} [yN]: " CONFIRM
+  if [[ -z ${CONFIRM} ]]
+  then
+    read -p "Please confirm that you want to delete ${INSTANCE} [yN]: " CONFIRM
+  fi
+
   if [[ ${CONFIRM} == "y" ]]
   then
 
