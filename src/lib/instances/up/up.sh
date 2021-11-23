@@ -103,7 +103,7 @@ then
   docker exec -ti ${INSTANCE}_${SUFFIX} bash -c "salt-minion -d"
 
   # remove the current ip from the host file and add the new one
-  DCHASH=$(doil_get_hash $INSTANCE_$SUFFIX)
+  DCHASH=$(doil_get_hash ${INSTANCE}_${SUFFIX})
   DCIP=$(doil_get_data $DCHASH "ip")
 
   if [ -f "/usr/local/lib/doil/server/proxy/conf/sites/${INSTANCE}_${SUFFIX}.conf" ]

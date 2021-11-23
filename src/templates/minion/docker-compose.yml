@@ -9,22 +9,58 @@ services:
     hostname: %TPL_PROJECT_NAME%
     domainname: %TPL_PROJECT_DOMAINNAME%
     volumes:
-      - ./volumes/etc/apache2:/etc/apache2
-      - ./volumes/etc/php:/etc/php
-      - ./volumes/etc/mysql:/etc/mysql
-      - ./volumes/ilias:/var/www/html
-      - ./volumes/data:/var/ilias/data
-      - ./volumes/db/:/var/lib/mysql
-      - ./volumes/index:/var/ilias/index
-      - ./volumes/logs:/var/ilias/logs
-      - ./volumes/logs/error/:/var/ilias/logs/error
-      - ./volumes/logs/apache:/var/log/apache2
-      - ./conf/minion.cnf:/etc/salt/minion
-      - ./conf:/root/conf
-      - ~/.ssh/:/root/.ssh
-      - ~/.bashrc:/root/.bashrc
-      - ~/.vimrc:/root/.vimrc
-      - ~/.gitconfig:/root/.gitconfig
+#      - ./volumes/etc/apache2:/etc/apache2
+      - type: bind
+        source: ./volumes/etc/apache2
+        target: /etc/apache2
+      - type: bind
+        source: ./volumes/etc/php
+        target: /etc/php
+      - type: bind
+        source: ./volumes/etc/mysql
+        target: /etc/mysql
+      - type: bind
+        source: ./volumes/ilias
+        target: /var/www/html
+      - type: bind
+        source: ./volumes/data
+        target: /var/ilias/data
+      - type: bind
+        source: ./volumes/db/
+        target: /var/lib/mysql
+      - type: bind
+        source: ./volumes/index
+        target: /var/ilias/index
+      - type: bind
+        source: ./volumes/logs
+        target: /var/ilias/logs
+      - type: bind
+        source: ./volumes/logs/error/
+        target: /var/ilias/logs/error
+      - type: bind
+        source: ./volumes/logs/apache
+        target: /var/log/apache2
+      - type: bind
+        source: ./conf/minion.cnf
+        target: /etc/salt/minion
+#      - type: bind
+#        source: ./conf/salt/
+#        target: /var/lib/salt/pki/minion/
+      - type: bind
+        source: ./conf
+        target: /root/conf
+      - type: bind
+        source: ~/.ssh/
+        target: /root/.ssh
+      - type: bind
+        source: ~/.bashrc
+        target: /root/.bashrc
+      - type: bind
+        source: ~/.vimrc
+        target: /root/.vimrc
+      - type: bind
+        source: ~/.gitconfig
+        target: /root/.gitconfig
       - type: bind
         source: ./conf/salt-minion.conf
         target: /etc/supervisor/conf.d/salt-minion.conf
@@ -36,13 +72,8 @@ services:
     networks:
       - doil_proxy
       - salt_saltnet
-    ports:
-      - "80:80"
-      - "443:443"
 networks:
   doil_proxy:
     external: true
   salt_saltnet:
     external: true
-volumes:
-    persistent:

@@ -262,11 +262,15 @@ doil_send_okay
 doil_send_status "Create basic folders"
 
 mkdir -p "${FOLDERPATH}/conf"
+mkdir -p "${FOLDERPATH}/conf/salt"
 mkdir -p "${FOLDERPATH}/volumes/db"
 mkdir -p "${FOLDERPATH}/volumes/index"
 mkdir -p "${FOLDERPATH}/volumes/data"
 mkdir -p "${FOLDERPATH}/volumes/logs/error"
 mkdir -p "${FOLDERPATH}/volumes/logs/apache"
+mkdir -p "${FOLDERPATH}/volumes/etc/apache2"
+mkdir -p "${FOLDERPATH}/volumes/etc/php"
+mkdir -p "${FOLDERPATH}/volumes/etc/mysql"
 
 # set the link
 if [[ ${GLOBAL} == "TRUE" ]]
@@ -368,7 +372,21 @@ echo "Building minion image ..."
 
 # build the image
 cd ${FOLDERPATH}
-docker-compose up --force-recreate --no-start --renew-anon-volumes --quiet-pull > /dev/null
+docker build -t doil/${NAME}_${SUFFIX} .
+docker run -d --name ${NAME}_${SUFFIX} doil/${NAME}_${SUFFIX}
+
+# copy the config
+docker cp ${NAME}_${SUFFIX}:/etc/apache2 ./volumes/etc/
+docker cp ${NAME}_${SUFFIX}:/etc/php ./volumes/etc/
+docker cp ${NAME}_${SUFFIX}:/etc/mysql ./volumes/etc/
+docker cp ${NAME}_${SUFFIX}:/var/lib/mysql/ ./volumes/db/
+docker cp ${NAME}_${SUFFIX}:/var/log/apache2/ ./volumes/logs/
+
+# stop image
+docker stop ${NAME}_${SUFFIX}
+docker rm ${NAME}_${SUFFIX}
+
+# start container via docker-compose
 docker-compose up -d
 sleep 5
 
@@ -380,8 +398,10 @@ doil_send_status "Checking key"
 SALTKEYS=$(docker exec -t -i saltmain /bin/bash -c "salt-key -L" | grep "${NAME}.${SUFFIX}")
 until [[ ! -z ${SALTKEYS} ]]
 do
+  doil down ${NAME} ${FLAG} --quiet
+  doil up ${NAME} ${FLAG} --quiet
   sleep 5
-  SALTKEYS=$(docker exec -t -i saltmain /bin/bash -c "salt-key -L" | grep "${NAME}.${SUFFIX}")
+  SALTKEYS=$(docker exec -t -i saltmain /bin/bash -c "salt-key -L" | grep "${NAME}.${SUFFIX}")  
 done
 doil_send_okay
 

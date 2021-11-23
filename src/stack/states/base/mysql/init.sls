@@ -7,7 +7,6 @@ mysql_packages:
     - pkgs:
       - mariadb-server
       - supervisor
-      - python3-mysqldb
 
 /etc/mysql/mariadb.conf.d/50-server.cnf:
   file:
@@ -27,6 +26,22 @@ mysql_packages:
     - user: root
     - group: root
     - mode: 644
+
+/etc/mysql/:
+  file.directory:
+    - user: mysql
+    - group: mysql
+    - recurse:
+      - user
+      - group
+
+/var/lib/mysql/:
+  file.directory:
+    - user: mysql
+    - group: mysql
+    - recurse:
+      - user
+      - group
 
 mysql_supervisor_signal:
   supervisord.running:
