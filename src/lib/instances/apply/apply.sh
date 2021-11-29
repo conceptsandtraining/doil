@@ -141,7 +141,8 @@ do
 done
 doil_send_okay
 
-echo "salt '${INSTANCE}.${SUFFIX}' state.highstate saltenv=${STATE}"
-docker exec -ti saltmain bash -c "salt '${INSTANCE}.${SUFFIX}' state.highstate saltenv=${STATE}"
+#salt 'test16.local' test.ping
+#salt 'test16.local' state.highstate saltenv=base
+docker exec -i saltmain bash -c "salt '${INSTANCE}.${SUFFIX}' state.highstate saltenv=${STATE}"
 
 doil_send_log "Done"

@@ -169,8 +169,8 @@ sudo chown -R ${USER}:${USER} ${TARGET}
 
 # start the instance
 doil up ${INSTANCE} --quiet ${FLAG}
-docker exec -ti ${INSTANCE}_${SUFFIX} bash -c "chown -R mysql:mysql /var/lib/mysql"
-docker exec -ti ${INSTANCE}_${SUFFIX} bash -c "service mysql restart"
+docker exec -i ${INSTANCE}_${SUFFIX} bash -c "chown -R mysql:mysql /var/lib/mysql"
+docker exec -i ${INSTANCE}_${SUFFIX} bash -c "service mysql restart"
 sleep 5
 doil_send_log "Importing database"
 
@@ -189,9 +189,9 @@ echo "[client]" > ${TARGET}/volumes/data/mysql-client.conf
 echo "user=ilias" >> ${TARGET}/volumes/data/mysql-client.conf
 echo "password=${SQLPW}" >> ${TARGET}/volumes/data/mysql-client.conf
 
-docker exec -ti ${INSTANCE}_${SUFFIX} bash -c 'mysql --defaults-extra-file=/var/ilias/data/mysql-client.conf -e "DROP DATABASE IF EXISTS ilias;"'
-docker exec -ti ${INSTANCE}_${SUFFIX} bash -c 'mysql --defaults-extra-file=/var/ilias/data/mysql-client.conf -e "CREATE DATABASE ilias;"'
-docker exec -ti ${INSTANCE}_${SUFFIX} bash -c "mysql --defaults-extra-file=/var/ilias/data/mysql-client.conf ilias < /var/ilias/data/ilias.sql"
+docker exec -i ${INSTANCE}_${SUFFIX} bash -c 'mysql --defaults-extra-file=/var/ilias/data/mysql-client.conf -e "DROP DATABASE IF EXISTS ilias;"'
+docker exec -i ${INSTANCE}_${SUFFIX} bash -c 'mysql --defaults-extra-file=/var/ilias/data/mysql-client.conf -e "CREATE DATABASE ilias;"'
+docker exec -i ${INSTANCE}_${SUFFIX} bash -c "mysql --defaults-extra-file=/var/ilias/data/mysql-client.conf ilias < /var/ilias/data/ilias.sql"
 
 CLIENT_FILE_LOCATION=$(find ${TARGET}/volumes/ilias/data/ -iname client.ini.php)
 sed -i "s/pass =.*/pass = '${SQLPW}'/" ${CLIENT_FILE_LOCATION}
@@ -200,8 +200,8 @@ doil_send_log "Setting permissions"
 
 # set access
 sudo chown -R ${USER}:${USER} ${TARGET}
-docker exec -ti ${INSTANCE}_${SUFFIX} bash -c "chown -R mysql:mysql /var/lib/mysql"
-docker exec -ti ${INSTANCE}_${SUFFIX} bash -c "service mysql restart"
+docker exec -i ${INSTANCE}_${SUFFIX} bash -c "chown -R mysql:mysql /var/lib/mysql"
+docker exec -i ${INSTANCE}_${SUFFIX} bash -c "service mysql restart"
 
 doil down ${INSTANCE} --quiet ${FLAG}
 doil up ${INSTANCE} --quiet ${FLAG}
@@ -211,6 +211,6 @@ doil apply ${INSTANCE} access --quiet ${FLAG}
 doil_send_log "Cleanup"
 
 rm -rf ${PWD}/${PACKNAME}
-docker exec -ti ${INSTANCE}_${SUFFIX} bash -c "rm /var/ilias/data/ilias.sql"
+docker exec -i ${INSTANCE}_${SUFFIX} bash -c "rm /var/ilias/data/ilias.sql"
 
 doil_send_log "Import of ${INSTANCE} done"

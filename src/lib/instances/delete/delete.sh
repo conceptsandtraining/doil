@@ -91,12 +91,19 @@ then
     # check proxy server
     doil system:proxy start --quiet
 
+    # start machine for some adjustments
+    doil up ${INSTANCE} --quiet ${FLAG}
+    THE_USER=$(id -u ${USER})
+    THE_GROUP=$(id -g ${USER})
+    docker exec -i ${INSTANCE}_${SUFFIX} bash -c "chown -R ${THE_USER}:${THE_GROUP} /var/lib/mysql"
+    docker exec -i ${INSTANCE}_${SUFFIX} bash -c "chown -R ${THE_USER}:${THE_GROUP} /etc/mysql"
+
     # set machine inactive
     doil down ${INSTANCE} --quiet ${FLAG}
 
     # remove directory
     the_path=$(readlink ${LINKNAME})
-    sudo rm -rf $the_path
+    rm -rf $the_path
 
     # remove link
     if [[ ${GLOBAL} == TRUE ]]
@@ -107,7 +114,7 @@ then
     fi
 
     # remove key
-    docker exec -ti saltmain bash -c "echo 'y' | salt-key -d ${INSTANCE}.${SUFFIX}"
+    docker exec -i saltmain bash -c "echo 'y' | salt-key -d ${INSTANCE}.${SUFFIX}"
 
     # remove proxy
     if [ -f "/usr/local/lib/doil/server/proxy/conf/sites/${INSTANCE}_${SUFFIX}.conf" ]

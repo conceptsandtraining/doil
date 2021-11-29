@@ -44,5 +44,12 @@
     },
     "virusscanner" : {
         "virusscanner" : "none"
+    },
+    "webservices" : {
+        "soap_user_administration" : false,
+        "soap_wsdl_path" : "http://127.0.0.1/webservice/soap/server.php?wsdl",
+        "soap_connect_timeout" : 10,
+        "rpc_server_host" : "127.0.0.1",
+        "rpc_server_port" : "11111"
     }
 }

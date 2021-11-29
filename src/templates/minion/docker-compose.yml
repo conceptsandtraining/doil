@@ -9,10 +9,9 @@ services:
     hostname: %TPL_PROJECT_NAME%
     domainname: %TPL_PROJECT_DOMAINNAME%
     volumes:
-#      - ./volumes/etc/apache2:/etc/apache2
-      - type: bind
-        source: ./volumes/etc/apache2
-        target: /etc/apache2
+#      - type: bind
+#        source: ./volumes/etc/apache2
+#        target: /etc/apache2
       - type: bind
         source: ./volumes/etc/php
         target: /etc/php
@@ -26,9 +25,9 @@ services:
         source: ./volumes/data
         target: /var/ilias/data
       - type: bind
-        source: ./volumes/db/
-        target: /var/lib/mysql
-      - type: bind
+#        source: ./volumes/db/
+#        target: /var/lib/mysql
+#      - type: bind
         source: ./volumes/index
         target: /var/ilias/index
       - type: bind

@@ -372,8 +372,16 @@ echo "Building minion image ..."
 
 # build the image
 cd ${FOLDERPATH}
-docker build -t doil/${NAME}_${SUFFIX} .
-docker run -d --name ${NAME}_${SUFFIX} doil/${NAME}_${SUFFIX}
+docker build -t doil/${NAME}_${SUFFIX} . > /dev/null 2>&1
+docker run -d --name ${NAME}_${SUFFIX} doil/${NAME}_${SUFFIX} > /dev/null 2>&1
+
+# fix mariadb server
+#docker exec -i ${NAME}_${SUFFIX} bash -c "apt update"
+#docker exec -i ${NAME}_${SUFFIX} bash -c "apt install -y mariadb-server"
+#docker exec -i ${NAME}_${SUFFIX} bash -c "apt install -y python3-mysqldb"
+#docker exec -i ${NAME}_${SUFFIX} bash -c "/etc/init.d/mariadb start"
+#sleep 5
+docker exec -i ${NAME}_${SUFFIX} bash -c "/etc/init.d/mariadb stop" > /dev/null 2>&1
 
 # copy the config
 docker cp ${NAME}_${SUFFIX}:/etc/apache2 ./volumes/etc/
@@ -383,11 +391,11 @@ docker cp ${NAME}_${SUFFIX}:/var/lib/mysql/ ./volumes/db/
 docker cp ${NAME}_${SUFFIX}:/var/log/apache2/ ./volumes/logs/
 
 # stop image
-docker stop ${NAME}_${SUFFIX}
-docker rm ${NAME}_${SUFFIX}
+docker stop ${NAME}_${SUFFIX} > /dev/null 2>&1
+docker rm ${NAME}_${SUFFIX} > /dev/null 2>&1
 
 # start container via docker-compose
-docker-compose up -d
+docker-compose up -d --quiet
 sleep 5
 
 ##############
@@ -408,12 +416,12 @@ doil_send_okay
 ############
 # set grains
 doil_send_status "Setting up instance configuration"
-GRAIN_MYSQL_PASSWORD=$(tr -dc A-Za-z0-9 </dev/urandom | head -c 13 ; echo '')
-GRAIN_CRON_PASSWORD=$(tr -dc A-Za-z0-9 </dev/urandom | head -c 13 ; echo '')
-docker exec -ti saltmain bash -c "salt '${NAME}.${SUFFIX}' grains.set 'mysql_password' ${GRAIN_MYSQL_PASSWORD} --out=quiet"
-docker exec -ti saltmain bash -c "salt '${NAME}.${SUFFIX}' grains.set 'cron_password' ${GRAIN_CRON_PASSWORD} --out=quiet"
-docker exec -ti saltmain bash -c "salt '${NAME}.${SUFFIX}' grains.set 'doil_domain' http://${DOIL_HOST}/${NAME} --out=quiet"
-docker exec -ti saltmain bash -c "salt '${NAME}.${SUFFIX}' grains.set 'doil_project_name' ${NAME} --out=quiet"
+GRAIN_MYSQL_PASSWORD=$(xxd -l8 -ps /dev/urandom | head -c 13 ; echo '')
+GRAIN_CRON_PASSWORD=$(xxd -l8 -ps /dev/urandom | head -c 13 ; echo '')
+docker exec -i saltmain bash -c "salt '${NAME}.${SUFFIX}' grains.set 'mysql_password' ${GRAIN_MYSQL_PASSWORD} --out=quiet"
+docker exec -i saltmain bash -c "salt '${NAME}.${SUFFIX}' grains.set 'cron_password' ${GRAIN_CRON_PASSWORD} --out=quiet"
+docker exec -i saltmain bash -c "salt '${NAME}.${SUFFIX}' grains.set 'doil_domain' http://${DOIL_HOST}/${NAME} --out=quiet"
+docker exec -i saltmain bash -c "salt '${NAME}.${SUFFIX}' grains.set 'doil_project_name' ${NAME} --out=quiet"
 sleep 5
 doil_send_okay
 
