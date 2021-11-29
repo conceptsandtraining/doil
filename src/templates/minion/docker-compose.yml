@@ -9,25 +9,26 @@ services:
     hostname: %TPL_PROJECT_NAME%
     domainname: %TPL_PROJECT_DOMAINNAME%
     volumes:
-#      - type: bind
-#        source: ./volumes/etc/apache2
-#        target: /etc/apache2
+      - type: bind
+        source: ./volumes/etc/apache2
+        target: /etc/apache2
       - type: bind
         source: ./volumes/etc/php
         target: /etc/php
-      - type: bind
-        source: ./volumes/etc/mysql
-        target: /etc/mysql
+#      - type: bind
+#        source: ./volumes/etc/mysql
+#        target: /etc/mysql
       - type: bind
         source: ./volumes/ilias
         target: /var/www/html
       - type: bind
         source: ./volumes/data
         target: /var/ilias/data
-      - type: bind
+      - ./volumes/db/:/var/lib/mysql
+#      - type: bind
 #        source: ./volumes/db/
 #        target: /var/lib/mysql
-#      - type: bind
+      - type: bind
         source: ./volumes/index
         target: /var/ilias/index
       - type: bind
@@ -76,3 +77,5 @@ networks:
     external: true
   salt_saltnet:
     external: true
+volumes:
+    persistent:

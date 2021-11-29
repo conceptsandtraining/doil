@@ -386,8 +386,6 @@ docker exec -i ${NAME}_${SUFFIX} bash -c "/etc/init.d/mariadb stop" > /dev/null 
 # copy the config
 docker cp ${NAME}_${SUFFIX}:/etc/apache2 ./volumes/etc/
 docker cp ${NAME}_${SUFFIX}:/etc/php ./volumes/etc/
-docker cp ${NAME}_${SUFFIX}:/etc/mysql ./volumes/etc/
-docker cp ${NAME}_${SUFFIX}:/var/lib/mysql/ ./volumes/db/
 docker cp ${NAME}_${SUFFIX}:/var/log/apache2/ ./volumes/logs/
 
 # stop image
