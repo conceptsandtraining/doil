@@ -109,7 +109,7 @@ touch ${TARGET}/volumes/data/mysql-client.conf
 echo "[client]" > ${TARGET}/volumes/data/mysql-client.conf
 echo "user=ilias" >> ${TARGET}/volumes/data/mysql-client.conf
 echo "password=${SQLPW}" >> ${TARGET}/volumes/data/mysql-client.conf
-docker exec -ti ${INSTANCE}_${SUFFIX} bash -c "mysqldump --defaults-extra-file=/var/ilias/data/mysql-client.conf ilias > /var/ilias/ilias.sql"
+docker exec -i ${INSTANCE}_${SUFFIX} bash -c "mysqldump --defaults-extra-file=/var/ilias/data/mysql-client.conf ilias > /var/ilias/ilias.sql"
 
 # make a local directory where we are
 if [[ -d "${INSTANCE}-doilpack" ]]

@@ -8,8 +8,6 @@ services:
     container_name: %TPL_PROJECT_NAME%_%TPL_PROJECT_DOMAINNAME%
     hostname: %TPL_PROJECT_NAME%
     domainname: %TPL_PROJECT_DOMAINNAME%
-    ports:
-      - "80:80"
     volumes:
       - ./volumes/ilias:/var/www/html
       - ./volumes/data:/var/ilias/data
