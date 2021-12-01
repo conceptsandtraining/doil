@@ -401,8 +401,8 @@ doil_send_status "Checking key"
 SALTKEYS=$(docker exec -t -i saltmain /bin/bash -c "salt-key -L" | grep "${NAME}.${SUFFIX}")
 until [[ ! -z ${SALTKEYS} ]]
 do
-#  DDDOWN=$(doil down ${NAME} --quiet ${FLAG})
-#  DDUP=$(doil up ${NAME} --quiet ${FLAG})
+  DDDOWN=$(docker-compose down)
+  DDUP=$(docker-compose up -d)
   sleep 5
   SALTKEYS=$(docker exec -t -i saltmain /bin/bash -c "salt-key -L" | grep "${NAME}.${SUFFIX}")  
 done
