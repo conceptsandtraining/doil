@@ -1,5 +1,22 @@
 # Changelog
 
+## 1.4.4
+
+* Bulletproofed windows integration
+* implemented better volume handling
+* increased speed for `doil create` by using predefined container
+* fixed several salt stack issues
+* implemented `-y` flag for `doil delete`
+* fixed key check
+* updated password generation
+* removed `-t` flag for docker exec functions
+* fixed cron service start after `doil up`
+* updated ilias config with webservices
+
+## 1.4.3
+
+* Fixed port problem in minion services
+
 ## 1.4.2
 
 * Added compatibility to Windows and WSL with ubuntu

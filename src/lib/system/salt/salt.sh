@@ -79,7 +79,7 @@ then
 
   doil system:salt start --quiet
 
-  docker exec -ti saltmain bash -c 'echo "y" | salt-key -D'
+  docker exec -i saltmain bash -c 'echo "y" | salt-key -D'
   
   doil_send_log "Finished pruning main salt server"
 fi

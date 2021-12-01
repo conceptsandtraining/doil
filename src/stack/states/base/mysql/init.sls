@@ -2,13 +2,6 @@
 {% set ram = salt['grains.get']('mem_total', '4096') %}
 {% set mysql_password = salt['grains.get']('mysql_password', 'ilias') %}
 
-mysql_packages:
-  pkg.installed:
-    - pkgs:
-      - mariadb-server
-      - supervisor
-      - python3-mysqldb
-
 /etc/mysql/mariadb.conf.d/50-server.cnf:
   file:
     - managed
@@ -18,8 +11,8 @@ mysql_packages:
     - mode: 644
     - template: jinja
     - context:
-        cpu: {{ cpu }}
-        ram: {{ ram }}
+      cpu: {{ cpu }}
+      ram: {{ ram }}
 
 /etc/supervisor/conf.d/mysql.conf:
   file.managed:
@@ -27,6 +20,22 @@ mysql_packages:
     - user: root
     - group: root
     - mode: 644
+
+/etc/mysql/:
+  file.directory:
+    - user: root
+    - group: root
+    - recurse:
+      - user
+      - group
+
+/var/lib/mysql/:
+  file.directory:
+    - user: mysql
+    - group: mysql
+    - recurse:
+      - user
+      - group
 
 mysql_supervisor_signal:
   supervisord.running:

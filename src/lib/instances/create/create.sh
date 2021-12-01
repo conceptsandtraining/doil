@@ -26,10 +26,10 @@ shift
 # check if command is just plain help
 # if we don't have any command we load the help
 while [[ $# -gt 0 ]]
-	do
-	key="$1"
+  do
+  key="$1"
 
-	case $key in
+  case $key in
     -n|--name)
       NAME="${2}"
       shift # past argument
@@ -84,7 +84,7 @@ while [[ $# -gt 0 ]]
       echo -e "\tUse \033[1mdoil instances:create --help\033[0m for more information"
       exit 255
       ;;
-	esac
+  esac
 done
 
 # Pipe output to null if needed
@@ -245,8 +245,6 @@ FOLDERPATH="${TARGET}/${NAME}"
 # config
 DOIL_HOST=$(doil_get_conf host)
 
-doil_send_log "Start creating project ${NAME}"
-
 # update debian
 doil_send_status "Updating debian image"
 docker pull debian:stable --quiet > /dev/null
@@ -262,11 +260,15 @@ doil_send_okay
 doil_send_status "Create basic folders"
 
 mkdir -p "${FOLDERPATH}/conf"
+mkdir -p "${FOLDERPATH}/conf/salt"
 mkdir -p "${FOLDERPATH}/volumes/db"
 mkdir -p "${FOLDERPATH}/volumes/index"
 mkdir -p "${FOLDERPATH}/volumes/data"
 mkdir -p "${FOLDERPATH}/volumes/logs/error"
 mkdir -p "${FOLDERPATH}/volumes/logs/apache"
+mkdir -p "${FOLDERPATH}/volumes/etc/apache2"
+mkdir -p "${FOLDERPATH}/volumes/etc/php"
+mkdir -p "${FOLDERPATH}/volumes/etc/mysql"
 
 # set the link
 if [[ ${GLOBAL} == "TRUE" ]]
@@ -368,9 +370,28 @@ echo "Building minion image ..."
 
 # build the image
 cd ${FOLDERPATH}
-docker-compose up --force-recreate --no-start --renew-anon-volumes --quiet-pull > /dev/null
-docker-compose up -d
+TMP_BUILD=$(docker build -t doil/${NAME}_${SUFFIX} .)
+TMP_RUN=$(docker run -d --name ${NAME}_${SUFFIX} doil/${NAME}_${SUFFIX})
+
+# mariadb
+docker exec -i ${NAME}_${SUFFIX} bash -c "apt install -y mariadb-server python3-mysqldb" > /dev/null
+docker exec -i ${NAME}_${SUFFIX} bash -c "/etc/init.d/mariadb start" > /dev/null
 sleep 5
+docker exec -i ${NAME}_${SUFFIX} bash -c "/etc/init.d/mariadb stop" > /dev/null
+
+# copy the config
+docker cp ${NAME}_${SUFFIX}:/etc/apache2 ./volumes/etc/
+docker cp ${NAME}_${SUFFIX}:/etc/php ./volumes/etc/
+docker cp ${NAME}_${SUFFIX}:/var/log/apache2/ ./volumes/logs/
+
+# stop image
+docker commit ${NAME}_${SUFFIX} doil/${NAME}_${SUFFIX}:stable > /dev/null
+TMP_STOP=$(docker stop ${NAME}_${SUFFIX})
+TMP_RM=$(docker rm ${NAME}_${SUFFIX})
+
+# start container via docker-compose
+DDUP=$(doil up ${NAME} --quiet ${FLAG})
+docker exec -i ${NAME}_${SUFFIX} bash -c "/etc/init.d/mariadb start" > /dev/null
 
 ##############
 # checking key
@@ -380,45 +401,68 @@ doil_send_status "Checking key"
 SALTKEYS=$(docker exec -t -i saltmain /bin/bash -c "salt-key -L" | grep "${NAME}.${SUFFIX}")
 until [[ ! -z ${SALTKEYS} ]]
 do
+  DDDOWN=$(docker-compose down)
+  DDUP=$(docker-compose up -d)
   sleep 5
-  SALTKEYS=$(docker exec -t -i saltmain /bin/bash -c "salt-key -L" | grep "${NAME}.${SUFFIX}")
+  SALTKEYS=$(docker exec -t -i saltmain /bin/bash -c "salt-key -L" | grep "${NAME}.${SUFFIX}")  
 done
 doil_send_okay
 
 ############
 # set grains
 doil_send_status "Setting up instance configuration"
-GRAIN_MYSQL_PASSWORD=$(tr -dc A-Za-z0-9 </dev/urandom | head -c 13 ; echo '')
-GRAIN_CRON_PASSWORD=$(tr -dc A-Za-z0-9 </dev/urandom | head -c 13 ; echo '')
-docker exec -ti saltmain bash -c "salt '${NAME}.${SUFFIX}' grains.set 'mysql_password' ${GRAIN_MYSQL_PASSWORD} --out=quiet"
-docker exec -ti saltmain bash -c "salt '${NAME}.${SUFFIX}' grains.set 'cron_password' ${GRAIN_CRON_PASSWORD} --out=quiet"
-docker exec -ti saltmain bash -c "salt '${NAME}.${SUFFIX}' grains.set 'doil_domain' http://${DOIL_HOST}/${NAME} --out=quiet"
-docker exec -ti saltmain bash -c "salt '${NAME}.${SUFFIX}' grains.set 'doil_project_name' ${NAME} --out=quiet"
+GRAIN_MYSQL_PASSWORD=$(xxd -l8 -ps /dev/urandom | head -c 13 ; echo '')
+GRAIN_CRON_PASSWORD=$(xxd -l8 -ps /dev/urandom | head -c 13 ; echo '')
+docker exec -i saltmain bash -c "salt '${NAME}.${SUFFIX}' grains.set 'mysql_password' ${GRAIN_MYSQL_PASSWORD} --out=quiet"
+docker exec -i saltmain bash -c "salt '${NAME}.${SUFFIX}' grains.set 'cron_password' ${GRAIN_CRON_PASSWORD} --out=quiet"
+docker exec -i saltmain bash -c "salt '${NAME}.${SUFFIX}' grains.set 'doil_domain' http://${DOIL_HOST}/${NAME} --out=quiet"
+docker exec -i saltmain bash -c "salt '${NAME}.${SUFFIX}' grains.set 'doil_project_name' ${NAME} --out=quiet"
 sleep 5
 doil_send_okay
 
 ##################
 # apply base state
+set -e
 doil_send_status "Apply base state"
-doil apply ${NAME} base --quiet ${FLAG}
+OUTPUT=$(doil apply ${NAME} base ${FLAG} -c)
+if [[ ${OUTPUT} == *"Minions returned with non-zero exit code"* ]]
+then
+  doil_send_failed
+  exit
+fi
 doil_send_okay
 
 #################
 # apply dev state
 doil_send_status "Apply dev state"
-doil apply ${NAME} dev --quiet ${FLAG}
+OUTPUT=$(doil apply ${NAME} dev -c ${FLAG})
+if [[ ${OUTPUT} == *"Minions returned with non-zero exit code"* ]]
+then
+  doil_send_failed
+  exit
+fi
 doil_send_okay
 
 #################
 # apply php state
 doil_send_status "Apply php state"
-doil apply ${NAME} php${PHPVERSION} --quiet ${FLAG}
+OUTPUT=$(doil apply ${NAME} php${PHPVERSION} -c ${FLAG})
+if [[ ${OUTPUT} == *"Minions returned with non-zero exit code"* ]]
+then
+  doil_send_failed
+  exit
+fi
 doil_send_okay
 
 ###################
 # apply ilias state
 doil_send_status "Apply ilias state"
-doil apply ${NAME} ilias --quiet ${FLAG}
+OUTPUT=$(doil apply ${NAME} ilias -c ${FLAG})
+if [[ ${OUTPUT} == *"Minions returned with non-zero exit code"* ]]
+then
+  doil_send_failed
+  exit
+fi
 doil_send_okay
 
 ######################
@@ -429,13 +473,28 @@ ILIAS_VERSION_FILE=$(cat -e ${FOLDERPATH}/volumes/ilias/include/inc.ilias_versio
 ILIAS_VERSION=${ILIAS_VERSION_FILE:33:1}
 if (( ${ILIAS_VERSION} == 6 ))
 then
-  doil apply ${NAME} composer --quiet ${FLAG}
+  OUTPUT=$(doil apply ${NAME} composer -c ${FLAG})
+  if [[ ${OUTPUT} == *"Minions returned with non-zero exit code"* ]]
+  then
+    doil_send_failed
+    exit
+  fi
 elif (( ${ILIAS_VERSION} > 6 ))
 then
-  doil apply ${NAME} composer2 --quiet ${FLAG}
+  OUTPUT=$(doil apply ${NAME} composer2 -c ${FLAG})
+  if [[ ${OUTPUT} == *"Minions returned with non-zero exit code"* ]]
+  then
+    doil_send_failed
+    exit
+  fi
 elif (( ${ILIAS_VERSION} < 6 ))
 then
-  doil apply ${NAME} composer54 --quiet ${FLAG}
+  OUTPUT=$(doil apply ${NAME} composer54 -c ${FLAG})
+  if [[ ${OUTPUT} == *"Minions returned with non-zero exit code"* ]]
+  then
+    doil_send_failed
+    exit
+  fi
 fi
 doil_send_okay
 
@@ -444,14 +503,24 @@ doil_send_okay
 if (( ${ILIAS_VERSION} > 6 ))
 then
   doil_send_status "Trying autoinstaller"
-  doil apply ${NAME} autoinstall --quiet ${FLAG}
-  doil_send_okay
+  OUTPUT=$(doil apply ${NAME} autoinstall -c ${FLAG})
+  if [[ ${OUTPUT} == *"Minions returned with non-zero exit code"* ]]
+  then
+    doil_send_failed
+  else
+    doil_send_okay
+  fi
 fi
 
 #####
 # apply access
 doil_send_status "Apply access state"
-doil apply ${NAME} access --quiet ${FLAG}
+OUTPUT=$(doil apply ${NAME} access -c ${FLAG})
+if [[ ${OUTPUT} == *"Minions returned with non-zero exit code"* ]]
+then
+  doil_send_failed
+  exit
+fi
 doil_send_okay
 
 #########################
@@ -462,7 +531,7 @@ docker commit ${NAME}_${SUFFIX} doil/${NAME}_${SUFFIX}:stable > /dev/null
 doil_send_okay
 
 # stop the server
-doil down ${NAME} ${FLAG} --quiet
+DDOWN=$(doil down ${NAME} ${FLAG} --quiet)
 
 if [[ ${SKIP_README} != TRUE ]]
 then

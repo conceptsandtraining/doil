@@ -112,37 +112,67 @@ groupadd doil
 printf " ${GREEN}ok${NC}\n"
 
 # create the log file
-echo -n "Creating log file in /var/log/doil.log ..."
+if [ ! -f /var/log/doil.log ]
+then
+  echo -n "Creating log file in /var/log/doil.log ..."
 
-touch /var/log/doil.log
-chown root:doil /var/log/doil.log
-chmod 777 /var/log/doil.log
+  touch /var/log/doil.log
+  chown root:doil /var/log/doil.log
+  chmod 777 /var/log/doil.log
 
-printf " ${GREEN}ok${NC}\n"
+  printf " ${GREEN}ok${NC}\n"
+fi
 
 # create mandatory folders
 echo -n "Creating mandatory folders ..."
 
-mkdir /usr/local/lib/doil
-mkdir /usr/local/lib/doil/lib
-mkdir /usr/local/lib/doil/server
+if [ ! -d /usr/local/lib/doil ]
+then
+  mkdir /usr/local/lib/doil
+fi
+if [ ! -d /usr/local/lib/doil/lib ]
+then
+  mkdir /usr/local/lib/doil/lib
+fi
+if [ ! -d /usr/local/lib/doil/server ]
+then
+  mkdir /usr/local/lib/doil/server
+fi
 chown -R root:doil /usr/local/lib/doil
 
-mkdir /etc/doil/
-chown -R root:doil /etc/doil
-chmod -R g+w /etc/doil
-chmod -R g+s /etc/doil
+if [ ! -d /etc/doil ]
+then
+  mkdir /etc/doil/
+  chown -R root:doil /etc/doil
+  chmod -R g+w /etc/doil
+  chmod -R g+s /etc/doil
+fi
 
-mkdir /usr/local/share/doil
-mkdir /usr/local/share/doil/templates
-mkdir /usr/local/share/doil/stack
-mkdir /usr/local/share/doil/instances
-mkdir /usr/local/share/doil/repositories
-chown -R root:doil /usr/local/share/doil
-chmod -R g+w /usr/local/share/doil/repositories
-chmod -R g+w /usr/local/share/doil/instances
-chmod -R g+s /usr/local/share/doil/repositories
-chmod -R g+s /usr/local/share/doil/instances
+if [ ! -d /usr/local/share/doil ]
+then
+  mkdir /usr/local/share/doil
+  chown -R root:doil /usr/local/share/doil
+fi
+if [ ! -d /usr/local/share/doil/templates ]
+then
+  mkdir /usr/local/share/doil/templates
+fi
+if [ ! -d /usr/local/share/doil/instances ]
+then
+  mkdir /usr/local/share/doil/instances
+fi
+if [ ! -d /usr/local/share/doil/instances ]
+then
+  mkdir /usr/local/share/doil/instances
+  chmod -R g+w /usr/local/share/doil/instances
+  chmod -R g+s /usr/local/share/doil/instances
+fi
+if [ ! -d /usr/local/share/doil/repositories ]
+then
+  mkdir /usr/local/share/doil/repositories
+  chmod -R g+w /usr/local/share/doil/repositories
+  chmod -R g+s /usr/local/share/doil/repositories
+fi
 
 printf " ${GREEN}ok${NC}\n"
 
@@ -172,13 +202,23 @@ printf " ${GREEN}ok${NC}\n"
 # setting up basic configuration
 echo -n "Setting up basic configuration ..."
 
-cp src/conf/doil.conf /etc/doil/doil.conf
-touch /etc/doil/repositories.conf
-chown -R root:doil /etc/doil/
-chmod g+w /etc/doil/repositories.conf
-touch /etc/doil/user.conf
+if [ ! -f /etc/doil/doil.conf ]
+then
+  cp src/conf/doil.conf /etc/doil/doil.conf
+fi
 
-echo "ilias=git@github.com:ILIAS-eLearning/ILIAS.git" > "/etc/doil/repositories.conf"
+if [ ! -f /etc/doil/repositories.conf ]
+then
+  touch /etc/doil/repositories.conf
+  chmod g+w /etc/doil/repositories.conf
+fi
+
+if [ ! -f /etc/doil/user.conf ]
+then
+  touch /etc/doil/user.conf
+  chmod g+w /etc/doil/user.conf
+fi
+chown -R root:doil /etc/doil/
 
 IPEXIST=$(grep "172.24.0.254" /etc/hosts)
 if [[ -z ${IPEXIST} ]]
@@ -191,20 +231,29 @@ printf " ${GREEN}ok${NC}\n"
 echo -n "Move userdata ..."
 
 HOME=$(eval echo "~${SUDO_USER}")
-mv ${HOME}/.doil/config/repos ${HOME}/.doil/config/repositories.conf
+if [ ! -f ${HOME}/.doil/config/repositories.conf ]
+then
+  mv ${HOME}/.doil/config/repos ${HOME}/.doil/config/repositories.conf
+fi
 
-mkdir ${HOME}/.doil/repositories
-mv /usr/local/lib/doil/tpl/repos ${HOME}/.doil/repositories
+if [ ! -d ${HOME}/.doil/repositories ]
+then
+  mkdir ${HOME}/.doil/repositories
+  mv /usr/local/lib/doil/tpl/repos ${HOME}/.doil/repositories
+fi
 
-mkdir ${HOME}/.doil/instances
-for LINK in $(ls ${HOME}/.doil)
-do
-  if [[ ${LINK} == "config" ]]
-  then
-    continue
-  fi
-  mv ${LINK} ${HOME}/.doil/instances/${LINK}
-done
+if [ ! -d ${HOME}/.doil/instances ]
+then
+  mkdir ${HOME}/.doil/instances
+  for LINK in $(ls ${HOME}/.doil)
+  do
+    if [[ ${LINK} == "config" ]]
+    then
+      continue
+    fi
+    mv ${LINK} ${HOME}/.doil/instances/${LINK}
+  done
+fi
 
 chown -R ${SUDO_USER}:${SODU_USER} "${HOME}/.doil"
 usermod -a -G doil ${SUDO_USER}
