@@ -68,6 +68,14 @@ doil_send_okay() {
   printf " ${GREEN}ok${NC}\n"
 }
 
+doil_send_failed() {
+  # color support
+  RED='\033[0;31m'
+  NC='\033[0m'
+
+  printf " ${RED}failed${NC}\n"
+}
+
 doil_get_conf() {
   CONFIG=${1}
   VALUE=$(cat /etc/doil/doil.conf | grep ${CONFIG} | cut -d '=' -f 2-)

@@ -15,19 +15,14 @@ services:
       - type: bind
         source: ./volumes/etc/php
         target: /etc/php
-#      - type: bind
-#        source: ./volumes/etc/mysql
-#        target: /etc/mysql
+#      - ./volumes/db/:/var/lib/mysql
+#      - ./volumes/etc/mysql/:/etc/mysql
       - type: bind
         source: ./volumes/ilias
         target: /var/www/html
       - type: bind
         source: ./volumes/data
         target: /var/ilias/data
-      - ./volumes/db/:/var/lib/mysql
-#      - type: bind
-#        source: ./volumes/db/
-#        target: /var/lib/mysql
       - type: bind
         source: ./volumes/index
         target: /var/ilias/index
@@ -43,9 +38,6 @@ services:
       - type: bind
         source: ./conf/minion.cnf
         target: /etc/salt/minion
-#      - type: bind
-#        source: ./conf/salt/
-#        target: /var/lib/salt/pki/minion/
       - type: bind
         source: ./conf
         target: /root/conf

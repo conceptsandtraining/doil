@@ -24,10 +24,10 @@ shift
 # if we don't have any command we load the help
 POSITION=1
 while [[ $# -gt 0 ]]
-	do
-	key="$1"
+  do
+  key="$1"
 
-	case $key in
+  case $key in
     -q|--quiet)
       QUIET=TRUE
       shift
@@ -38,6 +38,10 @@ while [[ $# -gt 0 ]]
       ;;
     -g|--global)
       GLOBAL=TRUE
+      shift # past argument
+      ;;
+    -c|--context)
+      CREATE_CONTEXT=TRUE
       shift # past argument
       ;;
     *)
@@ -52,7 +56,7 @@ while [[ $# -gt 0 ]]
       POSITION=$((POSITION+1))
       shift
       ;;
-	esac
+  esac
 done
 
 if [[ -z "${INSTANCE}" ]]
@@ -117,7 +121,10 @@ then
   exec >>/var/log/doil.log 2>&1
 fi
 
-doil_send_log "Apply state ${STATE} to instance ${INSTANCE}"
+if [[ -z ${CREATE_CONTEXT} ]]
+then
+  doil_send_log "Apply state ${STATE} to instance ${INSTANCE}"
+fi
 
 if [[ ${GLOBAL} == TRUE ]]
 then
@@ -132,17 +139,33 @@ doil system:salt start --quiet
 doil up ${INSTANCE} --quiet ${FLAG}
 
 # check key
-doil_send_status "Checking key"
 SALTKEYS=$(docker exec -t -i saltmain bash -c "salt-key -L" | grep "${INSTANCE}.${SUFFIX}")
 until [[ ! -z ${SALTKEYS} ]]
 do
   sleep 5
   SALTKEYS=$(docker exec -t -i saltmain bash -c "salt-key -L" | grep "${INSTANCE}.${SUFFIX}")
 done
-doil_send_okay
 
-#salt 'test16.local' test.ping
-#salt 'test16.local' state.highstate saltenv=base
-docker exec -i saltmain bash -c "salt '${INSTANCE}.${SUFFIX}' state.highstate saltenv=${STATE}"
+if [[ ! -z ${CREATE_CONTEXT} ]]
+then
+  RND=$(( $RANDOM % 10 ))
+  docker exec -i saltmain bash -c "salt '${INSTANCE}.${SUFFIX}' state.highstate saltenv=${STATE}" 2>&1 > /tmp/doil.${RND}.log
+  CHECK=$(cat /tmp/doil.${RND}.log | grep "Failed:" | cut -d':' -f2)
+  if (( ${CHECK} != 0 ))
+  then
+    cat /tmp/doil.${RND}.log >> /var/log/doil.log
+    rm /tmp/doil.${RND}.log
+    exit
+  else
+    cat /tmp/doil.${RND}.log >> /var/log/doil.log
+    rm /tmp/doil.${RND}.log
+    exit
+  fi
+else
+  docker exec -i saltmain bash -c "salt '${INSTANCE}.${SUFFIX}' state.highstate saltenv=${STATE}"
+fi
 
-doil_send_log "Done"
+if [[ -z ${CREATE_CONTEXT} ]]
+then
+  doil_send_log "Done"
+fi
