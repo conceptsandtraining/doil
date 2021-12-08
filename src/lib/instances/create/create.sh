@@ -396,6 +396,8 @@ DDUP=$(doil up ${NAME} --quiet ${FLAG} 2>&1 > /dev/null)
 docker exec -i ${NAME}_${SUFFIX} bash -c "chown -R mysql:mysql /var/lib/mysql" > /dev/null
 docker exec -i ${NAME}_${SUFFIX} bash -c "/etc/init.d/mariadb start" > /dev/null
 
+doil_send_okay
+
 ##############
 # checking key
 doil_send_status "Checking key"
