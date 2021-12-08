@@ -98,12 +98,12 @@ then
   docker-compose up -d
 
   # renew key
-  docker exec -i ${INSTANCE}_${SUFFIX} bash -c "rm /var/lib/salt/pki/minion/minion_master.pub"
-  docker exec -i ${INSTANCE}_${SUFFIX} bash -c "killall -9 salt-minion"
+  docker exec -i ${INSTANCE}_${SUFFIX} bash -c "rm /var/lib/salt/pki/minion/minion_master.pub" 2>&1 > /dev/null
+  docker exec -i ${INSTANCE}_${SUFFIX} bash -c "killall -9 salt-minion" 2>&1 > /dev/null
 
   # start cron service
-  docker exec -i ${INSTANCE}_${SUFFIX} bash -c "service cron status"
-  docker exec -i ${INSTANCE}_${SUFFIX} bash -c "service cron start"
+  docker exec -i ${INSTANCE}_${SUFFIX} bash -c "service cron status" 2>&1 > /dev/null
+  docker exec -i ${INSTANCE}_${SUFFIX} bash -c "service cron start" 2>&1 > /dev/null
   
   # remove the current ip from the host file and add the new one
   DCHASH=$(doil_get_hash ${INSTANCE}_${SUFFIX})

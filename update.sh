@@ -105,11 +105,13 @@ fi
 
 printf " ${GREEN}ok${NC}\n"
 
-echo -n "Adding group doil ..."
-
-groupadd doil
-
-printf " ${GREEN}ok${NC}\n"
+CHECK_GROUP=$(grep doil /etc/group)
+if [[ -z ${CHECK_GROUP} ]]
+then
+  echo -n "Adding group doil ..."
+  groupadd doil
+  printf " ${GREEN}ok${NC}\n"
+fi
 
 # create the log file
 if [ ! -f /var/log/doil.log ]

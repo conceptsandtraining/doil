@@ -374,7 +374,7 @@ TMP_BUILD=$(docker build -t doil/${NAME}_${SUFFIX} .)
 TMP_RUN=$(docker run -d --name ${NAME}_${SUFFIX} doil/${NAME}_${SUFFIX})
 
 # mariadb
-docker exec -i ${NAME}_${SUFFIX} bash -c "apt install -y mariadb-server python3-mysqldb" > /dev/null
+docker exec -i ${NAME}_${SUFFIX} bash -c "apt install -y mariadb-server python3-mysqldb 2>&1 > /dev/null" 2>&1 > /dev/null
 docker exec -i ${NAME}_${SUFFIX} bash -c "/etc/init.d/mariadb start" > /dev/null
 sleep 5
 docker exec -i ${NAME}_${SUFFIX} bash -c "/etc/init.d/mariadb stop" > /dev/null
@@ -383,6 +383,8 @@ docker exec -i ${NAME}_${SUFFIX} bash -c "/etc/init.d/mariadb stop" > /dev/null
 docker cp ${NAME}_${SUFFIX}:/etc/apache2 ./volumes/etc/
 docker cp ${NAME}_${SUFFIX}:/etc/php ./volumes/etc/
 docker cp ${NAME}_${SUFFIX}:/var/log/apache2/ ./volumes/logs/
+docker cp ${NAME}_${SUFFIX}:/etc/mysql/ ./volumes/etc/
+docker cp ${NAME}_${SUFFIX}:/var/lib/mysql/ ./volumes/
 
 # stop image
 docker commit ${NAME}_${SUFFIX} doil/${NAME}_${SUFFIX}:stable > /dev/null
@@ -390,7 +392,8 @@ TMP_STOP=$(docker stop ${NAME}_${SUFFIX})
 TMP_RM=$(docker rm ${NAME}_${SUFFIX})
 
 # start container via docker-compose
-DDUP=$(doil up ${NAME} --quiet ${FLAG})
+DDUP=$(doil up ${NAME} --quiet ${FLAG} 2>&1 > /dev/null)
+docker exec -i ${NAME}_${SUFFIX} bash -c "chown -R mysql:mysql /var/lib/mysql" > /dev/null
 docker exec -i ${NAME}_${SUFFIX} bash -c "/etc/init.d/mariadb start" > /dev/null
 
 ##############
@@ -401,8 +404,6 @@ doil_send_status "Checking key"
 SALTKEYS=$(docker exec -t -i saltmain /bin/bash -c "salt-key -L" | grep "${NAME}.${SUFFIX}")
 until [[ ! -z ${SALTKEYS} ]]
 do
-  DDDOWN=$(docker-compose down)
-  DDUP=$(docker-compose up -d)
   sleep 5
   SALTKEYS=$(docker exec -t -i saltmain /bin/bash -c "salt-key -L" | grep "${NAME}.${SUFFIX}")  
 done
