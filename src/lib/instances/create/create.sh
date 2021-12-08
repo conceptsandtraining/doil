@@ -534,7 +534,7 @@ docker commit ${NAME}_${SUFFIX} doil/${NAME}_${SUFFIX}:stable > /dev/null
 doil_send_okay
 
 # stop the server
-DDOWN=$(doil down ${NAME} ${FLAG} --quiet)
+DDOWN=$(doil down ${NAME} ${FLAG} --quiet 2>&1 > /dev/null)  2>&1 > /dev/null
 
 if [[ ${SKIP_README} != TRUE ]]
 then
