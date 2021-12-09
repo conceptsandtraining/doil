@@ -406,10 +406,6 @@ doil_send_status "Checking key"
 SALTKEYS=$(docker exec -t -i saltmain /bin/bash -c "salt-key -L" | grep "${NAME}.${SUFFIX}")
 until [[ ! -z ${SALTKEYS} ]]
 do
-  docker exec -i ${NAME}_${SUFFIX} bash -c "killall -9 salt-minion" 2>&1 > /dev/null
-  docker exec -i ${NAME}_${SUFFIX} bash -c "salt-minion -d" 2>&1 > /dev/null
-  sleep 4
-  docker exec -i ${NAME}_${SUFFIX} bash -c "rm /var/lib/salt/pki/minion/minion.pem" 2>&1 > /dev/null
   sleep 5
   SALTKEYS=$(docker exec -t -i saltmain /bin/bash -c "salt-key -L" | grep "${NAME}.${SUFFIX}")  
 done

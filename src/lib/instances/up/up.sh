@@ -97,10 +97,6 @@ then
   # Start the container
   docker-compose up -d
 
-  # renew key
-  docker exec -i ${INSTANCE}_${SUFFIX} bash -c "rm /var/lib/salt/pki/minion/minion.pem" 2>&1 > /dev/null
-  docker exec -i ${INSTANCE}_${SUFFIX} bash -c "killall -9 salt-minion" 2>&1 > /dev/null
-
   # start cron service
   docker exec -i ${INSTANCE}_${SUFFIX} bash -c "service cron status" 2>&1 > /dev/null
   docker exec -i ${INSTANCE}_${SUFFIX} bash -c "service cron start" 2>&1 > /dev/null
