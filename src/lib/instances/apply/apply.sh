@@ -151,16 +151,9 @@ then
   RND=$(( $RANDOM % 10 ))
   docker exec -i saltmain bash -c "salt '${INSTANCE}.${SUFFIX}' state.highstate saltenv=${STATE}" 2>&1 > /tmp/doil.${RND}.log
   CHECK=$(cat /tmp/doil.${RND}.log | grep "Failed:" | cut -d':' -f2)
-  if (( ${CHECK} != 0 ))
-  then
-    cat /tmp/doil.${RND}.log >> /var/log/doil.log
-    rm /tmp/doil.${RND}.log
-    exit
-  else
-    cat /tmp/doil.${RND}.log >> /var/log/doil.log
-    rm /tmp/doil.${RND}.log
-    exit
-  fi
+  cat /tmp/doil.${RND}.log >> /var/log/doil.log
+  rm /tmp/doil.${RND}.log
+  exit
 else
   docker exec -i saltmain bash -c "salt '${INSTANCE}.${SUFFIX}' state.highstate saltenv=${STATE}"
 fi
