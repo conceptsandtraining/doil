@@ -182,14 +182,14 @@ else
   echo "Ok"
 fi
 
-touch ${TARGET}/volumes/data/mysql-client.conf
-echo "[client]" > ${TARGET}/volumes/data/mysql-client.conf
-echo "user=ilias" >> ${TARGET}/volumes/data/mysql-client.conf
-echo "password=${SQLPW}" >> ${TARGET}/volumes/data/mysql-client.conf
+#touch ${TARGET}/volumes/data/mysql-client.conf
+#echo "[client]" > ${TARGET}/volumes/data/mysql-client.conf
+#echo "user=ilias" >> ${TARGET}/volumes/data/mysql-client.conf
+#echo "password=${SQLPW}" >> ${TARGET}/volumes/data/mysql-client.conf
 
-docker exec -i ${INSTANCE}_${SUFFIX} bash -c 'mysql --defaults-extra-file=/var/ilias/data/mysql-client.conf -e "DROP DATABASE IF EXISTS ilias;"'
-docker exec -i ${INSTANCE}_${SUFFIX} bash -c 'mysql --defaults-extra-file=/var/ilias/data/mysql-client.conf -e "CREATE DATABASE ilias;"'
-docker exec -i ${INSTANCE}_${SUFFIX} bash -c "mysql --defaults-extra-file=/var/ilias/data/mysql-client.conf ilias < /var/ilias/data/ilias.sql"
+docker exec -i ${INSTANCE}_${SUFFIX} bash -c 'mysql -e "DROP DATABASE IF EXISTS ilias;"'
+docker exec -i ${INSTANCE}_${SUFFIX} bash -c 'mysql -e "CREATE DATABASE ilias;"'
+docker exec -i ${INSTANCE}_${SUFFIX} bash -c "mysql ilias < /var/ilias/data/ilias.sql"
 
 CLIENT_FILE_LOCATION=$(find ${TARGET}/volumes/ilias/data/ -iname client.ini.php)
 sed -i "s/pass =.*/pass = '${SQLPW}'/" ${CLIENT_FILE_LOCATION}
