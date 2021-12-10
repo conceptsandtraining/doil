@@ -279,8 +279,8 @@ else
 fi
 doil_send_okay
 
-# set user rights
-doil_send_status "Setting folder rights"
+# set user permissions
+doil_send_status "Setting folder permissions"
 if [[ -z ${GLOBAL} ]]
 then
   chown -R ${USER}:${USER} ${FOLDERPATH}
@@ -406,6 +406,9 @@ doil_send_status "Checking key"
 SALTKEYS=$(docker exec -t -i saltmain /bin/bash -c "salt-key -L" | grep "${NAME}.${SUFFIX}")
 until [[ ! -z ${SALTKEYS} ]]
 do
+  docker exec -i ${NAME}_${SUFFIX} bash -c "killall -9 salt-minion" > /dev/null
+  docker exec -i ${NAME}_${SUFFIX} bash -c "rm -rf /var/lib/salt/pki/minion/*" > /dev/null
+  docker exec -i ${NAME}_${SUFFIX} bash -c "salt-minion -d" > /dev/null
   sleep 5
   SALTKEYS=$(docker exec -t -i saltmain /bin/bash -c "salt-key -L" | grep "${NAME}.${SUFFIX}")  
 done
@@ -560,4 +563,4 @@ fi
 # Everything done
 doil_send_log "Everything done"
 
-echo -e "Your project is successfully installed. Head to your project via 'doil instances:cd ${NAME}' and see the readme file for more information about the usage with doil."
+echo -e "Your project is successfully created. Head to your project via 'doil instances:cd ${NAME}' and see the readme file for more information about the usage with doil."
