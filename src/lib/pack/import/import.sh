@@ -57,7 +57,7 @@ done
 
 if [[ -z "${INSTANCE}" ]]
 then
-  read -p "Name the instance you'd like to import: " INSTANCE
+  read -p "Name the instance you'd like to import to: " INSTANCE
 fi
 if [[ ${GLOBAL} == TRUE ]]
 then
@@ -153,19 +153,17 @@ doil_send_log "Copying necessary files"
 doil down ${INSTANCE} ${FLAG} --quiet
 
 # remove all the files
-sudo rm -rf ${TARGET}/volumes/data
-sudo rm -rf ${TARGET}/volumes/ilias/data
-sudo rm -rf ${TARGET}/volumes/ilias/ilias.ini.php
+rm -rf ${TARGET}/volumes/data
+rm -rf ${TARGET}/volumes/ilias/data
+rm -rf ${TARGET}/volumes/ilias/ilias.ini.php
 
 # import the files
-sudo mkdir -p ${TARGET}/volumes/ilias/data/
-sudo mkdir -p ${TARGET}/volumes/data/
-sudo cp -r ${PWD}/${PACKNAME}/var/www/html/ilias.ini.php ${TARGET}/volumes/ilias/ilias.ini.php
-sudo cp -r ${PWD}/${PACKNAME}/var/www/html/data ${TARGET}/volumes/ilias/
-sudo cp -r ${PWD}/${PACKNAME}/var/ilias/data/* ${TARGET}/volumes/data
-sudo cp -r ${PWD}/${PACKNAME}/var/ilias/ilias.sql ${TARGET}/volumes/data/ilias.sql
-
-sudo chown -R ${USER}:${USER} ${TARGET}
+mkdir -p ${TARGET}/volumes/ilias/data/
+mkdir -p ${TARGET}/volumes/data/
+cp -r ${PWD}/${PACKNAME}/var/www/html/ilias.ini.php ${TARGET}/volumes/ilias/ilias.ini.php
+cp -r ${PWD}/${PACKNAME}/var/www/html/data ${TARGET}/volumes/ilias/
+cp -r ${PWD}/${PACKNAME}/var/ilias/data/* ${TARGET}/volumes/data
+cp -r ${PWD}/${PACKNAME}/var/ilias/ilias.sql ${TARGET}/volumes/data/ilias.sql
 
 # start the instance
 doil up ${INSTANCE} --quiet ${FLAG}
@@ -187,10 +185,10 @@ fi
 #echo "user=ilias" >> ${TARGET}/volumes/data/mysql-client.conf
 #echo "password=${SQLPW}" >> ${TARGET}/volumes/data/mysql-client.conf
 
-docker exec -i ${INSTANCE}_${SUFFIX} bash -c '/etc/init.d/mariadb stop'
-docker exec -i ${INSTANCE}_${SUFFIX} bash -c 'chown -R mysql:mysql /var/lib/mysql'
-docker exec -i ${INSTANCE}_${SUFFIX} bash -c 'chown -R root:root /etc/mysql'
-docker exec -i ${INSTANCE}_${SUFFIX} bash -c "service mysql restart"
+#docker exec -i ${INSTANCE}_${SUFFIX} bash -c '/etc/init.d/mariadb stop'
+#docker exec -i ${INSTANCE}_${SUFFIX} bash -c 'chown -R mysql:mysql /var/lib/mysql'
+#docker exec -i ${INSTANCE}_${SUFFIX} bash -c 'chown -R root:root /etc/mysql'
+#docker exec -i ${INSTANCE}_${SUFFIX} bash -c "service mysql restart"
 
 docker exec -i ${INSTANCE}_${SUFFIX} bash -c 'mysql -e "DROP DATABASE IF EXISTS ilias;"'
 docker exec -i ${INSTANCE}_${SUFFIX} bash -c 'mysql -e "CREATE DATABASE ilias;"'
@@ -202,9 +200,9 @@ sed -i "s/pass =.*/pass = '${SQLPW}'/" ${CLIENT_FILE_LOCATION}
 doil_send_log "Setting permissions"
 
 # set access
-sudo chown -R ${USER}:${USER} ${TARGET}
-docker exec -i ${INSTANCE}_${SUFFIX} bash -c "chown -R mysql:mysql /var/lib/mysql"
-docker exec -i ${INSTANCE}_${SUFFIX} bash -c "service mysql restart"
+#sudo chown -R ${USER}:${USER} ${TARGET}
+#docker exec -i ${INSTANCE}_${SUFFIX} bash -c "chown -R mysql:mysql /var/lib/mysql"
+#docker exec -i ${INSTANCE}_${SUFFIX} bash -c "service mysql restart"
 
 doil down ${INSTANCE} --quiet ${FLAG}
 doil up ${INSTANCE} --quiet ${FLAG}
