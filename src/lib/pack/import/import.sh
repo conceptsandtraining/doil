@@ -190,7 +190,7 @@ fi
 docker exec -i ${INSTANCE}_${SUFFIX} bash -c '/etc/init.d/mariadb stop'
 docker exec -i ${INSTANCE}_${SUFFIX} bash -c 'chown -R mysql:mysql /var/lib/mysql'
 docker exec -i ${INSTANCE}_${SUFFIX} bash -c 'chown -R root:root /etc/mysql'
-docker exec -i ${INSTANCE}_${SUFFIX} bash -c '/etc/init.d/mariadb start'
+docker exec -i ${INSTANCE}_${SUFFIX} bash -c "service mysql restart"
 
 docker exec -i ${INSTANCE}_${SUFFIX} bash -c 'mysql -e "DROP DATABASE IF EXISTS ilias;"'
 docker exec -i ${INSTANCE}_${SUFFIX} bash -c 'mysql -e "CREATE DATABASE ilias;"'
