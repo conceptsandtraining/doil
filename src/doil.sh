@@ -16,7 +16,7 @@
 # check the most basic thing
 if [ -z ${1:+x} ]
 then
-  eval "/usr/local/lib/doil/lib/system/help.sh"
+  eval "/usr/local/lib/doil/lib/help.sh"
   exit
 fi
 
