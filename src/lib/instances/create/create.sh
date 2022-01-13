@@ -279,8 +279,8 @@ else
 fi
 doil_send_okay
 
-# set user rights
-doil_send_status "Setting folder rights"
+# set user permissions
+doil_send_status "Setting folder permissions"
 if [[ -z ${GLOBAL} ]]
 then
   chown -R ${USER}:${USER} ${FOLDERPATH}
@@ -374,8 +374,8 @@ TMP_BUILD=$(docker build -t doil/${NAME}_${SUFFIX} . 2>&1 > /dev/null)
 TMP_RUN=$(docker run -d --name ${NAME}_${SUFFIX} doil/${NAME}_${SUFFIX} 2>&1 > /dev/null)
 
 # mariadb
-docker exec -i ${NAME}_${SUFFIX} bash -c "apt install -y mariadb-server python3-mysqldb > /dev/null"
-docker exec -i ${NAME}_${SUFFIX} bash -c "/etc/init.d/mariadb start" 2>&1 > /dev/null
+docker exec -i ${NAME}_${SUFFIX} bash -c "apt install -y mariadb-server python3-mysqldb 2>&1 > /dev/null" 2>&1 > /dev/null
+docker exec -i ${NAME}_${SUFFIX} bash -c "/etc/init.d/mariadb start" > /dev/null
 sleep 5
 docker exec -i ${NAME}_${SUFFIX} bash -c "/etc/init.d/mariadb stop" 2>&1 > /dev/null
 
@@ -383,6 +383,8 @@ docker exec -i ${NAME}_${SUFFIX} bash -c "/etc/init.d/mariadb stop" 2>&1 > /dev/
 docker cp ${NAME}_${SUFFIX}:/etc/apache2 ./volumes/etc/
 docker cp ${NAME}_${SUFFIX}:/etc/php ./volumes/etc/
 docker cp ${NAME}_${SUFFIX}:/var/log/apache2/ ./volumes/logs/
+docker cp ${NAME}_${SUFFIX}:/etc/mysql/ ./volumes/etc/
+docker cp ${NAME}_${SUFFIX}:/var/lib/mysql/ ./volumes/
 
 # stop image
 docker commit ${NAME}_${SUFFIX} doil/${NAME}_${SUFFIX}:stable 2>&1 > /dev/null
@@ -390,9 +392,12 @@ TMP_STOP=$(docker stop ${NAME}_${SUFFIX}) 2>&1 > /dev/null
 TMP_RM=$(docker rm ${NAME}_${SUFFIX}) 2>&1 > /dev/null
 
 # start container via docker-compose
-DDUP=$(doil up ${NAME} --quiet ${FLAG})
+DDUP=$(doil up ${NAME} --quiet ${FLAG} 2>&1 > /dev/null)
+docker exec -i ${NAME}_${SUFFIX} bash -c "chown -R mysql:mysql /var/lib/mysql" > /dev/null
 docker exec -i ${NAME}_${SUFFIX} bash -c "/etc/init.d/mariadb start" > /dev/null
 sleep 5
+
+doil_send_okay
 
 ##############
 # checking key
@@ -402,8 +407,9 @@ doil_send_status "Checking key"
 SALTKEYS=$(docker exec -t -i saltmain /bin/bash -c "salt-key -L" | grep "${NAME}.${SUFFIX}")
 until [[ ! -z ${SALTKEYS} ]]
 do
-  DDDOWN=$(docker-compose down)
-  DDUP=$(docker-compose up -d)
+  docker exec -i ${NAME}_${SUFFIX} bash -c "killall -9 salt-minion" > /dev/null
+  docker exec -i ${NAME}_${SUFFIX} bash -c "rm -rf /var/lib/salt/pki/minion/*" > /dev/null
+  docker exec -i ${NAME}_${SUFFIX} bash -c "salt-minion -d" > /dev/null
   sleep 5
   SALTKEYS=$(docker exec -t -i saltmain /bin/bash -c "salt-key -L" | grep "${NAME}.${SUFFIX}")  
 done
@@ -532,7 +538,7 @@ docker commit ${NAME}_${SUFFIX} doil/${NAME}_${SUFFIX}:stable > /dev/null
 doil_send_okay
 
 # stop the server
-DDOWN=$(doil down ${NAME} ${FLAG} --quiet)
+DDOWN=$(doil down ${NAME} ${FLAG} --quiet 2>&1 > /dev/null)  2>&1 > /dev/null
 
 if [[ ${SKIP_README} != TRUE ]]
 then
@@ -558,4 +564,4 @@ fi
 # Everything done
 doil_send_log "Everything done"
 
-echo -e "Your project is successfully installed. Head to your project via 'doil instances:cd ${NAME}' and see the readme file for more information about the usage with doil."
+echo -e "Your project is successfully created. Head to your project via 'doil instances:cd ${NAME}' and see the readme file for more information about the usage with doil."

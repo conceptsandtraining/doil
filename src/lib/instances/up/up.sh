@@ -98,8 +98,8 @@ then
   docker-compose up -d
 
   # start cron service
-  docker exec -i ${INSTANCE}_${SUFFIX} bash -c "service cron status"
-  docker exec -i ${INSTANCE}_${SUFFIX} bash -c "service cron start"
+  docker exec -i ${INSTANCE}_${SUFFIX} bash -c "service cron status" 2>&1 > /dev/null
+  docker exec -i ${INSTANCE}_${SUFFIX} bash -c "service cron start" 2>&1 > /dev/null
   
   # remove the current ip from the host file and add the new one
   DCHASH=$(doil_get_hash ${INSTANCE}_${SUFFIX})

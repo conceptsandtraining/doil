@@ -93,7 +93,7 @@ doil up ${INSTANCE} --quiet ${FLAG}
 sleep 5
 
 # copy database
-doil_send_log "Exporting database. Enter password of database."
+doil_send_log "Exporting database."
 
 TARGET=$(readlink ${LINKPATH})
 if [[ -f "${TARGET}/README.md" ]]
@@ -141,6 +141,5 @@ zip -r "${INSTANCE}-doilpack.zip" "${INSTANCE}-doilpack"
 
 # cleanup
 rm -rf "${INSTANCE}-doilpack"
-doil down ${INSTANCE} --quiet ${FLAG}
 
 doil_send_log "Done"
