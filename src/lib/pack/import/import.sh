@@ -167,7 +167,7 @@ cp -r ${PWD}/${PACKNAME}/var/ilias/ilias.sql ${TARGET}/volumes/data/ilias.sql
 
 # start the instance
 doil up ${INSTANCE} --quiet ${FLAG}
-sleep 5
+sleep 15
 doil_send_log "Importing database"
 
 # import database
