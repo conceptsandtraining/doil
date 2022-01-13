@@ -111,6 +111,22 @@ php8.0:
       - php8.0-bcmath
       - php8.0-imap
 
+ini_filesize_apache2:
+  cmd.run:
+    - name: sed -i "/upload_max_filesize*/c upload_max_filesize = 4096M" /etc/php/7.2/apache2/php.ini
+
+ini_filesize_cli:
+  cmd.run:
+    - name: sed -i "/upload_max_filesize*/c upload_max_filesize = 4096M" /etc/php/7.2/cli/php.ini
+
+ini_postmax_apache2:
+  cmd.run:
+    - name: sed -i "/post_max_size*/c post_max_size = 4096M" /etc/php/7.2/apache2/php.ini
+
+ini_postmax_cli:
+  cmd.run:
+    - name: sed -i "/post_max_size*/c post_max_size = 4096M" /etc/php/7.2/cli/php.ini
+
 a2_disable_php73:
   module.run:
     - name: apache.a2dismod
