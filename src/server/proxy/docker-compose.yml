@@ -9,6 +9,9 @@ services:
     networks:
       doil_proxy:
         ipv4_address: 172.24.0.254
+    ports:
+      - "80:80"
+      - "443:443"
     volumes:
       - type: bind
         source: ./conf/
