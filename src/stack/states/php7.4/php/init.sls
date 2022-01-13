@@ -15,6 +15,7 @@ php7.4:
       - php7.4-soap
       - php7.4-bcmath
       - php7.4-imap
+      - php7.4-xmlrpc
 
 php7.0:
   pkg.removed:
