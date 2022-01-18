@@ -97,6 +97,7 @@ then
     THE_GROUP=$(id -g ${USER})
     docker exec -i ${INSTANCE}_${SUFFIX} bash -c "chown -R ${THE_USER}:${THE_GROUP} /var/lib/mysql"
     docker exec -i ${INSTANCE}_${SUFFIX} bash -c "chown -R ${THE_USER}:${THE_GROUP} /etc/mysql"
+    docker exec -i ${INSTANCE}_${SUFFIX} bash -c "chown -R ${THE_USER}:${THE_GROUP} /etc/php"
 
     # set machine inactive
     doil down ${INSTANCE} --quiet ${FLAG}
