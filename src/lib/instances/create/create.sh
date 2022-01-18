@@ -370,14 +370,14 @@ echo "Building minion image ..."
 
 # build the image
 cd ${FOLDERPATH}
-TMP_BUILD=$(docker build -t doil/${NAME}_${SUFFIX} .)
-TMP_RUN=$(docker run -d --name ${NAME}_${SUFFIX} doil/${NAME}_${SUFFIX})
+TMP_BUILD=$(docker build -t doil/${NAME}_${SUFFIX} . 2>&1 > /dev/null)
+TMP_RUN=$(docker run -d --name ${NAME}_${SUFFIX} doil/${NAME}_${SUFFIX} 2>&1 > /dev/null)
 
 # mariadb
 docker exec -i ${NAME}_${SUFFIX} bash -c "apt install -y mariadb-server python3-mysqldb 2>&1 > /dev/null" 2>&1 > /dev/null
 docker exec -i ${NAME}_${SUFFIX} bash -c "/etc/init.d/mariadb start" > /dev/null
 sleep 5
-docker exec -i ${NAME}_${SUFFIX} bash -c "/etc/init.d/mariadb stop" > /dev/null
+docker exec -i ${NAME}_${SUFFIX} bash -c "/etc/init.d/mariadb stop" 2>&1 > /dev/null
 
 # copy the config
 docker cp ${NAME}_${SUFFIX}:/etc/apache2 ./volumes/etc/
@@ -387,14 +387,15 @@ docker cp ${NAME}_${SUFFIX}:/etc/mysql/ ./volumes/etc/
 docker cp ${NAME}_${SUFFIX}:/var/lib/mysql/ ./volumes/
 
 # stop image
-docker commit ${NAME}_${SUFFIX} doil/${NAME}_${SUFFIX}:stable > /dev/null
-TMP_STOP=$(docker stop ${NAME}_${SUFFIX})
-TMP_RM=$(docker rm ${NAME}_${SUFFIX})
+docker commit ${NAME}_${SUFFIX} doil/${NAME}_${SUFFIX}:stable 2>&1 > /dev/null
+TMP_STOP=$(docker stop ${NAME}_${SUFFIX}) 2>&1 > /dev/null
+TMP_RM=$(docker rm ${NAME}_${SUFFIX}) 2>&1 > /dev/null
 
 # start container via docker-compose
 DDUP=$(doil up ${NAME} --quiet ${FLAG} 2>&1 > /dev/null)
 docker exec -i ${NAME}_${SUFFIX} bash -c "chown -R mysql:mysql /var/lib/mysql" > /dev/null
 docker exec -i ${NAME}_${SUFFIX} bash -c "/etc/init.d/mariadb start" > /dev/null
+sleep 5
 
 doil_send_okay
 
