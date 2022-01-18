@@ -322,10 +322,13 @@ then
 else
   cd "${HOME}/.doil/repositories/${REPOSITORY}"
 fi
+
+# updating the git repo
 git config core.fileMode false
-git fetch origin --quiet > /dev/null
-git checkout ${BRANCH} --quiet > /dev/null> /dev/null
-git pull origin ${BRANCH} --quiet > /dev/null
+git checkout origin/${BRANCH} --quiet > /dev/null
+git branch -D ${BRANCH} --quiet > /dev/null
+git checkout -b ${BRANCH} --quiet > /dev/null
+
 if [[ ${GLOBAL_REPOSITORY} == "TRUE" ]]
 then
   cp -r "/usr/local/share/doil/repositories/${REPOSITORY}" "${FOLDERPATH}/volumes/ilias"
@@ -366,7 +369,7 @@ doil_send_okay
 
 #######################
 # building minion image
-echo "Building minion image ..."
+doil_send_status "Building minion image"
 
 # build the image
 cd ${FOLDERPATH}
