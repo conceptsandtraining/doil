@@ -13,89 +13,25 @@
 # /ᐠ｡‸｡ᐟ\
 # Thanks to Concepts and Training for supporting doil
 
-if [ $1 == "up" ]
-then
-  if [ -z ${2:+x} ]
-  then
-    doil instances:up
-  else
-    doil instances:up $@
-  fi
-  exit
-fi
+COMMAND=""
+case ${1} in
+  up|down|create|delete|login|cd|list|apply)
+    COM=${1} # set command
+    ;;
+  rm)
+    COMMAND="delete" # set command
+    ;;
+  ls)
+    COMMAND="list" # set command
+    ;;
+  ps)
+    COMMAND="processstatus" # set command
+    ;;
+esac
 
-if [ $1 == "down" ]
+if [[ ! -z ${COMMAND} ]]
 then
-  if [ -z ${2:+x} ]
-  then
-    doil instances:down
-  else
-    doil instances:down $@
-  fi
-  exit
-fi
-
-if [ $1 == "create" ]
-then
-  if [ -z ${2:+x} ]
-  then
-    doil instances:create
-  else
-    shift
-    doil instances:create $@
-  fi
-  exit
-fi
-
-if [ $1 == "delete" ] || [ $1 == "rm" ]
-then
-  if [ -z ${2:+x} ]
-  then
-    doil instances:delete
-  else
-    doil instances:delete $@
-  fi
-  exit
-fi
-
-if [ $1 == "login" ]
-then
-  if [ -z ${2:+x} ]
-  then
-    doil instances:login
-  else
-    doil instances:login $@
-  fi
-  exit
-fi
-
-if [ $1 == "cd" ]
-then
-  if [ -z ${2:+x} ]
-  then
-    doil instances:cd
-  else
-    doil instances:cd $@
-  fi
-  exit
-fi
-
-if [ $1 == "list" ] || [ $1 == "ls" ]
-then
-  doil instances:list
-  exit
-fi
-
-if [ $1 == "apply" ]
-then
-  shift
-  doil instances:apply $@
-  exit
-fi
-
-if [ $1 == "ps" ]
-then
-  shift
-  doil instances:processstatus
+  shift # shift parameter
+  doil instances:${COMMAND} $@
   exit
 fi

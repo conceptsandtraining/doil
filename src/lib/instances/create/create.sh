@@ -20,9 +20,6 @@ source /usr/local/lib/doil/lib/include/helper.sh
 # set current ad
 CWD=$(pwd)
 
-# we can move the pointer one position
-shift
-
 # check if command is just plain help
 # if we don't have any command we load the help
 while [[ $# -gt 0 ]]

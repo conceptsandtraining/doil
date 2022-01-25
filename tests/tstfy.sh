@@ -116,6 +116,18 @@ assert_contains() {
   fi
 }
 
+asset_string_contains() {
+  local EXPECTED=$1
+  local ACTUAL=$2
+
+  if [[ ! ${ACTUAL} == *"${EXPECTED}"* ]]
+  then
+    echo -n "FAILURE"
+    echo -e "\n\t\texpected [${EXPECTED}] in string but string contains [${ACTUAL}]"
+    return 1
+  fi
+}
+
 tstfy_run_test() {
   set -e
   "${1}"
@@ -158,6 +170,7 @@ tstfy() {
        [[ ${FILE_READABLE} == TRUE ]]
     then
       TEST_COUNTER_FILES=$[$TEST_COUNTER_FILES +1]
+      echo ""
       echo "Running tests in ${TEST_FILE}"
       source ${TEST_FILE}
 

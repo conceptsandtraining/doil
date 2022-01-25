@@ -271,8 +271,8 @@ printf " ${GREEN}ok${NC}\n"
 
 echo -n "Restarting server ..."
 
-doil system:proxy restart --quiet
-doil system:salt restart --quiet
+#doil system:proxy restart --quiet
+#doil system:salt restart --quiet
 
 printf " ${GREEN}ok${NC}\n"
 
