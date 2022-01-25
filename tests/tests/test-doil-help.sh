@@ -2,10 +2,10 @@
 
 test_doil_display_help() {
   source ./src/lib/include/helper.sh
-  asset_string_contains "doil - ILIAS docker tool" "$(doil_display_help)"
+  assert_string_contains "doil - ILIAS docker tool" "$(doil_display_help)"
 }
 
 test_doil_display_help_with_parameter() {
   source ./src/lib/include/helper.sh
-  asset_string_contains "doil instances - manages the instances" "$(doil_display_help "instances")"
+  assert_string_contains "doil instances - manages the instances" "$(doil_display_help "instances")"
 }

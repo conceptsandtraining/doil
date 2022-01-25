@@ -116,7 +116,7 @@ assert_contains() {
   fi
 }
 
-asset_string_contains() {
+assert_string_contains() {
   local EXPECTED=$1
   local ACTUAL=$2
 
