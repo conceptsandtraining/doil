@@ -11,5 +11,8 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v2
 
+      - name: Install doil
+        run: sudo ./install.sh
+
       - name: Unit Tests
         run: ./tests/tstfy.sh tests
