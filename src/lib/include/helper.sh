@@ -66,7 +66,7 @@ doil_get_command() {
   echo ${CMD}
 }
 
-doil_display_help() {
+doil_maybe_display_help() {
   SECTION=${1}
   COMMAND=${2}
 
@@ -77,7 +77,7 @@ doil_display_help() {
     || [ "${COMMAND}" == "--help" ] \
     || [ "${COMMAND}" == "-h" ]
   then
-    eval "/usr/local/lib/doil/lib/${SECTION}/help.sh"
+    eval "${DOILLIBPATH}/lib/${SECTION}/help.sh"
     exit
   fi
 }

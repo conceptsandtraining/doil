@@ -7,18 +7,8 @@
 #
 # Contribute: https://github.com/conceptsandtraining/tstfy
 #
-#                    .-.
-#                   / /
-#                  / |
-#    |\     ._ ,-""  `.
-#    | |,,_/  7        ;
-#  `;=     ,=(     ,  /
-#   |`q  q  ` |    \_,|
-#  .=; <> _ ; /  ,/'/ |
-# ';|\,j_ \;=\ ,/   `-'
-#     `--'_|\  )
-#    ,' | /  ;'
-#   (,,/ (,,/      Thanks to Concepts and Training for supporting tstfy
+# /ᐠ｡‸｡ᐟ\
+# Thanks to Concepts and Training for supporting doil
 
 # Setup local variables
 TEST_STATUS=TRUE
