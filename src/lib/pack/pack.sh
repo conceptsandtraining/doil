@@ -13,36 +13,12 @@
 # /ᐠ｡‸｡ᐟ\
 # Thanks to Concepts and Training for supporting doil
 
+# get the helper
+source /usr/local/lib/doil/lib/include/helper.sh
+
 # get the command
-CMD=""
-oIFS=$IFS
-IFS=":"
-declare -a COMMANDS=(${1})
-if [ ! -z ${COMMANDS[1]} ]
-then
-  CMD=${COMMANDS[1]}
-fi
-IFS=$oIFS
-unset $oIFS
+CMD=$(doil_get_command ${1})
+shift # important
 
-# check if command is just plain help
-# if we don't have any command we load the help
-if [ -z "${CMD}" ] \
-	|| [ "${CMD}" == "help" ] \
-  || [ "${CMD}" == "--help" ] \
-  || [ "${CMD}" == "-h" ]
-then
-  eval "/usr/local/lib/doil/lib/pack/help.sh"
-  exit
-fi
-
-# check if the command exists
-if [ ! -f "/usr/local/lib/doil/lib/pack/${CMD}/${CMD}.sh" ]
-then
-  echo -e "\033[1mERROR:\033[0m"
-  echo -e "\tCan't find a suitable command."
-  echo -e "\tUse \033[1mdoil pack:help\033[0m for more information"
-  exit 255
-fi
-
-eval "/usr/local/lib/doil/lib/pack/${CMD}/${CMD}.sh" $@
+doil_display_help "pack" ${CMD}
+doil_eval_command "pack" ${CMD} $@
