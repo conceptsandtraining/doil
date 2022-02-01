@@ -51,6 +51,56 @@ doil_get_data() {
   esac
 }
 
+doil_get_command() {
+  # get the command
+  CMD=""
+  oIFS=$IFS
+  IFS=":"
+  declare -a COMMANDS=(${1})
+  if [ ! -z ${COMMANDS[1]} ]
+  then
+    CMD=${COMMANDS[1]}
+  fi
+  IFS=$oIFS
+  unset $oIFS
+  echo ${CMD}
+}
+
+doil_maybe_display_help() {
+  SECTION=${1}
+  COMMAND=${2}
+
+  # check if command is just plain help
+  # if we don't have any command we load the help
+  if [ -z "${COMMAND}" ] \
+    || [ "${COMMAND}" == "help" ] \
+    || [ "${COMMAND}" == "--help" ] \
+    || [ "${COMMAND}" == "-h" ]
+  then
+    eval "${DOILLIBPATH}/lib/${SECTION}/help.sh"
+    exit
+  fi
+}
+
+doil_eval_command() {
+  SECTION=${1}
+  COMMAND=${2}
+  shift # past section
+  shift # past command
+  PARAMS=${@}
+
+  # check if the command exists
+  if [ ! -f "/usr/local/lib/doil/lib/${SECTION}/${COMMAND}/${COMMAND}.sh" ]
+  then
+    echo -e "\033[1mERROR:\033[0m"
+    echo -e "\tCan't find a suitable command."
+    echo -e "\tUse \033[1mdoil ${SECTION}:help\033[0m for more information"
+    exit 255
+  fi
+
+  eval "/usr/local/lib/doil/lib/${SECTION}/${COMMAND}/${COMMAND}.sh" ${PARAMS}
+}
+
 doil_send_log() {
   NOW=$(date +'%d.%m.%Y %I:%M:%S')
   echo "[$NOW] ${1}"

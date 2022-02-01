@@ -15,7 +15,7 @@
 
 cat <<-EOF
 NAME
-  doil pack - exports and imports a doil packacge
+  doil pack - exports and imports a doil package
 
 SYNOPSIS
   doil pack:<command>

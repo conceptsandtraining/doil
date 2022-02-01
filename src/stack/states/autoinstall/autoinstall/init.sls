@@ -1,5 +1,6 @@
 {% set mysql_password = salt['grains.get']('mysql_password', 'ilias') %}
 {% set doil_domain = salt['grains.get']('doil_domain', 'http://ilias.local') %}
+{% set doil_host_system = salt['grains.get']('doil_host_system', 'linux') %}
 
 /var/ilias/data/ilias-config.json:
   file.managed:
@@ -21,26 +22,25 @@
       language: 'de'
       log_dir: /var/ilias/logs
       http_path: {{ doil_domain }}
-    - user: www-data
-    - group: www-data
-    - mode: 640
 
 ilias-setup:
   cmd.run:
     - name: php /var/www/html/setup/setup.php install -y /var/ilias/data/ilias-config.json
 
-/var/www/html/:
-  file.directory:
-    - user: www-data
-    - group: www-data
-    - recurse:
-      - user
-      - group
+{% if salt['grains.get'] == 'linux' %}
+  /var/www/html/:
+    file.directory:
+      - user: www-data
+      - group: www-data
+      - recurse:
+        - user
+        - group
 
-/var/ilias/:
-  file.directory:
-    - user: www-data
-    - group: www-data
-    - recurse:
-      - user
-      - group
+  /var/ilias/:
+    file.directory:
+      - user: www-data
+      - group: www-data
+      - recurse:
+        - user
+        - group
+{% endif %}

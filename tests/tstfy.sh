@@ -7,18 +7,8 @@
 #
 # Contribute: https://github.com/conceptsandtraining/tstfy
 #
-#                    .-.
-#                   / /
-#                  / |
-#    |\     ._ ,-""  `.
-#    | |,,_/  7        ;
-#  `;=     ,=(     ,  /
-#   |`q  q  ` |    \_,|
-#  .=; <> _ ; /  ,/'/ |
-# ';|\,j_ \;=\ ,/   `-'
-#     `--'_|\  )
-#    ,' | /  ;'
-#   (,,/ (,,/      Thanks to Concepts and Training for supporting tstfy
+# /ᐠ｡‸｡ᐟ\
+# Thanks to Concepts and Training for supporting doil
 
 # Setup local variables
 TEST_STATUS=TRUE
@@ -116,6 +106,18 @@ assert_contains() {
   fi
 }
 
+assert_string_contains() {
+  local EXPECTED=$1
+  local ACTUAL=$2
+
+  if [[ ! ${ACTUAL} == *"${EXPECTED}"* ]]
+  then
+    echo -n "FAILURE"
+    echo -e "\n\t\texpected [${EXPECTED}] in string but string contains [${ACTUAL}]"
+    return 1
+  fi
+}
+
 tstfy_run_test() {
   set -e
   "${1}"
@@ -158,6 +160,7 @@ tstfy() {
        [[ ${FILE_READABLE} == TRUE ]]
     then
       TEST_COUNTER_FILES=$[$TEST_COUNTER_FILES +1]
+      echo ""
       echo "Running tests in ${TEST_FILE}"
       source ${TEST_FILE}
 

@@ -24,7 +24,8 @@ DESCRIPTION
   With this command doil is able to import an archive of 
   doilpack into an ILIAS installation. If the installation is
   not present, it will be created with the properties of the
-  configuration inside of the pack.
+  configuration inside of the pack. If the instance is present
+  all existing data will be overwritten by the new data.
 
 EXAMPLE:
   doil pack:import ilias ilias-doilpack.zip

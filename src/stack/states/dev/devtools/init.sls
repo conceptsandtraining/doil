@@ -25,16 +25,10 @@ install-lessc:
 /var/www/html/.git/hooks/post-merge:
   file.managed:
     - source: salt://devtools/githook-post-merge
-    - user: www-data
-    - group: www-data
-    - mode: 744
 
 ### Implement Adminer
 # adminer-4.8.0-mysql-en.php
 /var/www/adminer/index.php:
   file.managed:
     - source: salt://devtools/adminer-4.8.0-mysql-en.php
-    - mode: 755
-    - user: www-data
-    - group: www-data
     - makedirs: True

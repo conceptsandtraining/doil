@@ -259,7 +259,12 @@ fi
 
 chown -R ${SUDO_USER}:${SODU_USER} "${HOME}/.doil"
 usermod -a -G doil ${SUDO_USER}
-echo "${SUDO_USER}">>"/etc/doil/user.conf"
+
+USEREXISTS=$(grep "${SUDO_USER}" /etc/doil/user.conf)
+if [[ -z ${USEREXISTS} ]]
+then
+  echo "${SUDO_USER}">>"/etc/doil/user.conf"
+fi
 
 printf " ${GREEN}ok${NC}\n"
 
@@ -271,8 +276,8 @@ printf " ${GREEN}ok${NC}\n"
 
 echo -n "Restarting server ..."
 
-doil system:proxy restart --quiet
-doil system:salt restart --quiet
+#doil system:proxy restart --quiet
+#doil system:salt restart --quiet
 
 printf " ${GREEN}ok${NC}\n"
 

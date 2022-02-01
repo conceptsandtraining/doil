@@ -17,9 +17,6 @@
 source /usr/local/lib/doil/lib/include/env.sh
 source /usr/local/lib/doil/lib/include/helper.sh
 
-# we need to move the pointer two positions
-shift
-
 # check if command is just plain help
 # if we don't have any command we load the help
 while [[ $# -gt 0 ]]
