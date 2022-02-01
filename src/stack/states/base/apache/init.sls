@@ -15,9 +15,6 @@ apache_packages:
     - template: jinja
     - context:
       doil_project_name: {{ doil_project_name }}
-    - user: root
-    - group: root
-    - mode: 644
 
 /etc/apache2/sites-enabled/000-default.conf:
   file.symlink:
@@ -26,9 +23,6 @@ apache_packages:
 /etc/supervisor/conf.d/apache2.conf:
   file.managed:
     - source: salt://apache/apache.conf
-    - user: root
-    - group: root
-    - mode: 644
 
 apache_supervisor_signal:
   supervisord.running:

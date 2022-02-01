@@ -20,5 +20,5 @@ source /usr/local/lib/doil/lib/include/helper.sh
 CMD=$(doil_get_command ${1})
 shift # important
 
-doil_display_help "repo" ${CMD}
+doil_maybe_display_help "repo" ${CMD}
 doil_eval_command "repo" ${CMD} $@

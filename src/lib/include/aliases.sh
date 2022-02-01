@@ -13,25 +13,25 @@
 # /ᐠ｡‸｡ᐟ\
 # Thanks to Concepts and Training for supporting doil
 
-COMMAND=""
+COM=""
 case ${1} in
   up|down|create|delete|login|cd|list|apply)
     COM=${1} # set command
     ;;
   rm)
-    COMMAND="delete" # set command
+    COM="delete" # set command
     ;;
   ls)
-    COMMAND="list" # set command
+    COM="list" # set command
     ;;
   ps)
-    COMMAND="processstatus" # set command
+    COM="processstatus" # set command
     ;;
 esac
 
-if [[ ! -z ${COMMAND} ]]
+if [[ ! -z ${COM} ]]
 then
   shift # shift parameter
-  doil instances:${COMMAND} $@
+  doil instances:${COM} $@
   exit
 fi

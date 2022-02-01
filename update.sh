@@ -259,7 +259,12 @@ fi
 
 chown -R ${SUDO_USER}:${SODU_USER} "${HOME}/.doil"
 usermod -a -G doil ${SUDO_USER}
-echo "${SUDO_USER}">>"/etc/doil/user.conf"
+
+USEREXISTS=$(grep "${SUDO_USER}" /etc/doil/user.conf)
+if [[ -z ${USEREXISTS} ]]
+then
+  echo "${SUDO_USER}">>"/etc/doil/user.conf"
+fi
 
 printf " ${GREEN}ok${NC}\n"
 

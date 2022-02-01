@@ -424,6 +424,13 @@ docker exec -i saltmain bash -c "salt '${NAME}.${SUFFIX}' grains.set 'mysql_pass
 docker exec -i saltmain bash -c "salt '${NAME}.${SUFFIX}' grains.set 'cron_password' ${GRAIN_CRON_PASSWORD} --out=quiet"
 docker exec -i saltmain bash -c "salt '${NAME}.${SUFFIX}' grains.set 'doil_domain' http://${DOIL_HOST}/${NAME} --out=quiet"
 docker exec -i saltmain bash -c "salt '${NAME}.${SUFFIX}' grains.set 'doil_project_name' ${NAME} --out=quiet"
+if [[ "$(< /proc/version)" == *@(Microsoft|WSL)* ]]
+then
+  docker exec -i saltmain bash -c "salt '${NAME}.${SUFFIX}' grains.set 'doil_host_system' windows --out=quiet"
+else
+  docker exec -i saltmain bash -c "salt '${NAME}.${SUFFIX}' grains.set 'doil_host_system' linux --out=quiet"  
+fi
+
 sleep 5
 doil_send_okay
 
