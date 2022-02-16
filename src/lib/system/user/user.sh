@@ -15,6 +15,7 @@
 
 # get the helper
 source /usr/local/lib/doil/lib/include/env.sh
+source /usr/local/lib/doil/lib/include/log.sh
 source /usr/local/lib/doil/lib/include/helper.sh
 
 # check if command is just plain help
@@ -78,7 +79,7 @@ then
     exit 255
   fi
 
-  doil_send_status "Adding user ${THEUSER}"
+  doil_status_send_message "Adding user ${THEUSER}"
   THEHOME=$(eval echo "~${THEUSER}")
   mkdir -p ${THEHOME}/.doil
   mkdir -p ${THEHOME}/.doil/config/
@@ -88,7 +89,7 @@ then
   chown -R ${THEUSER}:${THEUSER} "${THEHOME}/.doil"
   usermod -a -G doil ${THEUSER}
   echo "${THEUSER}">>"/etc/doil/user.conf"
-  doil_send_okay
+  doil_status_okay
 
   exit
 fi
@@ -105,12 +106,12 @@ then
     exit 255
   fi
 
-  doil_send_status "Deleting user ${THEUSER}"
+  doil_status_send_message "Deleting user ${THEUSER}"
   THEHOME=$(eval echo "~${THEUSER}")
   rm -rf ${THEHOME}/.doil
   deluser ${THEUSER} doil>/dev/null
   LINE=$(sed -i "/${THEUSER}/d" "/etc/doil/user.conf")
-  doil_send_okay
+  doil_status_okay
 
   exit
 fi

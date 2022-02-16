@@ -15,6 +15,7 @@
 
 # get the helper
 source /usr/local/lib/doil/lib/include/env.sh
+source /usr/local/lib/doil/lib/include/log.sh
 source /usr/local/lib/doil/lib/include/helper.sh
 
 # check if command is just plain help
@@ -50,39 +51,39 @@ read -p "Please confirm that you want to deinstall doil [yN]: " CONFIRM
 if [[ ${CONFIRM} == "y" ]]
 then
 
-  doil_send_status "Removing proxy server"
+  doil_status_send_message "Removing proxy server"
   doil system:proxy stop --quiet
   docker image rm doil_proxy > /dev/null
   docker volume rm proxy_persistent > /dev/null
-  doil_send_okay
+  doil_status_okay
 
-  doil_send_status "Removing salt server"
+  doil_status_send_message "Removing salt server"
   doil system:salt stop --quiet
   docker image rm saltmain > /dev/null
   docker volume rm salt_persistent > /dev/null
-  doil_send_okay
+  doil_status_okay
 
-  doil_send_status "Deleting registered users"
+  doil_status_send_message "Deleting registered users"
   for THEUSER in cat /etc/doil/user.conf
   do
     doil system:user delete ${THEUSER} --quiet
   done
-  doil_send_okay
+  doil_status_okay
 
-  doil_send_status "Deleting group doil"
+  doil_status_send_message "Deleting group doil"
   groupdel doil
-  doil_send_okay
+  doil_status_okay
 
-  doil_send_status "Deleting log"
+  doil_status_send_message "Deleting log"
   rm -rf /var/log/doil.log
-  doil_send_okay
+  doil_status_okay
 
-  doil_send_status "Removing doil"
+  doil_status_send_message "Removing doil"
   rm -rf /etc/doil/
   rm -rf /usr/local/lib/doil
   rm -rf /usr/local/share/doil
   rm -rf /usr/local/bin/doil
-  doil_send_okay
+  doil_status_okay
 
   echo "Doil successfully deleted"
 fi

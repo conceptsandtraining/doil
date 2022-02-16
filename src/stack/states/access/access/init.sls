@@ -9,7 +9,6 @@ packages_check:
       - ghostscript
       - npm
 
-{% if salt['grains.get']('doil_host_system', 'linux') == 'linux' %}
 /var/www/html/:
   file.directory:
     - user: www-data
@@ -25,4 +24,3 @@ packages_check:
     - recurse:
       - user
       - group
-{% endif %}

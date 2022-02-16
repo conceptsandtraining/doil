@@ -17,6 +17,47 @@ SED="$(which sed)"
 GREP="$(which grep)"
 RM="$(which rm)"
 
+# fakes
+function rm() {
+  return 0
+}
+function touch() {
+  return 0
+}
+function mkdir() {
+  return 0
+}
+function cp() {
+  return 0
+}
+function mv() {
+  return 0
+}
+function sed() {
+  return 0
+}
+function grep() {
+  return 0
+}
+function cat() {
+  return 0
+}
+function groupadd() {
+  return 0
+}
+function usermod() {
+  return 0
+}
+function chmod() {
+  return 0
+}
+function chown() {
+  return 0
+}
+function printf() {
+  return 0
+}
+
 # asserts
 _assert_expression() {
   local ASSERTION=$1

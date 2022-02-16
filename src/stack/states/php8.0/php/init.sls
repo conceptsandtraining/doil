@@ -17,18 +17,18 @@ php8.0:
     - refresh: true
     - pkgs:
       - libapache2-mod-php8.0
-      - php-curl
-      - php-gd
       - php-json
       - php8.0-mysql
       - php8.0-readline
       - php8.0-xsl
       - php8.0-cli
-      - php-zip
+      - php8.0-zip
       - php-mbstring
       - php8.0-soap
       - php8.0-bcmath
       - php8.0-imap
+      - php8.0-curl
+      - php8.0-gd
 
 php7.0:
   pkg.removed:
@@ -115,6 +115,23 @@ php7.4:
       - php7.4-soap
       - php7.4-bcmath
       - php7.4-imap
+
+php8.1:
+  pkg.removed:
+    - pkgs:
+      - libapache2-mod-php8.1
+      - php8.1-curl
+      - php8.1-gd
+      - php8.1-json
+      - php8.1-mysql
+      - php8.1-readline
+      - php8.1-xsl
+      - php8.1-cli
+      - php8.1-zip
+      - php8.1-mbstring
+      - php8.1-soap
+      - php8.1-bcmath
+      - php8.1-imap
 
 ini_filesize_apache2:
   cmd.run:

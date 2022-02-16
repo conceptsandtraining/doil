@@ -13,18 +13,6 @@
 # /ᐠ｡‸｡ᐟ\
 # Thanks to Concepts and Training for supporting doil
 
-# set doil pathes
-DOILLIBPATH="/usr/local/lib/doil"
-
-# set the host
-case "$(uname -s)" in
-  Darwin)
-    HOST="mac"
-    ;;
-  Linux)
-    HOST="linux"
-    ;;
-  *)
-    exit
-    ;;
-esac
+GREEN='\033[0;32m'
+RED='\033[0;31m'
+NC='\033[0m'

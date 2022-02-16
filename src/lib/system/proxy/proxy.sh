@@ -15,6 +15,7 @@
 
 # get the helper
 source /usr/local/lib/doil/lib/include/env.sh
+source /usr/local/lib/doil/lib/include/log.sh
 source /usr/local/lib/doil/lib/include/helper.sh
 
 # check if command is just plain help
@@ -140,7 +141,7 @@ then
     exit
   fi
   
-  doil_send_status "Changing host to ${HOST}"
+  doil_status_send_message "Changing host to ${HOST}"
 
   # doil conf
   CHANGE=$(sed -i "/host=/s/.*/host=${HOST}/" /etc/doil/doil.conf)
@@ -153,5 +154,5 @@ then
 
   doil system:proxy restart --quiet
 
-  doil_send_okay
+  doil_status_okay
 fi

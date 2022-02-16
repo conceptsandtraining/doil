@@ -15,6 +15,7 @@
 
 # get the helper
 source /usr/local/lib/doil/lib/include/env.sh
+source /usr/local/lib/doil/lib/include/log.sh
 source /usr/local/lib/doil/lib/include/helper.sh
 
 # set current ad
@@ -169,14 +170,14 @@ then
 fi
 
 # update the repository to get the branch
-doil_send_status "Updating repository ${REPOSITORY}"
+doil_ "Updating repository ${REPOSITORY}"
 if [[ ${GLOBAL_REPOSITORY} == TRUE ]]
 then
   eval "doil repo:update ${REPOSITORY}" --global --quiet
 else
   eval "doil repo:update ${REPOSITORY}" --quiet
 fi
-doil_send_okay
+doil_status_okay
 
 # check branch
 declare -a BRANCHES
@@ -243,18 +244,18 @@ FOLDERPATH="${TARGET}/${NAME}"
 DOIL_HOST=$(doil_get_conf host)
 
 # update debian
-doil_send_status "Updating debian image"
+doil_ "Updating debian image"
 docker pull debian:stable --quiet > /dev/null
-doil_send_okay
+doil_status_okay
 
 # salt and proxy server
-doil_send_status "Starting mandatory doil services"
+doil_status_send_message "Starting mandatory doil services"
 doil system:salt start --quiet
 doil system:proxy start --quiet
-doil_send_okay
+doil_status_okay
 
 # create the basic folders
-doil_send_status "Create basic folders"
+doil_status_send_message "Create basic folders"
 
 mkdir -p "${FOLDERPATH}/conf"
 mkdir -p "${FOLDERPATH}/conf/salt"
@@ -274,10 +275,10 @@ then
 else
   ln -s "${FOLDERPATH}" "${HOME}/.doil/instances/${NAME}"
 fi
-doil_send_okay
+doil_status_okay
 
 # set user permissions
-doil_send_status "Setting folder permissions"
+doil_status_send_message "Setting folder permissions"
 if [[ -z ${GLOBAL} ]]
 then
   chown -R ${USER}:${USER} ${FOLDERPATH}
@@ -287,19 +288,19 @@ else
   chmod g+s ${FOLDERPATH}
   chown ${USER}:doil "/usr/local/share/doil/instances/${NAME}"
 fi
-doil_send_okay
+doil_status_okay
 
 # Copying necessary files
-doil_send_status "Copying necessary files"
+doil_status_send_message "Copying necessary files"
 cp "/usr/local/share/doil/templates/minion/run-supervisor.sh" "${FOLDERPATH}/conf/run-supervisor.sh"
 cp "/usr/local/share/doil/templates/minion/Dockerfile" "${FOLDERPATH}/Dockerfile"
 cp "/usr/local/share/doil/templates/minion/salt-minion.conf" "${FOLDERPATH}/conf/salt-minion.conf"
 cp "/usr/local/share/doil/templates/minion/docker-compose.yml" "${FOLDERPATH}/docker-compose.yml"
 cp "/usr/local/share/doil/stack/config/minion.cnf" "${FOLDERPATH}/conf/minion.cnf"
-doil_send_okay
+doil_status_okay
 
 # setting up config file
-doil_send_status "Setting up configuration"
+doil_status_send_message "Setting up configuration"
 touch "${FOLDERPATH}/conf/doil.conf"
 echo "#!/bin/bash" > "${FOLDERPATH}/conf/doil.conf"
 echo "PROJECT_NAME=\"${NAME}\"" >> "${FOLDERPATH}/conf/doil.conf"
@@ -309,10 +310,10 @@ echo "PROJECT_REPOSITORY_URL=\"${PROJECT_REPOSITORY_URL}\"" >> "${FOLDERPATH}/co
 echo "PROJECT_BRANCH=\"${BRANCH}\"" >> "${FOLDERPATH}/conf/doil.conf"
 echo "PROJECT_PHP_VERSION=\"${PHPVERSION}\"" >> "${FOLDERPATH}/conf/doil.conf"
 chmod a+x "${FOLDERPATH}/conf/doil.conf"
-doil_send_okay
+doil_status_okay
 
 # copy ilias
-doil_send_status "Copying repository to target"
+doil_status_send_message "Copying repository to target"
 if [[ ${GLOBAL_REPOSITORY} == "TRUE" ]]
 then
   cd "/usr/local/share/doil/repositories/${REPOSITORY}"
@@ -333,11 +334,11 @@ else
   cp -r "${HOME}/.doil/repositories/${REPOSITORY}" "${FOLDERPATH}/volumes/ilias"
 fi
 cd ${FOLDERPATH}
-doil_send_okay
+doil_status_okay
 
 ############################
 # replace the templates vars
-doil_send_status "Replacing template vars"
+doil_status_send_message "Replacing template vars"
 
 if [[ ${GLOBAL} == TRUE ]]
 then
@@ -362,11 +363,11 @@ elif [ ${HOST} == "mac" ]; then
   sed -i "" "s/%USER_ID%/$(id -u ${USER})/g" "${FOLDERPATH}/Dockerfile"
   sed -i "" "s/%GROUP_ID%/$(id -g ${USER})/g" "${FOLDERPATH}/Dockerfile"
 fi
-doil_send_okay
+doil_status_okay
 
 #######################
 # building minion image
-doil_send_status "Building minion image"
+doil_status_send_message "Building minion image"
 
 # build the image
 cd ${FOLDERPATH}
@@ -397,11 +398,11 @@ docker exec -i ${NAME}_${SUFFIX} bash -c "chown -R mysql:mysql /var/lib/mysql" >
 docker exec -i ${NAME}_${SUFFIX} bash -c "/etc/init.d/mariadb start" > /dev/null
 sleep 5
 
-doil_send_okay
+doil_status_okay
 
 ##############
 # checking key
-doil_send_status "Checking key"
+doil_status_send_message "Checking key"
 
 # check if the new key is registered
 SALTKEYS=$(docker exec -t -i saltmain /bin/bash -c "salt-key -L" | grep "${NAME}.${SUFFIX}")
@@ -413,11 +414,11 @@ do
   sleep 5
   SALTKEYS=$(docker exec -t -i saltmain /bin/bash -c "salt-key -L" | grep "${NAME}.${SUFFIX}")  
 done
-doil_send_okay
+doil_status_okay
 
 ############
 # set grains
-doil_send_status "Setting up instance configuration"
+doil_status_send_message "Setting up instance configuration"
 GRAIN_MYSQL_PASSWORD=$(xxd -l8 -ps /dev/urandom | head -c 13 ; echo '')
 GRAIN_CRON_PASSWORD=$(xxd -l8 -ps /dev/urandom | head -c 13 ; echo '')
 docker exec -i saltmain bash -c "salt '${NAME}.${SUFFIX}' grains.set 'mysql_password' ${GRAIN_MYSQL_PASSWORD} --out=quiet"
@@ -432,56 +433,56 @@ else
 fi
 
 sleep 5
-doil_send_okay
+doil_status_okay
 
 ##################
 # apply base state
 set -e
-doil_send_status "Apply base state"
+doil_status_send_message "Apply base state"
 OUTPUT=$(doil apply ${NAME} base ${FLAG} -c)
 if [[ ${OUTPUT} == *"Minions returned with non-zero exit code"* ]]
 then
-  doil_send_failed
+  doil_status_failed
   exit
 fi
-doil_send_okay
+doil_status_okay
 
 #################
 # apply dev state
-doil_send_status "Apply dev state"
+doil_status_send_message "Apply dev state"
 OUTPUT=$(doil apply ${NAME} dev -c ${FLAG})
 if [[ ${OUTPUT} == *"Minions returned with non-zero exit code"* ]]
 then
-  doil_send_failed
+  doil_status_failed
   exit
 fi
-doil_send_okay
+doil_status_okay
 
 #################
 # apply php state
-doil_send_status "Apply php state"
+doil_status_send_message "Apply php state"
 OUTPUT=$(doil apply ${NAME} php${PHPVERSION} -c ${FLAG})
 if [[ ${OUTPUT} == *"Minions returned with non-zero exit code"* ]]
 then
-  doil_send_failed
+  doil_status_failed
   exit
 fi
-doil_send_okay
+doil_status_okay
 
 ###################
 # apply ilias state
-doil_send_status "Apply ilias state"
+doil_status_send_message "Apply ilias state"
 OUTPUT=$(doil apply ${NAME} ilias -c ${FLAG})
 if [[ ${OUTPUT} == *"Minions returned with non-zero exit code"* ]]
 then
-  doil_send_failed
+  doil_status_failed
   exit
 fi
-doil_send_okay
+doil_status_okay
 
 ######################
 # apply composer state
-doil_send_status "Apply composer state"
+doil_status_send_message "Apply composer state"
 
 ILIAS_VERSION_FILE=$(cat -e ${FOLDERPATH}/volumes/ilias/include/inc.ilias_version.php | grep "ILIAS_VERSION_NUMERIC")
 ILIAS_VERSION=${ILIAS_VERSION_FILE:33:1}
@@ -490,7 +491,7 @@ then
   OUTPUT=$(doil apply ${NAME} composer -c ${FLAG})
   if [[ ${OUTPUT} == *"Minions returned with non-zero exit code"* ]]
   then
-    doil_send_failed
+    doil_status_failed
     exit
   fi
 elif (( ${ILIAS_VERSION} > 6 ))
@@ -498,7 +499,7 @@ then
   OUTPUT=$(doil apply ${NAME} composer2 -c ${FLAG})
   if [[ ${OUTPUT} == *"Minions returned with non-zero exit code"* ]]
   then
-    doil_send_failed
+    doil_status_failed
     exit
   fi
 elif (( ${ILIAS_VERSION} < 6 ))
@@ -506,43 +507,43 @@ then
   OUTPUT=$(doil apply ${NAME} composer54 -c ${FLAG})
   if [[ ${OUTPUT} == *"Minions returned with non-zero exit code"* ]]
   then
-    doil_send_failed
+    doil_status_failed
     exit
   fi
 fi
-doil_send_okay
+doil_status_okay
 
 ###################
 # try autoinstaller
 if (( ${ILIAS_VERSION} > 6 ))
 then
-  doil_send_status "Trying autoinstaller"
+  doil_status_send_message "Trying autoinstaller"
   OUTPUT=$(doil apply ${NAME} autoinstall -c ${FLAG})
   if [[ ${OUTPUT} == *"Minions returned with non-zero exit code"* ]]
   then
-    doil_send_failed
+    doil_status_failed
   else
-    doil_send_okay
+    doil_status_okay
   fi
 fi
 
 #####
 # apply access
-doil_send_status "Apply access state"
+doil_status_send_message "Apply access state"
 OUTPUT=$(doil apply ${NAME} access -c ${FLAG})
 if [[ ${OUTPUT} == *"Minions returned with non-zero exit code"* ]]
 then
-  doil_send_failed
+  doil_status_failed
   exit
 fi
-doil_send_okay
+doil_status_okay
 
 #########################
 # finalizing docker image
-doil_send_status "Finalizing docker image"
+doil_status_send_message "Finalizing docker image"
 cd ${FOLDERPATH}
 docker commit ${NAME}_${SUFFIX} doil/${NAME}_${SUFFIX}:stable > /dev/null
-doil_send_okay
+doil_status_okay
 
 # stop the server
 DDOWN=$(doil down ${NAME} ${FLAG} --quiet 2>&1 > /dev/null)  2>&1 > /dev/null
@@ -551,7 +552,7 @@ if [[ ${SKIP_README} != TRUE ]]
 then
   ###########################
   # Copying readme to project
-  doil_send_status "Copying readme to project"
+  doil_status_send_message "Copying readme to project"
 
   cp "/usr/local/share/doil/templates/minion/README.md" "${FOLDERPATH}/README.md"
   if [ ${HOST} == "linux" ]; then
@@ -564,7 +565,7 @@ then
     sed -i "" "s/%GRAIN_CRON_PASSWORD%/${GRAIN_CRON_PASSWORD}/g" "${FOLDERPATH}/README.md"
   fi
 
-  doil_send_okay
+  doil_status_okay
 fi
 
 #################

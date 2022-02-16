@@ -17,21 +17,21 @@
     - source: salt://mysql/mysql.conf
 
 {% if salt['grains.get']('doil_host_system', 'linux') == 'linux' %}
-  /etc/mysql/:
-    file.directory:
-      - user: root
-      - group: root
-      - recurse:
-        - user
-        - group
+/etc/mysql/:
+  file.directory:
+    - user: root
+    - group: root
+    - recurse:
+      - user
+      - group
 
-  /var/lib/mysql/:
-    file.directory:
-      - user: mysql
-      - group: mysql
-      - recurse:
-        - user
-        - group
+/var/lib/mysql/:
+  file.directory:
+    - user: mysql
+    - group: mysql
+    - recurse:
+      - user
+      - group
 {% endif %}
 
 mysql_supervisor_signal:

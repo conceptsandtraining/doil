@@ -13,18 +13,22 @@
 # /ᐠ｡‸｡ᐟ\
 # Thanks to Concepts and Training for supporting doil
 
-# set doil pathes
-DOILLIBPATH="/usr/local/lib/doil"
+SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
+source ${SCRIPT_DIR}/colors.sh
 
-# set the host
-case "$(uname -s)" in
-  Darwin)
-    HOST="mac"
-    ;;
-  Linux)
-    HOST="linux"
-    ;;
-  *)
-    exit
-    ;;
-esac
+doil_status_send_message() {
+  echo -n "${1} ..."
+}
+
+doil_status_send_error() {
+  echo -e "\033[1m${1}:\033[0m"
+  echo -e "\t${2}"
+}
+
+doil_status_okay() {
+  printf " ${GREEN}ok${NC}\n"
+}
+
+doil_status_failed() {
+  printf " ${RED}failed${NC}\n"
+}
