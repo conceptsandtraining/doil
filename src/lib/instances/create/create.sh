@@ -170,7 +170,7 @@ then
 fi
 
 # update the repository to get the branch
-doil_ "Updating repository ${REPOSITORY}"
+doil_status_send_message "Updating repository ${REPOSITORY}"
 if [[ ${GLOBAL_REPOSITORY} == TRUE ]]
 then
   eval "doil repo:update ${REPOSITORY}" --global --quiet
@@ -244,7 +244,7 @@ FOLDERPATH="${TARGET}/${NAME}"
 DOIL_HOST=$(doil_get_conf host)
 
 # update debian
-doil_ "Updating debian image"
+doil_status_send_message "Updating debian image"
 docker pull debian:stable --quiet > /dev/null
 doil_status_okay
 
