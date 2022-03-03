@@ -109,11 +109,12 @@ fi
 
 doil_send_log "Importing instance ${INSTANCE}"
 
-# unpack
-unzip ${PACK}
-
 # PACKNAME
 PACKNAME=${PACK%.zip}
+
+# unpack
+unzip ${PACK} -d ${PACKNAME}
+mv ${PACKNAME}/*/* ${PACKNAME}/
 
 if [[ ${CREATE} == TRUE ]]
 then
@@ -177,16 +178,6 @@ else
   echo "Ok"
 fi
 
-#touch ${TARGET}/volumes/data/mysql-client.conf
-#echo "[client]" > ${TARGET}/volumes/data/mysql-client.conf
-#echo "user=ilias" >> ${TARGET}/volumes/data/mysql-client.conf
-#echo "password=${SQLPW}" >> ${TARGET}/volumes/data/mysql-client.conf
-
-#docker exec -i ${INSTANCE}_${SUFFIX} bash -c '/etc/init.d/mariadb stop'
-#docker exec -i ${INSTANCE}_${SUFFIX} bash -c 'chown -R mysql:mysql /var/lib/mysql'
-#docker exec -i ${INSTANCE}_${SUFFIX} bash -c 'chown -R root:root /etc/mysql'
-#docker exec -i ${INSTANCE}_${SUFFIX} bash -c "service mysql restart"
-
 docker exec -i ${INSTANCE}_${SUFFIX} bash -c 'mysql -e "DROP DATABASE IF EXISTS ilias;"'
 docker exec -i ${INSTANCE}_${SUFFIX} bash -c 'mysql -e "CREATE DATABASE ilias;"'
 docker exec -i ${INSTANCE}_${SUFFIX} bash -c "mysql ilias < /var/ilias/data/ilias.sql"
@@ -195,11 +186,6 @@ CLIENT_FILE_LOCATION=$(find ${TARGET}/volumes/ilias/data/ -iname client.ini.php)
 sed -i "s/pass =.*/pass = '${SQLPW}'/" ${CLIENT_FILE_LOCATION}
 
 doil_send_log "Setting permissions"
-
-# set access
-#sudo chown -R ${USER}:${USER} ${TARGET}
-#docker exec -i ${INSTANCE}_${SUFFIX} bash -c "chown -R mysql:mysql /var/lib/mysql"
-#docker exec -i ${INSTANCE}_${SUFFIX} bash -c "service mysql restart"
 
 doil down ${INSTANCE} --quiet ${FLAG}
 doil up ${INSTANCE} --quiet ${FLAG}

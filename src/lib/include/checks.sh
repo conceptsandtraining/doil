@@ -22,8 +22,7 @@ source ${SCRIPT_DIR}/helper.sh
 # return 255 if user is not sudo user
 # return 0 if user is sudo user
 function doil_check_sudo() {
-
-	if [ "$EUID" -ne 0 ]
+	if [[ "$EUID" -ne 0 ]]
 	then
 	  return 255
 	fi
@@ -39,10 +38,10 @@ function doil_check_host() {
   OPS=""
   case "$(uname -s)" in
     Darwin)
-      OPS="mac"
+      return 0
       ;;
     Linux)
-      OPS="linux"
+      return 0
       ;;
     *)
       return 255

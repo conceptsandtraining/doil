@@ -95,10 +95,6 @@ fi
 LINKPATH="${HOME}/.doil/${NAME}"
 if [[ -z "${NAME}" ]]
 then
-  read -p "Name the instance for this ILIAS installation: " NAME
-fi
-if [[ -z "${NAME}" ]]
-then
   echo -e "\033[1mERROR:\033[0m"
   echo -e "\tName of the instance cannot be empty!"
   echo -e "\tsee \033[1mdoil instances:create --help\033[0m for more information"
@@ -115,30 +111,6 @@ then
   echo -e "\t${NAME} already exists!"
   echo -e "\tsee \033[1mdoil instances:create --help\033[0m for more information"
   exit
-fi
-
-# check repository
-if [[ -z "${REPOSITORY}" ]]
-then  
-  declare -a REPOSITORIES
-  i=1
-  while read LINE
-  do
-    REPONAME="$(cut -d'=' -f1 <<<${LINE})"
-
-    REPOSITORIES[ $i ]=${REPONAME}
-    (( i=($i+2) ))
-  done < "${HOME}/.doil/config/repositories.conf"
-
-  while read LINE
-  do
-    REPONAME="$(cut -d'=' -f1 <<<${LINE})"
-
-    REPOSITORIES[ $i ]="${REPONAME}_global"
-    (( i=($i+2) ))
-  done < "/etc/doil/repositories.conf"
-  REPOSITORIES_STRING="${REPOSITORIES[*]}"
-  read -p "Chose the repository [${REPOSITORIES_STRING//${IFS:0:1}/, }]: " REPOSITORY
 fi
 
 if [[ ! -z ${GLOBAL_REPOSITORY} ]] # check if we got the repository from -gr
@@ -200,11 +172,6 @@ do
 done < <(git branch -a | grep "remotes/origin")
 BRANCHES_STRING="${BRANCHES[*]}"
 
-if [[ -z "${BRANCH}" ]]
-then
-  read -p "Chose the branch [${BRANCHES_STRING//${IFS:0:1}/, }]: " BRANCH
-fi
-
 if [[ ! " ${BRANCHES[@]} " =~ " ${BRANCH} " ]]
 then
   echo -e "\033[1mERROR:\033[0m"
@@ -216,20 +183,16 @@ fi
 cd ${CWD}
 
 # check php version
-if [[ -z "${PHPVERSION}" ]]
-then
-  read -p "Chose the PHP Version [7.0, 7.1, 7.2, 7.3, 7.4, 8.0]: " PHPVERSION
-fi
-if [[ "${PHPVERSION}" != "7.0" ]] \
-  && [[ "${PHPVERSION}" != "7.1" ]] \
+if [[ "${PHPVERSION}" != "7.1" ]] \
   && [[ "${PHPVERSION}" != "7.2" ]] \
   && [[ "${PHPVERSION}" != "7.3" ]] \
   && [[ "${PHPVERSION}" != "7.4" ]] \
-  && [[ "${PHPVERSION}" != "8.0" ]]
+  && [[ "${PHPVERSION}" != "8.0" ]] \
+  && [[ "${PHPVERSION}" != "8.1" ]]
 then
   echo -e "\033[1mERROR:\033[0m"
   echo -e "\tPHP Version ${PHPVERSION} is not supported!"
-  echo -e "\tYou can use following versions: 7.0, 7.1, 7.2, 7.3, 7.4, 8.0"
+  echo -e "\tYou can use following versions: 7.1, 7.2, 7.3, 7.4, 8.0, 8.1"
   exit 255
 fi
 
