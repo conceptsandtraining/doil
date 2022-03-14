@@ -75,6 +75,11 @@ function doil_system_create_folder() {
     mkdir /usr/local/share/doil/instances
   fi
 
+  if [ ! -d /usr/local/share/doil/stack ]
+  then
+    mkdir /usr/local/share/doil/stack
+  fi
+
   if [ ! -d /usr/local/share/doil/instances ]
   then
     mkdir /usr/local/share/doil/instances
@@ -164,6 +169,12 @@ function doil_system_setup_access() {
 function doil_system_setup_userconfig() {
 
   HOME=$(eval echo "~${SUDO_USER}")
+
+  if [ ! -d ${HOME}/.doil/ ]
+  then
+    mkdir ${HOME}/.doil/
+  fi
+
   if [ ! -f ${HOME}/.doil/config/repositories.conf ]
   then
     mv ${HOME}/.doil/config/repos ${HOME}/.doil/config/repositories.conf
@@ -172,7 +183,10 @@ function doil_system_setup_userconfig() {
   if [ ! -d ${HOME}/.doil/repositories ]
   then
     mkdir ${HOME}/.doil/repositories
-    mv /usr/local/lib/doil/tpl/repos ${HOME}/.doil/repositories
+    if [ -d /usr/local/lib/doil/tpl/repos ]
+    then
+      mv /usr/local/lib/doil/tpl/repos ${HOME}/.doil/repositories
+    fi
   fi
 
   if [ ! -d ${HOME}/.doil/instances ]
