@@ -182,7 +182,11 @@ function doil_system_setup_userconfig() {
 
   if [ ! -f ${HOME}/.doil/config/repositories.conf ]
   then
-    mv ${HOME}/.doil/config/repos ${HOME}/.doil/config/repositories.conf
+    touch ${HOME}/.doil/config/repositories.conf
+    if [ -f ${HOME}/.doil/config/repos ]
+    then
+      mv ${HOME}/.doil/config/repos ${HOME}/.doil/config/repositories.conf
+    fi
   fi
 
   if [ ! -d ${HOME}/.doil/repositories ]
