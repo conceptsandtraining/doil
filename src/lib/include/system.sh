@@ -175,6 +175,11 @@ function doil_system_setup_userconfig() {
     mkdir ${HOME}/.doil/
   fi
 
+  if [ ! -d ${HOME}/.doil/config/ ]
+  then
+    mkdir ${HOME}/.doil/config/
+  fi
+
   if [ ! -f ${HOME}/.doil/config/repositories.conf ]
   then
     mv ${HOME}/.doil/config/repos ${HOME}/.doil/config/repositories.conf
