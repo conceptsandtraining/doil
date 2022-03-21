@@ -32,6 +32,6 @@ esac
 if [[ ! -z ${COM} ]]
 then
   shift # shift parameter
-  doil instances:${COM} $@
+  /usr/local/bin/doil instances:${COM} $@
   exit
 fi
