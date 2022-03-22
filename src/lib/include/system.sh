@@ -199,7 +199,7 @@ function doil_system_setup_userconfig() {
     mkdir ${HOME}/.doil/instances
     for LINK in $(ls ${HOME}/.doil)
     do
-      if [[ ${LINK} == "config" ]]
+      if [[ ${LINK} == "config" ]] || [[ ${LINK} == "instances" ]] || [[ ${LINK} == "repositories" ]]
       then
         continue
       fi
