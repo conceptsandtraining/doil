@@ -133,6 +133,17 @@ else # we got the repository from the wizzard
   fi
 fi
 
+# if we don't have anything yet, check if we can fallback
+# from -r to -gr
+if [ -z ${LINE} ]
+then
+  LINE=$(sed -n -e "/^${REPOSITORY}=/p" "/etc/doil/repositories.conf")
+  if [ ! -z ${LINE} ]
+  then
+    GLOBAL_REPOSITORY=TRUE
+  fi
+fi
+
 if [ -z ${LINE} ]
 then
   echo -e "\033[1mERROR:\033[0m"
