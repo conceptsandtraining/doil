@@ -33,6 +33,8 @@ However **doil** needs [Docker](https://www.docker.com/) in order to work:
 
 ### Quick Start
 
+**Before starting make sure that you setted up your [docker usergroup correctly](https://docs.docker.com/engine/install/linux-postinstall/)**
+
 After you installed doil the basic system is ready to go. To get an instance of
 ILIAS running you simply need to do following steps:
 

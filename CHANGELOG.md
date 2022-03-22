@@ -1,5 +1,15 @@
 # Changelog
 
+## 20220322
+
+* new [version and contributing policies](.github/CONTRIBUTING.md)
+* added transparent [testing protocols](.github/TESTING.md)
+* fixed several bugs regarding salt and proxy integration
+* implemented better update and install mechanism
+* added fallback for `-r` to `-gr` when checking for repositories
+* refactored a lot of code
+* Even more bulletproofed windows integration
+
 ## 1.4.4
 
 * Bulletproofed windows integration
