@@ -120,7 +120,9 @@ then
   
   doil system:proxy reload --quiet
 
-  doil_send_log "Instance started. Navigate to http://doil/${INSTANCE}"
+  # config
+  DOIL_HOST=$(doil_get_conf host)
+  doil_send_log "Instance started. Navigate to http://${DOIL_HOST}/${INSTANCE}"
 else
   if [[ ${GLOBAL} == TRUE ]]
   then

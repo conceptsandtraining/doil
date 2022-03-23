@@ -170,19 +170,34 @@ function doil_system_setup_userconfig() {
 
   HOME=$(eval echo "~${SUDO_USER}")
 
+  if [ ! -f ${HOME}/.vimrc ]
+  then
+    touch ${HOME}/.vimrc
+  fi
+
+  if [ ! -f ${HOME}/.gitconfig ]
+  then
+    touch ${HOME}/.gitconfig
+  fi
+
+  if [ ! -f ${HOME}/.bashrc ]
+  then
+    touch ${HOME}/.bashrc
+  fi
+
   if [ ! -d ${HOME}/.doil/ ]
   then
     mkdir ${HOME}/.doil/
   fi
 
-  if [ ! -d ${HOME}/.doil/config ]
+  if [ ! -d ${HOME}/.doil/config/ ]
   then
-    mkdir ${HOME}/.doil/config
+    mkdir ${HOME}/.doil/config/
   fi
 
   if [ ! -f ${HOME}/.doil/config/repositories.conf ]
   then
-    mv ${HOME}/.doil/config/repos ${HOME}/.doil/config/repositories.conf
+    touch ${HOME}/.doil/config/repositories.conf
   fi
 
   if [ ! -d ${HOME}/.doil/repositories ]
@@ -199,7 +214,7 @@ function doil_system_setup_userconfig() {
     mkdir ${HOME}/.doil/instances
     for LINK in $(ls ${HOME}/.doil)
     do
-      if [[ ${LINK} == "config" ]]
+      if [[ ${LINK} == "config" ]] || [[ ${LINK} == "instances" ]] || [[ ${LINK} == "repositories" ]]
       then
         continue
       fi
