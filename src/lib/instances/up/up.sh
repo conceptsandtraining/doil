@@ -91,6 +91,9 @@ then
   # check proxy server
   doil system:proxy start --quiet
 
+  # check maik server
+  doil system:mail start --quiet
+
   # Start the container
   docker-compose up -d
 

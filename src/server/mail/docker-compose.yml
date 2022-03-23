@@ -1,0 +1,32 @@
+version: "3.5"
+services:
+  doil_postfix:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: doil_postfix
+    container_name: doil_postfix
+    networks:
+      doil_proxy:
+        ipv4_address: 172.24.0.253
+    ports:
+      - "25:25"
+      - "8081:80"
+      - "110:110"
+      - "143:143"
+      - "465:465"
+      - "587:587"
+      - "993:993"
+      - "995:995"
+    volumes:
+      - type: bind
+        source: ./conf/system.conf
+        target: /etc/supervisor/conf.d/system.conf
+      - type: bind
+        source: ./conf/main.cf
+        target: /etc/postfix/main.cf
+networks:
+  doil_proxy:
+    external: true
+volumes:
+    persistent:

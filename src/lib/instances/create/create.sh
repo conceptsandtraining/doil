@@ -215,6 +215,7 @@ doil_status_okay
 doil_status_send_message "Starting mandatory doil services"
 doil system:salt start --quiet
 doil system:proxy start --quiet
+doil system:mail start --quiet
 doil_status_okay
 
 # create the basic folders

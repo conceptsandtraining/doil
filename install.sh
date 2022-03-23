@@ -146,6 +146,11 @@ doil_status_send_message "Installing salt server"
 doil system:salt start --quiet
 doil_status_okay
 
+# start mail server
+doil_status_send_message "Installing mail server"
+doil system:mail start --quiet
+doil_status_okay
+
 #################
 # Everything done
 NOW=$(date +'%d.%m.%Y %I:%M:%S')
