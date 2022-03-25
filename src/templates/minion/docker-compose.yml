@@ -49,15 +49,6 @@ services:
         source: ~/.ssh/
         target: /root/.ssh
       - type: bind
-        source: ~/.bashrc
-        target: /root/.bashrc
-      - type: bind
-        source: ~/.vimrc
-        target: /root/.vimrc
-      - type: bind
-        source: ~/.gitconfig
-        target: /root/.gitconfig
-      - type: bind
         source: ./conf/salt-minion.conf
         target: /etc/supervisor/conf.d/salt-minion.conf
     environment:
