@@ -170,21 +170,6 @@ function doil_system_setup_userconfig() {
 
   HOME=$(eval echo "~${SUDO_USER}")
 
-  if [ ! -f ${HOME}/.vimrc ]
-  then
-    touch ${HOME}/.vimrc
-  fi
-
-  if [ ! -f ${HOME}/.gitconfig ]
-  then
-    touch ${HOME}/.gitconfig
-  fi
-
-  if [ ! -f ${HOME}/.bashrc ]
-  then
-    touch ${HOME}/.bashrc
-  fi
-
   if [ ! -d ${HOME}/.doil/ ]
   then
     mkdir ${HOME}/.doil/
