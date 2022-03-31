@@ -63,7 +63,7 @@ fi
 # login
 if [[ ${COMMAND} == "login" ]]
 then
-  doil system:salt start --quiet
+  /usr/local/bin/doil system:salt start --quiet
 
   docker exec -t -i saltmain bash
   exit
@@ -74,7 +74,7 @@ if [[ ${COMMAND} == "prune" ]]
 then
   doil_send_log "Pruning main salt server"
 
-  doil system:salt start --quiet
+  /usr/local/bin/doil system:salt start --quiet
 
   docker exec -i saltmain bash -c 'echo "y" | salt-key -D'
   
@@ -114,8 +114,8 @@ if [[ ${COMMAND} == "restart" ]]
 then
   doil_send_log "Restarting main salt server"
 
-  doil system:salt stop --quiet
-  doil system:salt start --quiet
+  /usr/local/bin/doil system:salt stop --quiet
+  /usr/local/bin/doil system:salt start --quiet
 
   doil_send_log "Main salt server restarted"
 fi

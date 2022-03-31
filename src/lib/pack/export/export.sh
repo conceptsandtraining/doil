@@ -86,7 +86,7 @@ fi
 doil_send_log "Exporting instance ${INSTANCE}"
 
 # we need the data so we have to startup the instance
-doil up ${INSTANCE} --quiet ${FLAG}
+/usr/local/bin/doil up ${INSTANCE} --quiet ${FLAG}
 sleep 5
 
 # copy database

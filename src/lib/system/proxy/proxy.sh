@@ -62,7 +62,7 @@ fi
 # login
 if [[ ${COMMAND} == "login" ]]
 then
-  doil system:proxy start --quiet
+  /usr/local/bin/doil system:proxy start --quiet
 
   docker exec -t -i doil_proxy bash
 fi
@@ -72,9 +72,9 @@ if [[ ${COMMAND} == "prune" ]]
 then
   doil_send_log "Pruning proxy server"
 
-  doil system:proxy start --quiet
+  /usr/local/bin/doil system:proxy start --quiet
   rm -rf /usr/local/lib/doil/server/proxy/conf/sites/*
-  doil system:proxy restart --quiet
+  /usr/local/bin/doil system:proxy restart --quiet
   
   doil_send_log "Finished pruning proxy server"
 fi
@@ -113,8 +113,8 @@ if [[ ${COMMAND} == "restart" ]]
 then
   doil_send_log "Restarting proxy server"
 
-  doil system:proxy stop --quiet
-  doil system:proxy start --quiet
+  /usr/local/bin/doil system:proxy stop --quiet
+  /usr/local/bin/doil system:proxy start --quiet
 
   doil_send_log "proxy server restarted"
 fi
@@ -124,7 +124,7 @@ if [[ ${COMMAND} == "reload" ]]
 then
   doil_send_log "Reloading proxy server"
 
-  doil system:proxy start --quiet
+  /usr/local/bin/doil system:proxy start --quiet
   docker exec -i doil_proxy bash -c "/etc/init.d/nginx reload"
 
   doil_send_log "proxy server reloaded"
@@ -152,7 +152,7 @@ then
   # host conf
   CHANGE=$(sed -i "/172.24.0.254/s/.*/172.24.0.254 ${HOST};/" /etc/hosts)
 
-  doil system:proxy restart --quiet
+  /usr/local/bin/doil system:proxy restart --quiet
 
   doil_status_okay
 fi
