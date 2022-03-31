@@ -147,6 +147,8 @@ function doil_system_setup_access() {
   chown -R root:doil /usr/local/lib/doil/lib
   chown root:doil /usr/local/share/doil/templates
   chown -R root:doil /usr/local/share/doil/stack
+  chown -R root:doil /usr/local/share/doil/repositories
+  chown -R root:doil /usr/local/share/doil/instances
   chown -R root:doil /etc/doil/
   chown root:doil /var/log/doil.log
 
