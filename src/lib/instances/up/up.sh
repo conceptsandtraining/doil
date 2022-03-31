@@ -86,10 +86,10 @@ then
   doil_send_log "Starting instance"
 
   # check saltmain
-  doil system:salt start --quiet
+  /usr/local/bin/doil system:salt start --quiet
 
   # check proxy server
-  doil system:proxy start --quiet
+  /usr/local/bin/doil system:proxy start --quiet
 
   # Start the container
   docker-compose up -d
@@ -115,7 +115,7 @@ then
     sed -i "" "s/%DOMAIN%/${INSTANCE}/g" "/usr/local/lib/doil/server/proxy/conf/sites/${INSTANCE}_${SUFFIX}.conf"
   fi
   
-  doil system:proxy reload --quiet
+  /usr/local/bin/doil system:proxy reload --quiet
 
   doil_send_log "Instance started. Navigate to http://doil/${INSTANCE}"
 else
@@ -131,7 +131,7 @@ else
   then
     TARGET=$(readlink ${LINKNAME})
     cd ${TARGET}
-    eval "doil instances:up ${FLAG}"
+    eval "/usr/local/bin/doil instances:up ${FLAG}"
   else
     echo -e "\033[1mERROR:\033[0m"
     echo -e "\tInstance not found!"

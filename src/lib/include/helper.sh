@@ -162,7 +162,7 @@ doil_test_version_compare() {
 }
 
 function doil_get_doil_version() {
-  VERSION=$(doil --version | cut -d ' ' -f 3)
+  VERSION=$(/usr/local/bin/doil --version | cut -d ' ' -f 3)
   echo ${VERSION}
 }
 

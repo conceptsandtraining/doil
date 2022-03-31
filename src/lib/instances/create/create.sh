@@ -145,9 +145,9 @@ fi
 doil_status_send_message "Updating repository ${REPOSITORY}"
 if [[ ${GLOBAL_REPOSITORY} == TRUE ]]
 then
-  eval "doil repo:update ${REPOSITORY}" --global --quiet
+  eval "/usr/local/bin/doil repo:update ${REPOSITORY}" --global --quiet
 else
-  eval "doil repo:update ${REPOSITORY}" --quiet
+  eval "/usr/local/bin/doil repo:update ${REPOSITORY}" --quiet
 fi
 doil_status_okay
 
@@ -213,8 +213,8 @@ doil_status_okay
 
 # salt and proxy server
 doil_status_send_message "Starting mandatory doil services"
-doil system:salt start --quiet
-doil system:proxy start --quiet
+/usr/local/bin/doil system:salt start --quiet
+/usr/local/bin/doil system:proxy start --quiet
 doil_status_okay
 
 # create the basic folders
@@ -268,7 +268,7 @@ touch "${FOLDERPATH}/conf/doil.conf"
 echo "#!/bin/bash" > "${FOLDERPATH}/conf/doil.conf"
 echo "PROJECT_NAME=\"${NAME}\"" >> "${FOLDERPATH}/conf/doil.conf"
 echo "PROJECT_REPOSITORY=\"${REPOSITORY}\"" >> "${FOLDERPATH}/conf/doil.conf"
-PROJECT_REPOSITORY_URL=$(doil repo:list | grep ${REPOSITORY} -w | cut -d\   -f3)
+PROJECT_REPOSITORY_URL=$(/usr/local/bin/doil repo:list | grep ${REPOSITORY} -w | cut -d\   -f3)
 echo "PROJECT_REPOSITORY_URL=\"${PROJECT_REPOSITORY_URL}\"" >> "${FOLDERPATH}/conf/doil.conf"
 echo "PROJECT_BRANCH=\"${BRANCH}\"" >> "${FOLDERPATH}/conf/doil.conf"
 echo "PROJECT_PHP_VERSION=\"${PHPVERSION}\"" >> "${FOLDERPATH}/conf/doil.conf"
@@ -356,7 +356,7 @@ TMP_STOP=$(docker stop ${NAME}_${SUFFIX}) 2>&1 > /dev/null
 TMP_RM=$(docker rm ${NAME}_${SUFFIX}) 2>&1 > /dev/null
 
 # start container via docker-compose
-DDUP=$(doil up ${NAME} --quiet ${FLAG} 2>&1 > /dev/null)
+DDUP=$(/usr/local/bin/doil up ${NAME} --quiet ${FLAG} 2>&1 > /dev/null)
 docker exec -i ${NAME}_${SUFFIX} bash -c "chown -R mysql:mysql /var/lib/mysql" > /dev/null
 docker exec -i ${NAME}_${SUFFIX} bash -c "/etc/init.d/mariadb start" > /dev/null
 sleep 5
@@ -402,7 +402,7 @@ doil_status_okay
 # apply base state
 set -e
 doil_status_send_message "Apply base state"
-OUTPUT=$(doil apply ${NAME} base ${FLAG} -c)
+OUTPUT=$(/usr/local/bin/doil apply ${NAME} base ${FLAG} -c)
 if [[ ${OUTPUT} == *"Minions returned with non-zero exit code"* ]]
 then
   doil_status_failed
@@ -413,7 +413,7 @@ doil_status_okay
 #################
 # apply dev state
 doil_status_send_message "Apply dev state"
-OUTPUT=$(doil apply ${NAME} dev -c ${FLAG})
+OUTPUT=$(/usr/local/bin/doil apply ${NAME} dev -c ${FLAG})
 if [[ ${OUTPUT} == *"Minions returned with non-zero exit code"* ]]
 then
   doil_status_failed
@@ -424,7 +424,7 @@ doil_status_okay
 #################
 # apply php state
 doil_status_send_message "Apply php state"
-OUTPUT=$(doil apply ${NAME} php${PHPVERSION} -c ${FLAG})
+OUTPUT=$(/usr/local/bin/doil apply ${NAME} php${PHPVERSION} -c ${FLAG})
 if [[ ${OUTPUT} == *"Minions returned with non-zero exit code"* ]]
 then
   doil_status_failed
@@ -435,7 +435,7 @@ doil_status_okay
 ###################
 # apply ilias state
 doil_status_send_message "Apply ilias state"
-OUTPUT=$(doil apply ${NAME} ilias -c ${FLAG})
+OUTPUT=$(/usr/local/bin/doil apply ${NAME} ilias -c ${FLAG})
 if [[ ${OUTPUT} == *"Minions returned with non-zero exit code"* ]]
 then
   doil_status_failed
@@ -451,7 +451,7 @@ ILIAS_VERSION_FILE=$(cat -e ${FOLDERPATH}/volumes/ilias/include/inc.ilias_versio
 ILIAS_VERSION=${ILIAS_VERSION_FILE:33:1}
 if (( ${ILIAS_VERSION} == 6 ))
 then
-  OUTPUT=$(doil apply ${NAME} composer -c ${FLAG})
+  OUTPUT=$(/usr/local/bin/doil apply ${NAME} composer -c ${FLAG})
   if [[ ${OUTPUT} == *"Minions returned with non-zero exit code"* ]]
   then
     doil_status_failed
@@ -459,7 +459,7 @@ then
   fi
 elif (( ${ILIAS_VERSION} > 6 ))
 then
-  OUTPUT=$(doil apply ${NAME} composer2 -c ${FLAG})
+  OUTPUT=$(/usr/local/bin/doil apply ${NAME} composer2 -c ${FLAG})
   if [[ ${OUTPUT} == *"Minions returned with non-zero exit code"* ]]
   then
     doil_status_failed
@@ -467,7 +467,7 @@ then
   fi
 elif (( ${ILIAS_VERSION} < 6 ))
 then
-  OUTPUT=$(doil apply ${NAME} composer54 -c ${FLAG})
+  OUTPUT=$(/usr/local/bin/doil apply ${NAME} composer54 -c ${FLAG})
   if [[ ${OUTPUT} == *"Minions returned with non-zero exit code"* ]]
   then
     doil_status_failed
@@ -481,7 +481,7 @@ doil_status_okay
 if (( ${ILIAS_VERSION} > 6 ))
 then
   doil_status_send_message "Trying autoinstaller"
-  OUTPUT=$(doil apply ${NAME} autoinstall -c ${FLAG})
+  OUTPUT=$(/usr/local/bin/doil apply ${NAME} autoinstall -c ${FLAG})
   if [[ ${OUTPUT} == *"Minions returned with non-zero exit code"* ]]
   then
     doil_status_failed
@@ -493,7 +493,7 @@ fi
 #####
 # apply access
 doil_status_send_message "Apply access state"
-OUTPUT=$(doil apply ${NAME} access -c ${FLAG})
+OUTPUT=$(/usr/local/bin/doil apply ${NAME} access -c ${FLAG})
 if [[ ${OUTPUT} == *"Minions returned with non-zero exit code"* ]]
 then
   doil_status_failed
@@ -509,7 +509,7 @@ docker commit ${NAME}_${SUFFIX} doil/${NAME}_${SUFFIX}:stable > /dev/null
 doil_status_okay
 
 # stop the server
-DDOWN=$(doil down ${NAME} ${FLAG} --quiet 2>&1 > /dev/null)  2>&1 > /dev/null
+DDOWN=$(/usr/local/bin/doil down ${NAME} ${FLAG} --quiet 2>&1 > /dev/null)  2>&1 > /dev/null
 
 if [[ ${SKIP_README} != TRUE ]]
 then
