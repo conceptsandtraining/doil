@@ -71,7 +71,7 @@ then
   INSTANCE=${PWD##*/}
 
   # start if not done
-  doil up ${INSTANCE} --quiet ${FLAG}
+  /usr/local/bin/doil up ${INSTANCE} --quiet ${FLAG}
   
   # login
   docker exec -ti ${INSTANCE}_${SUFFIX} bash
@@ -90,7 +90,7 @@ else
   then
     TARGET=$(readlink ${LINKNAME})
     cd ${TARGET}
-    eval "doil login ${FLAG}"
+    eval "/usr/local/bin/doil login ${FLAG}"
     exit
   else
     echo -e "\033[1mERROR:\033[0m"

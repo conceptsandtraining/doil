@@ -132,8 +132,8 @@ else
   FLAG=""
 fi
 
-doil system:salt start --quiet
-doil up ${INSTANCE} --quiet ${FLAG}
+/usr/local/bin/doil system:salt start --quiet
+/usr/local/bin/doil up ${INSTANCE} --quiet ${FLAG}
 
 # check key
 SALTKEYS=$(docker exec -t -i saltmain bash -c "salt-key -L" | grep "${INSTANCE}.${SUFFIX}")
