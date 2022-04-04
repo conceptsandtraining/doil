@@ -91,6 +91,9 @@ then
   # check proxy server
   /usr/local/bin/doil system:proxy start --quiet
 
+  # check mail server
+  /usr/local/bin/doil system:mail start --quiet
+
   # Start the container
   docker-compose up -d
 

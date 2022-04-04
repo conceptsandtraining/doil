@@ -678,6 +678,8 @@ file_roots:
     - /srv/salt/states/autoinstall
   access:
     - /srv/salt/states/access
+  mailservices:
+    - /srv/salt/states/mailservices
 
 
 # The master_roots setting configures a master-only copy of the file_roots dictionary,

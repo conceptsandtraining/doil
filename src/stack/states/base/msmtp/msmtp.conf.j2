@@ -1,0 +1,12 @@
+# This allows msmtp to be used like /usr/sbin/sendmail.
+account default
+
+# The SMTP smarthost
+host {{ smarthost }}
+
+# Construct envelope-from addresses of the form "user@oursite.example"
+auto_from on
+maildomain {{ mailname }}
+
+# Syslog logging with facility LOG_MAIL instead of the default LOG_USER
+syslog LOG_MAIL

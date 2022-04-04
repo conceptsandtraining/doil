@@ -61,5 +61,6 @@ echo -n "Restarting server ..."
 
 doil system:proxy restart --quiet
 doil system:salt restart --quiet
+doil system:mail restart --quiet
 
 printf " ${GREEN}ok${NC}\n"

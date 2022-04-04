@@ -104,6 +104,14 @@ function doil_system_copy_doil() {
   return 0
 }
 
+function doil_system_replace_salt_stack() {
+
+  rm -rf /usr/local/share/doil/stack/*
+  cp -r src/stack/* /usr/local/share/doil/stack
+
+  return 0
+}
+
 function doil_system_setup_config() {
 
   if [ ! -f /etc/doil/doil.conf ]
@@ -226,4 +234,15 @@ function doil_system_touch_log_file() {
   then
     touch /var/log/doil.log
   fi
+}
+
+function doil_system_install_mailserver() {
+  cd /usr/local/lib/doil/server/mail
+  docker-compose build > /dev/null
+  doil system:salt start --quiet
+  doil system:mail start --quiet
+  docker-compose up -d
+  sleep 10
+  docker exec -i saltmain bash -c "salt 'doil.postfix' state.highstate saltenv=mailservices" >> /var/log/doil.log
+  docker commit doil_postfix doil_postfix:stable > /dev/null
 }
