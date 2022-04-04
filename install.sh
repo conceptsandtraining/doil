@@ -148,7 +148,7 @@ doil_status_okay
 
 # start mail server
 doil_status_send_message "Installing mail server"
-doil system:mail start --quiet
+doil_system_install_mailserver
 doil_status_okay
 
 #################

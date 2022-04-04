@@ -4,7 +4,6 @@
 # line of that file to be used as the name.  The Debian default
 # is /etc/mailname.
 #myorigin = /etc/mailname
-
 smtpd_banner = $myhostname ESMTP $mail_name (Debian/GNU)
 biff = no
 
@@ -13,12 +12,13 @@ append_dot_mydomain = no
 
 # Uncomment the next line to generate "delayed mail" warnings
 #delay_warning_time = 4h
-
 readme_directory = no
 
 # See http://www.postfix.org/COMPATIBILITY_README.html -- default to 2 on
 # fresh installs.
 compatibility_level = 2
+
+
 
 # TLS parameters
 smtpd_tls_cert_file=/etc/ssl/certs/ssl-cert-snakeoil.pem
@@ -29,15 +29,20 @@ smtp_tls_CApath=/etc/ssl/certs
 smtp_tls_security_level=may
 smtp_tls_session_cache_database = btree:${data_directory}/smtp_scache
 
+
 smtpd_relay_restrictions = permit_mynetworks permit_sasl_authenticated defer_unauth_destination
-myhostname = 87bbe9b14707.fritz.box
+myhostname = b97081b919d4.fritz.box
 alias_maps = hash:/etc/aliases
 alias_database = hash:/etc/aliases
-mydestination = example.com, localhost.example.com, localhost.example.com, localhost
-relayhost = 
-mynetworks = 127.0.0.0/8
-mailbox_size_limit = 0
-recipient_delimiter = +
-inet_interfaces = all
-inet_protocols = all
 myorigin = /etc/mailname
+mydestination = doil.cat06.de
+relayhost = 
+mynetworks = 172.24.0.0/24
+mailbox_size_limit = 0
+recipient_delimiter = 
+inet_protocols = ipv4
+maillog_file = /var/log/postfix.log
+local_recipient_maps =
+luser_relay = www-data
+default_transport = error
+relay_transport = error

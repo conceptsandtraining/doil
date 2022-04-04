@@ -6,13 +6,14 @@ services:
       dockerfile: Dockerfile
     image: doil_postfix
     container_name: doil_postfix
+    hostname: doil
+    domainname: postfix
     networks:
       doil_proxy:
         ipv4_address: 172.24.0.253
+      salt_saltnet:
     ports:
-      - "25:25"
       - "8081:80"
-      - "110:110"
       - "143:143"
       - "465:465"
       - "587:587"
@@ -20,13 +21,15 @@ services:
       - "995:995"
     volumes:
       - type: bind
-        source: ./conf/system.conf
-        target: /etc/supervisor/conf.d/system.conf
+        source: ./conf/salt-minion.conf
+        target: /etc/supervisor/conf.d/salt-minion.conf
       - type: bind
-        source: ./conf/main.cf
-        target: /etc/postfix/main.cf
+        source: ./conf/minion.cnf
+        target: /etc/salt/minion
 networks:
   doil_proxy:
+    external: true
+  salt_saltnet:
     external: true
 volumes:
     persistent:

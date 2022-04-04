@@ -5,6 +5,7 @@
 * new [version and contributing policies](.github/CONTRIBUTING.md)
 * added transparent [testing protocols](.github/TESTING.md)
 * fixed several bugs regarding salt and proxy integration
+* implemented mail service system
 * implemented better update and install mechanism
 * added fallback for `-r` to `-gr` when checking for repositories
 * refactored a lot of code
