@@ -29,6 +29,7 @@ php7.2:
       - php7.2-soap
       - php7.2-bcmath
       - php7.2-imap
+      - php7.2-xmlrpc
 
 php7.0:
   pkg.removed:
@@ -47,6 +48,7 @@ php7.0:
       - php7.0-soap
       - php7.0-bcmath
       - php7.0-imap
+      - php7.0-xmlrpc
 
 php7.1:
   pkg.removed:
@@ -64,6 +66,7 @@ php7.1:
       - php7.1-soap
       - php7.1-bcmath
       - php7.1-imap
+      - php7.1-xmlrpc
 
 php7.3:
   pkg.removed:
@@ -81,6 +84,7 @@ php7.3:
       - php7.3-soap
       - php7.3-bcmath
       - php7.3-imap
+      - php7.3-xmlrpc
 
 php7.4:
   pkg.removed:
@@ -98,6 +102,7 @@ php7.4:
       - php7.4-soap
       - php7.4-bcmath
       - php7.4-imap
+      - php7.4-xmlrpc
 
 php8.0:
   pkg.removed:
@@ -110,6 +115,7 @@ php8.0:
       - php8.0-soap
       - php8.0-bcmath
       - php8.0-imap
+      - php8.0-xmlrpc
 
 ini_filesize_apache2:
   cmd.run:

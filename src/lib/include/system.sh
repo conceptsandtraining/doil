@@ -130,7 +130,7 @@ function doil_system_setup_config() {
   fi
 
   # ilias repo
-  echo "ilias=git@github.com:ILIAS-eLearning/ILIAS.git" > "/etc/doil/repositories.conf"
+  echo "ilias=https://github.com/ILIAS-eLearning/ILIAS.git" > "/etc/doil/repositories.conf"
 
   return 0
 }
