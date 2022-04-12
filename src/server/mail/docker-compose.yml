@@ -14,11 +14,6 @@ services:
       salt_saltnet:
     ports:
       - "8081:80"
-      - "143:143"
-      - "465:465"
-      - "587:587"
-      - "993:993"
-      - "995:995"
     volumes:
       - type: bind
         source: ./conf/salt-minion.conf

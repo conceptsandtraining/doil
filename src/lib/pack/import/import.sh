@@ -124,10 +124,10 @@ then
   # create project
   doil_send_log "Creating instance ${INSTANCE}. This will take a while."
 
-  doil repo:add --name "${INSTANCE}_import" --repo ${PROJECT_REPOSITORY_URL}
+  /usr/local/bin/doil repo:add --name "${INSTANCE}_import" --repo ${PROJECT_REPOSITORY_URL}
   REPOSITORY="${INSTANCE}_import"
 
-  doil create -n ${INSTANCE} -r ${REPOSITORY} -b ${PROJECT_BRANCH} -p ${PROJECT_PHP_VERSION} ${FLAG}
+  /usr/local/bin/doil create -n ${INSTANCE} -r ${REPOSITORY} -b ${PROJECT_BRANCH} -p ${PROJECT_PHP_VERSION} ${FLAG}
 
   # reset linkpath because we created a new instance
   if [[ ${GLOBAL} == TRUE ]]
@@ -148,7 +148,7 @@ TARGET=$(readlink ${LINKPATH})
 doil_send_log "Copying necessary files"
 
 # stop the instance
-doil down ${INSTANCE} ${FLAG} --quiet
+/usr/local/bin/doil down ${INSTANCE} ${FLAG} --quiet
 
 # remove all the files
 rm -rf ${TARGET}/volumes/data
@@ -164,7 +164,7 @@ cp -r ${PWD}/${PACKNAME}/var/ilias/data/* ${TARGET}/volumes/data
 cp -r ${PWD}/${PACKNAME}/var/ilias/ilias.sql ${TARGET}/volumes/data/ilias.sql
 
 # start the instance
-doil up ${INSTANCE} --quiet ${FLAG}
+/usr/local/bin/doil up ${INSTANCE} --quiet ${FLAG}
 sleep 15
 doil_send_log "Importing database"
 
@@ -187,10 +187,10 @@ sed -i "s/pass =.*/pass = '${SQLPW}'/" ${CLIENT_FILE_LOCATION}
 
 doil_send_log "Setting permissions"
 
-doil down ${INSTANCE} --quiet ${FLAG}
-doil up ${INSTANCE} --quiet ${FLAG}
+/usr/local/bin/doil down ${INSTANCE} --quiet ${FLAG}
+/usr/local/bin/doil up ${INSTANCE} --quiet ${FLAG}
 sleep 5
-doil apply ${INSTANCE} access --quiet ${FLAG}
+/usr/local/bin/doil apply ${INSTANCE} access --quiet ${FLAG}
 
 doil_send_log "Cleanup"
 

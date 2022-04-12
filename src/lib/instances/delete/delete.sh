@@ -83,13 +83,13 @@ then
     doil_send_log "Deleting instance"
 
     # check saltmain
-    doil system:salt start --quiet
+    /usr/local/bin/doil system:salt start --quiet
 
     # check proxy server
-    doil system:proxy start --quiet
+    /usr/local/bin/doil system:proxy start --quiet
 
     # start machine for some adjustments
-    doil up ${INSTANCE} --quiet ${FLAG}
+    /usr/local/bin/doil up ${INSTANCE} --quiet ${FLAG}
     THE_USER=$(id -u ${USER})
     THE_GROUP=$(id -g ${USER})
     docker exec -i ${INSTANCE}_${SUFFIX} bash -c "chown -R ${THE_USER}:${THE_GROUP} /var/lib/mysql"
@@ -97,7 +97,7 @@ then
     docker exec -i ${INSTANCE}_${SUFFIX} bash -c "chown -R ${THE_USER}:${THE_GROUP} /etc/php"
 
     # set machine inactive
-    doil down ${INSTANCE} --quiet ${FLAG}
+    /usr/local/bin/doil down ${INSTANCE} --quiet ${FLAG}
 
     # remove directory
     the_path=$(readlink ${LINKNAME})
@@ -119,7 +119,7 @@ then
     then
       rm "/usr/local/lib/doil/server/proxy/conf/sites/${INSTANCE}_${SUFFIX}.conf"
     fi
-    doil system:proxy reload --quiet
+    /usr/local/bin/doil system:proxy reload --quiet
 
     # remove docker image
     docker volume rm ${INSTANCE}_persistent

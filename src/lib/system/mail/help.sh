@@ -30,9 +30,9 @@ EXAMPLE:
 
 COMMANDS
   login   logs the user into the mail server
-  prune   removes the configuration of the mail server
   start   starts the mail server
   stop    stops the mail server
+  restart restarts the mail server
 
 OPTIONS
   -q|--quiet no output will be displayed
