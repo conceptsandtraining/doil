@@ -185,12 +185,16 @@ docker exec -i ${INSTANCE}_${SUFFIX} bash -c "mysql ilias < /var/ilias/data/ilia
 CLIENT_FILE_LOCATION=$(find ${TARGET}/volumes/ilias/data/ -iname client.ini.php)
 sed -i "s/pass =.*/pass = '${SQLPW}'/" ${CLIENT_FILE_LOCATION}
 
-doil_send_log "Setting permissions"
-
+doil_status_send_message "Setting permissions"
 /usr/local/bin/doil down ${INSTANCE} --quiet ${FLAG}
 /usr/local/bin/doil up ${INSTANCE} --quiet ${FLAG}
 sleep 5
-/usr/local/bin/doil apply ${INSTANCE} access --quiet ${FLAG}
+/usr/local/bin/doil apply ${INSTANCE} access --quiet ${FLAG} -nc
+doil_status_okay
+
+doil_status_send_message "Finalizing docker image"
+docker commit ${INSTANCE}_${SUFFIX} doil/${INSTANCE}_${SUFFIX}:stable > /dev/null
+doil_status_okay
 
 doil_send_log "Cleanup"
 

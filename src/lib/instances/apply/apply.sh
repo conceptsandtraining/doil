@@ -41,6 +41,10 @@ while [[ $# -gt 0 ]]
       CREATE_CONTEXT=TRUE
       shift # past argument
       ;;
+    -nc|--no-commit)
+      NO_COMMIT=TRUE
+      shift # past argument
+      ;;
     *)
       if (( ${POSITION} == 1 ))
       then
@@ -153,6 +157,11 @@ then
   exit
 else
   docker exec -i saltmain bash -c "salt '${INSTANCE}.${SUFFIX}' state.highstate saltenv=${STATE}"
+fi
+
+if [[ -z ${NO_COMMIT} ]]
+then
+  docker commit ${INSTANCE}_${SUFFIX} doil/${INSTANCE}_${SUFFIX}:stable > /dev/null
 fi
 
 if [[ -z ${CREATE_CONTEXT} ]]
