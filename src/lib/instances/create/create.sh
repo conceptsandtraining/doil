@@ -414,7 +414,7 @@ doil_status_okay
 # apply base state
 set -e
 doil_status_send_message "Apply base state"
-OUTPUT=$(/usr/local/bin/doil apply ${NAME} base ${FLAG} -c) -nc
+OUTPUT=$(/usr/local/bin/doil apply ${NAME} base ${FLAG} -nc -c)
 if [[ ${OUTPUT} == *"Minions returned with non-zero exit code"* ]]
 then
   doil_status_failed
@@ -425,7 +425,7 @@ doil_status_okay
 #################
 # apply dev state
 doil_status_send_message "Apply dev state"
-OUTPUT=$(/usr/local/bin/doil apply ${NAME} dev -c ${FLAG}) -nc
+OUTPUT=$(/usr/local/bin/doil apply ${NAME} dev -c -nc ${FLAG})
 if [[ ${OUTPUT} == *"Minions returned with non-zero exit code"* ]]
 then
   doil_status_failed
@@ -436,7 +436,7 @@ doil_status_okay
 #################
 # apply php state
 doil_status_send_message "Apply php state"
-OUTPUT=$(/usr/local/bin/doil apply ${NAME} php${PHPVERSION} -c ${FLAG}) -nc
+OUTPUT=$(/usr/local/bin/doil apply ${NAME} php${PHPVERSION} -c -nc ${FLAG})
 if [[ ${OUTPUT} == *"Minions returned with non-zero exit code"* ]]
 then
   doil_status_failed
@@ -447,7 +447,7 @@ doil_status_okay
 ###################
 # apply ilias state
 doil_status_send_message "Apply ilias state"
-OUTPUT=$(/usr/local/bin/doil apply ${NAME} ilias -c ${FLAG}) -nc
+OUTPUT=$(/usr/local/bin/doil apply ${NAME} ilias -c -nc ${FLAG})
 if [[ ${OUTPUT} == *"Minions returned with non-zero exit code"* ]]
 then
   doil_status_failed
@@ -463,7 +463,7 @@ ILIAS_VERSION_FILE=$(cat -e ${FOLDERPATH}/volumes/ilias/include/inc.ilias_versio
 ILIAS_VERSION=${ILIAS_VERSION_FILE:33:1}
 if (( ${ILIAS_VERSION} == 6 ))
 then
-  OUTPUT=$( ${NAME} composer -c ${FLAG}) -nc
+  OUTPUT=$( ${NAME} composer -c -nc ${FLAG})
   if [[ ${OUTPUT} == *"Minions returned with non-zero exit code"* ]]
   then
     doil_status_failed
@@ -471,7 +471,7 @@ then
   fi
 elif (( ${ILIAS_VERSION} > 6 ))
 then
-  OUTPUT=$( ${NAME} composer2 -c ${FLAG}) -nc
+  OUTPUT=$( ${NAME} composer2 -c -nc ${FLAG})
   if [[ ${OUTPUT} == *"Minions returned with non-zero exit code"* ]]
   then
     doil_status_failed
@@ -479,7 +479,7 @@ then
   fi
 elif (( ${ILIAS_VERSION} < 6 ))
 then
-  OUTPUT=$(/usr/local/bin/doil apply ${NAME} composer54 -c ${FLAG}) -nc
+  OUTPUT=$(/usr/local/bin/doil apply ${NAME} composer54 -c -nc ${FLAG})
   if [[ ${OUTPUT} == *"Minions returned with non-zero exit code"* ]]
   then
     doil_status_failed
@@ -493,7 +493,7 @@ doil_status_okay
 if (( ${ILIAS_VERSION} > 6 ))
 then
   doil_status_send_message "Trying autoinstaller"
-  OUTPUT=$(/usr/local/bin/doil apply ${NAME} autoinstall -c ${FLAG}) -nc
+  OUTPUT=$(/usr/local/bin/doil apply ${NAME} autoinstall -c -nc ${FLAG})
   if [[ ${OUTPUT} == *"Minions returned with non-zero exit code"* ]]
   then
     doil_status_failed
@@ -505,7 +505,7 @@ fi
 #####
 # apply access
 doil_status_send_message "Apply access state"
-OUTPUT=$(/usr/local/bin/doil apply ${NAME} access -c ${FLAG}) -nc
+OUTPUT=$(/usr/local/bin/doil apply ${NAME} access -c -nc ${FLAG})
 if [[ ${OUTPUT} == *"Minions returned with non-zero exit code"* ]]
 then
   doil_status_failed
