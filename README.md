@@ -167,8 +167,7 @@ want to add a rotation to this logfile.
 
 ### doil on Windows
 
-* TODO XXX Hint zu Ubuntu
-* **doil** works on Windows with the WSL enabled. Due to network restrictions you
+* **doil** works on Windows with the WSL2 and Ubuntu 20.10 enabled. Due to network restrictions you
   need to change the host to `localhost` via the doil proxy settings:
   `doil system:proxy host localhost`
 
