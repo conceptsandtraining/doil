@@ -92,7 +92,7 @@ then
 fi
 
 # check name
-LINKPATH="${HOME}/.doil/${NAME}"
+LINKPATH="${HOME}/.doil/instances/${NAME}"
 if [[ -z "${NAME}" ]]
 then
   echo -e "\033[1mERROR:\033[0m"
