@@ -255,6 +255,27 @@ users, so make sure to understand what you are doing.
 
 See `doil system:proxy --help` for more information
 
+### Mail Server
+
+The mailserver is available at `http://localhost:8081/roundcube` with following
+login data:
+
+* User: www-data
+* Password: ilias
+* Server: localhost
+
+Every minion sends all E-Mails to this mailserver.
+
+To be able to dive deeper into the inner workings of **doil** or customize it
+to fit your workflow or requirements, **doil** provides commands to tamper with
+the mailserver in the background. These commands will not be required by ordinary
+users, so make sure to understand what you are doing.
+
+* `doil system:mail login` logs the user into the mail server
+* `doil system:mail start` starts the mail server
+* `doil system:mail stop` stops the mail server
+* `doil system:mail restart` restarts the mail server
+
 ## Contributions and Support
 
 Contributions to doil are very welcome!
