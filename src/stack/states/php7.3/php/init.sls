@@ -142,3 +142,8 @@ a2_enable_php:
   module.run:
     - name: apache.a2enmod
     - mod: php7.3
+
+apache_supervisor_signal:
+  supervisord.running:
+    - name: apache2
+    - restart: True

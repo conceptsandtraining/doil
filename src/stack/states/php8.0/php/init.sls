@@ -165,3 +165,8 @@ a2_enable_php:
   module.run:
     - name: apache.a2enmod
     - mod: php8.0
+
+apache_supervisor_signal:
+  supervisord.running:
+    - name: apache2
+    - restart: True

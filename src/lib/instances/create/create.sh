@@ -463,7 +463,7 @@ ILIAS_VERSION_FILE=$(cat -e ${FOLDERPATH}/volumes/ilias/include/inc.ilias_versio
 ILIAS_VERSION=${ILIAS_VERSION_FILE:33:1}
 if (( ${ILIAS_VERSION} == 6 ))
 then
-  OUTPUT=$( ${NAME} composer -c -nc ${FLAG})
+  OUTPUT=$(/usr/local/bin/doil apply ${NAME} composer -c -nc ${FLAG})
   if [[ ${OUTPUT} == *"Minions returned with non-zero exit code"* ]]
   then
     doil_status_failed
@@ -471,7 +471,7 @@ then
   fi
 elif (( ${ILIAS_VERSION} > 6 ))
 then
-  OUTPUT=$( ${NAME} composer2 -c -nc ${FLAG})
+  OUTPUT=$(/usr/local/bin/doil apply ${NAME} composer2 -c -nc ${FLAG})
   if [[ ${OUTPUT} == *"Minions returned with non-zero exit code"* ]]
   then
     doil_status_failed
