@@ -1,13 +1,13 @@
 version: "3.5"
 services:
-  saltmain:
+  doil_saltmain:
     build:
       context: .
       dockerfile: Dockerfile
-    image: saltmain
-    container_name: saltmain
-    hostname: saltmain
-    domainname: local
+    image: doil_saltmain
+    container_name: doil_saltmain
+    hostname: doil
+    domainname: saltmain
     volumes:
       - /usr/local/share/doil/stack/states:/srv/salt/states
       - /usr/local/share/doil/stack/config/master.cnf:/etc/salt/master

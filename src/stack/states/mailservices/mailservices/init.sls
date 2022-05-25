@@ -12,7 +12,9 @@ mailservice_packages:
       - postfix
       - dovecot-core
       - dovecot-imapd
+      - dovecot-managesieved
       - roundcube
+      - roundcube-plugins
       - libapache2-mod-php7.4
       - php7.4-curl
       - php7.4-gd
@@ -28,6 +30,14 @@ mailservice_packages:
       - php7.4-imap
       - php7.4-xmlrpc
 
+/var/mail/www-data:
+  file.directory:
+    - user: www-data
+    - group: mail
+    - recurse:
+      - user
+      - group
+
 /etc/mysql/mariadb.conf.d/50-server.cnf:
   file:
     - managed
@@ -37,7 +47,6 @@ mailservice_packages:
       cpu: {{ cpu }}
       ram: {{ ram }}
 
-{% if salt['grains.get']('doil_host_system', 'linux') == 'linux' %}
 /etc/mysql/:
   file.directory:
     - user: root
@@ -53,7 +62,22 @@ mailservice_packages:
     - recurse:
       - user
       - group
-{% endif %}
+
+/etc/sieve/:
+  file.directory:
+    - user: www-data
+    - group: www-data
+    - recurse:
+      - user
+      - group
+
+/etc/sieve/sieve.d/:
+  file.directory:
+    - user: www-data
+    - group: www-data
+    - recurse:
+      - user
+      - group
 
 a2_enable_php:
   module.run:
@@ -68,9 +92,25 @@ a2_enable_php:
   file.managed:
     - source: salt://mailservices/postfix-main.cf
 
+/etc/postfix/canonical-redirect:
+  file.managed:
+    - source: salt://mailservices/postfix-canonical-redirect
+
+postfix-postmap:
+  cmd.run:
+    - name: postmap /etc/postfix/canonical-redirect
+
 /etc/dovecot/conf.d/10-mail.conf:
   file.managed:
     - source: salt://mailservices/dovecot-10-mail.conf
+
+/etc/dovecot/conf.d/15-lda.conf:
+  file.managed:
+    - source: salt://mailservices/dovecot-15-lda.conf
+
+/etc/dovecot/conf.d/90-sieve.conf:
+  file.managed:
+    - source: salt://mailservices/dovecot-90-sieve.conf
 
 /etc/apache2/conf-enabled/roundcube.conf:
   file.managed:
@@ -145,7 +185,45 @@ www-data:
   user.present:
     - name: www-data
     - password: $6$xUv8xrV06vQ5DexD$PL.aUE6zesb9d6qBB6FnJtli6jIJ2Ud00JlnLcW0G4p2nwgwX7lryvFb1RiFEMIc22OwQ7f9LnplchpaUBRB51
+    - groups:
+      - dovecot
+      - postfix
+      - mail
 
 install-roundcube:
   cmd.run:
     - name: mysql roundcube < /usr/share/roundcube/SQL/mysql.initial.sql
+
+roundcube-plugins:
+  cmd.run:
+    - name: cp /usr/share/roundcube/plugins/managesieve/config.inc.php.dist /etc/roundcube/plugins/managesieve/config.inc.php
+
+/etc/roundcube/config.inc.php:
+  file.managed:
+    - source: salt://mailservices/roundcube-config.inc.php
+
+/var/www/:
+  file.directory:
+    - user: www-data
+    - group: www-data
+    - mode: 755
+    - makedirs: True
+
+/root/check-postbox-configuration.sh:
+  file.managed:
+    - source: salt://mailservices/check-postbox-configuration.sh
+    - mode: 755
+
+/root/delete-postbox-configuration.sh:
+  file.managed:
+    - source: salt://mailservices/check-postbox-configuration.sh
+    - mode: 755
+
+/root/service-config.tpl:
+  file.managed:
+    - source: salt://mailservices/service-config.tpl
+
+/root/service-config-sieve.tpl:
+  file.managed:
+    - source: salt://mailservices/service-config-sieve.tpl
+

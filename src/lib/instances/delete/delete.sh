@@ -82,12 +82,6 @@ then
 
     doil_send_log "Deleting instance"
 
-    # check saltmain
-    /usr/local/bin/doil system:salt start --quiet
-
-    # check proxy server
-    /usr/local/bin/doil system:proxy start --quiet
-
     # start machine for some adjustments
     /usr/local/bin/doil up ${INSTANCE} --quiet ${FLAG}
     THE_USER=$(id -u ${USER})
@@ -112,7 +106,7 @@ then
     fi
 
     # remove key
-    docker exec -i saltmain bash -c "echo 'y' | salt-key -d ${INSTANCE}.${SUFFIX}"
+    docker exec -i doil_saltmain bash -c "echo 'y' | salt-key -d ${INSTANCE}.${SUFFIX}"
 
     # remove proxy
     if [ -f "/usr/local/lib/doil/server/proxy/conf/sites/${INSTANCE}_${SUFFIX}.conf" ]
@@ -124,6 +118,9 @@ then
     # remove docker image
     docker volume rm ${INSTANCE}_persistent
     docker rmi $(docker images "doil/${INSTANCE}_${SUFFIX}" -a -q)
+
+    # delete mails
+    docker exec -i doil_postfix -c "/root/delete-postbox-configuration.sh ${INSTANCE}"
 
     doil_send_log "Instance deleted"
   fi

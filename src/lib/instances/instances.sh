@@ -16,6 +16,11 @@
 # get the helper
 source /usr/local/lib/doil/lib/include/helper.sh
 
+# start mandatory services
+/usr/local/bin/doil system:salt start --quiet
+/usr/local/bin/doil system:proxy start --quiet
+/usr/local/bin/doil system:mail start --quiet
+
 # get the command
 CMD=$(doil_get_command ${1})
 shift # important

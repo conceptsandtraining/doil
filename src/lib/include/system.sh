@@ -236,13 +236,25 @@ function doil_system_touch_log_file() {
   fi
 }
 
+function doil_system_install_proxyserver() {
+  cd /usr/local/lib/doil/server/proxy
+  $(docker-compose build 2>&1 > /dev/null) 2>&1 > /dev/null
+  doil system:salt start --quiet
+  $(docker-compose up -d  2>&1 > /dev/null) 2>&1 > /dev/null
+  sleep 10
+  docker exec -i doil_saltmain bash -c "salt 'doil.proxy' state.highstate saltenv=proxyservices" >> /var/log/doil.log
+  docker commit doil_proxy doil_proxy:stable > /dev/null
+  docker commit doil_proxy doil_proxy:latest > /dev/null
+}
+
 function doil_system_install_mailserver() {
   cd /usr/local/lib/doil/server/mail
-  docker-compose build > /dev/null
+  $(docker-compose build 2>&1 > /dev/null) 2>&1 > /dev/null
   doil system:salt start --quiet
   doil system:mail start --quiet
-  docker-compose up -d
+  $(docker-compose up -d  2>&1 > /dev/null) 2>&1 > /dev/null
   sleep 10
-  docker exec -i saltmain bash -c "salt 'doil.postfix' state.highstate saltenv=mailservices" >> /var/log/doil.log
+  docker exec -i doil_saltmain bash -c "salt 'doil.postfix' state.highstate saltenv=mailservices" >> /var/log/doil.log
   docker commit doil_postfix doil_postfix:stable > /dev/null
+  docker commit doil_postfix doil_postfix:latest > /dev/null
 }

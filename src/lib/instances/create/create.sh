@@ -222,13 +222,6 @@ doil_status_send_message "Updating debian image"
 docker pull debian:stable --quiet > /dev/null
 doil_status_okay
 
-# salt and proxy server
-doil_status_send_message "Starting mandatory doil services"
-/usr/local/bin/doil system:salt start --quiet
-/usr/local/bin/doil system:proxy start --quiet
-/usr/local/bin/doil system:mail start --quiet
-doil_status_okay
-
 # create the basic folders
 doil_status_send_message "Create basic folders"
 
@@ -380,14 +373,14 @@ doil_status_okay
 doil_status_send_message "Checking key"
 
 # check if the new key is registered
-SALTKEYS=$(docker exec -t -i saltmain /bin/bash -c "salt-key -L" | grep "${NAME}.${SUFFIX}")
+SALTKEYS=$(docker exec -t -i doil_saltmain /bin/bash -c "salt-key -L" | grep "${NAME}.${SUFFIX}")
 until [[ ! -z ${SALTKEYS} ]]
 do
   docker exec -i ${NAME}_${SUFFIX} bash -c "killall -9 salt-minion" > /dev/null
   docker exec -i ${NAME}_${SUFFIX} bash -c "rm -rf /var/lib/salt/pki/minion/*" > /dev/null
   docker exec -i ${NAME}_${SUFFIX} bash -c "salt-minion -d" > /dev/null
   sleep 5
-  SALTKEYS=$(docker exec -t -i saltmain /bin/bash -c "salt-key -L" | grep "${NAME}.${SUFFIX}")  
+  SALTKEYS=$(docker exec -t -i doil_saltmain /bin/bash -c "salt-key -L" | grep "${NAME}.${SUFFIX}")  
 done
 doil_status_okay
 
@@ -396,15 +389,15 @@ doil_status_okay
 doil_status_send_message "Setting up instance configuration"
 GRAIN_MYSQL_PASSWORD=$(xxd -l8 -ps /dev/urandom | head -c 13 ; echo '')
 GRAIN_CRON_PASSWORD=$(xxd -l8 -ps /dev/urandom | head -c 13 ; echo '')
-docker exec -i saltmain bash -c "salt '${NAME}.${SUFFIX}' grains.set 'mysql_password' ${GRAIN_MYSQL_PASSWORD} --out=quiet"
-docker exec -i saltmain bash -c "salt '${NAME}.${SUFFIX}' grains.set 'cron_password' ${GRAIN_CRON_PASSWORD} --out=quiet"
-docker exec -i saltmain bash -c "salt '${NAME}.${SUFFIX}' grains.set 'doil_domain' http://${DOIL_HOST}/${NAME} --out=quiet"
-docker exec -i saltmain bash -c "salt '${NAME}.${SUFFIX}' grains.set 'doil_project_name' ${NAME} --out=quiet"
+docker exec -i doil_saltmain bash -c "salt '${NAME}.${SUFFIX}' grains.set 'mysql_password' ${GRAIN_MYSQL_PASSWORD} --out=quiet"
+docker exec -i doil_saltmain bash -c "salt '${NAME}.${SUFFIX}' grains.set 'cron_password' ${GRAIN_CRON_PASSWORD} --out=quiet"
+docker exec -i doil_saltmain bash -c "salt '${NAME}.${SUFFIX}' grains.set 'doil_domain' http://${DOIL_HOST}/${NAME} --out=quiet"
+docker exec -i doil_saltmain bash -c "salt '${NAME}.${SUFFIX}' grains.set 'doil_project_name' ${NAME} --out=quiet"
 if [[ "$(< /proc/version)" == *@(Microsoft|WSL)* ]]
 then
-  docker exec -i saltmain bash -c "salt '${NAME}.${SUFFIX}' grains.set 'doil_host_system' windows --out=quiet"
+  docker exec -i doil_saltmain bash -c "salt '${NAME}.${SUFFIX}' grains.set 'doil_host_system' windows --out=quiet"
 else
-  docker exec -i saltmain bash -c "salt '${NAME}.${SUFFIX}' grains.set 'doil_host_system' linux --out=quiet"  
+  docker exec -i doil_saltmain bash -c "salt '${NAME}.${SUFFIX}' grains.set 'doil_host_system' linux --out=quiet"  
 fi
 
 sleep 5

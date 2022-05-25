@@ -85,40 +85,8 @@ then
 
   doil_send_log "Starting instance"
 
-  # check saltmain
-  /usr/local/bin/doil system:salt start --quiet
-
-  # check proxy server
-  /usr/local/bin/doil system:proxy start --quiet
-
-  # check mail server
-  /usr/local/bin/doil system:mail start --quiet
-
   # Start the container
   docker-compose up -d
-
-  # start cron service
-  docker exec -i ${INSTANCE}_${SUFFIX} bash -c "service cron status" 2>&1 > /dev/null
-  docker exec -i ${INSTANCE}_${SUFFIX} bash -c "service cron start" 2>&1 > /dev/null
-  
-  # remove the current ip from the host file and add the new one
-  DCHASH=$(doil_get_hash ${INSTANCE}_${SUFFIX})
-  DCIP=$(doil_get_data $DCHASH "ip")
-
-  if [ -f "/usr/local/lib/doil/server/proxy/conf/sites/${INSTANCE}_${SUFFIX}.conf" ]
-  then
-    rm "/usr/local/lib/doil/server/proxy/conf/sites/${INSTANCE}_${SUFFIX}.conf"
-  fi
-  cp "/usr/local/lib/doil/server/proxy/service-config.tpl" "/usr/local/lib/doil/server/proxy/conf/sites/${INSTANCE}_${SUFFIX}.conf"
-  if [ ${HOST} == "linux" ]; then
-    sed -i "s/%IP%/${DCIP}/g" "/usr/local/lib/doil/server/proxy/conf/sites/${INSTANCE}_${SUFFIX}.conf"
-    sed -i "s/%DOMAIN%/${INSTANCE}/g" "/usr/local/lib/doil/server/proxy/conf/sites/${INSTANCE}_${SUFFIX}.conf"
-  elif [ ${HOST} == "mac" ]; then
-    sed -i "" "s/%IP%/${DCIP}/g" "/usr/local/lib/doil/server/proxy/conf/sites/${INSTANCE}_${SUFFIX}.conf"
-    sed -i "" "s/%DOMAIN%/${INSTANCE}/g" "/usr/local/lib/doil/server/proxy/conf/sites/${INSTANCE}_${SUFFIX}.conf"
-  fi
-  
-  /usr/local/bin/doil system:proxy reload --quiet
 
   # config
   DOIL_HOST=$(doil_get_conf host)

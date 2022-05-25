@@ -136,19 +136,19 @@ then
 fi
 doil_status_okay
 
-# start proxy server
-doil_status_send_message "Installing proxy server"
-doil system:proxy start --quiet
-doil_status_okay
-
 # start salt server
 doil_status_send_message "Installing salt server"
 doil system:salt start --quiet
 doil_status_okay
 
+# start proxy server
+doil_status_send_message "Installing proxy server"
+doil_system_install_proxyserver 2>&1 > /dev/null
+doil_status_okay
+
 # start mail server
 doil_status_send_message "Installing mail server"
-doil_system_install_mailserver
+doil_system_install_mailserver 2>&1 > /dev/null
 doil_status_okay
 
 #################

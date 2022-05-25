@@ -12,8 +12,6 @@ services:
       doil_proxy:
         ipv4_address: 172.24.0.253
       salt_saltnet:
-    ports:
-      - "8081:80"
     volumes:
       - type: bind
         source: ./conf/salt-minion.conf

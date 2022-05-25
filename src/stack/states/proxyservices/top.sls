@@ -1,0 +1,3 @@
+proxyservices:
+  '*':
+    - proxyservices
