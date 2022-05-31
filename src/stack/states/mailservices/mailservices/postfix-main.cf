@@ -46,3 +46,5 @@ local_recipient_maps =
 luser_relay = www-data
 default_transport = error
 relay_transport = error
+canonical_maps = regexp:/etc/postfix/canonical-redirect
+mailbox_command = /usr/lib/dovecot/deliver -c /etc/dovecot/dovecot.conf -m "${EXTENSION}"

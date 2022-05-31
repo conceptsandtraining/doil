@@ -1,11 +1,11 @@
 FROM debian:stable
 
 RUN apt-get update
-RUN apt-get install -y vim less virt-what net-tools procps nginx
-
-RUN ln -sf /dev/stdout /var/log/nginx/access.log
-RUN ln -sf /dev/stderr /var/log/nginx/error.log
+RUN apt-get install -y supervisor salt-minion
+RUN apt-get install -y vim less virt-what net-tools procps
 
 EXPOSE 80 443
 
-CMD ["nginx", "-g", "daemon off;"]]
+COPY conf/run-supervisor.sh /usr/local/bin/
+RUN chmod +x /usr/local/bin/run-supervisor.sh
+CMD ["/usr/local/bin/run-supervisor.sh"]

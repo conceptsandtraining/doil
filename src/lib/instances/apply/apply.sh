@@ -136,27 +136,26 @@ else
   FLAG=""
 fi
 
-/usr/local/bin/doil system:salt start --quiet
 /usr/local/bin/doil up ${INSTANCE} --quiet ${FLAG}
 
 # check key
-SALTKEYS=$(docker exec -t -i saltmain bash -c "salt-key -L" | grep "${INSTANCE}.${SUFFIX}")
+SALTKEYS=$(docker exec -t -i doil_saltmain bash -c "salt-key -L" | grep "${INSTANCE}.${SUFFIX}")
 until [[ ! -z ${SALTKEYS} ]]
 do
   sleep 5
-  SALTKEYS=$(docker exec -t -i saltmain bash -c "salt-key -L" | grep "${INSTANCE}.${SUFFIX}")
+  SALTKEYS=$(docker exec -t -i doil_saltmain bash -c "salt-key -L" | grep "${INSTANCE}.${SUFFIX}")
 done
 
 if [[ ! -z ${CREATE_CONTEXT} ]]
 then
   RND=$(( $RANDOM % 10 ))
-  docker exec -i saltmain bash -c "salt '${INSTANCE}.${SUFFIX}' state.highstate saltenv=${STATE}" 2>&1 > /tmp/doil.${RND}.log
+  docker exec -i doil_saltmain bash -c "salt '${INSTANCE}.${SUFFIX}' state.highstate saltenv=${STATE}" 2>&1 > /tmp/doil.${RND}.log
   CHECK=$(cat /tmp/doil.${RND}.log | grep "Failed:" | cut -d':' -f2)
   cat /tmp/doil.${RND}.log >> /var/log/doil.log
   rm /tmp/doil.${RND}.log
   exit
 else
-  docker exec -i saltmain bash -c "salt '${INSTANCE}.${SUFFIX}' state.highstate saltenv=${STATE}"
+  docker exec -i doil_saltmain bash -c "salt '${INSTANCE}.${SUFFIX}' state.highstate saltenv=${STATE}"
 fi
 
 if [[ -z ${NO_COMMIT} ]]

@@ -69,18 +69,6 @@ then
 
   doil_send_log "Stopping instance"
 
-  # check saltmain
-  /usr/local/bin/doil system:salt start --quiet
-
-  # check proxy server
-  /usr/local/bin/doil system:proxy start --quiet
-
-  if [ -f "/usr/local/lib/doil/server/proxy/conf/sites/${INSTANCE}.conf" ]
-  then
-    rm "/usr/local/lib/doil/server/proxy/conf/sites/${INSTANCE}.conf"
-  fi
-  /usr/local/bin/doil system:proxy reload --quiet
-
   docker-compose down
 
   doil_send_log "Instance stopped"

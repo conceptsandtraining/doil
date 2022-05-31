@@ -680,6 +680,8 @@ file_roots:
     - /srv/salt/states/access
   mailservices:
     - /srv/salt/states/mailservices
+  proxyservices:
+    - /srv/salt/states/proxyservices
 
 
 # The master_roots setting configures a master-only copy of the file_roots dictionary,
@@ -1036,7 +1038,7 @@ pillar_roots:
 #reactor: []
 
 #Set the TTL for the cache of the reactor configuration.
-#reactor_refresh_interval: 60
+reactor_refresh_interval: 10
 
 #Configure the number of workers for the runner/wheel in the reactor.
 #reactor_worker_threads: 10
@@ -1044,6 +1046,12 @@ pillar_roots:
 #Define the queue size for workers in the reactor.
 #reactor_worker_hwm: 10000
 
+reactor:                            # Master config section "reactor"
+  - 'proxy_on_minion_start':
+    - /srv/salt/states/reactor/proxy_on_minion_start.sls
+    - /srv/salt/states/reactor/postfix_on_minion_start.sls
+  - 'salt/presence/change':
+    - /srv/salt/states/reactor/proxy_on_minion_stop.sls
 
 #####          Syndic settings       #####
 ##########################################
@@ -1318,3 +1326,5 @@ pillar_roots:
 ############################################
 # Allow the raw_shell parameter to be used when calling Salt SSH client via API
 #netapi_allow_raw_shell: True
+
+presence_events: True

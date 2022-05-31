@@ -65,7 +65,7 @@ if [[ ${COMMAND} == "login" ]]
 then
   /usr/local/bin/doil system:salt start --quiet
 
-  docker exec -t -i saltmain bash
+  docker exec -t -i doil_saltmain bash
   exit
 fi
 
@@ -76,7 +76,7 @@ then
 
   /usr/local/bin/doil system:salt start --quiet
 
-  docker exec -i saltmain bash -c 'echo "y" | salt-key -D'
+  docker exec -i doil_saltmain bash -c 'echo "y" | salt-key -D'
   
   doil_send_log "Finished pruning main salt server"
 fi
@@ -84,7 +84,7 @@ fi
 # start
 if [[ ${COMMAND} == "start" ]]
 then
-  DCMAIN=$(docker ps | grep "saltmain")
+  DCMAIN=$(docker ps | grep "doil_saltmain")
   if [ -z "${DCMAIN}" ]
   then
     doil_send_log "Starting main salt server"
@@ -98,7 +98,7 @@ fi
 # stop
 if [[ ${COMMAND} == "stop" ]]
 then
-  DCMAIN=$(docker ps | grep "saltmain")
+  DCMAIN=$(docker ps | grep "doil_saltmain")
   if [ ! -z "${DCMAIN}" ]
   then
     doil_send_log "Stopping main salt server"

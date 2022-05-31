@@ -59,7 +59,7 @@ then
 
   doil_status_send_message "Removing salt server"
   /usr/local/bin/doil system:salt stop --quiet
-  docker image rm saltmain > /dev/null
+  docker image rm doil_saltmain > /dev/null
   docker volume rm salt_persistent > /dev/null
   doil_status_okay
 

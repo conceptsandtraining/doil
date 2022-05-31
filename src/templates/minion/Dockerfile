@@ -10,4 +10,4 @@ RUN groupmod -g %GROUP_ID% www-data
 
 COPY conf/run-supervisor.sh /usr/local/bin/
 RUN chmod +x /usr/local/bin/run-supervisor.sh
-CMD ["/usr/local/bin/run-supervisor.sh"]
+ENTRYPOINT ["/usr/local/bin/run-supervisor.sh"]
