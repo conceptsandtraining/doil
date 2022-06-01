@@ -16,6 +16,7 @@
 # get the helper
 source /usr/local/lib/doil/lib/include/env.sh
 source /usr/local/lib/doil/lib/include/helper.sh
+source /usr/local/lib/doil/lib/include/log.sh
 
 # check if command is just plain help
 # if we don't have any command we load the help

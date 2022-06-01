@@ -73,7 +73,7 @@ then
   doil_send_log "Pruning proxy server"
 
   /usr/local/bin/doil system:proxy start --quiet
-  rm -rf /usr/local/lib/doil/server/proxy/conf/sites/*
+  rm -rf /usr/local/lib/doil/server/proxy/conf/nginx/sites/*
   /usr/local/bin/doil system:proxy restart --quiet
   
   doil_send_log "Finished pruning proxy server"
@@ -147,10 +147,10 @@ then
   CHANGE=$(sed -i "/host=/s/.*/host=${HOST}/" /etc/doil/doil.conf)
 
   # proxy conf
-  CHANGE=$(sed -i "/server_name/s/.*/    server_name ${HOST};/" /usr/local/lib/doil/server/proxy/conf/local.conf)
+  CHANGE=$(sed -i "/server_name/s/.*/    server_name ${HOST};/" /usr/local/lib/doil/server/proxy/conf/nginx/local.conf)
 
   # host conf
-  CHANGE=$(sed -i "/172.24.0.254/s/.*/172.24.0.254 ${HOST};/" /etc/hosts)
+  CHANGE=$(sed -i "/172.24.0.254/s/.*/172.24.0.254 ${HOST}/" /etc/hosts)
 
   /usr/local/bin/doil system:proxy restart --quiet
 

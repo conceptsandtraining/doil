@@ -236,11 +236,21 @@ function doil_system_touch_log_file() {
   fi
 }
 
+function doil_system_stop_all_services() {
+  doil system:proxy stop --quiet
+  doil system:salt stop --quiet
+}
+
+function doil_system_remove_services() {
+  docker image rm doil_proxy --force 2>&1 > /dev/null
+  docker image rm saltmain --force 2>&1 > /dev/null
+}
+
 function doil_system_install_proxyserver() {
   cd /usr/local/lib/doil/server/proxy
-  $(docker-compose build 2>&1 > /dev/null) 2>&1 > /dev/null
-  doil system:salt start --quiet
-  $(docker-compose up -d  2>&1 > /dev/null) 2>&1 > /dev/null
+  FOO=$(docker-compose build 2>&1 > /dev/null) 2>&1 > /dev/null
+  doil system:salt start # --quiet
+  FOO=$(docker-compose up -d 2>&1 > /dev/null) 2>&1 > /dev/null
   sleep 10
   docker exec -i doil_saltmain bash -c "salt 'doil.proxy' state.highstate saltenv=proxyservices" >> /var/log/doil.log
   docker commit doil_proxy doil_proxy:stable > /dev/null
@@ -249,10 +259,10 @@ function doil_system_install_proxyserver() {
 
 function doil_system_install_mailserver() {
   cd /usr/local/lib/doil/server/mail
-  $(docker-compose build 2>&1 > /dev/null) 2>&1 > /dev/null
-  doil system:salt start --quiet
-  doil system:mail start --quiet
-  $(docker-compose up -d  2>&1 > /dev/null) 2>&1 > /dev/null
+  FOO=$(docker-compose build 2>&1 > /dev/null) 2>&1 > /dev/null
+  doil system:salt start #--quiet
+  doil system:mail start #--quiet
+  FOO=$(docker-compose up -d 2>&1 > /dev/null) 2>&1 > /dev/null
   sleep 10
   docker exec -i doil_saltmain bash -c "salt 'doil.postfix' state.highstate saltenv=mailservices" >> /var/log/doil.log
   docker commit doil_postfix doil_postfix:stable > /dev/null
