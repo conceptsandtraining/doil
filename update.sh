@@ -54,13 +54,10 @@ fi
 # status for check requirements
 doil_status_okay
 
+echo "Performing updates. This will take a while."
+echo " "
+
 # perform the update
 doil_perform_update
-
-echo -n "Restarting server ..."
-
-doil system:proxy restart --quiet
-doil system:salt restart --quiet
-doil system:mail restart --quiet
 
 printf " ${GREEN}ok${NC}\n"
