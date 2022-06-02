@@ -262,7 +262,6 @@ login data:
 
 * User: www-data
 * Password: ilias
-* Server: localhost
 
 Every minion sends all E-Mails to this mailserver.
 
