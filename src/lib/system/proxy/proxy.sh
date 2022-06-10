@@ -29,10 +29,6 @@ while [[ $# -gt 0 ]]
       COMMAND="$key"
       shift
       ;;
-    -q|--quiet)
-      QUIET=TRUE
-      shift
-      ;;
     -h|--help|help)
       eval "/usr/local/lib/doil/lib/system/proxy/help.sh"
       exit
@@ -53,16 +49,10 @@ then
   exit 255
 fi
 
-# Pipe output to null if needed
-if [[ ${QUIET} == TRUE ]]
-then
-  exec >>/var/log/doil.log 2>&1
-fi
-
 # login
 if [[ ${COMMAND} == "login" ]]
 then
-  /usr/local/bin/doil system:proxy start --quiet
+  /usr/local/bin/doil system:proxy start
 
   docker exec -t -i doil_proxy bash
 fi
@@ -70,13 +60,13 @@ fi
 # prune
 if [[ ${COMMAND} == "prune" ]]
 then
-  doil_send_log "Pruning proxy server"
+  doil_log_message "Pruning proxy server"
 
-  /usr/local/bin/doil system:proxy start --quiet
+  /usr/local/bin/doil system:proxy start
   rm -rf /usr/local/lib/doil/server/proxy/conf/nginx/sites/*
-  /usr/local/bin/doil system:proxy restart --quiet
+  /usr/local/bin/doil system:proxy restart
   
-  doil_send_log "Finished pruning proxy server"
+  doil_log_message "Finished pruning proxy server"
 fi
 
 # start
@@ -86,11 +76,11 @@ then
   DCMAIN=$(docker ps | grep "doil_proxy")
   if [ -z "${DCMAIN}" ]
   then
-    doil_send_log "Starting proxy server"
+    doil_log_message "Starting proxy server"
     # start service
     cd /usr/local/lib/doil/server/proxy || return
     docker-compose up -d --force-recreate
-    doil_send_log "proxy server started"
+    doil_log_message "proxy server started"
   fi
 fi
 
@@ -100,34 +90,34 @@ then
   DCMAIN=$(docker ps | grep "doil_proxy")
   if [ ! -z "${DCMAIN}" ]
   then
-    doil_send_log "Stopping proxy server"
+    doil_log_message "Stopping proxy server"
     # stop service
     cd /usr/local/lib/doil/server/proxy || return
     docker-compose down
-    doil_send_log "proxy server stopped"
+    doil_log_message "proxy server stopped"
   fi
 fi
 
 # restart
 if [[ ${COMMAND} == "restart" ]]
 then
-  doil_send_log "Restarting proxy server"
+  doil_log_message "Restarting proxy server"
 
-  /usr/local/bin/doil system:proxy stop --quiet
-  /usr/local/bin/doil system:proxy start --quiet
+  /usr/local/bin/doil system:proxy stop
+  /usr/local/bin/doil system:proxy start
 
-  doil_send_log "proxy server restarted"
+  doil_log_message "proxy server restarted"
 fi
 
 # reload
 if [[ ${COMMAND} == "reload" ]]
 then
-  doil_send_log "Reloading proxy server"
+  doil_log_message "Reloading proxy server"
 
-  /usr/local/bin/doil system:proxy start --quiet
+  /usr/local/bin/doil system:proxy start
   docker exec -i doil_proxy bash -c "/etc/init.d/nginx reload"
 
-  doil_send_log "proxy server reloaded"
+  doil_log_message "proxy server reloaded"
 fi
 
 # host
@@ -152,7 +142,7 @@ then
   # host conf
   CHANGE=$(sed -i "/172.24.0.254/s/.*/172.24.0.254 ${HOST}/" /etc/hosts)
 
-  /usr/local/bin/doil system:proxy restart --quiet
+  /usr/local/bin/doil system:proxy restart
 
   doil_status_okay
 fi

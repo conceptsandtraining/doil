@@ -15,6 +15,7 @@
 
 # get the helper
 source /usr/local/lib/doil/lib/include/env.sh
+source /usr/local/lib/doil/lib/include/log.sh
 source /usr/local/lib/doil/lib/include/helper.sh
 
 # check if command is just plain help
@@ -25,10 +26,6 @@ while [[ $# -gt 0 ]]
   key="$1"
 
   case $key in
-    -q|--quiet)
-      QUIET=TRUE
-      shift
-      ;;
     -h|--help|help)
       eval "/usr/local/lib/doil/lib/instances/apply/help.sh"
       exit
@@ -116,27 +113,28 @@ then
   exit
 fi
 
-# Pipe output to null if needed
-if [[ ${QUIET} == TRUE ]]
-then
-  exec >>/var/log/doil.log 2>&1
-fi
-
-if [[ -z ${CREATE_CONTEXT} ]]
-then
-  doil_send_log "Apply state ${STATE} to instance ${INSTANCE}"
-fi
-
 if [[ ${GLOBAL} == TRUE ]]
 then
   SUFFIX="global"
   FLAG="--global"
+  LINKNAME="/usr/local/share/doil/instances/${INSTANCE}"
 else
   SUFFIX="local"
   FLAG=""
+  LINKNAME="${HOME}/.doil/instances/${INSTANCE}"
 fi
 
-/usr/local/bin/doil up ${INSTANCE} --quiet ${FLAG}
+# pipe output to instance log
+TARGET=$(readlink ${LINKNAME})
+FOLDERPATH="${TARGET}"
+exec >>"${FOLDERPATH}/volumes/logs/doil.log" 2>&1
+
+if [[ -z ${CREATE_CONTEXT} ]]
+then
+  doil_log_message "Apply state ${STATE} to instance ${INSTANCE}"
+fi
+
+/usr/local/bin/doil up ${INSTANCE} ${FLAG}
 
 # check key
 SALTKEYS=$(docker exec -t -i doil_saltmain bash -c "salt-key -L" | grep "${INSTANCE}.${SUFFIX}")
@@ -151,7 +149,7 @@ then
   RND=$(( $RANDOM % 10 ))
   docker exec -i doil_saltmain bash -c "salt '${INSTANCE}.${SUFFIX}' state.highstate saltenv=${STATE}" 2>&1 > /tmp/doil.${RND}.log
   CHECK=$(cat /tmp/doil.${RND}.log | grep "Failed:" | cut -d':' -f2)
-  cat /tmp/doil.${RND}.log >> /var/log/doil.log
+  cat /tmp/doil.${RND}.log >> "${FOLDERPATH}/volumes/logs/doil.log"
   rm /tmp/doil.${RND}.log
   exit
 else
@@ -161,9 +159,4 @@ fi
 if [[ -z ${NO_COMMIT} ]]
 then
   docker commit ${INSTANCE}_${SUFFIX} doil/${INSTANCE}_${SUFFIX}:stable > /dev/null
-fi
-
-if [[ -z ${CREATE_CONTEXT} ]]
-then
-  doil_send_log "Done"
 fi

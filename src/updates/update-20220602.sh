@@ -26,7 +26,7 @@ doil_update_20220602() {
 
   doil_status_send_message "Reinstalling salt service"
   doil_system_replace_salt_stack
-  doil system:salt start --quiet
+  doil system:salt start
   doil_status_okay
 
   doil_status_send_message "Reinstalling proxy service"

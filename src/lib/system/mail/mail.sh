@@ -62,7 +62,7 @@ fi
 # login
 if [[ ${COMMAND} == "login" ]]
 then
-  doil system:mail start --quiet
+  doil system:mail start
 
   docker exec -t -i doil_postfix bash
 fi
@@ -74,11 +74,11 @@ then
   DCMAIN=$(docker ps | grep "doil_postfix")
   if [ -z "${DCMAIN}" ]
   then
-    doil_send_log "Starting mail server"
+    doil_log_message "Starting mail server"
     # start service
     cd /usr/local/lib/doil/server/mail || return
     docker-compose up -d --force-recreate
-    doil_send_log "mail server started"
+    doil_log_message "mail server started"
   fi
 fi
 
@@ -88,21 +88,21 @@ then
   DCMAIN=$(docker ps | grep "doil_postfix")
   if [ ! -z "${DCMAIN}" ]
   then
-    doil_send_log "Stopping mail server"
+    doil_log_message "Stopping mail server"
     # stop service
     cd /usr/local/lib/doil/server/mail || return
     docker-compose down
-    doil_send_log "mail server stopped"
+    doil_log_message "mail server stopped"
   fi
 fi
 
 # restart
 if [[ ${COMMAND} == "restart" ]]
 then
-  doil_send_log "Restarting mail server"
+  doil_log_message "Restarting mail server"
 
-  doil system:mail stop --quiet
-  doil system:mail start --quiet
+  doil system:mail stop
+  doil system:mail start
 
-  doil_send_log "mail server restarted"
+  doil_log_message "mail server restarted"
 fi

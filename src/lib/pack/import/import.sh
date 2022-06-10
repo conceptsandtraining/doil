@@ -89,7 +89,7 @@ then
   then
     CREATE=TRUE
   else
-    doil_send_log "Import aborted"
+    doil_log_message "Import aborted"
     exit
   fi
 fi
@@ -108,7 +108,7 @@ then
   exec >>/var/log/doil.log 2>&1
 fi
 
-doil_send_log "Importing instance ${INSTANCE}"
+doil_log_message "Importing instance ${INSTANCE}"
 
 # PACKNAME
 PACKNAME=${PACK%.zip}
@@ -123,7 +123,7 @@ then
   source ${PWD}/${PACKNAME}/conf/doil.conf
 
   # create project
-  doil_send_log "Creating instance ${INSTANCE}. This will take a while."
+  doil_log_message "Creating instance ${INSTANCE}. This will take a while."
 
   /usr/local/bin/doil repo:add --name "${INSTANCE}_import" --repo ${PROJECT_REPOSITORY_URL}
   REPOSITORY="${INSTANCE}_import"
@@ -146,10 +146,10 @@ fi
 # set target
 TARGET=$(readlink ${LINKPATH})
 
-doil_send_log "Copying necessary files"
+doil_log_message "Copying necessary files"
 
 # stop the instance
-/usr/local/bin/doil down ${INSTANCE} ${FLAG} --quiet
+/usr/local/bin/doil down ${INSTANCE} ${FLAG}
 
 # remove all the files
 rm -rf ${TARGET}/volumes/data
@@ -165,9 +165,9 @@ cp -r ${PWD}/${PACKNAME}/var/ilias/data/* ${TARGET}/volumes/data
 cp -r ${PWD}/${PACKNAME}/var/ilias/ilias.sql ${TARGET}/volumes/data/ilias.sql
 
 # start the instance
-/usr/local/bin/doil up ${INSTANCE} --quiet ${FLAG}
+/usr/local/bin/doil up ${INSTANCE} ${FLAG}
 sleep 15
-doil_send_log "Importing database"
+doil_log_message "Importing database"
 
 # import database
 if [[ -f "${TARGET}/README.md" ]]
@@ -187,19 +187,19 @@ CLIENT_FILE_LOCATION=$(find ${TARGET}/volumes/ilias/data/ -iname client.ini.php)
 sed -i "s/pass =.*/pass = '${SQLPW}'/" ${CLIENT_FILE_LOCATION}
 
 doil_status_send_message "Setting permissions"
-/usr/local/bin/doil down ${INSTANCE} --quiet ${FLAG}
-/usr/local/bin/doil up ${INSTANCE} --quiet ${FLAG}
+/usr/local/bin/doil down ${INSTANCE} ${FLAG}
+/usr/local/bin/doil up ${INSTANCE} ${FLAG}
 sleep 5
-/usr/local/bin/doil apply ${INSTANCE} access --quiet ${FLAG} -nc
+/usr/local/bin/doil apply ${INSTANCE} access ${FLAG} -nc
 doil_status_okay
 
 doil_status_send_message "Finalizing docker image"
 docker commit ${INSTANCE}_${SUFFIX} doil/${INSTANCE}_${SUFFIX}:stable > /dev/null
 doil_status_okay
 
-doil_send_log "Cleanup"
+doil_log_message "Cleanup"
 
 rm -rf ${PWD}/${PACKNAME}
 docker exec -i ${INSTANCE}_${SUFFIX} bash -c "rm /var/ilias/data/ilias.sql"
 
-doil_send_log "Import of ${INSTANCE} done"
+doil_log_message "Import of ${INSTANCE} done"

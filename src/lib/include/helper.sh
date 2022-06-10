@@ -105,11 +105,6 @@ doil_eval_command() {
   eval "/usr/local/lib/doil/lib/${SECTION}/${COMMAND}/${COMMAND}.sh" ${PARAMS}
 }
 
-doil_send_log() {
-  NOW=$(date +'%d.%m.%Y %I:%M:%S')
-  echo "[$NOW] ${1}"
-}
-
 doil_get_conf() {
   CONFIG=${1}
   VALUE=$(cat /etc/doil/doil.conf | grep ${CONFIG} | cut -d '=' -f 2-)
@@ -183,6 +178,7 @@ function doil_perform_update() {
   fi
 
   UPDATE_FILES=$(find ./src/updates/ -type f -name "update-*")
+
   for UPDATE_FILE in ${UPDATE_FILES[@]}
   do
     source ${UPDATE_FILE}
@@ -196,20 +192,15 @@ function doil_perform_update() {
         if [[ ${DOIL_VERSION_TYPE} == "new" ]]
         then
           doil_test_version_compare ${DOIL_VERSION} ${UPDATE_NAME} "<"
+
           if [ $? -ne 0 ]
           then
             continue
           fi
         fi
 
-        doil_status_send_message "Apply patch ${UPDATE_NAME}"
+        echo "Apply patch ${UPDATE_NAME}"
         doil_perform_single_update ${UPDATE}
-        if [ $? -ne 0 ]
-        then
-          doil_status_failed
-        else
-          doil_status_okay
-        fi
       fi
     done
   done

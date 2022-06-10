@@ -52,13 +52,13 @@ if [[ ${CONFIRM} == "y" ]]
 then
 
   doil_status_send_message "Removing proxy server"
-  /usr/local/bin/doil system:proxy stop --quiet
+  /usr/local/bin/doil system:proxy stop
   docker image rm doil_proxy > /dev/null
   docker volume rm proxy_persistent > /dev/null
   doil_status_okay
 
   doil_status_send_message "Removing salt server"
-  /usr/local/bin/doil system:salt stop --quiet
+  /usr/local/bin/doil system:salt stop
   docker image rm doil_saltmain > /dev/null
   docker volume rm salt_persistent > /dev/null
   doil_status_okay
@@ -66,7 +66,7 @@ then
   doil_status_send_message "Deleting registered users"
   for THEUSER in cat /etc/doil/user.conf
   do
-    /usr/local/bin/doil system:user delete ${THEUSER} --quiet
+    /usr/local/bin/doil system:user delete ${THEUSER}
   done
   doil_status_okay
 

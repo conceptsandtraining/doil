@@ -158,7 +158,7 @@ function doil_system_setup_access() {
   chown -R root:doil /usr/local/share/doil/repositories
   chown -R root:doil /usr/local/share/doil/instances
   chown -R root:doil /etc/doil/
-  chown root:doil /var/log/doil.log
+  chown -R root:doil /var/log/doil/
 
   chmod g+w /etc/doil/repositories.conf
   chmod g+w /etc/doil/user.conf
@@ -171,7 +171,7 @@ function doil_system_setup_access() {
   chmod +x /usr/local/bin/doil
   chmod -R +x /usr/local/lib/doil/lib
   chmod -R 777 /usr/local/lib/doil/server/proxy/conf/
-  chmod 777 /var/log/doil.log
+  chmod -R 777 /var/log/doil/
 
   return 0
 }
@@ -229,41 +229,65 @@ function doil_system_setup_userconfig() {
   return 0
 }
 
-function doil_system_touch_log_file() {
-  if [[ ! -f /var/log/doil.log ]]
+function doil_system_setup_log() {
+  if [[ ! -d /var/log/doil/ ]]
   then
-    touch /var/log/doil.log
+    mkdir /var/log/doil/
+  fi
+
+  if [[ ! -f /var/log/doil/info.log ]]
+  then
+    touch /var/log/doil/info.log
+  fi
+
+  if [[ ! -f /var/log/doil/stream.log ]]
+  then
+    touch /var/log/doil/stream.log
+  fi
+
+  if [[ ! -f /var/log/doil/error.log ]]
+  then
+    touch /var/log/doil/error.log
+  fi
+
+  if [[ -f /var/log/doil.log ]]
+  then
+    mv /var/log/doil.log /var/log/doil/info-archive.log
   fi
 }
 
 function doil_system_stop_all_services() {
-  doil system:proxy stop --quiet
-  doil system:salt stop --quiet
+  doil system:proxy stop
+  doil system:salt stop
 }
 
 function doil_system_remove_services() {
-  docker image rm doil_proxy --force 2>&1 > /dev/null
-  docker image rm saltmain --force 2>&1 > /dev/null
+  docker image rm doil_proxy --force 2>&1 > /var/log/doil/stream.log
+  docker image rm saltmain --force 2>&1 > /var/log/doil/stream.log
+}
+
+function doil_system_install_saltserver() {
+  cd /usr/local/lib/doil/server/salt
+  BUILD=$(docker-compose build 2>&1 > /var/log/doil/stream.log) 2>&1 > /var/log/doil/stream.log
+  doil system:salt start 2>&1 > /var/log/doil/stream.log
+  docker commit doil_saltmain doil_saltmain:stable 2>&1 > /var/log/doil/stream.log
+  docker commit doil_saltmain doil_saltmain:latest 2>&1 > /var/log/doil/stream.log
 }
 
 function doil_system_install_proxyserver() {
   cd /usr/local/lib/doil/server/proxy
-  FOO=$(docker-compose build)
-  doil system:salt start --quiet
-  FOO=$(docker-compose up -d)
+  BUILD=$(docker-compose up -d 2>&1 > /var/log/doil/stream.log) 2>&1 > /var/log/doil/stream.log
   sleep 10
-  docker exec -i doil_saltmain bash -c "salt 'doil.proxy' state.highstate saltenv=proxyservices" >> /var/log/doil.log
-  docker commit doil_proxy doil_proxy:stable > /dev/null
-  docker commit doil_proxy doil_proxy:latest > /dev/null
+  docker exec -i doil_saltmain bash -c "salt 'doil.proxy' state.highstate saltenv=proxyservices" 2>&1 > /var/log/doil/stream.log
+    docker commit doil_proxy doil_proxy:stable 2>&1 > /var/log/doil/stream.log
+    docker commit doil_proxy doil_proxy:latest 2>&1 > /var/log/doil/stream.log
 }
 
 function doil_system_install_mailserver() {
   cd /usr/local/lib/doil/server/mail
-  FOO=$(docker-compose build)
-  doil system:salt start --quiet
-  doil system:mail start --quiet
+  BUILD=$(docker-compose up -d 2>&1 > /var/log/doil/stream.log) 2>&1 > /var/log/doil/stream.log
   sleep 10
-  docker exec -i doil_saltmain bash -c "salt 'doil.postfix' state.highstate saltenv=mailservices" >> /var/log/doil.log
-  docker commit doil_postfix doil_postfix:stable > /dev/null
-  docker commit doil_postfix doil_postfix:latest > /dev/null
+  docker exec -i doil_saltmain bash -c "salt 'doil.postfix' state.highstate saltenv=mailservices" 2>&1 > /var/log/doil/stream.log
+  docker commit doil_postfix doil_postfix:stable 2>&1 > /var/log/doil/stream.log
+  docker commit doil_postfix doil_postfix:latest 2>&1 > /var/log/doil/stream.log
 }

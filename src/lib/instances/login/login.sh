@@ -71,7 +71,7 @@ then
   INSTANCE=${PWD##*/}
 
   # start if not done
-  /usr/local/bin/doil up ${INSTANCE} --quiet ${FLAG}
+  /usr/local/bin/doil up ${INSTANCE} ${FLAG}
   
   # login
   docker exec -ti ${INSTANCE}_${SUFFIX} bash

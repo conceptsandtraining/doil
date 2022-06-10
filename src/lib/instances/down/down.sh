@@ -15,6 +15,7 @@
 
 # get the helper
 source /usr/local/lib/doil/lib/include/env.sh
+source /usr/local/lib/doil/lib/include/log.sh
 source /usr/local/lib/doil/lib/include/helper.sh
 
 # check if command is just plain help
@@ -58,20 +59,29 @@ then
     exit
   fi
 
-  # Pipe output to null if needed
-  if [[ ${QUIET} == TRUE ]]
-  then
-    exec >>/var/log/doil.log 2>&1
-  fi
-
   # set instance
   INSTANCE=${PWD##*/}
 
-  doil_send_log "Stopping instance"
+  if [[ ${GLOBAL} == TRUE ]]
+  then
+    SUFFIX="global"
+    FLAG="--global"
+    LINKNAME="/usr/local/share/doil/instances/${INSTANCE}"
+  else
+    SUFFIX="local"
+    FLAG=""
+    LINKNAME="${HOME}/.doil/instances/${INSTANCE}"
+  fi
 
+  # pipe output to instance log
+  TARGET=$(readlink ${LINKNAME})
+  FOLDERPATH="${TARGET}"
+  exec >>"${FOLDERPATH}/volumes/logs/doil.log" 2>&1
+
+  doil_status_send_message "Stopping instance"
+  doil_log_message "Stopping instance ${INSTANCE}" "${FOLDERPATH}/volumes/logs/doil.log"
   docker-compose down
-
-  doil_send_log "Instance stopped"
+  doil_status_okay
 else
   if [[ ${GLOBAL} == TRUE ]]
   then

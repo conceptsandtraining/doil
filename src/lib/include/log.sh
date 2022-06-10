@@ -17,7 +17,14 @@ SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 source ${SCRIPT_DIR}/colors.sh
 
 doil_status_send_message() {
+  exec >>/dev/tty 2>&1
   echo -n "${1} ..."
+
+  RESET=${2}
+  if [[ ! -z ${RESET} ]]
+  then
+    exec >> "${RESET}" 2>&1
+  fi
 }
 
 doil_status_send_error() {
@@ -26,9 +33,63 @@ doil_status_send_error() {
 }
 
 doil_status_okay() {
+  exec >>/dev/tty 2>&1
   printf " ${GREEN}ok${NC}\n"
+
+  RESET=${2}
+  if [[ ! -z ${RESET} ]]
+  then
+    exec >> "${RESET}" 2>&1
+  fi
 }
 
 doil_status_failed() {
+  exec >>/dev/tty 2>&1
   printf " ${RED}failed${NC}\n"
+
+  RESET=${2}
+  if [[ ! -z ${RESET} ]]
+  then
+    exec >> "${RESET}" 2>&1
+  fi
+}
+
+doil_log_message() {
+  MESSAGE=${1}
+  TYPE=${2}
+
+  if [[ -z ${TYPE} ]]
+  then
+    TYPE="info"
+  fi
+  MSG=$(doil_log_format_message "${MESSAGE}" ${TYPE})
+  echo "${MSG}" >> /var/log/doil/info.log
+}
+
+doil_log_error_message() {
+  MESSAGE=${1}
+  TYPE="error"
+  MSG=$(doil_log_format_message "${MESSAGE}" ${TYPE})
+  echo "${MSG}" >> /var/log/doil/error.log
+}
+
+doil_log_instance_message() {
+  INSTANCE=${1}
+  MESSAGE=${2}
+  TYPE=${3}
+
+  if [[ -z ${TYPE} ]]
+  then
+    TYPE="info"
+  fi
+  MSG=$(doil_log_format_message "${MESSAGE}" ${TYPE})
+
+  
+}
+
+doil_log_format_message() {
+  MESSAGE=${1}
+  TYPE=${2}
+  NOW=$(date +'%Y-%m-%dT%I:%M:%S')
+  echo "${TYPE} - ${NOW} : ${MESSAGE}"
 }

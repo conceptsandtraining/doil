@@ -15,6 +15,7 @@
 
 # get the helper
 source /usr/local/lib/doil/lib/include/env.sh
+source /usr/local/lib/doil/lib/include/log.sh
 source /usr/local/lib/doil/lib/include/helper.sh
 
 # check if command is just plain help
@@ -27,10 +28,6 @@ while [[ $# -gt 0 ]]
     -h|--help|help)
       eval "/usr/local/lib/doil/lib/instances/delete/help.sh"
       exit
-      ;;
-    -q|--quiet)
-      QUIET=TRUE
-      shift
       ;;
     -y|--yes)
       CONFIRM="y"
@@ -65,11 +62,7 @@ then
   if [[ ${CONFIRM} == "y" ]]
   then
 
-    # Pipe output to null if needed
-    if [[ ${QUIET} == TRUE ]]
-    then
-      exec >>/var/log/doil.log 2>&1
-    fi
+    exec >>/var/log/doil/stream.log 2>&1
 
     if [[ ${GLOBAL} == TRUE ]]
     then
@@ -80,10 +73,11 @@ then
       FLAG=""
     fi
 
-    doil_send_log "Deleting instance"
+    doil_log_message "Deleting instance ${INSTANCE}"
+    doil_status_send_message "Deleting instance"
 
     # start machine for some adjustments
-    /usr/local/bin/doil up ${INSTANCE} --quiet ${FLAG}
+    /usr/local/bin/doil up ${INSTANCE} ${FLAG}
     THE_USER=$(id -u ${USER})
     THE_GROUP=$(id -g ${USER})
     docker exec -i ${INSTANCE}_${SUFFIX} bash -c "chown -R ${THE_USER}:${THE_GROUP} /var/lib/mysql"
@@ -91,7 +85,7 @@ then
     docker exec -i ${INSTANCE}_${SUFFIX} bash -c "chown -R ${THE_USER}:${THE_GROUP} /etc/php"
 
     # set machine inactive
-    /usr/local/bin/doil down ${INSTANCE} --quiet ${FLAG}
+    /usr/local/bin/doil down ${INSTANCE} ${FLAG}
 
     # remove directory
     the_path=$(readlink ${LINKNAME})
@@ -113,7 +107,7 @@ then
     then
       rm "/usr/local/lib/doil/server/proxy/conf/sites/${INSTANCE}_${SUFFIX}.conf"
     fi
-    /usr/local/bin/doil system:proxy reload --quiet
+    /usr/local/bin/doil system:proxy reload
 
     # remove docker image
     docker volume rm ${INSTANCE}_persistent
@@ -122,7 +116,7 @@ then
     # delete mails
     docker exec -i doil_postfix -c "/root/delete-postbox-configuration.sh ${INSTANCE}"
 
-    doil_send_log "Instance deleted"
+    doil_send_okay
   fi
 else
   echo -e "\033[1mERROR:\033[0m"

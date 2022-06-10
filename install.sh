@@ -56,7 +56,7 @@ fi
 doil_status_okay
 
 doil_status_send_message "Creating log file"
-doil_system_touch_log_file
+doil_system_setup_log
 CHECK=$?
 if [[ ${CHECK} -ne 0 ]]
 then
@@ -138,17 +138,17 @@ doil_status_okay
 
 # start salt server
 doil_status_send_message "Installing salt server"
-doil system:salt start --quiet
+doil_system_install_saltserver
 doil_status_okay
 
 # start proxy server
 doil_status_send_message "Installing proxy server"
-doil_system_install_proxyserver 2>&1 > /dev/null
+doil_system_install_proxyserver
 doil_status_okay
 
 # start mail server
 doil_status_send_message "Installing mail server"
-doil_system_install_mailserver 2>&1 > /dev/null
+doil_system_install_mailserver
 doil_status_okay
 
 #################

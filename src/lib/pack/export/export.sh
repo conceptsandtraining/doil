@@ -84,14 +84,14 @@ then
   exec >>/var/log/doil.log 2>&1
 fi
 
-doil_send_log "Exporting instance ${INSTANCE}"
+doil_log_message "Exporting instance ${INSTANCE}"
 
 # we need the data so we have to startup the instance
-/usr/local/bin/doil up ${INSTANCE} --quiet ${FLAG}
+/usr/local/bin/doil up ${INSTANCE} ${FLAG}
 sleep 5
 
 # copy database
-doil_send_log "Exporting database."
+doil_log_message "Exporting database."
 
 TARGET=$(readlink ${LINKPATH})
 if [[ -f "${TARGET}/README.md" ]]
@@ -120,17 +120,17 @@ mkdir -p "${INSTANCE}-doilpack/var/www/html"
 mkdir -p "${INSTANCE}-doilpack/conf"
 
 # copy data
-doil_send_log "Export data"
+doil_log_message "Export data"
 docker cp ${INSTANCE}_${SUFFIX}:/var/ilias ${INSTANCE}-doilpack/var/
 docker cp ${INSTANCE}_${SUFFIX}:/var/www/html/data ${INSTANCE}-doilpack/var/www/html
 docker cp ${INSTANCE}_${SUFFIX}:/var/www/html/ilias.ini.php ${INSTANCE}-doilpack/var/www/html/ilias.ini.php
 
 # export conf
-doil_send_log "Export config"
+doil_log_message "Export config"
 cp -r "${TARGET}/conf/doil.conf" "${INSTANCE}-doilpack/conf/doil.conf"
 
 # pack
-doil_send_log "Packing data."
+doil_log_message "Packing data."
 if [[ -f "${INSTANCE}-doilpack.zip" ]]
 then
   rm "${INSTANCE}-doilpack.zip"
@@ -140,4 +140,4 @@ zip -r "${INSTANCE}-doilpack.zip" "${INSTANCE}-doilpack"
 # cleanup
 rm -rf "${INSTANCE}-doilpack"
 
-doil_send_log "Done"
+doil_log_message "Done"

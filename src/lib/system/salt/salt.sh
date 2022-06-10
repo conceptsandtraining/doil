@@ -15,6 +15,7 @@
 
 # get the helper
 source /usr/local/lib/doil/lib/include/env.sh
+source /usr/local/lib/doil/lib/include/log.sh
 source /usr/local/lib/doil/lib/include/helper.sh
 
 # check if command is just plain help
@@ -26,10 +27,6 @@ while [[ $# -gt 0 ]]
   case $key in
     login|prune|start|stop|restart|states)
       COMMAND="$key"
-      shift
-      ;;
-    -q|--quiet)
-      QUIET=TRUE
       shift
       ;;
     -h|--help|help)
@@ -54,16 +51,10 @@ then
   exit 255
 fi
 
-# Pipe output to null if needed
-if [[ ${QUIET} == TRUE ]]
-then
-  exec >>/var/log/doil.log 2>&1
-fi
-
 # login
 if [[ ${COMMAND} == "login" ]]
 then
-  /usr/local/bin/doil system:salt start --quiet
+  /usr/local/bin/doil system:salt start
 
   docker exec -t -i doil_saltmain bash
   exit
@@ -72,13 +63,13 @@ fi
 # prune
 if [[ ${COMMAND} == "prune" ]]
 then
-  doil_send_log "Pruning main salt server"
+  doil_log_message "Pruning main salt server"
 
-  /usr/local/bin/doil system:salt start --quiet
+  /usr/local/bin/doil system:salt start
 
   docker exec -i doil_saltmain bash -c 'echo "y" | salt-key -D'
   
-  doil_send_log "Finished pruning main salt server"
+  doil_log_message "Finished pruning main salt server"
 fi
 
 # start
@@ -87,11 +78,11 @@ then
   DCMAIN=$(docker ps | grep "doil_saltmain")
   if [ -z "${DCMAIN}" ]
   then
-    doil_send_log "Starting main salt server"
+    doil_log_message "Starting main salt server"
     # start service
     cd //usr/local/lib/doil/server/salt || return
     docker-compose up -d --force-recreate
-    doil_send_log "Main salt server started"
+    doil_log_message "Main salt server started"
   fi
 fi
 
@@ -101,23 +92,23 @@ then
   DCMAIN=$(docker ps | grep "doil_saltmain")
   if [ ! -z "${DCMAIN}" ]
   then
-    doil_send_log "Stopping main salt server"
+    doil_log_message "Stopping main salt server"
     # stop service
     cd //usr/local/lib/doil/server/salt || return
     docker-compose down
-    doil_send_log "Main salt server stopped"
+    doil_log_message "Main salt server stopped"
   fi
 fi
 
 # restart
 if [[ ${COMMAND} == "restart" ]]
 then
-  doil_send_log "Restarting main salt server"
+  doil_log_message "Restarting main salt server"
 
-  /usr/local/bin/doil system:salt stop --quiet
-  /usr/local/bin/doil system:salt start --quiet
+  /usr/local/bin/doil system:salt stop
+  /usr/local/bin/doil system:salt start
 
-  doil_send_log "Main salt server restarted"
+  doil_log_message "Main salt server restarted"
 fi
 
 # states

@@ -94,17 +94,17 @@ else
     if [ -d "/usr/local/share/doil/repositories/${NAME}" ]
     then
       cd "/usr/local/share/doil/repositories/${NAME}"
-      git fetch origin --quiet
+      git fetch origin
     else
-      git clone "${REPO}" "/usr/local/share/doil/repositories/${NAME}" --quiet
+      git clone "${REPO}" "/usr/local/share/doil/repositories/${NAME}"
     fi
   else
     if [ -d "${HOME}/.doil/repositories/${NAME}" ]
     then
       cd "${HOME}/.doil/repositories/${NAME}"
-      git fetch origin --quiet
+      git fetch origin
     else
-      git clone "${REPO}" "${HOME}/.doil/repositories/${NAME}" --quiet
+      git clone "${REPO}" "${HOME}/.doil/repositories/${NAME}"
     fi
   fi
 fi

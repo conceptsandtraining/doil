@@ -15,6 +15,7 @@
 
 # get the helper
 source /usr/local/lib/doil/lib/include/env.sh
+source /usr/local/lib/doil/lib/include/log.sh
 source /usr/local/lib/doil/lib/include/helper.sh
 
 # check if command is just plain help
@@ -71,9 +72,11 @@ then
   then
     SUFFIX="global"
     FLAG="--global"
+    LINKNAME="/usr/local/share/doil/instances/${INSTANCE}"
   else
     SUFFIX="local"
     FLAG=""
+    LINKNAME="${HOME}/.doil/instances/${INSTANCE}"
   fi
 
   # check if we are running
@@ -83,14 +86,18 @@ then
     exit
   fi
 
-  doil_send_log "Starting instance"
+  # pipe output to instance log
+  TARGET=$(readlink ${LINKNAME})
+  FOLDERPATH="${TARGET}"
+  exec >>"${FOLDERPATH}/volumes/logs/doil.log" 2>&1
+
+  doil_status_send_message "Starting instance" "${FOLDERPATH}/volumes/logs/doil.log"
+  doil_log_message "Starting instance ${INSTANCE}"
 
   # Start the container
   docker-compose up -d
 
-  # config
-  DOIL_HOST=$(doil_get_conf host)
-  doil_send_log "Instance started. Navigate to http://${DOIL_HOST}/${INSTANCE}"
+  doil_status_okay "${FOLDERPATH}/volumes/logs/doil.log"
 else
   if [[ ${GLOBAL} == TRUE ]]
   then

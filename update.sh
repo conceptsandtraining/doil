@@ -55,9 +55,6 @@ fi
 doil_status_okay
 
 echo "Performing updates. This will take a while."
-echo " "
-
 # perform the update
 doil_perform_update
-
-printf " ${GREEN}ok${NC}\n"
+echo "Update finished"
