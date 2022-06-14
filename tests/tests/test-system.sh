@@ -77,13 +77,3 @@ test_doil_system_setup_userconfig() {
 
   assert_string_contains "0" "${CHECK}"
 }
-
-test_doil_system_touch_log_file() {
-  source ./src/lib/include/system.sh
-
-  doil_system_touch_log_file
-  local CHECK=$?
-
-  assert_string_contains "0" "${CHECK}"
-}
-

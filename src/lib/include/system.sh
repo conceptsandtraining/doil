@@ -132,6 +132,8 @@ function doil_system_setup_config() {
   # ilias repo
   echo "ilias=https://github.com/ILIAS-eLearning/ILIAS.git" > "/etc/doil/repositories.conf"
 
+  chown -R root:doil /etc/doil
+
   return 0
 }
 
