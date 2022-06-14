@@ -11,8 +11,21 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v2
 
+      - name: Install Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.x'
+          architecture: 'x64'
+          cache: pip
+      
+      - name: Install Python Dependencies
+        run: pip install yamllint
+
       - name: Install doil
         run: sudo ./install.sh
 
       - name: Unit Tests
         run: ./tests/tstfy.sh tests
+
+      - name: SLS Tests
+        run: ./CI/validate-sls-files.sh ./src/stack/sates/

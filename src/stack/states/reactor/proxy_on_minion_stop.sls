@@ -3,4 +3,4 @@ proxy_on_minion_stop:
     - tgt: 'doil.proxy'
     - user: root
     - arg:
-      - /root/check-for-lost-minions.sh {{ data['lost'] }}
+        - /root/check-for-lost-minions.sh {{ data['lost'] }}

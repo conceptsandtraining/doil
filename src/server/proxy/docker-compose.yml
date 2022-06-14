@@ -23,6 +23,9 @@ services:
         source: ./conf/salt-minion.conf
         target: /etc/supervisor/conf.d/startup.conf
       - type: bind
+        source: ./conf/localcerts/
+        target: /etc/ssl/localcerts/
+      - type: bind
         source: ./conf/salt-minion.conf
         target: /etc/supervisor/conf.d/salt-minion.conf
       - type: bind

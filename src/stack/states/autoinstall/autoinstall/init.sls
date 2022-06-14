@@ -33,14 +33,14 @@ ilias-setup:
       - user: www-data
       - group: www-data
       - recurse:
-        - user
-        - group
+          - user
+          - group
 
   /var/ilias/:
     file.directory:
       - user: www-data
       - group: www-data
       - recurse:
-        - user
-        - group
+          - user
+          - group
 {% endif %}
