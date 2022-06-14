@@ -16,12 +16,12 @@ jobs:
         with:
           python-version: '3.x'
           architecture: 'x64'
-      
+
       - name: Install Python Dependencies
         run: pip install yamllint
 
-      - name: Install doil
-        run: sudo ./install.sh
+#      - name: Install doil
+#        run: sudo ./install.sh
 
       - name: Unit Tests
         run: ./tests/tstfy.sh tests
