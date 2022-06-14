@@ -16,7 +16,6 @@ jobs:
         with:
           python-version: '3.x'
           architecture: 'x64'
-          cache: pip
       
       - name: Install Python Dependencies
         run: pip install yamllint
