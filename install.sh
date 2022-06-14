@@ -136,20 +136,23 @@ then
 fi
 doil_status_okay
 
-# start salt server
-doil_status_send_message "Installing salt server"
-doil_system_install_saltserver
-doil_status_okay
+if [[ ! -z ${GHRUN} ]]
+then
+  # start salt server
+  doil_status_send_message "Installing salt server"
+  doil_system_install_saltserver
+  doil_status_okay
 
-# start proxy server
-doil_status_send_message "Installing proxy server"
-doil_system_install_proxyserver
-doil_status_okay
+  # start proxy server
+  doil_status_send_message "Installing proxy server"
+  doil_system_install_proxyserver
+  doil_status_okay
 
-# start mail server
-doil_status_send_message "Installing mail server"
-doil_system_install_mailserver
-doil_status_okay
+  # start mail server
+  doil_status_send_message "Installing mail server"
+  doil_system_install_mailserver
+  doil_status_okay
+fi
 
 #################
 # Everything done

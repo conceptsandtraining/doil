@@ -20,8 +20,10 @@ jobs:
       - name: Install Python Dependencies
         run: pip install yamllint
 
-#      - name: Install doil
-#        run: sudo ./install.sh
+      - name: Install doil
+        run: sudo ./install.sh
+        env:
+          GHRUN: yes
 
       - name: Unit Tests
         run: ./tests/tstfy.sh tests
