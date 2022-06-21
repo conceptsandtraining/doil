@@ -16,5 +16,9 @@ doil_update_20220604() {
   doil_system_copy_doil
   doil_status_okay
 
+  doil_status_send_message "Generating new log files"
+  doil_system_setup_log
+  doil_status_okay
+
 	return 0
 }
