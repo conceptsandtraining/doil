@@ -281,8 +281,8 @@ function doil_system_install_proxyserver() {
   BUILD=$(docker-compose up -d 2>&1 > /var/log/doil/stream.log) 2>&1 > /var/log/doil/stream.log
   sleep 10
   docker exec -i doil_saltmain bash -c "salt 'doil.proxy' state.highstate saltenv=proxyservices" 2>&1 > /var/log/doil/stream.log
-    docker commit doil_proxy doil_proxy:stable 2>&1 > /var/log/doil/stream.log
-    docker commit doil_proxy doil_proxy:latest 2>&1 > /var/log/doil/stream.log
+  docker commit doil_proxy doil_proxy:stable 2>&1 > /var/log/doil/stream.log
+  docker commit doil_proxy doil_proxy:latest 2>&1 > /var/log/doil/stream.log
 }
 
 function doil_system_install_mailserver() {

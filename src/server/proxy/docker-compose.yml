@@ -20,7 +20,7 @@ services:
         source: ./conf/salt-startup.sh
         target: /root/salt-startup.sh
       - type: bind
-        source: ./conf/salt-minion.conf
+        source: ./conf/startup.conf
         target: /etc/supervisor/conf.d/startup.conf
       - type: bind
         source: ./conf/localcerts/
