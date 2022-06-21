@@ -136,7 +136,7 @@ then
 fi
 doil_status_okay
 
-if [[ ! -z ${GHRUN} ]]
+if [[ -z ${GHRUN} ]]
 then
   # start salt server
   doil_status_send_message "Installing salt server"
