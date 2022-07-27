@@ -45,7 +45,7 @@ then
   if [ -h "${LINKNAME}" ]
   then
     TARGET=$(readlink ${LINKNAME})
-    builtin cd ${TARGET} 2> /var/log/doil.log
+    builtin cd ${TARGET} 2> /var/log/doil/info.log
     exec $SHELL
   else
     echo -e "\033[1mERROR:\033[0m"

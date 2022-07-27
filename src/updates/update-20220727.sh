@@ -5,7 +5,7 @@ source ${SCRIPT_DIR}/../lib/include/system.sh
 source ${SCRIPT_DIR}/../lib/include/log.sh
 source ${SCRIPT_DIR}/colors.sh
 
-doil_update_20220604() {
+doil_update_20220727() {
 
   doil_status_send_message "Removing old doil system"
   doil_system_remove_old_version

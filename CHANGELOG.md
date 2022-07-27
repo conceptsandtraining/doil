@@ -1,5 +1,12 @@
 # Changelog
 
+## 20220727
+
+* fixed several bugs regarding salt and proxy integration
+* refactored log management
+* saltified more scripts
+* simplified more scripts
+
 ## 20220602
 
 * new [version and contributing policies](.github/CONTRIBUTING.md)

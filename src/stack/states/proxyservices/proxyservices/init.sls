@@ -20,10 +20,6 @@ proxyservice_packages:
     - source: salt://proxyservices/check-for-lost-minions.sh
     - mode: 755
 
-/etc/nginx/conf.d/sites/mailserver.conf:
-  file.managed:
-    - source: salt://proxyservices/mailserver.conf
-
 /etc/supervisor/conf.d/nginx.conf:
   file.managed:
     - source: salt://proxyservices/sv-nginx.conf
