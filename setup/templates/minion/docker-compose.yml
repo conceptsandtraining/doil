@@ -1,0 +1,69 @@
+version: "3.5"
+services:
+  %TPL_PROJECT_NAME%:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: doil/%TPL_PROJECT_NAME%_%TPL_PROJECT_DOMAINNAME%:stable
+    container_name: %TPL_PROJECT_NAME%_%TPL_PROJECT_DOMAINNAME%
+    hostname: %TPL_PROJECT_NAME%
+    domainname: %TPL_PROJECT_DOMAINNAME%
+    volumes:
+      - type: bind
+        source: ./volumes/mysql
+        target: /var/lib/mysql
+      - type: bind
+        source: ./volumes/etc/mysql
+        target: /etc/mysql
+      - type: bind
+        source: ./volumes/etc/apache2
+        target: /etc/apache2
+      - type: bind
+        source: ./volumes/etc/php
+        target: /etc/php
+      - type: bind
+        source: ./volumes/ilias
+        target: /var/www/html
+      - type: bind
+        source: ./volumes/data
+        target: /var/ilias/data
+      - type: bind
+        source: ./volumes/index
+        target: /var/ilias/index
+      - type: bind
+        source: ./volumes/logs
+        target: /var/ilias/logs
+      - type: bind
+        source: ./volumes/logs/error/
+        target: /var/ilias/logs/error
+      - type: bind
+        source: ./volumes/logs/apache2
+        target: /var/log/apache2
+      - type: bind
+        source: ./conf/minion.cnf
+        target: /etc/salt/minion
+      - type: bind
+        source: ./conf
+        target: /root/conf
+      - type: bind
+        source: ~/.ssh/
+        target: /root/.ssh
+      - type: bind
+        source: ./conf/salt-minion.conf
+        target: /etc/supervisor/conf.d/salt-minion.conf
+      - type: bind
+        source: ~/.config/composer/
+        target: /root/.config/composer
+    environment:
+      - ILIAS_INI_PATH=/var/www/html/ilias.ini.php
+      - TZ=Europe/Berlin
+      - JAVA_SERVER_PATH=/var/www/html/Services/WebServices/RPC/lib
+      - JAVA_SERVER_START
+    networks:
+      - doil_proxy
+      - salt_saltnet
+networks:
+  doil_proxy:
+    external: true
+  salt_saltnet:
+    external: true

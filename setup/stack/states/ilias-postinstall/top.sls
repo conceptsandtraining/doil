@@ -1,0 +1,4 @@
+ilias-postinstall:
+  '*':
+    - devmode
+    - compileskins

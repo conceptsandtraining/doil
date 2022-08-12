@@ -7,9 +7,22 @@ jobs:
       all: ${{ steps.changes.outputs.all }}
     strategy:
       fail-fast: false
+      matrix:
+        php: [ 7.4, 8.0 ]
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php }}
+          extensions: dom, zip
+          tools: composer:v2
+          coverage: none
+
+      - name: Composer install
+        run: composer install -d ./app --no-interaction --no-progress
 
       - name: Install Python
         uses: actions/setup-python@v4
@@ -21,12 +34,17 @@ jobs:
         run: pip install yamllint
 
       - name: Install doil
-        run: sudo ./install.sh
+        run: sudo ./setup/install.sh
         env:
           GHRUN: yes
 
-      - name: Unit Tests
-        run: ./tests/tstfy.sh tests
+      - name: PHP Unit Test
+        run: CI/PHPUnit/run_tests.sh
+        env:
+          GHRUN: "yes"
+
+      - name: Setup Unit Tests
+        run: ./setup/tests/tstfy.sh setup/tests/tests
 
       - name: SLS Tests
-        run: ./CI/validate-sls-files.sh ./src/stack/sates/
+        run: ./CI/validate-sls-files.sh setup/stack/states
