@@ -30,7 +30,7 @@ Before a release doil needs to be tested deeply. For that we implemented a manda
 * [ ] Instance can be stopped
 * [ ] A state can be applied
 * [ ] Instance can be deleted
-* [ ] The active directory can be switched to an instance
+* [ ] The directory of an instance can be display
 
 ### Repository
 
@@ -46,7 +46,6 @@ Before a release doil needs to be tested deeply. For that we implemented a manda
 * [ ] the server can be restarted
 * [ ] the server can be pruned (config files)
 * [ ] the configurations of the server can be reloaded
-* [ ] Changing host is possible
 * [ ] it's possible to login via cli
 
 ### Managing the salt server

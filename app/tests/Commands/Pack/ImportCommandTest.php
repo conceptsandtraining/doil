@@ -1,0 +1,116 @@
+<?php declare(strict_types=1);
+
+namespace CaT\Doil\Commands\Pack;
+
+use RuntimeException;
+use CaT\Doil\Lib\Posix\Posix;
+use PHPUnit\Framework\TestCase;
+use CaT\Doil\Lib\Docker\Docker;
+use CaT\Doil\Lib\FileSystem\Filesystem;
+use CaT\Doil\Commands\Repo\RepoManager;
+use CaT\Doil\Lib\ConsoleOutput\CommandWriter;
+use Symfony\Component\Console\Tester\CommandTester;
+
+class ImportCommandTest extends TestCase
+{
+    public function test_execute_without_instance_param() : void
+    {
+        $docker = $this->createMock(Docker::class);
+        $posix = $this->createMock(Posix::class);
+        $filesystem = $this->createMock(Filesystem::class);
+        $repo_manager = $this->createMock(RepoManager::class);
+        $writer = new CommandWriter();
+
+        $command = new ImportCommand($docker, $posix, $filesystem, $repo_manager, $writer);
+        $tester = new CommandTester($command);
+
+        $this->expectException(RuntimeException::class);
+        $this->expectExceptionMessage("Not enough arguments (missing: \"instance\").");
+        $tester->execute(["package" => "foo"]);
+    }
+
+    public function test_execute_without_package_param() : void
+    {
+        $docker = $this->createMock(Docker::class);
+        $posix = $this->createMock(Posix::class);
+        $filesystem = $this->createMock(Filesystem::class);
+        $repo_manager = $this->createMock(RepoManager::class);
+        $writer = new CommandWriter();
+
+        $command = new ImportCommand($docker, $posix, $filesystem, $repo_manager, $writer);
+        $tester = new CommandTester($command);
+
+        $this->expectException(RuntimeException::class);
+        $this->expectExceptionMessage("Not enough arguments (missing: \"package\").");
+        $tester->execute(["instance" => "foo"]);
+    }
+
+    public function test_execute_with_empty_package_param() : void
+    {
+        $docker = $this->createMock(Docker::class);
+        $posix = $this->createMock(Posix::class);
+        $filesystem = $this->createMock(Filesystem::class);
+        $repo_manager = $this->createMock(RepoManager::class);
+        $writer = new CommandWriter();
+
+        $command = new ImportCommand($docker, $posix, $filesystem, $repo_manager, $writer);
+        $tester = new CommandTester($command);
+
+        $this->expectException(RuntimeException::class);
+        $this->expectExceptionMessage("The package  does not exists!");
+        $tester->execute(["instance" => "foo", "package" => ""]);
+    }
+
+    public function test_execute_with_non_existing_package() : void
+    {
+        $docker = $this->createMock(Docker::class);
+        $posix = $this->createMock(Posix::class);
+        $filesystem = $this->createMock(Filesystem::class);
+        $repo_manager = $this->createMock(RepoManager::class);
+        $writer = new CommandWriter();
+
+        $command = new ImportCommand($docker, $posix, $filesystem, $repo_manager, $writer);
+        $tester = new CommandTester($command);
+
+        $filesystem
+            ->expects($this->once())
+            ->method("exists")
+            ->with("foo")
+            ->willReturn(false)
+        ;
+
+        $this->expectException(RuntimeException::class);
+        $this->expectExceptionMessage("The package foo does not exists!");
+        $tester->execute(["instance" => "foo", "package" => "foo"]);
+    }
+
+    public function test_execute_with_empty_instance_param() : void
+    {
+        $docker = $this->createMock(Docker::class);
+        $posix = $this->createMock(Posix::class);
+        $filesystem = $this->createMock(Filesystem::class);
+        $writer = new CommandWriter();
+
+        $command = new ExportCommand($docker, $posix, $filesystem, $writer);
+        $tester = new CommandTester($command);
+
+        $this->expectException(RuntimeException::class);
+        $this->expectExceptionMessage("Name of the instance cannot be empty!");
+        $tester->execute(["instance" => ""]);
+    }
+
+    public function test_execute_with_wrong_chars_in_instance_param() : void
+    {
+        $docker = $this->createMock(Docker::class);
+        $posix = $this->createMock(Posix::class);
+        $filesystem = $this->createMock(Filesystem::class);
+        $writer = new CommandWriter();
+
+        $command = new ExportCommand($docker, $posix, $filesystem, $writer);
+        $tester = new CommandTester($command);
+
+        $this->expectException(RuntimeException::class);
+        $this->expectExceptionMessage("Invalid characters! Only letters and numbers are allowed!");
+        $tester->execute(["instance" => "32$2323"]);
+    }
+}

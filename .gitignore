@@ -1,2 +1,6 @@
 src/tpl/repos
 .DS*
+.idea
+
+app/vendor/
+app/composer.lock

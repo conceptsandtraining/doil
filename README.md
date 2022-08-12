@@ -8,38 +8,54 @@ install it if possible.
 ## Installation
 
 1. download and unpack the [latest release](https://github.com/conceptsandtraining/doil/releases)
-1. execute `sudo ./install.sh` in order to install **doil**
+1. cd into the unpacked directory
+1. if you run doil on a remote host ensure to change the host name in `setup/conf/doil.conf` to your host name
+1. execute `sudo ./setup/install.sh` in order to install **doil**
 1. you can remove the downloaded folder afterwards
 1. check `doil help` for available commands and further instructions
 
-## Update
+## Update (currently not available)
+The update command will have a comeback in the following releases.  
 
-If you alread installed **doil** you can easily update with following steps:
+Because **doil** now uses PHP after the conversion, we recommend completely removing an already installed
+**doil** from the system. This includes already installed instances. After that, you can proceed to the
+Installation section.
 
-1. download and unpack the [latest release](https://github.com/conceptsandtraining/doil/releases)
-1. execute `sudo ./update.sh` in order to update **doil**
-1. you can remove the downloaded folder afterwards
+Removal Tips:
+
+* `docker ps -a` shows all containers
+* `docker rm <container_id>` removes container by id (ensure to delete all doil instances)
+* `docker images` shows all images
+* `docker rmi <image_id>` remove image by id (ensure to delete all doil images)
+* `docker volume ls` shows all volumes
+* `docker volume rm <volume_name>` remove volume by name (ensure to delete mail, proxy and salt)
+* `docker network prune` removes all networks without dependencies
+* `sudo rm -rf /etc/doil /usr/local/lib/doil /usr/local/share/doil /usr/local/bin/doil ~/.doil`
 
 ## Dependencies
 
-**doil** tries to use as little 3rd party software on the host system as possible.
-However **doil** needs [Docker](https://www.docker.com/) in order to work:
+**doil** tries to use as little 3rd party software on the host system as possible,
+however **doil** needs [Docker](https://www.docker.com/) in order to work:
 
 * docker version >= 19.03
 * docker-compose version >= 1.25.0
-* zip
+* php version => 7.4
+* php*.*-zip
+* php*.*-dom
+* composer version = depending on installed php version
+* git
 
 ## Usage
 
 ### Quick Start
 
-**Before starting make sure that you setted up your [docker usergroup correctly](https://docs.docker.com/engine/install/linux-postinstall/)**
+**Before starting make sure that you have set up your [docker usergroup correctly](https://docs.docker.com/engine/install/linux-postinstall/)**
 
 After you installed doil the basic system is ready to go. To get an instance of
 ILIAS running you simply need to do following steps:
 
 1. Head to a folder where you want to store your project. Usually `~/Projects`
-1. Enter following command: `doil create -n ilias -gr ilias -b release_7 -p 7.4`
+1. Enter following command: `doil create -n -e ilias -r ilias -b release_7 -p 7.4 -u`
 
 Don't worry, this will take a while. It creates and instance of ILIAS named `ilias`
 in your location from the repository `ilias` (see `doil repo:list`) with the known
@@ -52,27 +68,27 @@ to `http://doil/ilias/` to see your fresh ILIAS installation.
 
 Each command for doil comes with its own help. If you struggle to use a command,
 just add `-h` or `--help` to display the according help page. For example:
-`doil instances:create --help`. Use `doil --help` if you have no idea where too
+`doil instances:create --help`. Use a simple `doil` if you have no idea where to
 start.
 
 ### Instances
 
-An *instance* is one environment for and installation of ILIAS. The purpose of
+An *instance* is one environment for an installation of ILIAS. The purpose of
 **doil** is to make the management of these instances as simple as possible.
 The following commands are available:
 
 * `doil create` (alias for `doil instances:create`) creates a new instance in
   the current working directory
-* `doil up` starts an instance that you have created before
-* `doil cd` switches the current working directoryto the location of the instance
+* `doil up <instance_name>` starts an instance that you have created before
+* `doil path` prints the path to the location of the instance
 * `doil ls` lists all available instances
-* `doil login` logs you into the container running the instance
-* `doil down` stops an instance to free the ressources it needs
-* `doil rm` deletes an instance you do not need anymore
-* `doil apply` applys a certain state to the instance
-* `doil ps` lists the current running doil instances
+* `doil login <instance_name>` logs you into the container running the instance
+* `doil down <instance_name>` stops an instance to free the resources it needs
+* `doil delete <instance_name>` deletes an instance you do not need anymore
+* `doil apply <instance_name>` apply a certain state to the instance
+* `doil status` lists the current running doil instances
 
-See `doil instances --help` for more information
+See `doil instances:<command> --help` for more information
 
 ### Repository
 
@@ -83,14 +99,14 @@ the ILIAS code, you can use commands from `doil repo` to add and manage these
 other repositories:
 
 * `doil repo:add` will add a repository to the configuration
-* `doil repo:update` will download the repo to **doil**'s local cache or update
+* `doil repo:update <repo_name>` will download the repo to **doil**'s local cache or update
   it if it is already downloaded
 * `doil instances:create --repo REPO_NAME` will use the repo to create a new
    instance
-* `doil repo:delete` - removes a repository
+* `doil repo:delete <repo_name>` - removes a repository
 * `doil repo:list` - lists currently registered repositories
 
-See `doil repo --help` for more information
+See `doil repo:<command> --help` for more information
 
 ### Global User Support
 
@@ -104,9 +120,11 @@ The user who installed doil on the machine is already registered at doil. To add
 another user simply use `doil system:user add <username>`. You can manage the users
 with following commands:
 
-* `doil system:user add <username>` adds a user
-* `doil system:user delete <username>` deletes a user
-* `doil system:user list` lists the available users
+* `doil user:add <username>` adds a user
+* `doil user:delete <username>` deletes a user
+* `doil user:list` lists the available users
+
+See `doil user:<command> --help` for more information
 
 #### The `--global` flag
 
@@ -115,7 +133,7 @@ ILIAS instance with `doil create --global` the instance will then be available t
 all registered users. You can start the instance with `doil up <instance> --global`.
 
 If you want to create an instance with a global repository you have to use the flag
-`-gr|--global-repo`, e.g, `doil create -gr ilias`
+`-u|--use-global-repo`, e.g, `doil create -r ilias -u`
 
 Following commands come with the `--global` flag:
 
@@ -125,7 +143,7 @@ Following commands come with the `--global` flag:
 * `doil instances:down`
 * `doil instances:delete`
 * `doil instances:apply`
-* `doil instances:cd`
+* `doil instances:path`
 * `doil instances:login`
 
 **`doil repo`**
@@ -147,9 +165,9 @@ build with doil (instances from version >=1.1) are able to be exported.
 * `doil pack:export` exports an instance
 * `doil pack:import` imports an instance
 
-See `doil pack --help` for more information
+See `doil pack:<command> --help` for more information
 
-### Quietmode and Logs
+### Quietmode and Logs (currently not available)
 
 Most of the commands come with a `--quiet` flag to omit the log messages.
 However these logs are not lost, they are stored in `/var/log/doil.log`. You may
@@ -160,12 +178,12 @@ want to add a rotation to this logfile.
 * **doil** was developed and tested on debian and ubuntu systems. It might run
   on other linux based platforms but there is no guarantee
 
-### doil on MacOS
+### doil on MacOS (currently not tested)
 
 * due to network restrictions on MacOS **doil** can only operate run one instance
   at once. Though it's possible to create as many environments as you want
 
-### doil on Windows
+### doil on Windows (currently not available)
 
 * **doil** works on Windows with the WSL2 and Ubuntu 20.10 enabled. Due to network restrictions you
   need to change the host to `localhost` via the doil proxy settings:
@@ -188,18 +206,18 @@ run and open a new terminal and do following steps:
 
 * `doil system:salt prune`
 * `doil system:salt restart`
-* `doil down ${instance}`
-* `doil up ${instance}`
+* `doil down <instance_name>`
+* `doil up <instance_name>`
 
 Usually the loop will then resolve itself and the creation or apply process will continue. If the loop
 continues then there might be a problem with the public key of the salt main server. To fix this do
 following steps:
 
-* `doil login ${instance}`
+* `doil login <instance_name>`
 * `rm /var/lib/salt/pki/minion/minion_master.pub`
 * `exit`
-* `doil down ${instance}`
-* `doil up ${instance}`
+* `doil down <instance_name>`
+* `doil up <instance_name>`
 
 ## Background, Troubleshooting and Development
 
@@ -216,11 +234,10 @@ via Dockers volumes and can be accessed from the host system.
 
 **doil** comes with some helpers which are usefull if you want to hack on **doil**:
 
-* `doil system:deinstall` will be remove doil from your system
-* `doil system:version` displays the version
-* `doil system:help` displays the main help page
+* `doil system:uninstall` will remove doil from your system
+* `doil -V|--version` displays the version
+* `doil` displays the main help page
 
-See `doil system --help` for more information
 
 ### SaltStack
 
@@ -229,14 +246,14 @@ to fit your workflow or requirements, **doil** provides commands to tamper with
 the saltstack in the background. These commands will not be required by ordinary
 users, so make sure to understand what you are doing.
 
-* `doil system:salt login` logs the user into the main salt server
-* `doil system:salt prune` prunes the main salt server
-* `doil system:salt start` starts the salt main server
-* `doil system:salt stop` stops the salt main server
-* `doil system:salt restart` restarts the salt main server
-* `doil system:salt states` to list the available states
+* `doil salt:login` logs the user into the main salt server
+* `doil salt:prune` prunes the main salt server
+* `doil salt:start` starts the salt main server
+* `doil salt:stop` stops the salt main server
+* `doil salt:restart` restarts the salt main server
+* `doil salt:states` to list the available states
 
-See `doil system:salt --help` for more information
+See `doil salt:<command> --help` for more information
 
 ### Proxy Server
 
@@ -245,19 +262,18 @@ to fit your workflow or requirements, **doil** provides commands to tamper with
 the proxy in the background. These commands will not be required by ordinary
 users, so make sure to understand what you are doing.
 
-* `doil system:proxy login` logs the user into the proxy server
-* `doil system:proxy prune` removes the configuration of the proxy server
-* `doil system:proxy start` starts the proxy server
-* `doil system:proxy stop` stops the proxy server
-* `doil system:proxy restart` restarts the proxy server
-* `doil system:proxy reload` reloads the configuration
-* `doil system:proxy host <host>` changes the default host
+* `doil proxy:login` logs the user into the proxy server
+* `doil proxy:prune` removes the configuration of the proxy server
+* `doil proxy:start` starts the proxy server
+* `doil proxy:stop` stops the proxy server
+* `doil proxy:restart` restarts the proxy server
+* `doil proxy:reload` reloads the configuration
 
-See `doil system:proxy --help` for more information
+See `doil proxy:<command> --help` for more information
 
 ### Mail Server
 
-The mailserver is available at `http://localhost:8081/roundcube` with following
+The mailserver is available at `http://doil/mails` with following
 login data:
 
 * User: www-data
@@ -270,10 +286,10 @@ to fit your workflow or requirements, **doil** provides commands to tamper with
 the mailserver in the background. These commands will not be required by ordinary
 users, so make sure to understand what you are doing.
 
-* `doil system:mail login` logs the user into the mail server
-* `doil system:mail start` starts the mail server
-* `doil system:mail stop` stops the mail server
-* `doil system:mail restart` restarts the mail server
+* `doil mail:login` logs the user into the mail server
+* `doil mail:start` starts the mail server
+* `doil mail:stop` stops the mail server
+* `doil mail:restart` restarts the mail server
 
 ## Contributions and Support
 
@@ -289,13 +305,13 @@ Contributions to doil are very welcome!
 If doil saved your precious time and brain power, please consider supporting
 **doil**:
 
-* Buy Laura a coffee and tell her about your doil experiences if you meet her
+* Buy Laura (initial creator) a coffee and tell her about your doil experiences if you meet her
   somewhere.
 * Star the project and share it. If you blog, please share your experience of
   using this software.
 * Look into [CaT's products and services](https://www.concepts-and-training.de)
   and consider to place an order or hire us.
-* Reach out to [Laura](laura.herzog@concepts-and-training.de) and [Richard](richard.klees@concepts-and-training.de)
+* Reach out to [Daniel](daniel.weise@concepts-and-training.de) and [Richard](richard.klees@concepts-and-training.de)
   if you have requirements, ideas or questions that you don't want to discuss
   publicly.
 * Reach out to [Richard](richard.klees@concepts-and-training.de) if you need
