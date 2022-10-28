@@ -50,6 +50,84 @@ function doil_check_host() {
   return 0
 }
 
+# checks if the php version is supported
+#
+# return 255 if php is not supported
+# return 0 if php is supported
+function doil_check_php_version() {
+  PHP=$(php --ini | grep Loaded | cut -d' ' -f12 | cut -d/ -f4)
+  case "${PHP}" in
+    "8.2")
+      return 0
+      ;;
+    "8.1")
+      return 0
+      ;;
+    "8.0")
+      return 0
+      ;;
+    "7.4")
+      return 0
+      ;;
+    *)
+      return 255
+      ;;
+    esac
+  return 0
+}
+
+# checks if the php module dom is supported
+#
+# return 255 if module is not supported
+# return 0 if module is supported
+function doil_check_php_module_dom() {
+  DOM=$(php --ini | grep dom | wc -l)
+  if [[ ${DOM} -ne 0 ]]
+  then
+    return 0
+  fi
+  return 255
+}
+
+# checks if the php module zip is supported
+#
+# return 255 if module is not supported
+# return 0 if module is supported
+function doil_check_php_module_zip() {
+  DOM=$(php --ini | grep zip | wc -l)
+  if [[ ${DOM} -ne 0 ]]
+  then
+    return 0
+  fi
+  return 255
+}
+
+# checks if the composer is supported
+#
+# return 255 if composer is not supported
+# return 0 if composer is supported
+function doil_check_composer() {
+  COMPOSER=$(su $SUDO_USER -c 'composer -n | wc -l')
+  if [[ ${COMPOSER} -ne 0 ]]
+    then
+      return 0
+    fi
+  return 255
+}
+
+# checks if the git is supported
+#
+# return 255 if git is not supported
+# return 0 if git is supported
+function doil_check_git() {
+  GIT=$(su $SUDO_USER -c 'git --version | wc -l')
+  if [[ ${GIT} -ne 0 ]]
+    then
+      return 0
+    fi
+  return 255
+}
+
 # checks if the installed docker version is
 # supported
 #
