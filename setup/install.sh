@@ -53,6 +53,57 @@ then
   exit
 fi
 
+# php version check
+doil_check_php_version
+CHECK_PHP=$?
+if [[ ${CHECK_PHP} -ne 0 ]]
+then
+  doil_status_failed
+  doil_status_send_error "REQUIREMENT ERROR" "Your php version is not supported!"
+  exit
+fi
+
+# php module dom check
+doil_check_php_module_dom
+CHECK_PHP_MODULE_DOM=$?
+if [[ ${CHECK_PHP_MODULE_DOM} -ne 0 ]]
+then
+  doil_status_failed
+  doil_status_send_error "REQUIREMENT ERROR" "Missing php module dom!"
+  exit
+fi
+
+# php module zip check
+doil_check_php_module_zip
+CHECK_PHP_MODULE_ZIP=$?
+if [[ ${CHECK_PHP_MODULE_ZIP} -ne 0 ]]
+then
+  doil_status_failed
+  doil_status_send_error "REQUIREMENT ERROR" "Missing php module zip!"
+  exit
+fi
+
+# composer installed check
+doil_check_composer
+COMPOSER=$?
+if [[ ${COMPOSER} -ne 0 ]]
+then
+  doil_status_failed
+  doil_status_send_error "REQUIREMENT ERROR" "Missing composer!"
+  exit
+fi
+
+# git installed check
+doil_check_git
+GIT=$?
+if [[ ${GIT} -ne 0 ]]
+then
+  doil_status_failed
+  doil_status_send_error "REQUIREMENT ERROR" "Missing git!"
+  exit
+fi
+
+exit
 # status for check requirements
 doil_status_okay
 
