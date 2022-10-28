@@ -15,7 +15,7 @@ class PruneCommand extends Command
     protected const SALT_PATH = "/usr/local/lib/doil/server/salt";
 
     protected static $defaultName = "salt:prune";
-    protected static $defaultDescription = "Prunes the salt main server";
+    protected static $defaultDescription = "Delete all registered minion keys. This could be helpful for debugging purposes. A restart of salt forces the keys to be regenerated.";
 
     protected Docker $docker;
     protected Writer $writer;

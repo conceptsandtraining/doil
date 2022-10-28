@@ -15,7 +15,7 @@ class PruneCommand extends Command
     protected const PROXY_PATH = "/usr/local/lib/doil/server/proxy";
 
     protected static $defaultName = "proxy:prune";
-    protected static $defaultDescription = "Prunes the proxy server";
+    protected static $defaultDescription = "Removes the config for each doil instance from proxy. This could be helpful for debugging purposes. Restarting doil instances will write the config back.";
 
     protected Docker $docker;
     protected Writer $writer;
@@ -27,7 +27,6 @@ class PruneCommand extends Command
         $this->docker = $docker;
         $this->writer = $writer;
     }
-
 
     public function execute(InputInterface $input, OutputInterface $output) : int
     {
