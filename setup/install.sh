@@ -56,6 +56,17 @@ fi
 # status for check requirements
 doil_status_okay
 
+doil_status_send_message_nl "Set host variable"
+doil_set_host
+CHECK=$?
+if [[ ${CHECK} -ne 0 ]]
+then
+  doil_status_failed
+  exit
+fi
+doil_status_okay
+exit
+
 doil_status_send_message "Creating log file"
 doil_system_setup_log
 CHECK=$?
@@ -117,6 +128,10 @@ then
 fi
 doil_status_okay
 
+
+
+
+
 doil_status_send_message "Setting up IP"
 doil_system_setup_ip
 CHECK=$?
@@ -126,6 +141,12 @@ then
   exit
 fi
 doil_status_okay
+
+
+
+
+
+
 
 doil_status_send_message "Setting up access rights"
 doil_system_setup_access
