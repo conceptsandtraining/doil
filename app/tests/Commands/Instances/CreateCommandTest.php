@@ -30,6 +30,9 @@ class CreateCommandWrapper extends CreateCommand
     protected function checkTarget() : Closure
     {
         return function(string $t) {
+            if (! $this->filesystem->hasWriteAccess($t)) {
+                throw new RuntimeException("$t is not writeable!");
+            }
             return "/home/test";
         };
     }
@@ -341,7 +344,7 @@ class CreateCommandTest extends TestCase
         $project_config = $this->createMock(ProjectConfig::class);
         $writer = new CommandWriter();
 
-        $command = new CreateCommand(
+        $command = new CreateCommandWrapper(
             $docker,
             $repo_manager,
             $git,
@@ -355,12 +358,6 @@ class CreateCommandTest extends TestCase
         $app = new Application("doil");
         $command->setApplication($app);
 
-        $filesystem
-            ->expects($this->once())
-            ->method("exists")
-            ->with("/home/test")
-            ->willReturn(true)
-        ;
         $filesystem
             ->expects($this->once())
             ->method("hasWriteAccess")
@@ -419,6 +416,12 @@ class CreateCommandTest extends TestCase
                 ["/home/test/1232/volumes/ilias/include/inc.ilias_version.php", "ILIAS_VERSION_NUMERIC"]
             )
             ->willReturnOnConsecutiveCalls("foo=doil", "7.8")
+        ;
+        $filesystem
+            ->expects($this->once())
+            ->method("hasWriteAccess")
+            ->with("/home/test")
+            ->willReturn(true)
         ;
 
         $tester->execute([
