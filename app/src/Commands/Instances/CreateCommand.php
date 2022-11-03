@@ -591,10 +591,10 @@ class CreateCommand extends Command
     {
         return function(string $t) {
             if (! $this->filesystem->exists($t)) {
-                throw new RuntimeException("$t is not a suitable path!");
+                throw new RuntimeException("the path '$t' does not exists!");
             }
             if (! $this->filesystem->hasWriteAccess($t)) {
-                throw new RuntimeException("$t is not writeable!");
+                throw new RuntimeException("the path '$t' is not writeable!");
             }
             return $t;
         };
