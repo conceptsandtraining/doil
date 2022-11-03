@@ -31,7 +31,7 @@ class CreateCommandWrapper extends CreateCommand
     {
         return function(string $t) {
             if (! $this->filesystem->hasWriteAccess($t)) {
-                throw new RuntimeException("$t is not writeable!");
+                throw new RuntimeException("the path '$t' is not writeable!");
             }
             return "/home/test";
         };
@@ -269,7 +269,7 @@ class CreateCommandTest extends TestCase
         ;
 
         $this->expectException(RuntimeException::class);
-        $this->expectExceptionMessage("/home/test is not a suitable path!");
+        $this->expectExceptionMessage("the path '/home/test' does not exists!");
         $tester->execute([
             "--no-interaction" => true,
             "--name" => "1232",
@@ -323,7 +323,7 @@ class CreateCommandTest extends TestCase
         ;
 
         $this->expectException(RuntimeException::class);
-        $this->expectExceptionMessage("/home/test is not writeable!");
+        $this->expectExceptionMessage("the path '/home/test' is not writeable!");
         $tester->execute([
             "--no-interaction" => true,
             "--name" => "1232",
@@ -366,7 +366,7 @@ class CreateCommandTest extends TestCase
         ;
 
         $this->expectException(RuntimeException::class);
-        $this->expectExceptionMessage("/home/test is not writeable!");
+        $this->expectExceptionMessage("the path '/home/test' is not writeable!");
         $tester->execute([
             "--no-interaction" => true,
             "--name" => "1232",
