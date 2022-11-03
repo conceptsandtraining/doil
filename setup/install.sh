@@ -33,6 +33,16 @@ then
   exit
 fi
 
+# sudo user in docker group
+doil_check_user_in_docker_group
+CHECK_DOCKER_GROUP=$?
+if [[ ${CHECK_DOCKER_GROUP} -ne 0 ]]
+then
+  doil_status_failed
+  doil_status_send_error "REQUIREMENT ERROR" "Please ensure that $SUDO_USER is in the docker group!"
+  exit
+fi
+
 # host check
 doil_check_host
 CHECK_HOST=$?

@@ -13,5 +13,25 @@
 # /ᐠ｡‸｡ᐟ\
 # Thanks to Concepts and Training for supporting doil
 
+if [[ "$EUID" -ne 0 ]]
+then
+  id -nG "$USER" | grep -qw "docker"
+  DOCKER_GROUP=$?
+  id -nG "$USER" | grep -qw "doil"
+  DOIL_GROUP=$?
+
+  if [ ${DOCKER_GROUP} = 1 ]
+  then
+    echo "Please ensure that ${USER} is member of the docker group and try again!"
+    exit
+  fi
+
+  if [ ${DOIL_GROUP} = 1 ]
+  then
+    echo "Please ensure that ${USER} is member of the doil group and try again!"
+    exit
+  fi
+fi
 
 php /usr/local/lib/doil/app/src/cli.php  $@
+
