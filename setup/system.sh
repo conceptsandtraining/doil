@@ -124,10 +124,7 @@ function doil_system_replace_salt_stack() {
 
 function doil_system_setup_config() {
 
-  if [ ! -f /etc/doil/doil.conf ]
-  then
-    cp setup/conf/doil.conf /etc/doil/doil.conf
-  fi
+  cp setup/conf/doil.conf /etc/doil/doil.conf
 
   if [ ! -f /etc/doil/repositories.json ]
   then

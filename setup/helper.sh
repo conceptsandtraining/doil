@@ -107,6 +107,7 @@ doil_eval_command() {
 
 doil_get_conf() {
   CONFIG=${1}
+  echo ${CONFIG}
   VALUE=$(cat /etc/doil/doil.conf | grep ${CONFIG} | cut -d '=' -f 2-)
   echo ${VALUE}
 }
@@ -159,6 +160,46 @@ doil_test_version_compare() {
 function doil_get_doil_version() {
   VERSION=$(/usr/local/bin/doil --version | cut -d ' ' -f 3)
   echo ${VERSION}
+}
+
+function doil_set_host() {
+  echo "If you only use doil locally leave this blank!"
+  HOST=$(read_host)
+  RESULT=$?
+
+  while [ ${RESULT} = 1 ]
+  do
+    echo "Please ensure that your entries are equal!"
+    HOST=$(read_host)
+    RESULT=$?
+  done
+
+  if [ "${HOST}" = "" ]
+  then
+    HOST="doil"
+  fi
+
+  set_host ${HOST}
+
+  return $?
+}
+
+function read_host() {
+  read -p "Please enter a dns known hostname or an IP-Address: " HOST1
+  read -p "Please repeat a dns known hostname or an IP-Address: " HOST2
+
+  if [ "${HOST1}" = "${HOST2}" ]
+  then
+    echo "${HOST1}"
+    return 0
+  fi
+
+  return 1
+}
+
+function set_host() {
+  HOST=$1
+  sed -i -e "s/host=.*/host=${HOST}/g" setup/conf/doil.conf
 }
 
 function doil_perform_update() {
