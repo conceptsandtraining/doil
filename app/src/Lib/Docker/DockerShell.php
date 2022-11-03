@@ -68,8 +68,7 @@ class DockerShell implements Docker
         $cmd = [
             "docker",
             "ps",
-            "--filter",
-            "status=running",
+            "-a",
             "--format",
             "table {{.Names}}\t{{.Status}}\t{{.RunningFor}}\t{{.Image}}\t{{.ID}}\t{{.Ports}}"
         ];

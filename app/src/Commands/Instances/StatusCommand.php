@@ -33,12 +33,14 @@ class StatusCommand extends Command
 
     public function execute(InputInterface $input, OutputInterface $output) : int
     {
-        $running_doil_instances = $this->docker->ps();
-        $running_doil_instances = array_filter($running_doil_instances, function($a) {
+        $doil_instances = $this->docker->ps();
+        $doil_instances = array_filter($doil_instances, function($a) {
             if (
                 strstr($a, "CONTAINER ID") ||
                 strstr($a, "doil") ||
-                strstr($a, "doil_saltmain")
+                strstr($a, "doil_saltmain") ||
+                strstr($a, "_local") ||
+                strstr($a, "_global")
             ) {
                 return true;
             }
@@ -46,7 +48,7 @@ class StatusCommand extends Command
             return false;
         });
 
-        foreach ($running_doil_instances as $instance) {
+        foreach ($doil_instances as $instance) {
             $output->writeln($instance);
         }
 
