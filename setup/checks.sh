@@ -29,6 +29,19 @@ function doil_check_sudo() {
   return 0
 }
 
+# checks if user is in docker group
+#
+# return 255 if user is not in docker group
+# return 0 if user is in docker group
+function doil_check_user_in_docker_group() {
+  id -nG $SUDO_USER | grep -qw 'docker'
+  if [[ $? -ne 0 ]]
+    then
+      return 255
+    fi
+  return 0
+}
+
 # checks if the host system is supported
 #
 # return 255 if system is not supported
