@@ -27,6 +27,17 @@ doil_status_send_message() {
   fi
 }
 
+doil_status_send_message_nl() {
+  exec >>/dev/tty 2>&1
+  echo "${1} ..."
+
+  RESET=${2}
+  if [[ ! -z ${RESET} ]]
+  then
+    exec >> "${RESET}" 2>&1
+  fi
+}
+
 doil_status_send_error() {
   echo -e "\033[1m${1}:\033[0m"
   echo -e "\t${2}"
