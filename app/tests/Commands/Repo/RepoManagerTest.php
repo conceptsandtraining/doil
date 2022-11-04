@@ -193,7 +193,7 @@ class RepoManagerTest extends TestCase
         $git = $this->createMock(Git::class);
         $posix = $this->createMock(Posix::class);
         $filesystem = $this->createMock(Filesystem::class);
-        $repo = new Repo("global1", "http://global1/doil.git", true);
+        $repo = new Repo("global1", "", true);
 
         $repo_manager = new RepoManagerWrapper($git, $posix, $filesystem);
 
@@ -207,7 +207,7 @@ class RepoManagerTest extends TestCase
         $git
             ->expects($this->once())
             ->method("fetchBare")
-            ->with("/usr/local/share/doil/repositories/global1", "http://global1/doil.git")
+            ->with("/usr/local/share/doil/repositories/global1", "https://global1.git")
         ;
 
         $repo_manager->updateRepo($repo);
@@ -218,7 +218,7 @@ class RepoManagerTest extends TestCase
         $git = $this->createMock(Git::class);
         $posix = $this->createMock(Posix::class);
         $filesystem = $this->createMock(Filesystem::class);
-        $repo = new Repo("local1", "http://local1/doil.git", false);
+        $repo = new Repo("local1", "", false);
 
         $repo_manager = new RepoManagerWrapper($git, $posix, $filesystem);
 
@@ -244,7 +244,7 @@ class RepoManagerTest extends TestCase
         $git
             ->expects($this->once())
             ->method("fetchBare")
-            ->with("/home/doil/.doil/repositories/local1", "http://local1/doil.git")
+            ->with("/home/doil/.doil/repositories/local1", "https://local1.git")
         ;
 
         $repo_manager->updateRepo($repo);

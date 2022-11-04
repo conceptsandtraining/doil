@@ -20,7 +20,7 @@ class LinuxShell implements Linux
             $user
         ];
 
-        $this->runTTYQuiet($cmd);
+        $this->run($cmd);
     }
 
     public function removeUserFromGroup(string $user, string $group) : void
@@ -31,7 +31,7 @@ class LinuxShell implements Linux
             $group
         ];
 
-        $this->runTTYQuiet($cmd);
+        $this->run($cmd);
     }
 
     public function deleteGroup(string $name) : void
@@ -41,7 +41,7 @@ class LinuxShell implements Linux
             $name
         ];
 
-        $this->runTTYQuiet($cmd);
+        $this->run($cmd);
     }
 
     public function isWSL() : bool

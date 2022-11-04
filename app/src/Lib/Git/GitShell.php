@@ -34,7 +34,7 @@ class GitShell implements Git
             $url
         ];
 
-        $this->runTTYQuiet($cmd);
+        $this->run($cmd);
     }
 
     public function cloneBare(string $url, string $path) : void
@@ -47,7 +47,7 @@ class GitShell implements Git
             $path
         ];
 
-        $this->runTTYQuiet($cmd);
+        $this->run($cmd);
     }
 
     public function setLocalConfig(string $path, ...$commands) : void
@@ -75,34 +75,6 @@ class GitShell implements Git
             $branch
         ];
 
-        $this->runTTYQuiet($cmd);
-    }
-
-    public function deleteBranch(string $path, string $branch) : void
-    {
-        $cmd = [
-            "git",
-            "-C",
-            $path,
-            "branch",
-            "-D",
-            "$branch"
-        ];
-
-        $this->runTTYQuiet($cmd);
-    }
-
-    public function checkoutNew(string $path, string $branch) : void
-    {
-        $cmd = [
-            "git",
-            "-C",
-            $path,
-            "checkout",
-            "-b",
-            "$branch"
-        ];
-
-        $this->runTTYQuiet($cmd);
+        $this->run($cmd);
     }
 }

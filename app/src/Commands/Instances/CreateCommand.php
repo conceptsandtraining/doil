@@ -580,7 +580,10 @@ class CreateCommand extends Command
     protected function normalizeTarget() : Closure
     {
         return function(?string $v) : string {
-            return $v ? realpath(trim($v)) : $this->filesystem->getCurrentWorkingDirectory();
+            if (is_null($v) || $v == "") {
+                return $this->filesystem->getCurrentWorkingDirectory();
+            }
+            return realpath(trim($v)) ?: "";
         };
     }
 

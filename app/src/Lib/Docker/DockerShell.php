@@ -36,7 +36,7 @@ class DockerShell implements Docker
             "-d"
         ];
 
-        $this->runTTYQuiet($cmd);
+        $this->run($cmd);
 
         // Sometimes this file will not be deleted automatically,
         // so we have to do it manually on start up.
@@ -44,8 +44,9 @@ class DockerShell implements Docker
         $this->executeQuietCommand(
             $path,
             basename($path),
-            "rm",
-            "/run/apache2/apache2.pid"
+            "/bin/bash",
+            "-c",
+            "rm -f /run/apache2/apache2.pid"
         );
 
         $this->cleanupMasterKey($path);
@@ -60,7 +61,7 @@ class DockerShell implements Docker
             "stop"
         ];
 
-        $this->runTTYQuiet($cmd);
+        $this->run($cmd);
     }
 
     public function ps() : array
@@ -153,7 +154,7 @@ class DockerShell implements Docker
             $name . "_persistent"
         ];
 
-        $this->runTTYQuiet($cmd);
+        $this->run($cmd);
     }
 
     public function getImageIdsByName(string $name) : array
@@ -179,7 +180,7 @@ class DockerShell implements Docker
             $id
         ];
 
-        $this->runTTYQuiet($cmd);
+        $this->run($cmd);
     }
 
     public function getSaltAcceptedKeys() : array
@@ -221,7 +222,7 @@ class DockerShell implements Docker
             "doil/$name:stable"
         ];
 
-        $this->runTTYQuiet($cmd);
+        $this->run($cmd);
     }
 
     public function copy(string $instance_name, string $from, string $to) : void
@@ -233,7 +234,7 @@ class DockerShell implements Docker
             $to
         ];
 
-        $this->runTTY($cmd);
+        $this->run($cmd);
     }
 
     public function listContainerDirectory(string $container_name, string $path) : array
@@ -259,7 +260,7 @@ class DockerShell implements Docker
             $name . ":stable"
         ];
 
-        $this->runTTYQuiet($cmd);
+        $this->run($cmd);
     }
 
     public function build(string $path, string $name) : void
@@ -272,7 +273,7 @@ class DockerShell implements Docker
             $path
         ];
 
-        $this->runTTYQuiet($cmd);
+        $this->run($cmd);
     }
 
     public function runContainer(string $name) : void
@@ -286,7 +287,7 @@ class DockerShell implements Docker
             "doil/" . $name . ":stable"
         ];
 
-        $this->runTTYQuiet($cmd);
+        $this->run($cmd);
     }
 
     public function stop(string $name) : void
@@ -297,7 +298,7 @@ class DockerShell implements Docker
             $name
         ];
 
-        $this->runTTYQuiet($cmd);
+        $this->run($cmd);
     }
 
     public function removeContainer(string $name) : void
@@ -308,7 +309,7 @@ class DockerShell implements Docker
             $name
         ];
 
-        $this->runTTYQuiet($cmd);
+        $this->run($cmd);
     }
 
     public function executeDockerCommand(string $name, string $cmd) : void
@@ -323,7 +324,7 @@ class DockerShell implements Docker
             $cmd
         ];
 
-        $this->runTTYQuiet($cmd);
+        $this->run($cmd);
     }
 
     public function setGrain(string $name, string $key, string $value) : void
@@ -412,7 +413,7 @@ class DockerShell implements Docker
             "--force-recreate"
         ];
 
-        $this->runTTYQuiet($cmd);
+        $this->run($cmd);
     }
 
     protected function cleanupMasterKey(string $path) : void
@@ -421,14 +422,16 @@ class DockerShell implements Docker
         $this->executeQuietCommand(
             $path,
             $name,
-            "/bin/rm",
-            "/var/lib/salt/pki/minion/minion_master.pub"
+            "/bin/bash",
+            "-c",
+            "rm -f /var/lib/salt/pki/minion/minion_master.pub"
         );
         $this->executeQuietCommand(
             $path,
             $name,
-            "/etc/init.d/salt-minion",
-            "restart"
+            "/bin/bash",
+            "-c",
+            "/etc/init.d/salt-minion restart"
         );
     }
 }

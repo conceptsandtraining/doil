@@ -97,11 +97,6 @@ class RepoManager
             $path = $this->posix->getHomeDirectory($this->posix->getUserId()) . self::LOCAL_REPO_PATH;
         }
 
-        if ($this->filesystem->exists($path . "/" . $repo->getName())) {
-            $this->git->fetchBare($path . "/" . $repo->getName(), $repo->getUrl());
-            return;
-        }
-
         $repos = array_filter($repos, function(Repo $r) use ($repo) {
             if ($r->getName() == $repo->getName()) {
                 return true;
@@ -110,6 +105,11 @@ class RepoManager
         });
 
         $repo = array_shift($repos);
+
+        if ($this->filesystem->exists($path . "/" . $repo->getName())) {
+            $this->git->fetchBare($path . "/" . $repo->getName(), $repo->getUrl());
+            return;
+        }
 
         $this->git->cloneBare($repo->getUrl(), $path . "/" . $repo->getName());
     }
