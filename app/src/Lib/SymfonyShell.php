@@ -12,7 +12,7 @@ trait SymfonyShell
     protected function run(array $commands) : string
     {
         $process = new Process($commands);
-        $process->setTimeout(3600);
+        $process->setTimeout(36000);
         $process->run();
 
         // executes after the command finishes
@@ -27,21 +27,15 @@ trait SymfonyShell
     {
         $process = new Process($commands);
         $process->setTty(true);
-        $process->setTimeout(3600);
-        $process->run(function($type, $buffer) {
-            if (Process::ERR === $type) {
-                echo "";
-            } else {
-                echo "";
-            }
-        });
+        $process->setTimeout(36000);
+        $process->run();
     }
 
     protected function runTTYQuiet(array $commands) : void
     {
         $process = new Process($commands);
         $process->setTty(true);
-        $process->setTimeout(3600);
+        $process->setTimeout(36000);
         $process->disableOutput();
         $process->run();
     }
