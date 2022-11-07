@@ -20,6 +20,10 @@ apache_packages:
   file.symlink:
     - target: /etc/apache2/sites-available/000-default.conf
 
+/etc/apache2/mods-enabled/rewrite.load:
+  file.symlink:
+    - target: /etc/apache2/mods-available/rewrite.load
+
 /etc/supervisor/conf.d/apache2.conf:
   file.managed:
     - source: salt://apache/apache.conf
