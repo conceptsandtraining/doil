@@ -1,5 +1,5 @@
 {
-    "name": "cat/doil",
+    "name": "conceptsandtraining/doil",
     "description": "Manage docker containers and set them up with ILIAS.",
     "type": "project",
     "authors": [

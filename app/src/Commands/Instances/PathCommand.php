@@ -4,7 +4,6 @@
 
 namespace CaT\Doil\Commands\Instances;
 
-use CaT\Doil\Lib\CLIHelper;
 use CaT\Doil\Lib\Posix\Posix;
 use CaT\Doil\Lib\Docker\Docker;
 use CaT\Doil\Lib\ConsoleOutput\Writer;
@@ -17,8 +16,6 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 class PathCommand extends Command
 {
-    use CLIHelper;
-
     protected static $defaultName = "instances:path";
     protected static $defaultDescription = "Shows the root folder of the desired instance.";
 

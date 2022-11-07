@@ -6,7 +6,6 @@ namespace CaT\Doil\Commands\Pack;
 
 use Closure;
 use RuntimeException;
-use CaT\Doil\Lib\CLIHelper;
 use CaT\Doil\Lib\Posix\Posix;
 use CaT\Doil\Lib\Docker\Docker;
 use CaT\Doil\Lib\ConsoleOutput\Writer;
@@ -20,8 +19,6 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 class ExportCommand extends Command
 {
-    use CLIHelper;
-
     protected static $defaultName = "pack:export";
     protected static $defaultDescription =
         "Exports an instance to an archive with all the data needed for an import."
@@ -77,7 +74,7 @@ class ExportCommand extends Command
 
         $this->writer->beginBlock($output, "Exporting database");
         if ($this->filesystem->exists($path . "/README.md")) {
-            $mysql_password = $this->grepMysqlPasswordFromFile($path . "/README.md");
+            $mysql_password = $this->filesystem->grepMysqlPasswordFromFile($path . "/README.md");
         } else {
             $mysql_password = $this->askForMysqlPassword($input, $output);
         }
@@ -148,5 +145,19 @@ class ExportCommand extends Command
         $question->setNormalizer(function($v) { return $v ? trim($v) : ''; });
         $question->setValidator($this->checkName());
         return $helper->ask($input, $output, $question);
+    }
+
+    public function hasDockerComposeFile(string $path, OutputInterface $output) : bool
+    {
+        if (file_exists($path . "/docker-compose.yml")) {
+            return true;
+        }
+
+        $output->writeln("<fg=red>Error:</>");
+        $output->writeln("\tCan't find a suitable docker-compose file in this directory '$path'.");
+        $output->writeln("\tIs this the right directory?");
+        $output->writeln("\tSupported filenames: docker-compose.yml");
+
+        return false;
     }
 }

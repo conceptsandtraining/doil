@@ -185,4 +185,15 @@ class FilesystemShell implements Filesystem
         }
         return unserialize(json_decode($json_data));
     }
+
+    public function grepMysqlPasswordFromFile(string $path) : string
+    {
+        $content = file_get_contents($path);
+
+        if (preg_match("/^MYSQL_PASSWORD.*$/m", $content, $matches)) {
+            return trim(strstr($matches[0], " "));
+        }
+
+        return "";
+    }
 }

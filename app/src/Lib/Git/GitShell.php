@@ -65,20 +65,6 @@ class GitShell implements Git
         $this->runTTY($cmd);
     }
 
-//    public function setFileMode(string $path, string $file_mode) : void
-//    {
-//        $cmd = [
-//            "git",
-//            "-C",
-//            $path,
-//            "config",
-//            "core.fileMode",
-//            $file_mode
-//        ];
-//
-//        $this->runTTYQuiet($cmd);
-//    }
-
     public function checkoutRemote(string $path, string $branch) : void
     {
         $cmd = [

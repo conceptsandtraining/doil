@@ -4,7 +4,6 @@
 
 namespace CaT\Doil\Commands\Salt;
 
-use CaT\Doil\Lib\CLIHelper;
 use CaT\Doil\Lib\FileSystem\Filesystem;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
@@ -12,8 +11,6 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 class StatesCommand extends Command
 {
-    use CLIHelper;
-
     protected const PATH_STATES = "/usr/local/share/doil/stack/states";
 
     protected static $defaultName = "salt:states";

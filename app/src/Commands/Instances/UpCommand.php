@@ -4,7 +4,6 @@
 
 namespace CaT\Doil\Commands\Instances;
 
-use CaT\Doil\Lib\CLIHelper;
 use CaT\Doil\Lib\Posix\Posix;
 use CaT\Doil\Lib\Docker\Docker;
 use CaT\Doil\Lib\ConsoleOutput\Writer;
@@ -17,8 +16,6 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 class UpCommand extends Command
 {
-    use CLIHelper;
-
     protected static $defaultName = "instances:up";
     protected static $defaultDescription =
         "This command starts an instance. If [instance] not given doil will try to start the instance" .
@@ -94,5 +91,19 @@ class UpCommand extends Command
         $output->writeln("Nothing to do. Instance $instance is already up.");
 
         return Command::SUCCESS;
+    }
+
+    public function hasDockerComposeFile(string $path, OutputInterface $output) : bool
+    {
+        if (file_exists($path . "/docker-compose.yml")) {
+            return true;
+        }
+
+        $output->writeln("<fg=red>Error:</>");
+        $output->writeln("\tCan't find a suitable docker-compose file in this directory '$path'.");
+        $output->writeln("\tIs this the right directory?");
+        $output->writeln("\tSupported filenames: docker-compose.yml");
+
+        return false;
     }
 }

@@ -10,7 +10,6 @@ interface Git
     public function fetchBare(string $path, string $url) : void;
     public function cloneBare(string $url, string $path) : void;
     public function setLocalConfig(string $path, ...$commands) : void;
-//    public function setFileMode(string $path, string $file_mode) : void;
     public function deleteBranch(string $path, string $branch) : void;
     public function checkoutRemote(string $path, string $branch) : void;
     public function checkoutNew(string $path, string $branch) : void;

@@ -4,7 +4,6 @@
 
 namespace CaT\Doil\Commands\User;
 
-use CaT\Doil\Lib\CLIHelper;
 use CaT\Doil\Lib\Linux\Linux;
 use CaT\Doil\Lib\Posix\Posix;
 use CaT\Doil\Lib\ConsoleOutput\Writer;
@@ -16,8 +15,6 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 class AddCommand extends Command
 {
-    use CLIHelper;
-
     protected static $defaultName = "user:add";
     protected static $defaultDescription = "<fg=red>!NEEDS SUDO PRIVILEGES!</> Adds a user to the doil system";
 

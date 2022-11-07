@@ -4,7 +4,6 @@
 
 namespace CaT\Doil\Commands\Instances;
 
-use CaT\Doil\Lib\CLIHelper;
 use CaT\Doil\Lib\Posix\Posix;
 use CaT\Doil\Lib\Docker\Docker;
 use CaT\Doil\Lib\ConsoleOutput\Writer;
@@ -18,8 +17,6 @@ use Symfony\Component\Console\Question\ConfirmationQuestion;
 
 class DeleteCommand extends Command
 {
-    use CLIHelper;
-
     protected const SALT_MAIN = "/usr/local/lib/doil/server/salt/";
     protected const POSTFIX = "/usr/local/lib/doil/server/mail/";
     protected const PROXY_SITES = "/usr/local/lib/doil/server/proxy/conf/nginx/sites/";

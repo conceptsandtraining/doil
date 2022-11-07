@@ -4,7 +4,6 @@
 
 namespace CaT\Doil\Commands\User;
 
-use CaT\Doil\Lib\CLIHelper;
 use CaT\Doil\Lib\Linux\Linux;
 use CaT\Doil\Lib\Posix\Posix;
 use CaT\Doil\Lib\ConsoleOutput\Writer;
@@ -15,8 +14,6 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 class DeleteCommand extends Command
 {
-    use CLIHelper;
-
     protected static $defaultName = "user:delete";
     protected static $defaultDescription = "<fg=red>!NEEDS SUDO PRIVILEGES!</> Deletes a user from the doil system";
 

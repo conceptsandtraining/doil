@@ -4,15 +4,12 @@
 
 namespace CaT\Doil\Commands\User;
 
-use CaT\Doil\Lib\CLIHelper;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
 class ListCommand extends Command
 {
-    use CLIHelper;
-
     protected static $defaultName = "user:list";
     protected static $defaultDescription = "Lists all users of the doil system";
 

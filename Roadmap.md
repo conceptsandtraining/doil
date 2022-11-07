@@ -1,6 +1,12 @@
 # Refactoring to PHP
 
+### Everytime
+* update Doil version in app/src/App.php
+
 ### TODO's
+
+
+### Features
 * implement logging system
 * only use one specific repo
 * only use one image for ILIAS instances
@@ -8,8 +14,6 @@
 * reimplement the setup/update command
 * build setup with php
 * postfix won't start correctly after restart
-
-### Features
 * do all git actions from outside the container
 * trigger skin compile from outside the container
 * display Environment Vars on doil up or by special command

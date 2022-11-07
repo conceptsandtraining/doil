@@ -45,6 +45,16 @@ however **doil** needs [Docker](https://www.docker.com/) in order to work:
 * composer version = depending on installed php version
 * git
 
+Additional dependencies, but these are installed automatically during setup.
+
+* symfony/console
+* symfony/filesystem
+* symfony/process
+* pimple
+* ext/posix
+* ext/zip
+* ext-openssl
+
 ## Usage
 
 ### Quick Start
@@ -85,7 +95,6 @@ The following commands are available:
 * `doil login <instance_name>` logs you into the container running the instance
 * `doil down <instance_name>` stops an instance to free the resources it needs
 * `doil delete <instance_name>` deletes an instance you do not need anymore
-* `doil apply <instance_name>` apply a certain state to the instance
 * `doil status` lists the current running doil instances
 
 See `doil instances:<command> --help` for more information

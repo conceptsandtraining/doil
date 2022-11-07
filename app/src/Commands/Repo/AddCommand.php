@@ -6,7 +6,6 @@ namespace CaT\Doil\Commands\Repo;
 
 use Closure;
 use RuntimeException;
-use CaT\Doil\Lib\CLIHelper;
 use CaT\Doil\Lib\ConsoleOutput\Writer;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputOption;
@@ -17,8 +16,6 @@ use Symfony\Component\Console\Question\ConfirmationQuestion;
 
 class AddCommand extends Command
 {
-    use CLIHelper;
-
     protected static $defaultName = "repo:add";
     protected static $defaultDescription =
         "Adds a repository to the doil configuration file to prepare the possibility "
