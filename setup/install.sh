@@ -43,6 +43,16 @@ then
   exit
 fi
 
+# sudo user in docker group
+doil_check_root_has_docker_compose
+CHECK_DOCKER_COMPOSE=$?
+if [[ ${CHECK_DOCKER_COMPOSE} -ne 0 ]]
+then
+  doil_status_failed
+  doil_status_send_error "REQUIREMENT ERROR" "Please ensure that root has access to docker-compose!"
+  exit
+fi
+
 # host check
 doil_check_host
 CHECK_HOST=$?
