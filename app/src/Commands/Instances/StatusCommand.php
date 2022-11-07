@@ -4,7 +4,6 @@
 
 namespace CaT\Doil\Commands\Instances;
 
-use CaT\Doil\Lib\CLIHelper;
 use CaT\Doil\Lib\Docker\Docker;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
@@ -12,8 +11,6 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 class StatusCommand extends Command
 {
-    use CLIHelper;
-
     protected static $defaultName = "instances:status";
     protected static $defaultDescription = "This command lists all running instances.";
 

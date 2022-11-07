@@ -32,4 +32,5 @@ interface Filesystem
     public function getLineInFile(string $path, string $needle) : ?string;
     public function saveToJsonFile(string $path, array $objects) : void;
     public function readFromJsonFile(string $path) : array;
+    public function grepMysqlPasswordFromFile(string $path) : string;
 }

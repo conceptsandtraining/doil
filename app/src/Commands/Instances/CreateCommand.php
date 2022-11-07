@@ -7,7 +7,6 @@ namespace CaT\Doil\Commands\Instances;
 use Closure;
 use RuntimeException;
 use CaT\Doil\Lib\Git\Git;
-use CaT\Doil\Lib\CLIHelper;
 use CaT\Doil\Commands\Repo\Repo;
 use CaT\Doil\Lib\Posix\Posix;
 use CaT\Doil\Lib\Linux\Linux;
@@ -26,8 +25,6 @@ use Symfony\Component\Console\Question\ConfirmationQuestion;
 
 class CreateCommand extends Command
 {
-    use CLIHelper;
-
     protected const LOCAL_REPO_PATH = "/.doil/repositories";
     protected const GLOBAL_REPO_PATH = "/usr/local/share/doil/repositories";
     protected const LOCAL_INSTANCES_PATH = "/.doil/instances";
@@ -632,5 +629,11 @@ class CreateCommand extends Command
         }
 
         return "composer";
+    }
+
+    public function generatePassword(int $length) : string
+    {
+        $bytes = openssl_random_pseudo_bytes($length);
+        return bin2hex($bytes);
     }
 }

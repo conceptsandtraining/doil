@@ -6,7 +6,6 @@ namespace CaT\Doil\Commands\Pack;
 
 use Closure;
 use RuntimeException;
-use CaT\Doil\Lib\CLIHelper;
 use CaT\Doil\Lib\Posix\Posix;
 use CaT\Doil\Lib\Docker\Docker;
 use CaT\Doil\Lib\ConsoleOutput\Writer;
@@ -24,8 +23,6 @@ use Symfony\Component\Console\Question\ConfirmationQuestion;
 
 class ImportCommand extends Command
 {
-    use CLIHelper;
-
     protected static $defaultName = "pack:import";
     protected static $defaultDescription =
         "With this command doil is able to import an archive of doilpack into an ILIAS installation. " .
@@ -158,7 +155,7 @@ class ImportCommand extends Command
         }
 
         if ($this->filesystem->exists($path . "/README.md")) {
-            $mysql_password = $this->grepMysqlPasswordFromFile($path . "/README.md");
+            $mysql_password = $this->filesystem->grepMysqlPasswordFromFile($path . "/README.md");
         } else {
             $mysql_password = $this->askForMysqlPassword($input, $output);
         }

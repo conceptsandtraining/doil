@@ -6,7 +6,6 @@ namespace CaT\Doil\Commands\Repo;
 
 use Closure;
 use RuntimeException;
-use CaT\Doil\Lib\CLIHelper;
 use CaT\Doil\Lib\ConsoleOutput\Writer;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputOption;
@@ -16,8 +15,6 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 class UpdateCommand extends Command
 {
-    use CLIHelper;
-
     protected static $defaultName = "repo:update";
     protected static $defaultDescription =
         "Updates a local repository so that it won't be fetched when an instances is created.";

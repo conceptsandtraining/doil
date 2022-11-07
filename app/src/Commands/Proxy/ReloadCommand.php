@@ -4,7 +4,6 @@
 
 namespace CaT\Doil\Commands\Proxy;
 
-use CaT\Doil\Lib\CLIHelper;
 use CaT\Doil\Lib\Docker\Docker;
 use CaT\Doil\Lib\ConsoleOutput\Writer;
 use Symfony\Component\Console\Command\Command;
@@ -13,8 +12,6 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 class ReloadCommand extends Command
 {
-    use CLIHelper;
-
     protected const PROXY_PATH = "/usr/local/lib/doil/server/proxy";
 
     protected static $defaultName = "proxy:reload";

@@ -6,14 +6,11 @@ namespace CaT\Doil\Commands\Repo;
 
 use RuntimeException;
 use CaT\Doil\Lib\Git\Git;
-use CaT\Doil\Lib\CLIHelper;
 use CaT\Doil\Lib\Posix\Posix;
 use CaT\Doil\Lib\FileSystem\Filesystem;
 
 class RepoManager
 {
-    use CLIHelper;
-
     protected const LOCAL_REPO_CONFIG_PATH = "/.doil/config/repositories.json";
     protected const GLOBAL_REPO_CONFIG_PATH = "/etc/doil/repositories.json";
     protected const LOCAL_REPO_PATH = "/.doil/repositories";

@@ -4,7 +4,6 @@
 
 namespace CaT\Doil\Commands\Instances;
 
-use CaT\Doil\Lib\CLIHelper;
 use CaT\Doil\Lib\Posix\Posix;
 use CaT\Doil\Lib\Docker\Docker;
 use CaT\Doil\Lib\FileSystem\Filesystem;
@@ -16,8 +15,6 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 class LoginCommand extends Command
 {
-    use CLIHelper;
-
     protected static $defaultName = "instances:login";
     protected static $defaultDescription =
         "This command lets you log into the running docker container " .
@@ -82,5 +79,19 @@ class LoginCommand extends Command
         }
 
         return Command::FAILURE;
+    }
+
+    public function hasDockerComposeFile(string $path, OutputInterface $output) : bool
+    {
+        if (file_exists($path . "/docker-compose.yml")) {
+            return true;
+        }
+
+        $output->writeln("<fg=red>Error:</>");
+        $output->writeln("\tCan't find a suitable docker-compose file in this directory '$path'.");
+        $output->writeln("\tIs this the right directory?");
+        $output->writeln("\tSupported filenames: docker-compose.yml");
+
+        return false;
     }
 }
