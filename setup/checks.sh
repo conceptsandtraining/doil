@@ -42,6 +42,19 @@ function doil_check_user_in_docker_group() {
   return 0
 }
 
+# checks if root has docker-compose
+#
+# return 255 if root has no docker-compose
+# return 0 if root has docker-compose
+function doil_check_root_has_docker_compose() {
+  DOCKERCOMPOSE=$(docker-compose -v | grep version | wc -l)
+  if [[ ${DOCKERCOMPOSE} -ne 1 ]]
+    then
+      return 255
+    fi
+  return 0
+}
+
 # checks if the host system is supported
 #
 # return 255 if system is not supported

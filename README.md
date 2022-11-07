@@ -38,7 +38,7 @@ Removal Tips:
 however **doil** needs [Docker](https://www.docker.com/) in order to work:
 
 * docker version >= 19.03
-* docker-compose version >= 1.25.0
+* docker-compose version >= 1.25.0 (ensure that root has access too)
 * php version => 7.4
 * php*.*-zip
 * php*.*-dom
