@@ -13,6 +13,7 @@ interface Filesystem
 
     public function getCurrentWorkingDirectory() : string;
     public function getFilenameFromPath(string $path) : string;
+    public function getDirFromPath(string $path) : string;
     public function exists(string $path) : bool;
     public function getFilesInPath(string $path) : array;
     public function remove(string $path) : void;

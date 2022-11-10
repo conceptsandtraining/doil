@@ -8,6 +8,7 @@ use Closure;
 use RuntimeException;
 use CaT\Doil\Lib\Posix\Posix;
 use CaT\Doil\Lib\Docker\Docker;
+use CaT\Doil\Lib\ProjectConfig;
 use CaT\Doil\Lib\ConsoleOutput\Writer;
 use CaT\Doil\Commands\Repo\RepoManager;
 use CaT\Doil\Lib\FileSystem\Filesystem;
@@ -15,11 +16,11 @@ use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Question\Question;
-use CaT\Doil\Lib\ConsoleOutput\NullOutputWrapper;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Question\ConfirmationQuestion;
+use Symfony\Component\Filesystem\Exception\FileNotFoundException;
 
 class ImportCommand extends Command
 {
@@ -83,6 +84,8 @@ class ImportCommand extends Command
             $flag = " -g";
         }
 
+        $output->writeln("Importing instance $instance");
+
         if (! $this->filesystem->exists($path)) {
             if (! $this->confirmCreateNewInstance($input, $output, $instance)) {
                 $output->writeln("Import aborted!");
@@ -91,18 +94,28 @@ class ImportCommand extends Command
             $create = true;
         }
 
-        $this->writer->beginBlock($output, "Importing instance $instance");
-
-        $unpacked = $this->filesystem->getFilenameFromPath($package);
-        $this->filesystem->unzip($package, $unpacked);
+        $dir = $this->filesystem->getDirFromPath($package);
+        $target = $this->filesystem->getFilenameFromPath($package);
+        $this->filesystem->unzip($package, $target);
+        $unpacked = $dir . DIRECTORY_SEPARATOR . $target;
+        $delete_path = $unpacked;
 
         if ($create) {
-            $this->writer->beginBlock(
-                $output,
-                "Creating instance $instance. This will take a long time. Please be patient"
-            );
-            $project_config = $this->filesystem->readFromJsonFile($unpacked . "/conf/project_config.json");
-            $project_config = array_shift($project_config);
+            // This is very ugly, but necessary for importing old doil export zips.
+            $sql_dump = "";
+            if ($this->filesystem->exists($unpacked . "/conf/project_config.json")) {
+                $project_config = $this->filesystem->readFromJsonFile($unpacked . "/conf/project_config.json");
+                $project_config = array_shift($project_config);
+            } else if ($this->filesystem->exists("$unpacked/$target/conf/doil.conf")) {
+                $unpacked = $unpacked . DIRECTORY_SEPARATOR . $target;
+                $project_config = $this->readOldProjectConfig("$unpacked/conf/doil.conf");
+                $sql_dump = $unpacked . DIRECTORY_SEPARATOR . "var/ilias/ilias.sql";
+            } else if ($this->filesystem->exists("$unpacked/conf/doil.conf")) {
+                $project_config = $this->readOldProjectConfig("$unpacked/conf/doil.conf");
+                $sql_dump = $unpacked . DIRECTORY_SEPARATOR . "var/ilias/ilias.sql";
+            } else {
+                throw new FileNotFoundException("Can not found doil config file in package.");
+            }
 
             $repo = $this->repo_manager->getEmptyRepo();
             $repo = $repo
@@ -133,8 +146,7 @@ class ImportCommand extends Command
             ];
 
             $create_input = new ArrayInput($args);
-            $create_command->run($create_input, new NullOutputWrapper());
-            $this->writer->endBlock();
+            $create_command->run($create_input, $output);
         }
 
         if ($this->docker->isInstanceUp($path)) {
@@ -146,6 +158,9 @@ class ImportCommand extends Command
         $this->filesystem->copy($unpacked . "/var/www/html/ilias.ini.php", $path . "/volumes/ilias/ilias.ini.php");
         $this->filesystem->copyDirectory($unpacked . "/var/www/html/data", $path . "/volumes/ilias/data");
         $this->filesystem->copyDirectory($unpacked . "/var/ilias/data", $path . "/volumes/data");
+        if ($sql_dump != "") {
+            $this->filesystem->copy($sql_dump, $path . "/volumes/data/ilias.sql");
+        }
         $this->writer->endBlock();
 
         $this->writer->beginBlock($output, "Importing database");
@@ -194,6 +209,16 @@ class ImportCommand extends Command
         $this->filesystem->replaceLineInFile($location, "/^pass =.*/", "pass = \"" . $mysql_password . "\"");
         $this->writer->endBlock();
 
+        $this->writer->beginBlock($output, "Apply ilias config");
+        $this->docker->executeCommand(
+            $path,
+            $instance,
+            "bash",
+            "-c",
+            "php /var/www/html/setup/setup.php update /var/ilias/data/ilias-config.json -y"
+        );
+        $this->writer->endBlock();
+
         $this->writer->beginBlock($output, "Setting permissions");
         $this->docker->stopContainerByDockerCompose($path);
         $this->docker->startContainerByDockerCompose($path);
@@ -206,7 +231,7 @@ class ImportCommand extends Command
         $this->writer->endBlock();
 
         $this->writer->beginBlock($output, "Cleanup");
-        $this->filesystem->remove($unpacked);
+        $this->filesystem->remove($delete_path);
         $this->docker->executeCommand(
             $path,
             $instance,
@@ -215,8 +240,6 @@ class ImportCommand extends Command
             "rm /var/ilias/data/ilias.sql"
         );
         $this->docker->stopContainerByDockerCompose($path);
-        $this->writer->endBlock();
-
         $this->writer->endBlock();
 
         $output->writeln("Please start the imported instance by <fg=gray>doil up $instance $flag</>.");
@@ -264,5 +287,22 @@ class ImportCommand extends Command
         $question->setNormalizer(function($v) { return $v ? trim($v) : ''; });
         $question->setValidator($this->checkName());
         return $helper->ask($input, $output, $question);
+    }
+
+    protected function readOldProjectConfig(string $path) : ProjectConfig
+    {
+        $project_name = explode("\"", $this->filesystem->getLineInFile($path, "PROJECT_NAME"));
+        $project_repository = explode("\"", $this->filesystem->getLineInFile($path, "PROJECT_REPOSITORY"));
+        $project_repository_url = explode("\"", $this->filesystem->getLineInFile($path, "PROJECT_REPOSITORY_URL"));
+        $project_branch = explode("\"", $this->filesystem->getLineInFile($path, "PROJECT_BRANCH"));
+        $project_php_version = explode("\"", $this->filesystem->getLineInFile($path, "PROJECT_PHP_VERSION"));
+
+        return new ProjectConfig(
+            $project_name[1],
+            $project_repository[1],
+            $project_branch[1],
+            $project_repository_url[1],
+            $project_php_version[1]
+        );
     }
 }

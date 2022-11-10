@@ -1,5 +1,17 @@
 # Changelog
 
+## 20221110
+
+* reorganize folder structure
+* refactored commands, using php symfony console as base system
+* add php unit tests
+* change the way commands are called on cli (see [README.md](https://github.com/conceptsandtraining/doil#doil---create-ilias-development-environments-with-docker-and-ilias))
+* add requirements checks for the setup
+* update README.md
+* remove Update.sh for this version
+* doil pack:import can also import doil exports from older doil versions
+* fixed a lot of stability bugs
+
 ## 20220727
 
 * fixed several bugs regarding salt and proxy integration

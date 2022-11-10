@@ -123,7 +123,6 @@ then
   exit
 fi
 
-exit
 # status for check requirements
 doil_status_okay
 

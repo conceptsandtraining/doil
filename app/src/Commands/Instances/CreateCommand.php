@@ -122,7 +122,7 @@ class CreateCommand extends Command
             $this->git->cloneBare($options["repo_url"], $options["repo_path"]);
             $this->writer->endBlock();
 
-            $branches = $this->getBranches($output, $options["repo_path"], $options["repo"]);
+            $branches = $this->getBranches($output, $options["repo_path"], $options["repo_url"]);
 
             if (! in_array($options["branch"], $branches)) {
                 throw new RuntimeException($options["branch"] . " is not a branch from " . $options["repo_url"]);
@@ -304,7 +304,7 @@ class CreateCommand extends Command
         }
         $this->writer->endBlock();
 
-        $this->docker->executeDockerCommand($instance_name, "mv /root/.ssh/config /root/.ssh/config_bck");
+        $this->docker->executeDockerCommand($instance_name, "[ -f /root/.ssh/config ] && mv /root/.ssh/config /root/.ssh/config_bck");
 
         // apply base state
         $this->writer->beginBlock($output, "Apply base state");
@@ -351,7 +351,7 @@ class CreateCommand extends Command
 
         // finalizing docker image
         $this->writer->beginBlock($output, "Finalizing docker image");
-        $this->docker->executeDockerCommand($instance_name, "mv /root/.ssh/config_bck /root/.ssh/config");
+        $this->docker->executeDockerCommand($instance_name, "[ -f /root/.ssh/config_bck ] && mv /root/.ssh/config_bck /root/.ssh/config");
         $this->docker->commit($instance_name);
         $this->writer->endBlock();
 
