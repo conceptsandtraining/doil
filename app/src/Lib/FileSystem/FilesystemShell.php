@@ -30,6 +30,11 @@ class FilesystemShell implements Filesystem
         return pathinfo($path, PATHINFO_FILENAME);
     }
 
+    public function getDirFromPath(string $path) : string
+    {
+        return pathinfo(realpath($path), PATHINFO_DIRNAME);
+    }
+
     public function exists(string $path) : bool
     {
         return $this->symfony_file_system->exists($path);

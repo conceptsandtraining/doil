@@ -154,7 +154,7 @@ class DockerShell implements Docker
             $name . "_persistent"
         ];
 
-        $this->run($cmd);
+        $this->runTTYQuiet($cmd);
     }
 
     public function getImageIdsByName(string $name) : array
