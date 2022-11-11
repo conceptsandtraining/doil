@@ -336,7 +336,7 @@ class DockerShell implements Docker
             "doil_saltmain",
             "bash",
             "-c",
-            "salt \"$name\" grains.set \"$key\" \"$value\""
+            "salt \"$name\" grains.setval \"$key\" \"$value\""
         ];
 
         $this->runTTY($cmd);

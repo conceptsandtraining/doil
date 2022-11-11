@@ -293,18 +293,21 @@ class CreateCommand extends Command
         $this->writer->beginBlock($output, "Setting up instance configuration");
         $mysql_password = $this->generatePassword(16);
         $cron_password = $this->generatePassword(16);
-        $this->docker->setGrain($instance_salt_name, "mysql_password", $mysql_password);
-        $this->docker->setGrain($instance_salt_name, "cron_password", $cron_password);
         $host = explode("=", $this->filesystem->getLineInFile("/etc/doil/doil.conf", "host"));
+        $this->docker->setGrain($instance_salt_name, "mysql_password", $mysql_password);
+        sleep(1);
+        $this->docker->setGrain($instance_salt_name, "cron_password", $cron_password);
+        sleep(1);
         $this->docker->setGrain($instance_salt_name, "doil_domain", "http://" . $host[1] . "/" . $options["name"]);
+        sleep(1);
         $this->docker->setGrain($instance_salt_name, "doil_project_name", $options["name"]);
+        sleep(1);
         $this->docker->setGrain($instance_salt_name, "doil_host_system", "linux");
         if ($this->linux->isWSL()) {
             $this->docker->setGrain($instance_salt_name, "doil_host_system", "windows");
         }
+        $this->docker->executeDockerCommand("doil_saltmain", "salt \"" . $instance_salt_name . "\" saltutil.refresh_grains");
         $this->writer->endBlock();
-
-        $this->docker->executeDockerCommand($instance_name, "[ -f /root/.ssh/config ] && mv /root/.ssh/config /root/.ssh/config_bck");
 
         // apply base state
         $this->writer->beginBlock($output, "Apply base state");
@@ -351,7 +354,6 @@ class CreateCommand extends Command
 
         // finalizing docker image
         $this->writer->beginBlock($output, "Finalizing docker image");
-        $this->docker->executeDockerCommand($instance_name, "[ -f /root/.ssh/config_bck ] && mv /root/.ssh/config_bck /root/.ssh/config");
         $this->docker->commit($instance_name);
         $this->writer->endBlock();
 
