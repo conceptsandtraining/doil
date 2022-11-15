@@ -196,7 +196,7 @@ want to add a rotation to this logfile.
 
 * **doil** works on Windows with the WSL2 and Ubuntu 20.10 enabled. Due to network restrictions you
   need to change the host to `localhost` via the doil proxy settings:
-  `doil system:proxy host localhost`
+  `doil proxy:host localhost`
 
 ## Known Problems
 
@@ -204,7 +204,7 @@ want to add a rotation to this logfile.
 
 Sometimes it is possible that the proxy server doesn't accept the configuration. This results
 in a 404 when heading to your instance after using `doil up`. To fix this you just need to restart
-the proxy server with `doil system:proxy restart`. If the 404 still occurs restart your instance
+the proxy server with `doil proxy:restart`. If the 404 still occurs restart your instance
 with `doil down` and `doil up`.
 
 ### The key not ready loop
@@ -213,8 +213,8 @@ While creating an instance or using `doil apply` it is possible that there will 
 loop. This loop tries to find a certain key in the salt main server. To fix this issue let the loop
 run and open a new terminal and do following steps:
 
-* `doil system:salt prune`
-* `doil system:salt restart`
+* `doil salt:prune`
+* `doil salt:restart`
 * `doil down <instance_name>`
 * `doil up <instance_name>`
 
