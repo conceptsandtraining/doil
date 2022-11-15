@@ -56,12 +56,11 @@ class UpCommandTest extends TestCase
             ->willReturn(["foo1", "foo2"])
         ;
         $docker
-            ->expects($this->exactly(3))
+            ->expects($this->exactly(2))
             ->method("executeDockerCommand")
             ->withConsecutive(
                 ["foo1", "supervisorctl start startup"],
-                ["foo2", "supervisorctl start startup"],
-                ["doil_proxy", "supervisorctl start startup"],
+                ["foo2", "supervisorctl start startup"]
             )
         ;
 
