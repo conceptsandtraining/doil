@@ -42,15 +42,14 @@ class UpCommand extends Command
         sleep(3);
         $instances = array_filter($this->docker->getRunningInstanceNames());
         foreach ($instances as $instance) {
+            if ($instance == "doil_saltmain" || $instance == "doil_postfix") {
+                continue;
+            }
             $this->docker->executeDockerCommand(
                 $instance,
                 "supervisorctl start startup"
             );
         }
-        $this->docker->executeDockerCommand(
-            "doil_proxy",
-            "supervisorctl start startup"
-        );
         $this->writer->endBlock();
 
         return Command::SUCCESS;
