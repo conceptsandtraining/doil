@@ -463,7 +463,7 @@ class CreateCommand extends Command
         $options["phpversion"] = $helper->ask($input, $output, $question);
 
         // Target
-        $question = new Question("Please enter a target where doil should install " . $options["name"] . ". Leave blank for actual directory. : ");
+        $question = new Question("Please enter a target where doil should install " . $options["name"] . ". Leave blank for current directory. : ");
         $question->setNormalizer($this->normalizeTarget());
         $question->setValidator($this->checkTarget());
         $options["target"] = $helper->ask($input, $output, $question);
