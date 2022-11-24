@@ -38,6 +38,15 @@ function doil_system_add_group() {
   return 0
 }
 
+function doil_system_add_user_to_doil_group() {
+  id -nG $SUDO_USER | grep -qw 'doil'
+    if [[ $? -ne 0 ]]
+      then
+        usermod -a -G doil ${SUDO_USER}
+      fi
+    return 0
+}
+
 function doil_system_create_folder() {
 
   if [ ! -d /usr/local/lib/doil ]
@@ -207,7 +216,6 @@ function doil_system_setup_userconfig() {
   fi
 
   chown -R ${SUDO_USER}:${SODU_USER} "${HOME}/.doil"
-  usermod -a -G doil ${SUDO_USER}
 
   USEREXISTS=$(grep "${SUDO_USER}" /etc/doil/user.json)
   if [[ -z ${USEREXISTS} ]]
