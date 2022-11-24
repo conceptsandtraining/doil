@@ -58,6 +58,19 @@ function doil_check_user_in_docker_group() {
   return 0
 }
 
+# checks if user is in doil group
+#
+# return 255 if user is not in doil group
+# return 0 if user is in doil group
+function doil_check_user_in_doil_group() {
+  id -nG $SUDO_USER | grep -qw 'doil'
+  if [[ $? -ne 0 ]]
+    then
+      return 255
+    fi
+  return 0
+}
+
 # checks if root has docker-compose
 #
 # return 255 if root has no docker-compose

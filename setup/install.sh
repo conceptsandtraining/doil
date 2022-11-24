@@ -25,8 +25,7 @@ doil_status_send_message "Checking requirements"
 
 # sudo user check
 doil_check_sudo
-CHECK_SUDO=$?
-if [[ ${CHECK_SUDO} -ne 0 ]]
+if [[ $? -ne 0 ]]
 then
   doil_status_failed
   doil_status_send_error "REQUIREMENT ERROR" "Please execute this script as sudo user!"
@@ -44,8 +43,7 @@ fi
 
 # sudo user in docker group
 doil_check_user_in_docker_group
-CHECK_DOCKER_GROUP=$?
-if [[ ${CHECK_DOCKER_GROUP} -ne 0 ]]
+if [[ $? -ne 0 ]]
 then
   doil_status_failed
   doil_status_send_error "REQUIREMENT ERROR" "Please ensure that $SUDO_USER is in the docker group!"
@@ -54,8 +52,7 @@ fi
 
 # sudo user in docker group
 doil_check_root_has_docker_compose
-CHECK_DOCKER_COMPOSE=$?
-if [[ ${CHECK_DOCKER_COMPOSE} -ne 0 ]]
+if [[ $? -ne 0 ]]
 then
   doil_status_failed
   doil_status_send_error "REQUIREMENT ERROR" "Please ensure that root has access to docker-compose!"
@@ -64,8 +61,7 @@ fi
 
 # host check
 doil_check_host
-CHECK_HOST=$?
-if [[ ${CHECK_HOST} -ne 0 ]]
+if [[ $? -ne 0 ]]
 then
   doil_status_failed
   doil_status_send_error "REQUIREMENT ERROR" "Your operating system is not supported!"
@@ -74,8 +70,7 @@ fi
 
 # docker version check
 doil_check_docker_version
-CHECK_DOCKER=$?
-if [[ ${CHECK_DOCKER} -ne 0 ]]
+if [[ $? -ne 0 ]]
 then
   doil_status_failed
   doil_status_send_error "REQUIREMENT ERROR" "Your docker version is not supported!"
@@ -84,8 +79,7 @@ fi
 
 # php version check
 doil_check_php_version
-CHECK_PHP=$?
-if [[ ${CHECK_PHP} -ne 0 ]]
+if [[ $? -ne 0 ]]
 then
   doil_status_failed
   doil_status_send_error "REQUIREMENT ERROR" "Your php version is not supported!"
@@ -94,8 +88,7 @@ fi
 
 # php module dom check
 doil_check_php_module_dom
-CHECK_PHP_MODULE_DOM=$?
-if [[ ${CHECK_PHP_MODULE_DOM} -ne 0 ]]
+if [[ $? -ne 0 ]]
 then
   doil_status_failed
   doil_status_send_error "REQUIREMENT ERROR" "Missing php module dom!"
@@ -104,8 +97,7 @@ fi
 
 # php module zip check
 doil_check_php_module_zip
-CHECK_PHP_MODULE_ZIP=$?
-if [[ ${CHECK_PHP_MODULE_ZIP} -ne 0 ]]
+if [[ $? -ne 0 ]]
 then
   doil_status_failed
   doil_status_send_error "REQUIREMENT ERROR" "Missing php module zip!"
@@ -114,8 +106,7 @@ fi
 
 # composer installed check
 doil_check_composer
-COMPOSER=$?
-if [[ ${COMPOSER} -ne 0 ]]
+if [[ $? -ne 0 ]]
 then
   doil_status_failed
   doil_status_send_error "REQUIREMENT ERROR" "Missing composer!"
@@ -124,8 +115,7 @@ fi
 
 # git installed check
 doil_check_git
-GIT=$?
-if [[ ${GIT} -ne 0 ]]
+if [[ $? -ne 0 ]]
 then
   doil_status_failed
   doil_status_send_error "REQUIREMENT ERROR" "Missing git!"
@@ -135,10 +125,28 @@ fi
 # status for check requirements
 doil_status_okay
 
+doil_status_send_message "Adding group 'doil'"
+doil_system_add_group
+if [[ $? -ne 0 ]]
+then
+  doil_status_failed
+  exit
+fi
+doil_status_okay
+
+doil_system_add_user_to_doil_group
+doil_check_user_in_doil_group
+if [[ $? -ne 0 ]]
+then
+  doil_status_failed
+  doil_status_send_error "INFO" "Please log out and log in to the host system again to ensure\n\tthat your user belongs to the doil group and start install again."
+  exit
+fi
+doil_status_okay
+
 doil_status_send_message_nl "Set host variable"
 doil_set_host
-CHECK=$?
-if [[ ${CHECK} -ne 0 ]]
+if [[ $? -ne 0 ]]
 then
   doil_status_failed
   exit
@@ -147,29 +155,16 @@ doil_status_okay
 
 doil_status_send_message "Creating log file"
 doil_system_setup_log
-CHECK=$?
-if [[ ${CHECK} -ne 0 ]]
+if [[ $? -ne 0 ]]
 then
   doil_status_failed
   exit
 fi
 doil_status_okay
-
-doil_status_send_message "Adding group"
-doil_system_add_group
-CHECK=$?
-if [[ ${CHECK} -ne 0 ]]
-then
-  doil_status_failed
-  exit
-fi
-doil_status_okay
-
 
 doil_status_send_message "Creating mandatory folder"
 doil_system_create_folder
-CHECK=$?
-if [[ ${CHECK} -ne 0 ]]
+if [[ $? -ne 0 ]]
 then
   doil_status_failed
   exit
@@ -178,8 +173,7 @@ doil_status_okay
 
 doil_status_send_message "Copy doil system"
 doil_system_copy_doil
-CHECK=$?
-if [[ ${CHECK} -ne 0 ]]
+if [[ $? -ne 0 ]]
 then
   doil_status_failed
   exit
@@ -188,8 +182,7 @@ doil_status_okay
 
 doil_status_send_message "Run composer"
 doil_system_run_composer
-CHECK=$?
-if [[ ${CHECK} -ne 0 ]]
+if [[ $? -ne 0 ]]
 then
   doil_status_failed
   exit
@@ -198,8 +191,7 @@ doil_status_okay
 
 doil_status_send_message "Setting up basic configuration"
 doil_system_setup_config
-CHECK=$?
-if [[ ${CHECK} -ne 0 ]]
+if [[ $? -ne 0 ]]
 then
   doil_status_failed
   exit
@@ -210,8 +202,7 @@ if [[ "${HOST}" == "doil" ]]
 then
   doil_status_send_message "Setting up IP"
   doil_system_setup_ip
-  CHECK=$?
-  if [[ ${CHECK} -ne 0 ]]
+  if [[ $? -ne 0 ]]
   then
     doil_status_failed
     exit
@@ -221,8 +212,7 @@ fi
 
 doil_status_send_message "Setting up access rights"
 doil_system_setup_access
-CHECK=$?
-if [[ ${CHECK} -ne 0 ]]
+if [[ $? -ne 0 ]]
 then
   doil_status_failed
   exit
@@ -231,8 +221,7 @@ doil_status_okay
 
 doil_status_send_message "Configuring user specific data"
 doil_system_setup_userconfig
-CHECK=$?
-if [[ ${CHECK} -ne 0 ]]
+if [[ $? -ne 0 ]]
 then
   doil_status_failed
   exit
