@@ -29,6 +29,22 @@ function doil_check_sudo() {
   return 0
 }
 
+# checks if the the ports 80 and 443 are free
+#
+# return 255 if one port isn't free
+# return 0 if both ports are free
+function doil_check_ports() {
+  lsof -i:80 -P -n | grep LISTEN > /dev/null 2>&1
+  P80=$?
+  lsof -i:443 -P -n | grep LISTEN > /dev/null 2>&1
+  P443=$?
+	if [[ "${P80}" -eq 1 && "${P443}" -eq 1 ]]
+	then
+	  return 0
+	fi
+  return 255
+}
+
 # checks if user is in docker group
 #
 # return 255 if user is not in docker group

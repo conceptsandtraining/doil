@@ -33,6 +33,15 @@ then
   exit
 fi
 
+# sudo user check
+doil_check_ports
+if [[ $? -ne 0 ]]
+then
+  doil_status_failed
+  doil_status_send_error "REQUIREMENT ERROR" "Please ensure that port 80 and port 443 are available and free!"
+  exit
+fi
+
 # sudo user in docker group
 doil_check_user_in_docker_group
 CHECK_DOCKER_GROUP=$?
