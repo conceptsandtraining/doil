@@ -65,14 +65,15 @@ After you installed doil the basic system is ready to go. To get an instance of
 ILIAS running you simply need to do following steps:
 
 1. Head to a folder where you want to store your project. Usually `~/Projects`
-1. Enter following command: `doil create -n -e ilias -r ilias -b release_7 -p 7.4 -u`
+1. Enter following command: `doil create -n -e ilias7 -r ilias -b release_7 -p 7.4 -u`
 
-Don't worry, this will take a while. It creates and instance of ILIAS named `ilias`
+Don't worry, this will take a while. It creates and instance of ILIAS named `ilias7`
 in your location from the repository `ilias` (see `doil repo:list`) with the known
 branch `release_7` and the PHP version `7.4`.
+Be aware, there is no check wich php version matches on which ILIAS version.
 
-After this job is finished you can start your instance with `doil up ilias` and head
-to `http://doil/ilias/` to see your fresh ILIAS installation.
+After this job is finished you can start your instance with `doil up ilias7` and head
+to `http://doil/ilias7/` to see your fresh ILIAS installation.
 
 ### Help
 
