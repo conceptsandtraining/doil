@@ -109,7 +109,7 @@ function doil_system_copy_doil() {
 function doil_system_run_composer() {
 
   COMPOSER=$(which composer)
-  ${COMPOSER} -d /usr/local/lib/doil/app/ install -n -q
+  COMPOSER_ALLOW_SUPERUSER=1 ${COMPOSER} -d /usr/local/lib/doil/app/ install -n -q
 
   return 0
 }
