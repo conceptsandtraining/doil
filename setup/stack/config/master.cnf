@@ -652,10 +652,6 @@ file_roots:
     - /srv/salt/states/base
   dev:
     - /srv/salt/states/dev
-  php7.0:
-    - /srv/salt/states/php7.0
-  php7.1:
-    - /srv/salt/states/php7.1
   php7.2:
     - /srv/salt/states/php7.2
   php7.3:
@@ -664,6 +660,8 @@ file_roots:
     - /srv/salt/states/php7.4
   php8.0:
     - /srv/salt/states/php8.0
+  php8.1:
+    - /srv/salt/states/php8.1
   ilias:
     - /srv/salt/states/ilias
   ilias-postinstall:

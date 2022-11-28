@@ -18,6 +18,7 @@ php8.0:
     - pkgs:
       - libapache2-mod-php8.0
       - php-json
+      - php8.0-common
       - php8.0-mysql
       - php8.0-readline
       - php8.0-xsl
@@ -30,11 +31,14 @@ php8.0:
       - php8.0-curl
       - php8.0-gd
       - php8.0-xmlrpc
+      - php8.0-xml
+      - php8.0-opcache
 
 php7.0:
-  pkg.removed:
+  pkg.purged:
     - pkgs:
       - libapache2-mod-php7.0
+      - php7.0-common
       - php7.0-curl
       - php7.0-gd
       - php7.0-json
@@ -49,11 +53,14 @@ php7.0:
       - php7.0-bcmath
       - php7.0-imap
       - php7.0-xmlrpc
+      - php7.0-xml
+      - php7.0-opcache
 
 php7.1:
-  pkg.removed:
+  pkg.purged:
     - pkgs:
       - libapache2-mod-php7.1
+      - php7.1-common
       - php7.1-curl
       - php7.1-gd
       - php7.1-json
@@ -67,11 +74,14 @@ php7.1:
       - php7.1-bcmath
       - php7.1-imap
       - php7.1-xmlrpc
+      - php7.1-xml
+      - php7.1-opcache
 
 php7.2:
-  pkg.removed:
+  pkg.purged:
     - pkgs:
       - libapache2-mod-php7.2
+      - php7.2-common
       - php7.2-curl
       - php7.2-gd
       - php7.2-json
@@ -85,11 +95,14 @@ php7.2:
       - php7.2-bcmath
       - php7.2-imap
       - php7.2-xmlrpc
+      - php7.2-xml
+      - php7.2-opcache
 
 php7.3:
-  pkg.removed:
+  pkg.purged:
     - pkgs:
       - libapache2-mod-php7.3
+      - php7.3-common
       - php7.3-curl
       - php7.3-gd
       - php7.3-json
@@ -103,11 +116,14 @@ php7.3:
       - php7.3-bcmath
       - php7.3-imap
       - php7.3-xmlrpc
+      - php7.3-xml
+      - php7.3-opcache
 
 php7.4:
-  pkg.removed:
+  pkg.purged:
     - pkgs:
       - libapache2-mod-php7.4
+      - php7.4-common
       - php7.4-curl
       - php7.4-gd
       - php7.4-json
@@ -121,11 +137,14 @@ php7.4:
       - php7.4-bcmath
       - php7.4-imap
       - php7.4-xmlrpc
+      - php7.4-xml
+      - php7.4-opcache
 
 php8.1:
-  pkg.removed:
+  pkg.purged:
     - pkgs:
       - libapache2-mod-php8.1
+      - php8.1-common
       - php8.1-curl
       - php8.1-gd
       - php8.1-json
@@ -139,6 +158,8 @@ php8.1:
       - php8.1-bcmath
       - php8.1-imap
       - php8.1-xmlrpc
+      - php8.1-xml
+      - php8.1-opcache
 
 ini_filesize_apache2:
   cmd.run:
