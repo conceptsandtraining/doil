@@ -8,9 +8,12 @@ use CaT\Doil\Lib\Linux\Linux;
 use CaT\Doil\Lib\Posix\Posix;
 use CaT\Doil\Lib\ConsoleOutput\Writer;
 use Symfony\Component\Console\Command\Command;
+use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\Console\Question\ConfirmationQuestion;
+use Symfony\Component\Console\Exception\InvalidArgumentException;
 
 class DeleteCommand extends Command
 {
@@ -34,7 +37,10 @@ class DeleteCommand extends Command
 
     public function configure() : void
     {
-        $this->addArgument("name", InputArgument::REQUIRED, "Name of the user to delete");
+        $this
+            ->addArgument("name", InputArgument::OPTIONAL, "Name of the user to delete")
+            ->addOption("all", "a", InputOption::VALUE_NONE, "if is set all users will be deleted")
+        ;
     }
 
     public function execute(InputInterface $input, OutputInterface $output) : int
@@ -48,7 +54,42 @@ class DeleteCommand extends Command
         }
 
         $name = $input->getArgument("name");
+        $all = $input->getOption("all");
 
+        if (is_null($name) && ! $all) {
+            throw new InvalidArgumentException("Not enough arguments (missing: \"name\" or \"all\")");
+        }
+
+        if ($all) {
+            $users = $this->user_manager->getUsers();
+
+            if (count($users) == 0) {
+                $this->writer->error(
+                    $output,
+                    "No users found!",
+                    "Use <fg=gray>doil user:ls --help</> for more information."
+                );
+                return Command::FAILURE;
+            }
+
+            $helper = $this->getHelper("question");
+            $question = new ConfirmationQuestion("Please confirm that you want to delete ALL users [yN]: ", false);
+            if (!$helper->ask($input, $output, $question)) {
+                $output->writeln("Abort by user!");
+                return Command::FAILURE;
+            }
+
+            foreach ($users as $user) {
+                $this->deleteUser($output, $user->getName());
+            }
+            return Command::SUCCESS;
+        }
+
+        return $this->deleteUser($output, $name);
+    }
+
+    protected function deleteUser(OutputInterface $output, string $name) : int
+    {
         $home_dir = $this->posix->getHomeDirectoryByUserName($name);
 
         if (is_null($home_dir)) {
@@ -71,7 +112,7 @@ class DeleteCommand extends Command
             return Command::FAILURE;
         }
 
-        $this->writer->beginBlock($output, "Delete user from doil");
+        $this->writer->beginBlock($output, "Delete user $name from doil");
         $this->user_manager->deleteUser($user);
         $this->user_manager->deleteFileInfrastructure($home_dir);
         $this->linux->removeUserFromGroup($user->getName(), "doil");

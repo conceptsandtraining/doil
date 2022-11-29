@@ -43,46 +43,60 @@ class UpCommand extends Command
             ->setAliases(["up"])
             ->addArgument("instance", InputArgument::OPTIONAL, "Name of the instance to start")
             ->addOption("global", "g", InputOption::VALUE_NONE, "Determines if an instance is global or not")
+            ->addOption("all", "a", InputOption::VALUE_NONE, "If is set start all instances")
         ;
     }
 
     public function execute(InputInterface $input, OutputInterface $output) : int
     {
         $instance = $input->getArgument("instance");
+        $all = $input->getOption("all");
 
-        if (is_null($instance)) {
+        if (is_null($instance) && ! $all) {
             $path = $this->filesystem->getCurrentWorkingDirectory();
 
-            if (! $this->hasDockerComposeFile($path, $output)) {
-                return Command::FAILURE;
-            }
-
-            $instance = $this->filesystem->getFilenameFromPath($path);
-            if (! $this->docker->isInstanceUp($path)) {
-                $this->writer->beginBlock($output, "Start container $instance");
-                $this->docker->startContainerByDockerCompose($path);
-                $this->writer->endBlock();
-                return Command::SUCCESS;
-            }
-
-            $output->writeln("Nothing to do. Instance $instance is already up.");
-
-            return Command::SUCCESS;
+            return $this->startInstance(
+                $output,
+                $path,
+                $this->filesystem->getFilenameFromPath($path)
+            );
         }
 
         $home_dir = $this->posix->getHomeDirectory($this->posix->getUserId());
 
-        $path = "$home_dir/.doil/instances/$instance";
-        if ($input->getOption("global")) {
-            $path = "/usr/local/share/doil/instances/$instance";
+        $path = "/usr/local/share/doil/instances";
+        if (! $input->getOption("global")) {
+            $path = "$home_dir/.doil/instances";
         }
 
+        if ($all) {
+            $instances = $this->filesystem->getFilesInPath($path);
+            if (count($instances) == 0) {
+                $this->writer->error(
+                    $output,
+                    "No instances found!",
+                    "Use <fg=gray>doil instances:ls --help</> for more information."
+                );
+                return Command::FAILURE;
+            }
+
+            foreach ($instances as $i) {
+                $this->startInstance($output, $path . "/" . $i, $i);
+            }
+            return Command::SUCCESS;
+        }
+
+        return $this->startInstance($output, $path . "/" . $instance, $instance);
+    }
+
+    protected function startInstance(OutputInterface $output, string $path, string $instance) : int
+    {
         if (! $this->hasDockerComposeFile($path, $output)) {
             return Command::FAILURE;
         }
 
         if (! $this->docker->isInstanceUp($path)) {
-            $this->writer->beginBlock($output, "Start container $instance");
+            $this->writer->beginBlock($output, "Start instance $instance");
             $this->docker->startContainerByDockerCompose($path);
             $this->writer->endBlock();
             return Command::SUCCESS;
@@ -93,7 +107,7 @@ class UpCommand extends Command
         return Command::SUCCESS;
     }
 
-    public function hasDockerComposeFile(string $path, OutputInterface $output) : bool
+    protected function hasDockerComposeFile(string $path, OutputInterface $output) : bool
     {
         if (file_exists($path . "/docker-compose.yml")) {
             return true;

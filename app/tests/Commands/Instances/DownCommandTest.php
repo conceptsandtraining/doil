@@ -66,6 +66,12 @@ class DownCommandTest extends TestCase
 
         $docker
             ->expects($this->once())
+            ->method("isInstanceUp")
+            ->with("/tmp/doil/.doil/instances/master")
+            ->willReturn(true)
+        ;
+        $docker
+            ->expects($this->once())
             ->method("stopContainerByDockerCompose")
             ->with("/tmp/doil/.doil/instances/master")
         ;
@@ -131,6 +137,12 @@ class DownCommandTest extends TestCase
             ->willReturn("/home/doil")
         ;
 
+        $docker
+            ->expects($this->once())
+            ->method("isInstanceUp")
+            ->with("/home/doil/.doil/instances/foo_doil_test_98664")
+            ->willReturn(true)
+        ;
         $docker
             ->expects($this->once())
             ->method("stopContainerByDockerCompose")

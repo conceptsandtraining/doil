@@ -4,17 +4,17 @@
 
 namespace CaT\Doil\Commands\User;
 
-use RuntimeException;
 use CaT\Doil\Lib\Posix\Posix;
 use CaT\Doil\Lib\Linux\Linux;
 use PHPUnit\Framework\TestCase;
 use CaT\Doil\Lib\ConsoleOutput\Writer;
 use CaT\Doil\Lib\ConsoleOutput\CommandWriter;
 use Symfony\Component\Console\Tester\CommandTester;
+use Symfony\Component\Console\Exception\InvalidArgumentException;
 
 class DeleteCommandTest extends TestCase
 {
-    public function test_execute_without_name() : void
+    public function test_execute_without_name_and_all() : void
     {
         $user_manager = $this->createMock(UserManager::class);
         $posix = $this->createMock(Posix::class);
@@ -24,7 +24,7 @@ class DeleteCommandTest extends TestCase
         $command = new DeleteCommand($user_manager, $posix, $linux, $writer);
         $tester = new CommandTester($command);
 
-        $this->expectException(RuntimeException::class);
+        $this->expectException(InvalidArgumentException::class);
         $tester->execute([]);
     }
 
