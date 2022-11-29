@@ -9,10 +9,11 @@ use PHPUnit\Framework\TestCase;
 use CaT\Doil\Lib\ConsoleOutput\Writer;
 use CaT\Doil\Lib\ConsoleOutput\CommandWriter;
 use Symfony\Component\Console\Tester\CommandTester;
+use Symfony\Component\Console\Exception\InvalidArgumentException;
 
 class UpdateCommandTest extends TestCase
 {
-    public function test_execute_without_name() : void
+    public function test_execute_without_name_and_all() : void
     {
         $repo_manager = $this->createMock(RepoManager::class);
         $writer = new CommandWriter();
@@ -20,7 +21,7 @@ class UpdateCommandTest extends TestCase
         $command = new UpdateCommand($repo_manager, $writer);
         $tester = new CommandTester($command);
 
-        $this->expectException(RuntimeException::class);
+        $this->expectException(InvalidArgumentException::class);
         $tester->execute([]);
     }
 
