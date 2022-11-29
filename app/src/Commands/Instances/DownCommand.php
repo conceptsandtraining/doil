@@ -43,44 +43,70 @@ class DownCommand extends Command
             ->setAliases(["down"])
             ->addArgument("instance", InputArgument::OPTIONAL, "name of the instance to stop")
             ->addOption("global", "g", InputOption::VALUE_NONE, "determines if an instance is global or not")
+            ->addOption("all", "a", InputOption::VALUE_NONE, "If is set stop all instances")
         ;
     }
 
     public function execute(InputInterface $input, OutputInterface $output) : int
     {
         $instance = $input->getArgument("instance");
+        $all = $input->getOption("all");
 
-        if (is_null($instance)) {
+        if (is_null($instance) && ! $all) {
             $path = $this->filesystem->getCurrentWorkingDirectory();
 
-            if (! $this->hasDockerComposeFile($path, $output)) {
+            return $this->stopInstance(
+                $output,
+                $path,
+                $this->filesystem->getFilenameFromPath($path)
+            );
+        }
+
+        $path = "/usr/local/share/doil/instances";
+        if (! $input->getOption("global")) {
+            $home_dir = $this->posix->getHomeDirectory($this->posix->getUserId());
+            $path = "$home_dir/.doil/instances";
+        }
+
+        if ($all) {
+            $instances = $this->filesystem->getFilesInPath($path);
+            if (count($instances) == 0) {
+                $this->writer->error(
+                    $output,
+                    "No instances found!",
+                    "Use <fg=gray>doil instances:ls --help</> for more information."
+                );
                 return Command::FAILURE;
             }
 
+            foreach ($instances as $i) {
+                $this->stopInstance($output, $path . "/" . $i, $i);
+            }
+            return Command::SUCCESS;
+        }
+
+        return $this->stopInstance($output, $path . "/" . $instance, $instance);
+    }
+
+    protected function stopInstance(OutputInterface $output, string $path, string $instance) : int
+    {
+        if (! $this->hasDockerComposeFile($path, $output)) {
+            return Command::FAILURE;
+        }
+
+        if ($this->docker->isInstanceUp($path)) {
             $this->writer->beginBlock($output, "Stop instance $instance");
             $this->docker->stopContainerByDockerCompose($path);
             $this->writer->endBlock();
             return Command::SUCCESS;
         }
 
-        $path = "/usr/local/share/doil/instances/$instance";
-        if (! $input->getOption("global")) {
-            $home_dir = $this->posix->getHomeDirectory($this->posix->getUserId());
-            $path = "$home_dir/.doil/instances/$instance";
-        }
-
-        if (! $this->hasDockerComposeFile($path, $output)) {
-            return Command::FAILURE;
-        }
-
-        $this->writer->beginBlock($output, "Stop instance $instance");
-        $this->docker->stopContainerByDockerCompose($path);
-        $this->writer->endBlock();
+        $output->writeln("Nothing to do. Instance $instance is already down.");
 
         return Command::SUCCESS;
     }
 
-    public function hasDockerComposeFile(string $path, OutputInterface $output) : bool
+    protected function hasDockerComposeFile(string $path, OutputInterface $output) : bool
     {
         if (file_exists($path . "/docker-compose.yml")) {
             return true;

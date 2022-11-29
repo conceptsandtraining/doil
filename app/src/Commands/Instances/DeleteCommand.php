@@ -14,6 +14,7 @@ use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Question\ConfirmationQuestion;
+use Symfony\Component\Console\Exception\InvalidArgumentException;
 
 class DeleteCommand extends Command
 {
@@ -24,7 +25,7 @@ class DeleteCommand extends Command
 
     protected static $defaultName = "instances:delete";
     protected static $defaultDescription =
-        "This command deletes an instance. It will remove everything belonging " .
+        "This command deletes one or all instances. It will remove everything belonging " .
         "to the given instance including all its files, configuration and misc data."
     ;
 
@@ -47,7 +48,8 @@ class DeleteCommand extends Command
     {
         $this
             ->setAliases(["delete"])
-            ->addArgument("instance", InputArgument::REQUIRED, "name of the instance to delete")
+            ->addArgument("instance", InputArgument::OPTIONAL, "name of the instance to delete")
+            ->addOption("all", "a", InputOption::VALUE_NONE, "if is set all instances will be deleted")
             ->addOption("global", "g", InputOption::VALUE_NONE, "determines if an instance is global or not")
         ;
     }
@@ -55,16 +57,21 @@ class DeleteCommand extends Command
     public function execute(InputInterface $input, OutputInterface $output) : int
     {
         $instance = $input->getArgument("instance");
+        $all = $input->getOption("all");
+
+        if (is_null($instance) && ! $all) {
+            throw new InvalidArgumentException("Not enough arguments (missing: \"instance\" or \"all\")");
+        }
 
         $suffix = "global";
-        $path = "/usr/local/share/doil/instances/$instance";
+        $path = "/usr/local/share/doil/instances";
         if (! $input->getOption("global")) {
             $home_dir = $this->posix->getHomeDirectory($this->posix->getUserId());
             $suffix = "local";
-            $path = "$home_dir/.doil/instances/$instance";
+            $path = "$home_dir/.doil/instances";
         }
 
-        if (! $this->filesystem->exists($path)) {
+        if (! $all && ! $this->filesystem->exists($path . "/" . $instance)) {
             $this->writer->error(
                 $output,
                 "Instance not found!",
@@ -74,13 +81,48 @@ class DeleteCommand extends Command
         }
 
         $helper = $this->getHelper("question");
-        $question = new ConfirmationQuestion("Please confirm that you want to delete $instance [yN]: ", false);
+        $question_msg = "Please confirm that you want to delete $instance [yN]: ";
+        if ($all) {
+            $question_msg = "Please confirm that you want to delete ALL instances [yN]: ";
+        }
+        $question = new ConfirmationQuestion($question_msg, false);
 
         if (!$helper->ask($input, $output, $question)) {
             $output->writeln("Abort by user!");
             return Command::FAILURE;
         }
 
+        if ($all) {
+            $instances = $this->filesystem->getFilesInPath($path);
+            if (count($instances) == 0) {
+                $this->writer->error(
+                    $output,
+                    "No instances found!",
+                    "Use <fg=gray>doil instances:ls --help</> for more information."
+                );
+                return Command::FAILURE;
+            }
+
+            foreach ($instances as $i) {
+                $this->deleteInstance(
+                    $output,
+                    $path . "/" . $i,
+                    $i,
+                    $suffix
+                );
+            }
+            return Command::SUCCESS;
+        }
+
+        return $this->deleteInstance($output, $path . "/" . $instance, $instance, $suffix);
+    }
+
+    protected function deleteInstance(
+        OutputInterface $output,
+        string $path,
+        string $instance,
+        string $suffix
+    ) : int {
         $this->writer->beginBlock($output, "Delete instance $instance");
         if (! $this->docker->isInstanceUp($path)) {
             $this->docker->startContainerByDockerCompose($path);
