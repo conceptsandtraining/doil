@@ -12,28 +12,28 @@ php_repo_key:
     - name: wget -O /etc/apt/trusted.gpg.d/php.gpg https://packages.sury.org/php/apt.gpg
     - unless: test -f /etc/apt/trusted.gpg.d/php.gpg
 
-php7.4:
+php8.1:
   pkg.installed:
     - pkgs:
-      - libapache2-mod-php7.4
+      - libapache2-mod-php8.1
       - php-json
-      - php7.4-apcu
-      - php7.4-bcmath
-      - php7.4-cli
-      - php7.4-curl
-      - php7.4-gd
-      - php7.4-imap
-      - php7.4-mbstring
-      - php7.4-mysql
-      - php7.4-opcache
-      - php7.4-readline
-      - php7.4-soap
-      - php7.4-xml
-      - php7.4-xmlrpc
-      - php7.4-xsl
-      - php7.4-zip
+      - php8.1-apcu
+      - php8.1-bcmath
+      - php8.1-cli
+      - php8.1-curl
+      - php8.1-gd
+      - php8.1-imap
+      - php8.1-mbstring
+      - php8.1-mysql
+      - php8.1-opcache
+      - php8.1-readline
+      - php8.1-soap
+      - php8.1-xml
+      - php8.1-xmlrpc
+      - php8.1-xsl
+      - php8.1-zip
 
-{% for version in ['7.1','7.2','7.3','8.0','8.1'] %}
+{% for version in ['7.1','7.2','7.3','7.4','8.0'] %}
 php{{ version }}:
   pkg.purged:
     - refresh: true
@@ -60,24 +60,24 @@ php{{ version }}:
 
 ini_filesize_apache2:
   cmd.run:
-    - name: sed -i "/upload_max_filesize*/c upload_max_filesize = 4096M" /etc/php/7.4/apache2/php.ini
+    - name: sed -i "/upload_max_filesize*/c upload_max_filesize = 4096M" /etc/php/8.1/apache2/php.ini
 
 ini_filesize_cli:
   cmd.run:
-    - name: sed -i "/upload_max_filesize*/c upload_max_filesize = 4096M" /etc/php/7.4/cli/php.ini
+    - name: sed -i "/upload_max_filesize*/c upload_max_filesize = 4096M" /etc/php/8.1/cli/php.ini
 
 ini_postmax_apache2:
   cmd.run:
-    - name: sed -i "/post_max_size*/c post_max_size = 4096M" /etc/php/7.4/apache2/php.ini
+    - name: sed -i "/post_max_size*/c post_max_size = 4096M" /etc/php/8.1/apache2/php.ini
 
 ini_postmax_cli:
   cmd.run:
-    - name: sed -i "/post_max_size*/c post_max_size = 4096M" /etc/php/7.4/cli/php.ini
+    - name: sed -i "/post_max_size*/c post_max_size = 4096M" /etc/php/8.1/cli/php.ini
 
 a2_enable_php:
   module.run:
     - name: apache.a2enmod
-    - mod: php7.4
+    - mod: php8.1
 
 apache2_supervisor_signal:
   cmd.run:
