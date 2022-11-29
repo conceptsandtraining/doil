@@ -14,6 +14,7 @@ use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Question\ChoiceQuestion;
+use Symfony\Component\Console\Exception\InvalidArgumentException;
 
 class ApplyCommand extends Command
 {
@@ -42,8 +43,9 @@ class ApplyCommand extends Command
     {
         $this
             ->setAliases(["apply"])
-            ->addArgument("instance", InputArgument::REQUIRED, "name of the instance to apply state to")
+            ->addArgument("instance", InputArgument::OPTIONAL, "name of the instance to apply state to")
             ->addArgument("state", InputArgument::OPTIONAL, "name of the state to apply")
+            ->addOption("all", "a", InputOption::VALUE_NONE, "if is set apply state to all instances")
             ->addOption("no_commit", "nc", InputOption::VALUE_NONE, "determines if an instance should not be committed")
             ->addOption("global", "g", InputOption::VALUE_NONE, "determines if an instance is global or not")
         ;
@@ -54,16 +56,34 @@ class ApplyCommand extends Command
         $instance = $input->getArgument("instance");
         $state = $input->getArgument("state");
         $no_commit = $input->getOption("no_commit");
+        $all = $input->getOption("all");
+
+        if (is_null($instance) && ! $all) {
+            throw new InvalidArgumentException("Not enough arguments (missing: \"instance\" or \"all\")");
+        }
+
+        if (
+            $state == "mailservices" ||
+            $state == "proxyservices" ||
+            $state == "reactor"
+        ) {
+            $this->writer->error(
+                $output,
+                "State '$state' is not allowed!",
+                "This state is only for doil internal usage."
+            );
+            return Command::FAILURE;
+        }
 
         $suffix = "global";
-        $path = "/usr/local/share/doil/instances/$instance";
+        $path = "/usr/local/share/doil/instances";
         if (! $input->getOption("global")) {
             $home_dir = $this->posix->getHomeDirectory($this->posix->getUserId());
             $suffix = "local";
-            $path = "$home_dir/.doil/instances/$instance";
+            $path = "$home_dir/.doil/instances";
         }
 
-        if (! $this->filesystem->exists($path)) {
+        if (! $all && ! $this->filesystem->exists($path . "/" . $instance)) {
             $this->writer->error(
                 $output,
                 "Instance not found!",
@@ -74,6 +94,17 @@ class ApplyCommand extends Command
 
         if (is_null($state)) {
             $states = $this->filesystem->getFilesInPath(self::PATH_STATES);
+
+            $states = array_filter($states, function ($s) {
+               if (
+                   $s == "mailservices" ||
+                   $s == "proxyservices" ||
+                   $s == "reactor"
+               ) {
+                   return false;
+               }
+               return true;
+            });
 
             $helper = $this->getHelper("question");
             $question = new ChoiceQuestion(
@@ -93,22 +124,64 @@ class ApplyCommand extends Command
             $this->writer->error(
                 $output,
                 "The state $state does not exists!",
-                "Use <fg=gray>doil instances:apply --help</> for mor information."
+                "Use <fg=gray>doil instances:apply --help</> for more information."
             );
             return Command::FAILURE;
         }
 
-        if (!$this->docker->isInstanceUp($path)) {
-            $this->docker->startContainerByDockerCompose($path);
+        if ($all) {
+            $instances = $this->filesystem->getFilesInPath($path);
+            if (count($instances) == 0) {
+                $this->writer->error(
+                    $output,
+                    "No instances found!",
+                    "Use <fg=gray>doil instances:ls --help</> for more information."
+                );
+                return Command::FAILURE;
+            }
+
+            foreach ($instances as $i) {
+                $this->applyState(
+                    $output,
+                    $path . "/" . $i,
+                    $i,
+                    $state,
+                    $suffix,
+                    $no_commit
+                );
+            }
+            return Command::SUCCESS;
         }
 
-        $this->writer->beginBlock($output, "Waiting for salt key");
-        $salt_keys = [];
-        while (! in_array($instance . "." . $suffix, $salt_keys)) {
-            sleep(5);
-            $salt_keys = $this->docker->getSaltAcceptedKeys();
+        return $this->applyState(
+            $output,
+            $path . "/" . $instance,
+            $instance,
+            $state,
+            $suffix,
+            $no_commit
+        );
+    }
+
+    protected function applyState(
+        OutputInterface $output,
+        string $path,
+        string $instance,
+        string $state,
+        string $suffix,
+        bool $no_commit
+    ) : int {
+        if (! $this->docker->isInstanceUp($path)) {
+            $this->docker->startContainerByDockerCompose($path);
+
+            $this->writer->beginBlock($output, "Waiting for salt key");
+            $salt_keys = [];
+            while (! in_array($instance . "." . $suffix, $salt_keys)) {
+                sleep(5);
+                $salt_keys = $this->docker->getSaltAcceptedKeys();
+            }
+            $this->writer->endBlock();
         }
-        $this->writer->endBlock();
 
         $this->writer->beginBlock($output, "Apply state $state to $instance");
         $this->docker->applyState($instance . "." . $suffix, $state);

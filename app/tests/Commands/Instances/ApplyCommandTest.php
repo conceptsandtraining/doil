@@ -110,7 +110,7 @@ class ApplyCommandTest extends TestCase
         $execute_result = $tester->execute(["instance" => "master", "state" => "access"]);
         $output = $tester->getDisplay(true);
 
-        $result = "Error:\n\tThe state access does not exists!\n\tUse doil instances:apply --help for mor information.\n";
+        $result = "Error:\n\tThe state access does not exists!\n\tUse doil instances:apply --help for more information.\n";
         $this->assertEquals($result, $output);
         $this->assertEquals(1, $execute_result);
     }
@@ -150,11 +150,6 @@ class ApplyCommandTest extends TestCase
             ->method("isInstanceUp")
             ->with("/home/doil/.doil/instances/master")
             ->willReturn(true)
-        ;
-        $docker
-            ->expects($this->once())
-            ->method("getSaltAcceptedKeys")
-            ->willReturn(["master.local"])
         ;
         $docker
             ->expects($this->once())
@@ -207,11 +202,6 @@ class ApplyCommandTest extends TestCase
             ->method("isInstanceUp")
             ->with("/home/doil/.doil/instances/master")
             ->willReturn(true)
-        ;
-        $docker
-            ->expects($this->once())
-            ->method("getSaltAcceptedKeys")
-            ->willReturn(["master.local"])
         ;
         $docker
             ->expects($this->once())

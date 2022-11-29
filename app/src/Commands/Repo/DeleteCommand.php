@@ -12,6 +12,8 @@ use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\Console\Question\ConfirmationQuestion;
+use Symfony\Component\Console\Exception\InvalidArgumentException;
 
 class DeleteCommand extends Command
 {
@@ -32,7 +34,8 @@ class DeleteCommand extends Command
     public function configure() : void
     {
         $this
-            ->addArgument("name", InputArgument::REQUIRED, "the name of the repository to delete")
+            ->addArgument("name", InputArgument::OPTIONAL, "the name of the repository to delete")
+            ->addOption("all", "a", InputOption::VALUE_NONE, "if is set all repos will be deleted")
             ->addOption("global", "g", InputOption::VALUE_NONE, "determines if the repository to delete is global")
         ;
     }
@@ -41,7 +44,47 @@ class DeleteCommand extends Command
     {
         $name = $input->getArgument("name");
         $global = $input->getOption("global");
+        $all = $input->getOption("all");
 
+        if (is_null($name) && ! $all) {
+            throw new InvalidArgumentException("Not enough arguments (missing: \"name\" or \"all\")");
+        }
+
+        if ($all) {
+            $repos = $this->repo_manager->getLocalRepos();
+            $type = "local";
+            if ($global) {
+                $repos = $this->repo_manager->getGlobalRepos();
+                $type = "global";
+            }
+
+            if (count($repos) == 0) {
+                $this->writer->error(
+                    $output,
+                    "No repos found!",
+                    "Use <fg=gray>doil repo:ls --help</> for more information."
+                );
+                return Command::FAILURE;
+            }
+
+            $helper = $this->getHelper("question");
+            $question = new ConfirmationQuestion("Please confirm that you want to delete ALL $type repos [yN]: ", false);
+            if (!$helper->ask($input, $output, $question)) {
+                $output->writeln("Abort by user!");
+                return Command::FAILURE;
+            }
+
+            foreach ($repos as $repo) {
+                $this->deleteRepo($output, $repo->getName(), $repo->isGlobal());
+            }
+            return Command::SUCCESS;
+        }
+
+        return $this->deleteRepo($output, $name, $global);
+    }
+
+    protected function deleteRepo(OutputInterface $output, string $name, bool $global) : int
+    {
         $check = $this->checkName();
         $check($name);
 
