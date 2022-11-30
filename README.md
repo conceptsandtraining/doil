@@ -97,6 +97,7 @@ The following commands are available:
 * `doil down <instance_name>` stops an instance to free the resources it needs
 * `doil delete <instance_name>` deletes an instance you do not need anymore
 * `doil status` lists the current running doil instances
+* `doil exec <instance_name> <cmd>` executes a bash command inside the instance
 
 See `doil instances:<command> --help` for more information
 
@@ -155,6 +156,7 @@ Following commands come with the `--global` flag:
 * `doil instances:apply`
 * `doil instances:path`
 * `doil instances:login`
+* `doil instances:exec`
 
 **`doil repo`**
 * `doil repo:add`
