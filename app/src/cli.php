@@ -37,6 +37,7 @@ function buildContainerForApp() : Container
             $c["command.instances.create"],
             $c["command.instances.delete"],
             $c["command.instances.down"],
+            $c["command.instances.exec"],
             $c["command.instances.list"],
             $c["command.instances.login"],
             $c["command.instances.path"],
@@ -152,6 +153,15 @@ function buildContainerForApp() : Container
 
     $c["command.instances.down"] = function($c) {
         return new Instances\DownCommand(
+            $c["docker.shell"],
+            $c["posix.shell"],
+            $c["filesystem.shell"],
+            $c["command.writer"]
+        );
+    };
+
+    $c["command.instances.exec"] = function($c) {
+        return new Instances\ExecCommand(
             $c["docker.shell"],
             $c["posix.shell"],
             $c["filesystem.shell"],
