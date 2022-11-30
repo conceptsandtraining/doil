@@ -130,6 +130,29 @@ class DockerShell implements Docker
         $this->runTTY($cmd);
     }
 
+    public function executeBashCommandInsideContainer(string $name, ?string $working_dir, string ...$command) : void
+    {
+        $wd = "/";
+        if (! is_null($working_dir)) {
+            $wd = $working_dir;
+        }
+
+        $cmd = [
+            "docker",
+            "exec",
+            "-it",
+            "-w",
+            $wd,
+            $name,
+            "bash",
+            "-c"
+        ];
+
+        $cmd = array_merge($cmd, $command);
+
+        $this->runTTY($cmd);
+    }
+
     public function executeQuietCommand(string $path, string $name, ...$command) : void
     {
         $cmd = [
