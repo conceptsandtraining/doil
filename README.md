@@ -304,6 +304,55 @@ users, so make sure to understand what you are doing.
 * `doil mail:stop` stops the mail server
 * `doil mail:restart` restarts the mail server
 
+### xdedug
+
+**doil** provides two options to enable xdebug for the given instance.  
+
+Option 1: An instance can be created with the '-x' flag, or alternatively 
+in interactive mode you will be asked to install xdebug.  
+On the command line it could look like this:  
+* `doil create -n -e ilias7 -r ilias -b release_7 -p 7.4 -u -x`
+
+Option 2: You can apply a state to an already existing instance.  
+To activate xdebug use the following command:
+
+* `doil apply <instance_name> enable-xdebug`
+
+Alternatively, you can type `doil apply <instance_name>` and select
+'enable-xdebug' from the list.
+
+You can turn off xdebug again in the same way:
+
+* `doil apply <instance_name> disable-xdebug`
+
+xdebug listens to port 9000 when activated. Now the client has to be set up. 
+Unfortunately, I can only present the configuration of PHP-Storm here as an example.
+But it should work similarly for other editors.
+
+#### Necessary PHP-Storm plugins:
+
+* PHP Docker
+* PHP Remote
+
+#### PHP-Storm settings
+
+* it is best to open the doil instance root directory in PHP-Storm.
+* under Settings->PHP->CLI Interpreter: add a new interpreter (on the 3 dots and then in the pop-up on +)
+* select "From Docker, Vagrant..." and then select "Docker Compose".
+* if you already have the doil instance root open in PHP-Storm, it automatically selects the docker-compose.yml
+* select the doil instance name under Service (e.g. ilias7) and click "OK".
+* click on the reload icon under General PHP executable and the warnings should disappear. Then click 'OK' to close the pop-ups.
+* click "Apply" and "OK"
+* set a breakpoint somewhere that should be reached
+* click on the "Listen for PHP Debug Connections" in the upper right corner
+
+#### Browser settings
+
+* install 'Xdebug helper' as a browser extension
+* activate the little bug in the address bar
+
+Now, reload the ILIAS page to debug. PHP-Storm should inform you about an incomming debug connection.
+
 ## Contributions and Support
 
 Contributions to doil are very welcome!

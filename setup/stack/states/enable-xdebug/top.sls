@@ -1,0 +1,3 @@
+enable-xdebug:
+  '*':
+    - xdebug

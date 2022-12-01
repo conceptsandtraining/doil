@@ -87,6 +87,7 @@ class CreateCommand extends Command
             ->addOption("branch", "b", InputOption::VALUE_OPTIONAL, "Sets the branch to use")
             ->addOption("phpversion", "p", InputOption::VALUE_OPTIONAL, "Sets the php version to use")
             ->addOption("target", "t", InputOption::VALUE_OPTIONAL, "Sets the target destination for the instance. If the folder does not exist, it will be created")
+            ->addOption("xdebug", "x", InputOption::VALUE_NONE, "Determines if xdebug should be installed or not")
             ->addOption("global", "g", InputOption::VALUE_NONE, "Determines if an instance is global or not")
             ->addOption("skip-readme", "s", InputOption::VALUE_NONE, "Doesn't create the README.md file")
         ;
@@ -342,6 +343,13 @@ class CreateCommand extends Command
             $this->writer->endBlock();
         }
 
+        // apply enable-xdebug state
+        if ($options['xdebug']) {
+            $this->writer->beginBlock($output, "Apply enable-xdebug state");
+            $this->docker->applyState($instance_salt_name, "enable-xdebug");
+            $this->writer->endBlock();
+        }
+
         // apply access state
         $this->writer->beginBlock($output, "Apply access state");
         $this->docker->applyState($instance_salt_name, "access");
@@ -468,6 +476,13 @@ class CreateCommand extends Command
         $question->setValidator($this->checkTarget());
         $options["target"] = $helper->ask($input, $output, $question);
 
+        // Install xdebug
+        $question = new ConfirmationQuestion(
+            "Install xdebug? [yN]: ",
+            false
+        );
+        $options["xdebug"] = $helper->ask($input, $output, $question);
+
         // Global instance
         $question = new ConfirmationQuestion(
             "Create a global instance? [yN]: ",
@@ -475,7 +490,7 @@ class CreateCommand extends Command
         );
         $options["global"] = $helper->ask($input, $output, $question);
 
-        // skip readme
+        // Skip readme
         $question = new ConfirmationQuestion(
             "Skip creating readme file? [yN]: ",
             false
@@ -505,6 +520,8 @@ class CreateCommand extends Command
         $target = call_user_func($this->normalizeTarget(), $target);
         $target = call_user_func($this->checkTarget(), $target);
 
+        $xdebug = $input->getOption("xdebug");
+
         $global = $input->getOption("global");
 
         $skip_readme = $input->getOption("skip-readme");
@@ -529,6 +546,7 @@ class CreateCommand extends Command
             "branch" => $branch,
             "phpversion" => $phpversion,
             "target" => $target,
+            "xdebug" => $xdebug,
             "global" => $global,
             "skip_readme" => $skip_readme
         ];
