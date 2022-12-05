@@ -33,7 +33,8 @@ class DockerShell implements Docker
             "-f",
             $path . "/docker-compose.yml",
             "up",
-            "-d"
+            "-d",
+            "--force-recreate"
         ];
 
         $this->run($cmd);
