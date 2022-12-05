@@ -11,6 +11,7 @@ use CaT\Doil\Commands\User\UserManager;
 use CaT\Doil\Lib\ConsoleOutput\Writer;
 use CaT\Doil\Lib\FileSystem\Filesystem;
 use Symfony\Component\Console\Command\Command;
+use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Question\ConfirmationQuestion;
@@ -49,6 +50,13 @@ class UninstallCommand extends Command
         $this->writer = $writer;
     }
 
+    public function configure() : void
+    {
+        $this
+            ->addOption("prune", "p", InputOption::VALUE_NONE, "also delete all instances, doil users and doil config")
+        ;
+    }
+
     public function execute(InputInterface $input, OutputInterface $output) : int
     {
         if ($this->posix->getUserId() !== 0) {
@@ -64,34 +72,45 @@ class UninstallCommand extends Command
             return Command::FAILURE;
         }
 
-        $this->writer->beginBlock($output, "Removing doil instances");
-        $users = $this->user_manager->getUsers();
-        foreach ($users as $user) {
-            $local_instances_dir = "/home/" . $user->getName() . "/.doil/instances";
-            if ($this->filesystem->exists($local_instances_dir)) {
-                $local_instances = $this->filesystem->getFilesInPath($local_instances_dir);
-                $local_instances = array_map(function ($i) use ($local_instances_dir) {
-                    $instance = $local_instances_dir . "/" . $i;
-                    $link = $this->filesystem->readLink($instance);
-                    $this->filesystem->remove($instance);
-                    $this->filesystem->remove($link);
-                    return $i . "_local";
-                }, $local_instances);
-                $this->docker->deleteInstances($local_instances);
+        $prune = $input->getOption("prune");
+
+        if ($prune) {
+            $question = new ConfirmationQuestion("This will delete ALL doil users, doil instances and doil config. Do you want to proceed [yN]: ", false);
+
+            if (!$helper->ask($input, $output, $question)) {
+                $output->writeln("Abort by user!");
+                return Command::FAILURE;
             }
-        }
 
-        $global_instances = [];
-        $global_instances_dir = "/usr/local/share/doil/instances";
-        if ($this->filesystem->exists($global_instances_dir)) {
-            $global_instances = $this->filesystem->getFilesInPath($global_instances_dir);
-            $global_instances = array_map(function($i) {
-                return $i . "_global";
-            }, $global_instances);
-        }
+            $this->writer->beginBlock($output, "Removing doil instances");
+            $users = $this->user_manager->getUsers();
+            foreach ($users as $user) {
+                $local_instances_dir = "/home/" . $user->getName() . "/.doil/instances";
+                if ($this->filesystem->exists($local_instances_dir)) {
+                    $local_instances = $this->filesystem->getFilesInPath($local_instances_dir);
+                    $local_instances = array_map(function ($i) use ($local_instances_dir) {
+                        $instance = $local_instances_dir . "/" . $i;
+                        $link = $this->filesystem->readLink($instance);
+                        $this->filesystem->remove($instance);
+                        $this->filesystem->remove($link);
+                        return $i . "_local";
+                    }, $local_instances);
+                    $this->docker->deleteInstances($local_instances);
+                }
+            }
 
-        $this->docker->deleteInstances($global_instances);
-        $this->writer->endBlock();
+            $global_instances = [];
+            $global_instances_dir = "/usr/local/share/doil/instances";
+            if ($this->filesystem->exists($global_instances_dir)) {
+                $global_instances = $this->filesystem->getFilesInPath($global_instances_dir);
+                $global_instances = array_map(function($i) {
+                    return $i . "_global";
+                }, $global_instances);
+            }
+
+            $this->docker->deleteInstances($global_instances);
+            $this->writer->endBlock();
+        }
 
         $this->writer->beginBlock($output, "Removing proxy server");
         $this->docker->stopContainerByDockerCompose(self::PROXY_PATH);
@@ -125,14 +144,17 @@ class UninstallCommand extends Command
         $this->writer->endBlock();
 
         $this->writer->beginBlock($output, "Removing doil");
-        $this->linux->deleteGroup("doil");
-        $this->filesystem->remove(Filesystem::DOIL_PATH_MAIN_CONFIG);
+        if ($prune) {
+            $this->linux->deleteGroup("doil");
+            $this->filesystem->remove(Filesystem::DOIL_PATH_MAIN_CONFIG);
+            foreach ($users as $user) {
+                $this->filesystem->remove("/home/" . $user->getName() . "/.doil");
+            }
+        }
         $this->filesystem->remove(Filesystem::DOIL_PATH_LIB);
         $this->filesystem->remove(Filesystem::DOIL_PATH_SHARE);
         $this->filesystem->remove(Filesystem::DOIL_PATH_BIN);
-        foreach ($users as $user) {
-            $this->filesystem->remove("/home/" . $user->getName() . "/.doil");
-        }
+
         $this->writer->endBlock();
 
         $this->writer->beginBlock($output, "Removing doil networks");

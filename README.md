@@ -246,7 +246,8 @@ via Dockers volumes and can be accessed from the host system.
 
 **doil** comes with some helpers which are usefull if you want to hack on **doil**:
 
-* `doil system:uninstall` will remove doil completely from your system for all users
+* `doil system:uninstall` will remove doil from your system. users, instance and config remain 
+* `doil system:uninstall --prune` will remove doil completely from your system for all users
 * `doil -V|--version` displays the version
 * `doil` displays the main help page
 
