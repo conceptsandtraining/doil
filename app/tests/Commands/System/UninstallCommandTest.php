@@ -71,7 +71,7 @@ class UninstallCommandTest extends TestCase
         $this->assertEquals(1, $execute_result);
     }
 
-    public function test_execute() : void
+    public function test_execute_prune() : void
     {
         $docker = $this->createMock(Docker::class);
         $posix = $this->createMock(Posix::class);
@@ -153,11 +153,11 @@ class UninstallCommandTest extends TestCase
                 ["/home/user2/.doil/instances/local4"],
                 ["/home/user2/doil/instances/local4"],
                 ["/etc/doil"],
-                ["/usr/local/lib/doil"],
-                ["/usr/local/share/doil"],
-                ["/usr/local/bin/doil"],
                 ["/home/user1/.doil"],
                 ["/home/user2/.doil"],
+                ["/usr/local/lib/doil"],
+                ["/usr/local/share/doil"],
+                ["/usr/local/bin/doil"]
             )
         ;
 
@@ -231,7 +231,97 @@ class UninstallCommandTest extends TestCase
             ->with("doil")
         ;
 
-        $tester->setInputs(["y"]);
+        $tester->setInputs(["y", "y"]);
+        $execute_result = $tester->execute(["--prune" => true]);
+        $this->assertEquals(0, $execute_result);
+    }
+
+    public function test_execute() : void
+    {
+        $docker = $this->createMock(Docker::class);
+        $posix = $this->createMock(Posix::class);
+        $filesystem = $this->createMock(Filesystem::class);
+        $linux = $this->createMock(Linux::class);
+        $user_manager = $this->createMock(UserManager::class);
+        $writer = $this->createMock(Writer::class);
+
+        $command = new UninstallCommand($docker, $posix, $filesystem, $linux, $user_manager, $writer);
+        $tester = new CommandTester($command);
+        $app = new Application("doil");
+        $command->setApplication($app);
+
+        $posix
+            ->expects($this->once())
+            ->method("getUserId")
+            ->willReturn(0)
+        ;
+
+        $filesystem
+            ->expects($this->exactly(3))
+            ->method("remove")
+            ->withConsecutive(
+                ["/usr/local/lib/doil"],
+                ["/usr/local/share/doil"],
+                ["/usr/local/bin/doil"]
+            )
+        ;
+
+        $docker
+            ->expects($this->exactly(3))
+            ->method("stopContainerByDockerCompose")
+            ->withConsecutive(
+                ["/usr/local/lib/doil/server/proxy"],
+                ["/usr/local/lib/doil/server/salt"],
+                ["/usr/local/lib/doil/server/mail"]
+            )
+        ;
+        $docker
+            ->expects($this->exactly(3))
+            ->method("removeContainer")
+            ->withConsecutive(
+                ["doil_proxy"],
+                ["doil_saltmain"],
+                ["doil_postfix"]
+            )
+        ;
+        $docker
+            ->expects($this->exactly(3))
+            ->method("getImageIdsByName")
+            ->withConsecutive(
+                ["doil_proxy"],
+                ["doil_saltmain"],
+                ["doil_postfix"]
+            )
+            ->willReturnOnConsecutiveCalls(
+                ["123"],
+                ["456"],
+                ["789"]
+            )
+        ;
+        $docker
+            ->expects($this->exactly(3))
+            ->method("removeImage")
+            ->withConsecutive(
+                ["123"],
+                ["456"],
+                ["789"]
+            )
+        ;
+        $docker
+            ->expects($this->exactly(3))
+            ->method("removeVolume")
+            ->withConsecutive(
+                ["proxy"],
+                ["salt"],
+                ["mail"]
+            )
+        ;
+        $docker
+            ->expects($this->once())
+            ->method("pruneNetworks")
+        ;
+
+        $tester->setInputs(["y", "y"]);
         $execute_result = $tester->execute([]);
         $this->assertEquals(0, $execute_result);
     }
