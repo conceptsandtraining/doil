@@ -33,5 +33,5 @@ then
   fi
 fi
 
-php /usr/local/lib/doil/app/src/cli.php  $@
+php /usr/local/lib/doil/app/src/cli.php  "$@"
 
