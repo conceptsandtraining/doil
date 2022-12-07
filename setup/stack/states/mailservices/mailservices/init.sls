@@ -30,6 +30,10 @@ mailservice_packages:
       - php7.4-imap
       - php7.4-xmlrpc
 
+stop_dovecot:
+  cmd.run:
+    - name: /etc/init.d/dovecot stop
+
 /var/mail/www-data:
   file.directory:
     - user: www-data
@@ -153,6 +157,7 @@ postfix_supervisor_signal:
     - name: postfix
     - watch:
       - file: /etc/supervisor/conf.d/postfix.conf
+      - file: /root/postfix_fg_starter.sh
 
 dovecot_supervisor_signal:
   supervisord.running:
@@ -219,6 +224,11 @@ roundcube-plugins:
     - source: salt://mailservices/check-postbox-configuration.sh
     - mode: 755
 
+/root/postfix_fg_starter.sh:
+  file.managed:
+    - source: salt://mailservices/postfix_fg_starter.sh
+    - mode: 755
+
 /root/service-config.tpl:
   file.managed:
     - source: salt://mailservices/service-config.tpl
@@ -226,4 +236,3 @@ roundcube-plugins:
 /root/service-config-sieve.tpl:
   file.managed:
     - source: salt://mailservices/service-config-sieve.tpl
-
