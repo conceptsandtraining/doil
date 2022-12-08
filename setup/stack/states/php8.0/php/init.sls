@@ -14,6 +14,7 @@ php_repo_key:
 
 php8.0:
   pkg.installed:
+    - refresh: True
     - pkgs:
       - libapache2-mod-php8.0
       - php-json
@@ -36,7 +37,7 @@ php8.0:
 {% for version in ['7.0','7.1','7.2','7.3','7.4','8.1'] %}
 php{{ version }}:
   pkg.purged:
-    - refresh: true
+    - refresh: True
     - pkgs:
           - libapache2-mod-php{{ version }}
           - php{{ version }}-apcu
