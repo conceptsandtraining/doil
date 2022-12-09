@@ -100,7 +100,7 @@ class UninstallCommand extends Command
         foreach ($this->docker->getImageIdsByName("doil_proxy") as $id) {
             $this->docker->removeImage($id);
         }
-        $this->docker->removeVolume("proxy");
+        $this->docker->removeVolume("proxy_persistent");
         $this->writer->endBlock();
 
         $this->writer->beginBlock($output, "Removing salt server ");
@@ -110,7 +110,7 @@ class UninstallCommand extends Command
         foreach ($this->docker->getImageIdsByName("doil_saltmain") as $id) {
             $this->docker->removeImage($id);
         }
-        $this->docker->removeVolume("salt");
+        $this->docker->removeVolume("salt_persistent");
         $this->writer->endBlock();
 
         $this->writer->beginBlock($output, "Removing mail server");
@@ -120,7 +120,8 @@ class UninstallCommand extends Command
         foreach ($this->docker->getImageIdsByName("doil_postfix") as $id) {
             $this->docker->removeImage($id);
         }
-        $this->docker->removeVolume("mail");
+        $this->docker->removeVolume("mail_mail");
+        $this->docker->removeVolume("mail_sieve");
         $this->writer->endBlock();
 
         $this->writer->beginBlock($output, "Removing doil");

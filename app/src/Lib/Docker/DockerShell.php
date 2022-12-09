@@ -174,7 +174,7 @@ class DockerShell implements Docker
             "docker",
             "volume",
             "rm",
-            $name . "_persistent"
+            $name
         ];
 
         $this->runTTYQuiet($cmd);

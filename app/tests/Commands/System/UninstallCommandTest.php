@@ -212,12 +212,13 @@ class UninstallCommandTest extends TestCase
             )
         ;
         $docker
-            ->expects($this->exactly(3))
+            ->expects($this->exactly(4))
             ->method("removeVolume")
             ->withConsecutive(
-                ["proxy"],
-                ["salt"],
-                ["mail"]
+                ["proxy_persistent"],
+                ["salt_persistent"],
+                ["mail_mail"],
+                ["mail_sieve"]
             )
         ;
         $docker
