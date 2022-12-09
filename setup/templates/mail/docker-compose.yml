@@ -19,10 +19,13 @@ services:
       - type: bind
         source: ./conf/minion.cnf
         target: /etc/salt/minion
+      - sieve:/var/www/sieve
+      - mail:/var/mail
 networks:
   doil_proxy:
     external: true
   salt_saltnet:
     external: true
 volumes:
-    persistent:
+    sieve:
+    mail:
