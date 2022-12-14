@@ -18,6 +18,7 @@ php8.0:
     - pkgs:
       - libapache2-mod-php8.0
       - php-json
+      - php8.0
       - php8.0-mysql
       - php8.0-readline
       - php8.0-xsl
@@ -165,6 +166,10 @@ a2_enable_php:
   module.run:
     - name: apache.a2enmod
     - mod: php8.0
+
+update_alternatives_php:
+  cmd.run:
+    - name: update-alternatives --set php /usr/bin/php8.0 &>/dev/null
 
 apache2_supervisor_signal:
   cmd.run:

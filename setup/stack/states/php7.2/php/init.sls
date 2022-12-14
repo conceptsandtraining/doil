@@ -17,6 +17,7 @@ php7.2:
     - refresh: true
     - pkgs:
       - libapache2-mod-php7.2
+      - php7.2
       - php7.2-curl
       - php7.2-gd
       - php7.2-json
@@ -147,6 +148,10 @@ a2_enable_php:
   module.run:
     - name: apache.a2enmod
     - mod: php7.2
+
+update_alternatives_php:
+  cmd.run:
+    - name: update-alternatives --set php /usr/bin/php7.2 &>/dev/null
 
 apache2_supervisor_signal:
   cmd.run:
