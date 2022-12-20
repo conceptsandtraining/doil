@@ -54,6 +54,8 @@ Additional dependencies, but these are installed automatically during setup.
 * ext/posix
 * ext/zip
 * ext-openssl
+* psr/log
+* monolog/monolog
 
 ## Usage
 
@@ -179,10 +181,10 @@ build with doil (instances from version >=1.1) are able to be exported.
 
 See `doil pack:<command> --help` for more information
 
-### Quietmode and Logs (currently not available)
+### Quietmode and Logs
 
 Most of the commands come with a `--quiet` flag to omit the log messages.
-However these logs are not lost, they are stored in `/var/log/doil.log`. You may
+However, these logs are not lost, they are stored in `/var/log/doil/doil.log` and in `/var/log/doil/salt.log`. You may
 want to add a rotation to this logfile.
 
 ## Known Restrictions

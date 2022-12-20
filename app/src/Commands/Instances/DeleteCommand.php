@@ -130,6 +130,7 @@ class DeleteCommand extends Command
 
         $user_id = $this->posix->getUserId();
         $group_id = $this->posix->getGroupId();
+
         $this->docker->executeCommand($path, $instance, "chown", "-R", "$user_id:$group_id", "/var/lib/mysql");
         $this->docker->executeCommand($path, $instance, "chown", "-R", "$user_id:$group_id", "/etc/mysql");
         $this->docker->executeCommand($path, $instance, "chown", "-R", "$user_id:$group_id", "/etc/php");
@@ -149,15 +150,17 @@ class DeleteCommand extends Command
             $this->filesystem->remove($proxy_path);
         }
 
-        $this->docker->executeQuietCommand(self::PROXY_PATH, "doil_proxy", "/etc/init.d/nginx", "reload");
+        $this->docker->executeCommand(self::PROXY_PATH, "doil_proxy", "/bin/bash", "-c", "/etc/init.d/nginx reload &>/dev/null");
 
-        $this->docker->removeVolume($instance);
+        if ($this->docker->hasVolume($instance)) {
+            $this->docker->removeVolume($instance);
+        }
 
         foreach ($this->docker->getImageIdsByName("doil/" . $instance . "_" . $suffix) as $id) {
             $this->docker->removeImage($id);
         }
 
-        $this->docker->executeQuietCommand(self::POSTFIX, "doil_postfix", "/root/delete-postbox-configuration.sh", $instance);
+        $this->docker->executeCommand(self::POSTFIX, "doil_postfix", "/bin/bash", "-c", "/root/delete-postbox-configuration.sh $instance &>/dev/null");
 
         $this->writer->endBlock();
 
