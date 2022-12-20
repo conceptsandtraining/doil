@@ -4,39 +4,38 @@
 
 namespace CaT\Doil\Lib;
 
+use Psr\Log\LoggerInterface;
 use Symfony\Component\Process\Process;
 use Symfony\Component\Process\Exception\ProcessFailedException;
 
 trait SymfonyShell
 {
-    protected function run(array $commands) : string
+    protected function run(array $commands, LoggerInterface $logger) : string
     {
         $process = new Process($commands);
         $process->setTimeout(36000);
         $process->run();
 
         // executes after the command finishes
-        if (!$process->isSuccessful()) {
+        if (! $process->isSuccessful()) {
+            $logger->error($process->getErrorOutput());
             throw new ProcessFailedException($process);
         }
 
         return $process->getOutput();
     }
 
-    protected function runTTY(array $commands) : void
+    protected function runTTY(array $commands, LoggerInterface $logger) : void
     {
         $process = new Process($commands);
         $process->setTty(true);
         $process->setTimeout(36000);
         $process->run();
-    }
 
-    protected function runTTYQuiet(array $commands) : void
-    {
-        $process = new Process($commands);
-        $process->setTty(true);
-        $process->setTimeout(36000);
-        $process->disableOutput();
-        $process->run();
+        // executes after the command finishes
+        if (! $process->isSuccessful()) {
+            $logger->error($process->getErrorOutput() ?: $process->getCommandLine());
+            throw new ProcessFailedException($process);
+        }
     }
 }

@@ -147,13 +147,15 @@ class DeleteCommandTest extends TestCase
             ->willReturn(true)
         ;
         $docker
-            ->expects($this->exactly(4))
+            ->expects($this->exactly(6))
             ->method("executeCommand")
             ->withConsecutive(
                 ["/usr/local/share/doil/instances/master", "master", "chown", "-R", "22:33", "/var/lib/mysql"],
                 ["/usr/local/share/doil/instances/master", "master", "chown", "-R", "22:33", "/etc/mysql"],
                 ["/usr/local/share/doil/instances/master", "master", "chown", "-R", "22:33", "/etc/php"],
                 ["/usr/local/lib/doil/server/salt/", "doil_saltmain", "salt-key", "-d", "master.global", "-y", "-q"],
+                ["/usr/local/lib/doil/server/proxy/", "doil_proxy", "/bin/bash", "-c", "/etc/init.d/nginx reload &>/dev/null"],
+                ["/usr/local/lib/doil/server/mail/", "doil_postfix", "/bin/bash", "-c", "/root/delete-postbox-configuration.sh $instance &>/dev/null"]
             )
         ;
         $docker
@@ -167,12 +169,10 @@ class DeleteCommandTest extends TestCase
             ->with("master_global")
         ;
         $docker
-            ->expects($this->exactly(2))
-            ->method("executeQuietCommand")
-            ->withConsecutive(
-                ["/usr/local/lib/doil/server/proxy/", "doil_proxy", "/etc/init.d/nginx", "reload"],
-                ["/usr/local/lib/doil/server/mail/", "doil_postfix", "/root/delete-postbox-configuration.sh", $instance]
-            )
+            ->expects($this->once())
+            ->method("hasVolume")
+            ->with("master")
+            ->willReturn(true)
         ;
         $docker
             ->expects($this->once())
