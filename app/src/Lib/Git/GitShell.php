@@ -4,11 +4,20 @@
 
 namespace CaT\Doil\Lib\Git;
 
+use Psr\Log\LoggerInterface;
 use CaT\Doil\Lib\SymfonyShell;
+use CaT\Doil\Lib\Logger\LoggerFactory;
 
 class GitShell implements Git
 {
     use SymfonyShell;
+
+    protected LoggerInterface $logger;
+
+    public function __construct(LoggerFactory $logger)
+    {
+        $this->logger = $logger->getDoilLogger("GIT");
+    }
 
     public function getBranches(string $path) : array
     {
@@ -21,7 +30,8 @@ class GitShell implements Git
             "--format=%(refname:short)",
         ];
 
-        return array_filter(explode("\n", $this->run($cmd)));
+        $this->logger->info("Retrieve branches from path '$path'");
+        return array_filter(explode("\n", $this->run($cmd, $this->logger)));
     }
 
     public function fetchBare(string $path, string $url) : void
@@ -34,7 +44,8 @@ class GitShell implements Git
             $url
         ];
 
-        $this->run($cmd);
+        $this->logger->info("Fetch url '$url' to path '$path'");
+        $this->run($cmd, $this->logger);
     }
 
     public function cloneBare(string $url, string $path) : void
@@ -47,7 +58,8 @@ class GitShell implements Git
             $path
         ];
 
-        $this->run($cmd);
+        $this->logger->info("Clone bare from url '$url' to path '$path'");
+        $this->run($cmd, $this->logger);
     }
 
     public function setLocalConfig(string $path, ...$commands) : void
@@ -62,7 +74,8 @@ class GitShell implements Git
 
         $cmd = array_merge($cmd, $commands);
 
-        $this->runTTY($cmd);
+        $this->logger->info("Set local config for path '$path'", $commands);
+        $this->runTTY($cmd, $this->logger);
     }
 
     public function checkoutRemote(string $path, string $branch) : void
@@ -75,6 +88,7 @@ class GitShell implements Git
             $branch
         ];
 
-        $this->run($cmd);
+        $this->logger->info("Check out remote branch '$branch' for path '$path'");
+        $this->run($cmd, $this->logger);
     }
 }

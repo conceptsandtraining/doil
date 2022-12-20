@@ -17,10 +17,13 @@ use CaT\Doil\Commands\Instances;
 use CaT\Doil\Lib\Posix\PosixShell;
 use CaT\Doil\Lib\Linux\LinuxShell;
 use CaT\Doil\Lib\Docker\DockerShell;
+use CaT\Doil\Lib\Logger\LoggerFactory;
 use CaT\Doil\Commands\Repo\RepoManager;
 use CaT\Doil\Lib\FileSystem\FilesystemShell;
 use CaT\Doil\Lib\ConsoleOutput\CommandWriter;
 
+use Monolog\Logger;
+use Monolog\Handler\StreamHandler;
 require_once __DIR__ . "/../vendor/autoload.php";
 
 $c = buildContainerForApp();
@@ -73,12 +76,21 @@ function buildContainerForApp() : Container
         );
     };
 
-    $c["docker.shell"] = function() {
-        return new DockerShell();
+    $c["logger"] = function() {
+        return new LoggerFactory();
     };
 
-    $c["git.shell"] = function() {
-        return new GitShell();
+    $c["docker.shell"] = function($c) {
+        return new DockerShell(
+            $c["logger"],
+            $c["posix.shell"]
+        );
+    };
+
+    $c["git.shell"] = function($c) {
+        return new GitShell(
+            $c["logger"]
+        );
     };
 
     $c["repo.manager"] = function($c) {
@@ -109,8 +121,10 @@ function buildContainerForApp() : Container
         );
     };
 
-    $c["linux.shell"] = function() {
-        return new LinuxShell();
+    $c["linux.shell"] = function($c) {
+        return new LinuxShell(
+            $c["logger"]
+        );
     };
 
     $c["command.writer"] = function() {

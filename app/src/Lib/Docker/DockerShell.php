@@ -4,7 +4,9 @@
 
 namespace CaT\Doil\Lib\Docker;
 
+use CaT\Doil\Lib\Posix\Posix;
 use CaT\Doil\Lib\SymfonyShell;
+use CaT\Doil\Lib\Logger\LoggerFactory;
 
 class DockerShell implements Docker
 {
@@ -13,6 +15,12 @@ class DockerShell implements Docker
     protected const SALT = "/usr/local/lib/doil/server/salt";
     protected const PROXY = "/usr/local/lib/doil/server/proxy";
     protected const MAIL = "/usr/local/lib/doil/server/mail";
+
+    public function __construct(LoggerFactory $logger, Posix $posix)
+    {
+        $this->logger = $logger;
+        $this->posix = $posix;
+    }
 
     protected array $systems = [
         self::SALT,
@@ -37,20 +45,22 @@ class DockerShell implements Docker
             "--force-recreate"
         ];
 
-        $this->run($cmd);
+        $logger = $this->logger->getDoilLogger(pathinfo($path, PATHINFO_FILENAME));
+        $logger->info("Start instance");
+        $this->run($cmd, $logger);
 
         // Sometimes this file will not be deleted automatically,
         // so we have to do it manually on start up.
         // If not, apache wouldn't start.
-        $this->executeQuietCommand(
+        $this->executeCommand(
             $path,
             basename($path),
             "/bin/bash",
             "-c",
-            "rm -f /run/apache2/apache2.pid"
+            "rm -f /run/apache2/apache2.pid &>/dev/null"
         );
 
-        $this->cleanupMasterKey($path);
+       $this->cleanupMasterKey($path);
     }
 
     public function stopContainerByDockerCompose(string $path) : void
@@ -62,7 +72,9 @@ class DockerShell implements Docker
             "stop"
         ];
 
-        $this->run($cmd);
+        $logger = $this->logger->getDoilLogger(pathinfo($path, PATHINFO_FILENAME));
+        $logger->info("Stop instance");
+        $this->run($cmd, $logger);
     }
 
     public function ps() : array
@@ -74,7 +86,8 @@ class DockerShell implements Docker
             "--format",
             "table {{.Names}}\t{{.Status}}\t{{.RunningFor}}\t{{.Image}}\t{{.ID}}\t{{.Ports}}"
         ];
-        return explode("\n", $this->run($cmd));
+        $logger = $this->logger->getDoilLogger("DOCKER");
+        return explode("\n", $this->run($cmd, $logger));
     }
 
     public function getRunningInstanceNames() : array
@@ -87,7 +100,8 @@ class DockerShell implements Docker
             "--format",
             "{{.Names}}"
         ];
-        return explode("\n", $this->run($cmd));
+        $logger = $this->logger->getDoilLogger("DOCKER");
+        return explode("\n", $this->run($cmd, $logger));
     }
 
     public function loginIntoContainer(string $path, string $name) : void
@@ -101,7 +115,11 @@ class DockerShell implements Docker
             "bash"
         ];
 
-        $this->runTTY($cmd);
+        $logger = $this->logger->getDoilLogger($name);
+        $user = $this->posix->getCurrentUserName();
+        $logger->info("$user login into instance");
+
+        $this->runTTY($cmd, $logger);
     }
 
     public function isInstanceUp(string $path) : bool
@@ -113,7 +131,8 @@ class DockerShell implements Docker
            "top"
         ];
 
-        return $this->run($cmd) != "";
+        $logger = $this->logger->getDoilLogger(pathinfo($path, PATHINFO_FILENAME));
+        return $this->run($cmd, $logger) != "";
     }
 
     public function executeCommand(string $path, string $name, ...$command) : void
@@ -128,7 +147,10 @@ class DockerShell implements Docker
 
         $cmd = array_merge($cmd, $command);
 
-        $this->runTTY($cmd);
+        $logger = $this->logger->getDoilLogger($name);
+        $logger->info("Execute command", $cmd);
+
+        $this->runTTY($cmd, $logger);
     }
 
     public function executeBashCommandInsideContainer(string $name, ?string $working_dir, string ...$command) : void
@@ -151,22 +173,29 @@ class DockerShell implements Docker
 
         $cmd = array_merge($cmd, $command);
 
-        $this->runTTY($cmd);
+        $logger = $this->logger->getDoilLogger($name);
+        $logger->info("Execute bash command", $cmd);
+
+        $this->runTTY($cmd, $logger);
     }
 
-    public function executeQuietCommand(string $path, string $name, ...$command) : void
+    public function hasVolume(string $name) : bool
     {
         $cmd = [
-            "docker-compose",
+            "docker",
+            "volume",
+            "ls",
             "-f",
-            $path . "/docker-compose.yml",
-            "exec",
-            $name
+            "name=$name",
+            "--format",
+            "{{.Name}}"
         ];
 
-        $cmd = array_merge($cmd, $command);
+        $logger = $this->logger->getDoilLogger("DOCKER");
+        $logger->info("Check if volume '$name' exists");
 
-        $this->runTTYQuiet($cmd);
+        $result = $this->run($cmd, $logger);
+        return $result != "";
     }
 
     public function removeVolume(string $name) : void
@@ -175,10 +204,14 @@ class DockerShell implements Docker
             "docker",
             "volume",
             "rm",
-            $name
+            $name,
+            "&>/dev/null"
         ];
 
-        $this->runTTYQuiet($cmd);
+        $logger = $this->logger->getDoilLogger("DOCKER");
+        $logger->info("Remove volume $name");
+
+        $this->runTTY($cmd, $logger);
     }
 
     public function getImageIdsByName(string $name) : array
@@ -191,7 +224,8 @@ class DockerShell implements Docker
             "-q"
         ];
 
-        return explode("\n", $this->run($cmd));
+        $logger = $this->logger->getDoilLogger("DOCKER");
+        return explode("\n", $this->run($cmd, $logger));
     }
 
     public function removeImage(string $id) : void
@@ -204,7 +238,10 @@ class DockerShell implements Docker
             $id
         ];
 
-        $this->run($cmd);
+        $logger = $this->logger->getDoilLogger("DOCKER");
+        $logger->info("Remove image $id");
+
+        $this->run($cmd, $logger);
     }
 
     public function getSaltAcceptedKeys() : array
@@ -219,7 +256,10 @@ class DockerShell implements Docker
             "salt-key -L --out json"
         ];
 
-        return json_decode($this->run($cmd), true)["minions"];
+        $logger = $this->logger->getSaltLogger("SALT");
+        $keys = json_decode($this->run($cmd, $logger), true)["minions"];
+        $logger->info($keys);
+        return $keys;
     }
 
     public function getShadowHashForInstance(string $name, string $password) : string
@@ -234,12 +274,13 @@ class DockerShell implements Docker
             "salt \"$name\" shadow.gen_password \"$password\" --out txt"
         ];
 
-        $result = explode(' ', $this->run($cmd));
+        $logger = $this->logger->getSaltLogger("SALT");
+        $result = explode(' ', $this->run($cmd, $logger));
 
         return trim($result[1]);
     }
 
-    public function applyState(string $name, string $state) : string
+    public function applyState(string $name, string $state) : void
     {
         $cmd = [
             "docker",
@@ -251,13 +292,16 @@ class DockerShell implements Docker
             "salt \"$name\" state.highstate saltenv=$state"
         ];
 
-        return $this->run($cmd);
+        $logger = $this->logger->getSaltLogger($name);
+        $logger->info("Apply salt state '$state'");
+        $result = $this->run($cmd, $logger);
+        $logger->info($result);
     }
 
     public function commit(string $instance_name, ?string $image_name = null) : void
     {
         if (is_null($image_name)) {
-            $image_name = "doil/$instance_name:stable";
+            $image_name = "doil/$instance_name";
         }
 
         $cmd = [
@@ -267,7 +311,9 @@ class DockerShell implements Docker
             "$image_name:stable"
         ];
 
-        $this->run($cmd);
+        $logger = $this->logger->getDoilLogger("DOCKER");
+        $logger->info("Commit $instance_name into $image_name:stable");
+        $this->run($cmd, $logger);
     }
 
     public function copy(string $instance_name, string $from, string $to) : void
@@ -279,7 +325,9 @@ class DockerShell implements Docker
             $to
         ];
 
-        $this->run($cmd);
+        $logger = $this->logger->getDoilLogger("DOCKER");
+        $logger->info("Copy from $instance_name:$from to $to");
+        $this->run($cmd, $logger);
     }
 
     public function listContainerDirectory(string $container_name, string $path) : array
@@ -294,7 +342,8 @@ class DockerShell implements Docker
             "ls $path"
         ];
 
-        return explode("\n", trim($this->run($cmd)));
+        $logger = $this->logger->getDoilLogger("DOCKER");
+        return explode("\n", trim($this->run($cmd, $logger)));
     }
 
     public function pull(string $name) : void
@@ -305,7 +354,9 @@ class DockerShell implements Docker
             $name . ":stable"
         ];
 
-        $this->run($cmd);
+        $logger = $this->logger->getDoilLogger("DOCKER");
+        $logger->info("Pull image $name:stable");
+        $this->run($cmd, $logger);
     }
 
     public function build(string $path, string $name) : void
@@ -318,7 +369,9 @@ class DockerShell implements Docker
             $path
         ];
 
-        $this->run($cmd);
+        $logger = $this->logger->getDoilLogger($name);
+        $logger->info("Building image doil/$name:stable");
+        $this->run($cmd, $logger);
     }
 
     public function runContainer(string $name) : void
@@ -332,7 +385,9 @@ class DockerShell implements Docker
             "doil/" . $name . ":stable"
         ];
 
-        $this->run($cmd);
+        $logger = $this->logger->getDoilLogger($name);
+        $logger->info("Run from doil/$name:stable");
+        $this->run($cmd, $logger);
     }
 
     public function stop(string $name) : void
@@ -343,7 +398,9 @@ class DockerShell implements Docker
             $name
         ];
 
-        $this->run($cmd);
+        $logger = $this->logger->getDoilLogger($name);
+        $logger->info("Stop instance");
+        $this->run($cmd, $logger);
     }
 
     public function removeContainer(string $name) : void
@@ -354,7 +411,9 @@ class DockerShell implements Docker
             $name
         ];
 
-        $this->run($cmd);
+        $logger = $this->logger->getDoilLogger($name);
+        $logger->info("Remove instance");
+        $this->run($cmd, $logger);
     }
 
     public function executeDockerCommand(string $name, string $cmd) : void
@@ -369,7 +428,9 @@ class DockerShell implements Docker
             $cmd
         ];
 
-        $this->run($cmd);
+        $logger = $this->logger->getDoilLogger($name);
+        $logger->info("Execute docker command", $cmd);
+        $this->run($cmd, $logger);
     }
 
     public function setGrain(string $name, string $key, string $value) : void
@@ -384,7 +445,9 @@ class DockerShell implements Docker
             "salt \"$name\" grains.setval \"$key\" \"$value\""
         ];
 
-        $this->runTTY($cmd);
+        $logger = $this->logger->getSaltLogger($name);
+        $logger->info("Set grain key '$key' with value '***' for instance '$name'");
+        $this->runTTY($cmd, $logger);
     }
 
     public function deleteInstances(array $instances) : void
@@ -406,9 +469,13 @@ class DockerShell implements Docker
             "docker",
             "network",
             "prune",
-            "-f"
+            "-f",
+            "&>/dev/null"
         ];
-        $this->runTTYQuiet($cmd);
+
+        $logger = $this->logger->getDoilLogger("DOCKER");
+        $logger->info("Prune network");
+        $this->runTTY($cmd, $logger);
     }
 
     protected function getImageNameByInstance(string $instance) : string
@@ -420,7 +487,8 @@ class DockerShell implements Docker
             "--format={{.Config.Image}}"
         ];
 
-        return $this->run($cmd);
+        $logger = $this->logger->getDoilLogger("DOCKER");
+        return $this->run($cmd, $logger);
     }
 
     protected function kill(string $name) : void
@@ -428,10 +496,12 @@ class DockerShell implements Docker
         $cmd = [
             "docker",
             "kill",
-            $name
+            $name,
+            "&>/dev/null"
         ];
 
-        $this->runTTYQuiet($cmd);
+        $logger = $this->logger->getDoilLogger($name);
+        $this->runTTY($cmd, $logger);
     }
 
     protected function startDoilSystemsIfNeeded() : void
@@ -458,25 +528,27 @@ class DockerShell implements Docker
             "--force-recreate"
         ];
 
-        $this->run($cmd);
+        $logger = $this->logger->getDoilLogger(pathinfo($path, PATHINFO_FILENAME));
+        $logger->info("Start instance");
+        $this->run($cmd, $logger);
     }
 
     protected function cleanupMasterKey(string $path) : void
     {
         $name = basename($path);
-        $this->executeQuietCommand(
+        $this->executeCommand(
             $path,
             $name,
             "/bin/bash",
             "-c",
-            "rm -f /var/lib/salt/pki/minion/minion_master.pub"
+            "rm -f /var/lib/salt/pki/minion/minion_master.pub &>/dev/null"
         );
-        $this->executeQuietCommand(
+        $this->executeCommand(
             $path,
             $name,
             "/bin/bash",
             "-c",
-            "/etc/init.d/salt-minion restart"
+            "/etc/init.d/salt-minion restart &>/dev/null"
         );
     }
 }
