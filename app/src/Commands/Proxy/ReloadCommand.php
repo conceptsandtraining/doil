@@ -35,7 +35,7 @@ class ReloadCommand extends Command
         }
 
         $this->writer->beginBlock($output, "Reload proxy server");
-        $this->docker->executeQuietCommand(self::PROXY_PATH, "doil_proxy", "/etc/init.d/nginx", "reload");
+        $this->docker->executeCommand(self::PROXY_PATH, "doil_proxy", "/bin/bash", "-c", "/etc/init.d/nginx reload &>/dev/null");
         $this->writer->endBlock();
 
         return Command::SUCCESS;

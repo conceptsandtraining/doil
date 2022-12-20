@@ -4,11 +4,20 @@
 
 namespace CaT\Doil\Lib\Linux;
 
+use Psr\Log\LoggerInterface;
 use CaT\Doil\Lib\SymfonyShell;
+use CaT\Doil\Lib\Logger\LoggerFactory;
 
 class LinuxShell implements Linux
 {
     use SymfonyShell;
+
+    protected LoggerInterface $logger;
+
+    public function __construct(LoggerFactory $logger)
+    {
+        $this->logger = $logger->getDoilLogger("LINUX");
+    }
 
     public function addUserToGroup(string $user, string $group) : void
     {
@@ -20,7 +29,8 @@ class LinuxShell implements Linux
             $user
         ];
 
-        $this->run($cmd);
+        $this->logger->info("Add user '$user' to group '$group'");
+        $this->run($cmd, $this->logger);
     }
 
     public function removeUserFromGroup(string $user, string $group) : void
@@ -31,7 +41,8 @@ class LinuxShell implements Linux
             $group
         ];
 
-        $this->run($cmd);
+        $this->logger->info("Remove user '$user' from group '$group'");
+        $this->run($cmd, $this->logger);
     }
 
     public function deleteGroup(string $name) : void
@@ -41,7 +52,8 @@ class LinuxShell implements Linux
             $name
         ];
 
-        $this->run($cmd);
+        $this->logger->info("Delete group '$name'");
+        $this->run($cmd, $this->logger);
     }
 
     public function isWSL() : bool
@@ -51,7 +63,8 @@ class LinuxShell implements Linux
             "/proc/version"
         ];
 
-        $wsl = $this->run($cmd);
+        $this->logger->info("Check if running on Windows-WSL");
+        $wsl = $this->run($cmd, $this->logger);
         return (bool) stristr($wsl, "microsoft");
     }
 }

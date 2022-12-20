@@ -273,8 +273,8 @@ class CreateCommand extends Command
         $this->docker->removeContainer($instance_name);
         sleep(5);
         $this->docker->startContainerByDockerCompose($instance_path);
-        $this->docker->executeQuietCommand($instance_path, $options["name"], "chown", "-R", "mysql:mysql", "var/lib/mysql");
-        $this->docker->executeQuietCommand($instance_path, $options["name"], "/etc/init.d/mariadb", "start");
+        $this->docker->executeCommand($instance_path, $options["name"], "/bin/bash", "-c", "chown -R mysql:mysql var/lib/mysql &>/dev/null");
+        $this->docker->executeCommand($instance_path, $options["name"], "/bin/bash", "-c", "/etc/init.d/mariadb start &>/dev/null");
         $this->writer->endBlock();
 
         $this->writer->beginBlock($output, "Checking salt key");
@@ -282,7 +282,7 @@ class CreateCommand extends Command
         while (! in_array($instance_salt_name, $salt_keys)) {
             $this->docker->executeDockerCommand($instance_name, "killall -9 salt-minion");
             $this->docker->executeDockerCommand($instance_name, "rm -rf /var/lib/salt/pki/minion/*");
-            $this->docker->executeDockerCommand("doil_saltmain", "salt-key -d " . $instance_salt_name);
+            $this->docker->executeDockerCommand("doil_saltmain", "salt-key -d " . $instance_salt_name . " -y");
             $this->docker->executeDockerCommand($instance_name, "salt-minion -d");
 
             sleep(5);

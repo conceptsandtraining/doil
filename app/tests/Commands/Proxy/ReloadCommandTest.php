@@ -29,12 +29,13 @@ class ReloadCommandTest extends TestCase
         ;
         $docker
             ->expects($this->once())
-            ->method("executeQuietCommand")
+            ->method("executeCommand")
             ->with(
                 "/usr/local/lib/doil/server/proxy",
                 "doil_proxy",
-                "/etc/init.d/nginx",
-                "reload"
+                "/bin/bash",
+                "-c",
+                "/etc/init.d/nginx reload &>/dev/null"
             )
         ;
 

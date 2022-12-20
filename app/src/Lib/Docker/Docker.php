@@ -14,7 +14,7 @@ interface Docker
     public function isInstanceUp(string $path) : bool;
     public function executeCommand(string $path, string $name, ...$command) : void;
     public function executeBashCommandInsideContainer(string $name, ?string $working_dir, string ...$command) : void;
-    public function executeQuietCommand(string $path, string $name, ...$command) : void;
+    public function hasVolume(string $name) : bool;
     public function removeVolume(string $name) : void;
     public function getImageIdsByName(string $name) : array;
     public function removeImage(string $id) : void;
@@ -24,8 +24,8 @@ interface Docker
      */
     public function getSaltAcceptedKeys() : array;
     public function getShadowHashForInstance(string $name, string $password) : string;
-    public function applyState(string $name, string $state) : string;
     public function commit(string $instance_name, ?string $image_name = null) : void;
+    public function applyState(string $name, string $state) : void;
     public function copy(string $instance_name, string $from, string $to) : void;
     public function listContainerDirectory(string $container_name, string $path) : array;
     public function pull(string $name) : void;
