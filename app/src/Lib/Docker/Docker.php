@@ -23,9 +23,9 @@ interface Docker
      * @return string[]
      */
     public function getSaltAcceptedKeys() : array;
-
+    public function getShadowHashForInstance(string $name, string $password) : string;
     public function applyState(string $name, string $state) : string;
-    public function commit(string $name) : void;
+    public function commit(string $instance_name, ?string $image_name = null) : void;
     public function copy(string $instance_name, string $from, string $to) : void;
     public function listContainerDirectory(string $container_name, string $path) : array;
     public function pull(string $name) : void;
