@@ -43,6 +43,7 @@ function buildContainerForApp() : Container
             $c["command.instances.path"],
             $c["command.instances.status"],
             $c["command.instances.up"],
+            $c["command.mail.change.password"],
             $c["command.mail.down"],
             $c["command.mail.login"],
             $c["command.mail.restart"],
@@ -206,6 +207,14 @@ function buildContainerForApp() : Container
             $c["posix.shell"],
             $c["filesystem.shell"],
             $c["command.writer"]
+        );
+    };
+
+    $c["command.mail.change.password"] = function($c) {
+        return new Mail\ChangePasswordCommand(
+            $c["docker.shell"],
+            $c["command.writer"],
+            $c["posix.shell"]
         );
     };
 

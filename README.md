@@ -299,6 +299,7 @@ to fit your workflow or requirements, **doil** provides commands to tamper with
 the mailserver in the background. These commands will not be required by ordinary
 users, so make sure to understand what you are doing.
 
+* `doil mail:change-password` changes the default password for roundcube
 * `doil mail:login` logs the user into the mail server
 * `doil mail:start` starts the mail server
 * `doil mail:stop` stops the mail server
