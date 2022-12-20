@@ -65,7 +65,8 @@ class ApplyCommand extends Command
         if (
             $state == "mailservices" ||
             $state == "proxyservices" ||
-            $state == "reactor"
+            $state == "reactor" ||
+            $state == "change-roundcube-password"
         ) {
             $this->writer->error(
                 $output,
@@ -99,7 +100,8 @@ class ApplyCommand extends Command
                if (
                    $s == "mailservices" ||
                    $s == "proxyservices" ||
-                   $s == "reactor"
+                   $s == "reactor" ||
+                   $s == "change-roundcube-password"
                ) {
                    return false;
                }

@@ -222,6 +222,23 @@ class DockerShell implements Docker
         return json_decode($this->run($cmd), true)["minions"];
     }
 
+    public function getShadowHashForInstance(string $name, string $password) : string
+    {
+        $cmd = [
+            "docker",
+            "exec",
+            "-i",
+            "doil_saltmain",
+            "bash",
+            "-c",
+            "salt \"$name\" shadow.gen_password \"$password\" --out txt"
+        ];
+
+        $result = explode(' ', $this->run($cmd));
+
+        return trim($result[1]);
+    }
+
     public function applyState(string $name, string $state) : string
     {
         $cmd = [
@@ -237,13 +254,17 @@ class DockerShell implements Docker
         return $this->run($cmd);
     }
 
-    public function commit(string $name) : void
+    public function commit(string $instance_name, ?string $image_name = null) : void
     {
+        if (is_null($image_name)) {
+            $image_name = "doil/$instance_name:stable";
+        }
+
         $cmd = [
             "docker",
             "commit",
-            $name,
-            "doil/$name:stable"
+            $instance_name,
+            "$image_name:stable"
         ];
 
         $this->run($cmd);

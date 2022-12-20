@@ -652,6 +652,8 @@ file_roots:
     - /srv/salt/states/base
   dev:
     - /srv/salt/states/dev
+  change-roundcube-password:
+      - /srv/salt/states/change-roundcube-password
   disable-xdebug:
         - /srv/salt/states/disable-xdebug
   enable-xdebug:
