@@ -122,6 +122,15 @@ then
   exit
 fi
 
+# check for .ssh folder
+doil_check_ssh
+if [[ $? -ne 0 ]]
+then
+  doil_status_failed
+  doil_status_send_error "REQUIREMENT ERROR" "Missing .ssh folder!\n\tThis folder is required by doil.\n\tIf you only use public github repositories, please create\n\tan empty .ssh folder in your home directory to fit this doil condition.\n\tOtherwise you should create ssh keys and link them with your private git repositories.\n\tFollow this link https://docs.github.com/de/authentication/connecting-to-github-with-ssh/about-ssh for more information."
+  exit
+fi
+
 # status for check requirements
 doil_status_okay
 
