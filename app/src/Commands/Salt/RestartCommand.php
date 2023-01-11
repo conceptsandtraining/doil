@@ -49,6 +49,10 @@ class RestartCommand extends Command
                 $instance,
                 "supervisorctl start startup"
             );
+            $this->docker->executeDockerCommand(
+                $instance,
+                "/etc/init.d/salt-minion restart"
+            );
         }
         $this->writer->endBlock();
 

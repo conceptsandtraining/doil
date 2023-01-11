@@ -22,7 +22,11 @@ function doil_system_remove_old_version() {
   fi
   if [ -d "/usr/local/lib/doil" ]
   then
-    rm -rf /usr/local/lib/doil/lib
+    rm -rf /usr/local/lib/doil
+  fi
+  if [ -d "/usr/local/share/doil/stack" ]
+  then
+    rm -rf /usr/local/share/doil/stack/*
   fi
   return 0
 }
@@ -242,13 +246,14 @@ function doil_system_setup_log() {
 }
 
 function doil_system_stop_all_services() {
-  doil system:proxy stop
-  doil system:salt stop
+  doil down -a
+  doil proxy:down
+  doil salt:down
+  doil mail:down
 }
 
 function doil_system_remove_services() {
-  docker image rm doil_proxy --force 2>&1 > /var/log/doil/stream.log
-  docker image rm saltmain --force 2>&1 > /var/log/doil/stream.log
+  sudo doil system:uninstall -y
 }
 
 function doil_system_install_saltserver() {

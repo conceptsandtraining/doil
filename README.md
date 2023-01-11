@@ -14,10 +14,9 @@ install it if possible.
 1. you can remove the downloaded folder afterwards
 1. check `doil help` for available commands and further instructions
 
-## Update (currently not available)
-The update command will have a comeback in the following releases.  
-
-Because **doil** now uses PHP after the conversion, we recommend completely removing an already installed
+## Update
+ 
+If you use a **doil** version older than 20221110, we recommend completely removing an already installed
 **doil** from the system. This includes already installed instances. After that, you can proceed to the
 Installation section.
 
@@ -31,6 +30,14 @@ Removal Tips:
 * `docker volume rm <volume_name>` remove volume by name (ensure to delete mail, proxy and salt)
 * `docker network prune` removes all networks without dependencies
 * `sudo rm -rf /etc/doil /usr/local/lib/doil /usr/local/share/doil /usr/local/bin/doil ~/.doil`
+
+Otherwise, use the update script.
+
+1. checkout the newest master branch or copy and extract the zip
+2. cd into the unpacked directory
+3. execute sudo ./setup/update.sh in order to update **doil**
+4. you can remove the downloaded folder afterwards
+
 
 ## Dependencies
 

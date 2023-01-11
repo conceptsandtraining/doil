@@ -653,11 +653,11 @@ file_roots:
   dev:
     - /srv/salt/states/dev
   change-roundcube-password:
-      - /srv/salt/states/change-roundcube-password
+    - /srv/salt/states/change-roundcube-password
   disable-xdebug:
-        - /srv/salt/states/disable-xdebug
+    - /srv/salt/states/disable-xdebug
   enable-xdebug:
-      - /srv/salt/states/enable-xdebug
+    - /srv/salt/states/enable-xdebug
   php7.0:
     - /srv/salt/states/php7.0
   php7.1:
@@ -675,13 +675,13 @@ file_roots:
   ilias-postinstall:
     - /srv/salt/states/ilias-postinstall
   composer:
-  - /srv/salt/states/composer
+    - /srv/salt/states/composer
   composer2:
-  - /srv/salt/states/composer2
+    - /srv/salt/states/composer2
   composer54:
-  - /srv/salt/states/composer54
+    - /srv/salt/states/composer54
   composerupdate:
-  - /srv/salt/states/composerupdate
+    - /srv/salt/states/composerupdate
   autoinstall:
     - /srv/salt/states/autoinstall
   access:

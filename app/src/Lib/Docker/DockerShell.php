@@ -257,7 +257,7 @@ class DockerShell implements Docker
     public function commit(string $instance_name, ?string $image_name = null) : void
     {
         if (is_null($image_name)) {
-            $image_name = "doil/$instance_name:stable";
+            $image_name = "doil/$instance_name";
         }
 
         $cmd = [
