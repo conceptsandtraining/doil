@@ -54,6 +54,7 @@ class UninstallCommand extends Command
     {
         $this
             ->addOption("prune", "p", InputOption::VALUE_NONE, "also delete all instances, doil users and doil config")
+            ->addOption("yes", "y", InputOption::VALUE_NONE, "answer interaction questions with yes")
         ;
     }
 
@@ -64,12 +65,14 @@ class UninstallCommand extends Command
             return Command::FAILURE;
         }
 
-        $helper = $this->getHelper("question");
-        $question = new ConfirmationQuestion("Please confirm that you want to uninstall doil [yN]: ", false);
+        if (! $input->getOption("yes")) {
+            $helper = $this->getHelper("question");
+            $question = new ConfirmationQuestion("Please confirm that you want to uninstall doil [yN]: ", false);
 
-        if (!$helper->ask($input, $output, $question)) {
-            $output->writeln("Abort by user!");
-            return Command::FAILURE;
+            if (!$helper->ask($input, $output, $question)) {
+                $output->writeln("Abort by user!");
+                return Command::FAILURE;
+            }
         }
 
         $prune = $input->getOption("prune");
