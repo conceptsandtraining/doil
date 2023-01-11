@@ -207,20 +207,20 @@ function doil_perform_update() {
 
   # if we are on a version somewhere around 1.4 we need
   # to apply all of the updates
-  # elsewise we only apply the updates we need
+  # otherwise we only apply the updates we need
   DOIL_VERSION=$(doil_get_doil_version)
   DOIL_VERSION_SIZE=${#DOIL_VERSION}
+
   doil_test_version_compare "8" ${DOIL_VERSION_SIZE} "="
-  if [ $? -ne 0 ]
+  if [[ $? -ne 0 || ${DOIL_VERSION} -lt "20221110" ]]
   then
-    DOIL_VERSION_TYPE="old"
-  else
-    DOIL_VERSION_TYPE="new"
+    echo "Your doil version is no longer supported by this update. Please read the README.md for more information."
+    exit
   fi
 
-  UPDATE_FILES=$(find ./src/updates/ -type f -name "update-*")
+  UPDATE_FILES=$(find ./setup/updates/ -type f -name "update-*")
 
-  for UPDATE_FILE in ${UPDATE_FILES[@]}
+  for UPDATE_FILE in "${UPDATE_FILES[@]}"
   do
     source ${UPDATE_FILE}
     for UPDATE in $(set | grep  -E '^doil_update.* \(\)' | sed -e 's: .*::')
@@ -230,14 +230,11 @@ function doil_perform_update() {
         UPDATES=("${UPDATES[@]}" ${UPDATE})
         UPDATE_NAME=$(echo ${UPDATE} | cut -d "_" -f 3)
 
-        if [[ ${DOIL_VERSION_TYPE} == "new" ]]
-        then
-          doil_test_version_compare ${DOIL_VERSION} ${UPDATE_NAME} "<"
+        doil_test_version_compare ${DOIL_VERSION} ${UPDATE_NAME} "<"
 
-          if [ $? -ne 0 ]
-          then
-            continue
-          fi
+        if [ $? -ne 0 ]
+        then
+          continue
         fi
 
         echo "Apply patch ${UPDATE_NAME}"
