@@ -8,6 +8,9 @@ class PosixShell implements Posix
 {
     public function getUserId() : int
     {
+        if (getenv("SUDO_UID")) {
+            return (int) getenv("SUDO_UID");
+        }
         return posix_getuid();
     }
 

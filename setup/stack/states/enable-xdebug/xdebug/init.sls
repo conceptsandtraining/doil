@@ -1,10 +1,8 @@
 {% set maj = salt['cmd.shell']('php -r "echo PHP_MAJOR_VERSION;"')  %}
 {% set min = salt['cmd.shell']('php -r "echo PHP_MINOR_VERSION;"')  %}
 
-php{{ maj }}.{{ min }}:
-  pkg.installed:
-    - pkgs:
-      - php{{ maj }}.{{ min }}-xdebug
+php{{ maj }}.{{ min }}-xdebug:
+  pkg.installed
 
 /etc/php/{{ maj }}.{{ min }}/apache2/php.ini:
   file.append:

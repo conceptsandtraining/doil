@@ -45,7 +45,7 @@ doil_status_send_error() {
 
 doil_status_okay() {
   exec >>/dev/tty 2>&1
-  printf " ${GREEN}ok${NC}\n"
+  printf " ${GREEN}done${NC}\n"
 
   RESET=${2}
   if [[ ! -z ${RESET} ]]
