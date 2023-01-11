@@ -193,3 +193,16 @@ function doil_check_docker_version() {
   doil_test_version_compare ${DOCKER_VERSION} "19.02" ">"
   return $?
 }
+
+# checks if .ssh folder exists
+#
+# return 255 if .shh is not exists
+# return 0 if .ssh is exists
+function doil_check_ssh() {
+  if [[ -d /home/$SUDO_USER/.ssh ]]
+    then
+      return 0
+    fi
+
+  return 255
+}
