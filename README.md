@@ -301,6 +301,13 @@ login data:
 * User: www-data
 * Password: ilias
 
+You can change the password in the **doil** config file `setup/conf/doil.conf`.
+Before installing **doil** change the default password to your password.
+If doil is already installed you can change the password by `doil mail:change-password <password>`.
+Please ensure you also update the password in your actual installed
+**doil** config `/etc/doil/doil.conf`, so you don't have to set the passwort again after a doil update.
+
+
 Every minion sends all E-Mails to this mailserver.
 
 To be able to dive deeper into the inner workings of **doil** or customize it
