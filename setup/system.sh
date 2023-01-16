@@ -277,5 +277,12 @@ function doil_system_install_mailserver() {
   BUILD=$(docker-compose up -d 2>&1 > /var/log/doil/stream.log) 2>&1 > /var/log/doil/stream.log
   sleep 10
   docker exec -i doil_saltmain bash -c "salt 'doil.postfix' state.highstate saltenv=mailservices" 2>&1 > /var/log/doil/stream.log
+  PASSWORD=$(doil_get_conf mail_password)
+  if [[ "${PASSWORD}" != "ilias" ]]
+  then
+    PASSWORD_HASH=$(docker exec -i doil_saltmain bash -c "salt \"doil.postfix\" shadow.gen_password \"${PASSWORD}\" --out txt" | cut -d ' ' -f 2-)
+    docker exec -i doil_saltmain bash -c "salt \"doil.postfix\" grains.setval 'roundcube_password' '${PASSWORD_HASH}'" 2>&1 > /var/log/doil/stream.log
+    docker exec -i doil_saltmain bash -c "salt \"doil.postfix\" state.highstate saltenv=change-roundcube-password" 2>&1 > /var/log/doil/stream.log
+  fi
   docker commit doil_postfix doil_postfix:stable 2>&1 > /var/log/doil/stream.log
 }
