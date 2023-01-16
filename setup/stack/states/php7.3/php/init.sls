@@ -75,6 +75,14 @@ ini_postmax_cli:
   cmd.run:
     - name: sed -i "/post_max_size*/c post_max_size = 4096M" /etc/php/7.3/cli/php.ini
 
+ini_max_execution_time_apache2:
+  cmd.run:
+    - name: sed -i "/max_execution_time*/c max_execution_time = 3600" /etc/php/7.3/apache2/php.ini
+
+ini_max_execution_time_cli:
+  cmd.run:
+    - name: sed -i "/max_execution_time*/c max_execution_time = 3600" /etc/php/7.3/cli/php.ini
+
 a2_enable_php:
   module.run:
     - name: apache.a2enmod
