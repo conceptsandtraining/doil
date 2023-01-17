@@ -39,6 +39,11 @@ class RestartCommand extends Command
         $this->writer->beginBlock($output, "Restart proxy server");
         $this->docker->stopContainerByDockerCompose(self::PROXY_PATH);
         $this->docker->startContainerByDockerCompose(self::PROXY_PATH);
+        sleep(3);
+        $this->docker->executeDockerCommand(
+            "doil_proxy",
+            "supervisorctl start startup"
+        );
         $this->writer->endBlock();
 
         return Command::SUCCESS;

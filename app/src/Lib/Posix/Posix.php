@@ -7,6 +7,7 @@ namespace CaT\Doil\Lib\Posix;
 interface Posix
 {
     public function getUserId() : int;
+    public function isSudo() : bool;
     public function getGroupId() : int;
     public function getCurrentUserName() : string;
     public function getHomeDirectory(int $user_id) : string;

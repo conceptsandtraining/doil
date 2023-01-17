@@ -35,7 +35,7 @@ function check_requirements() {
     if [[ $? -ne 0 ]]
     then
       doil_status_failed
-      doil_status_send_error "REQUIREMENT ERROR" "Please ensure that port 80 and port 443 are available and free!"
+      doil_status_send_error "REQUIREMENT ERROR" "Please ensure that port 80 and port 443 are available and free! Maybe an Apache webserver is running?"
       exit
     fi
   fi

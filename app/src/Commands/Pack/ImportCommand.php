@@ -155,9 +155,16 @@ class ImportCommand extends Command
 
         $this->writer->beginBlock($output, "Copying necessary files");
 
-        $this->filesystem->copy($unpacked . "/var/www/html/ilias.ini.php", $path . "/volumes/ilias/ilias.ini.php");
+        if ($create) {
+            $this->filesystem->copy($unpacked . "/var/www/html/ilias.ini.php", $path . "/volumes/ilias/ilias.ini.php");
+        } else {
+            $this->filesystem->copy($path . "/volumes/data/ilias-config.json", "/tmp/ilias-config.json");
+        }
         $this->filesystem->copyDirectory($unpacked . "/var/www/html/data", $path . "/volumes/ilias/data");
         $this->filesystem->copyDirectory($unpacked . "/var/ilias/data", $path . "/volumes/data");
+        if (! $create) {
+            $this->filesystem->copy("/tmp/ilias-config.json", $path . "/volumes/data/ilias-config.json");
+        }
         if ($sql_dump != "") {
             $this->filesystem->copy($sql_dump, $path . "/volumes/data/ilias.sql");
         }

@@ -84,7 +84,7 @@ class DockerShell implements Docker
             "ps",
             "-a",
             "--format",
-            "table {{.Names}}\t{{.Status}}\t{{.RunningFor}}\t{{.Image}}\t{{.ID}}\t{{.Ports}}"
+            "table {{.Names}}\t{{.Status}}\t{{.Image}}\t{{.ID}}\t{{.Ports}}"
         ];
         $logger = $this->logger->getDoilLogger("DOCKER");
         return explode("\n", $this->run($cmd, $logger));
@@ -204,14 +204,13 @@ class DockerShell implements Docker
             "docker",
             "volume",
             "rm",
-            $name,
-            "&>/dev/null"
+            $name
         ];
 
         $logger = $this->logger->getDoilLogger("DOCKER");
         $logger->info("Remove volume $name");
 
-        $this->runTTY($cmd, $logger);
+        $this->run($cmd, $logger);
     }
 
     public function getImageIdsByName(string $name) : array
@@ -469,13 +468,12 @@ class DockerShell implements Docker
             "docker",
             "network",
             "prune",
-            "-f",
-            "&>/dev/null"
+            "-f"
         ];
 
         $logger = $this->logger->getDoilLogger("DOCKER");
         $logger->info("Prune network");
-        $this->runTTY($cmd, $logger);
+        $this->run($cmd, $logger);
     }
 
     protected function getImageNameByInstance(string $instance) : string
@@ -496,12 +494,11 @@ class DockerShell implements Docker
         $cmd = [
             "docker",
             "kill",
-            $name,
-            "&>/dev/null"
+            $name
         ];
 
         $logger = $this->logger->getDoilLogger($name);
-        $this->runTTY($cmd, $logger);
+        $this->run($cmd, $logger);
     }
 
     protected function startDoilSystemsIfNeeded() : void
@@ -511,9 +508,19 @@ class DockerShell implements Docker
         }
         if (! $this->isInstanceUp(self::PROXY)) {
             $this->startContainerByDockerComposeWithForceRecreate(self::PROXY);
+            sleep(5);
+            $this->executeDockerCommand(
+                "doil_proxy",
+                "supervisorctl start startup"
+            );
         }
         if (! $this->isInstanceUp(self::MAIL)) {
             $this->startContainerByDockerComposeWithForceRecreate(self::MAIL);
+            sleep(5);
+            $this->executeDockerCommand(
+                "doil_postfix",
+                "supervisorctl start startup"
+            );
         }
     }
 
@@ -548,7 +555,14 @@ class DockerShell implements Docker
             $name,
             "/bin/bash",
             "-c",
-            "/etc/init.d/salt-minion restart &>/dev/null"
+            "killall -9 salt-minion &>/dev/null"
+        );
+        $this->executeCommand(
+            $path,
+            $name,
+            "/bin/bash",
+            "-c",
+            "/etc/init.d/salt-minion start &>/dev/null"
         );
     }
 }
