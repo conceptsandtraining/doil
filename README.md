@@ -64,6 +64,8 @@ Additional dependencies, but these are installed automatically during setup.
 * psr/log
 * monolog/monolog
 
+The easiest way to fulfill the dependencies is Ubuntu 22.01, but it should also be possible with any other Linux installation.
+
 ## Usage
 
 ### Quick Start

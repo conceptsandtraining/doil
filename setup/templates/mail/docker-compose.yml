@@ -14,6 +14,12 @@ services:
       salt_saltnet:
     volumes:
       - type: bind
+        source: ./conf/salt-startup.sh
+        target: /root/salt-startup.sh
+      - type: bind
+        source: ./conf/startup.conf
+        target: /etc/supervisor/conf.d/startup.conf
+      - type: bind
         source: ./conf/salt-minion.conf
         target: /etc/supervisor/conf.d/salt-minion.conf
       - type: bind

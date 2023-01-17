@@ -38,6 +38,11 @@ class UpCommand extends Command
 
         $this->writer->beginBlock($output, "Start proxy server");
         $this->docker->startContainerByDockerCompose(self::PROXY_PATH);
+        sleep(3);
+        $this->docker->executeDockerCommand(
+            "doil_proxy",
+            "supervisorctl start startup"
+        );
         $this->writer->endBlock();
 
         return Command::SUCCESS;
