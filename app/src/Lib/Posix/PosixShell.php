@@ -14,6 +14,11 @@ class PosixShell implements Posix
         return posix_getuid();
     }
 
+    public function isSudo() : bool
+    {
+        return posix_getuid() == 0;
+    }
+
     public function getGroupId() : int
     {
         return posix_getgid();

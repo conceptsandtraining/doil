@@ -88,6 +88,10 @@ a2_enable_php:
     - name: apache.a2enmod
     - mod: php8.1
 
+update_alternatives_php:
+  cmd.run:
+    - name: update-alternatives --set php /usr/bin/php8.1 &>/dev/null
+
 apache2_supervisor_signal:
   cmd.run:
     - name: supervisorctl restart apache2

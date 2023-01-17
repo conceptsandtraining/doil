@@ -94,7 +94,14 @@ class DownCommand extends Command
             return Command::FAILURE;
         }
 
-        if ($this->docker->isInstanceUp($path)) {
+        try {
+            $result = $this->docker->isInstanceUp($path);
+        } catch (\Exception $e) {
+            $this->writer->error($output, $e->getMessage());
+            $result = false;
+        }
+
+        if ($result) {
             $this->writer->beginBlock($output, "Stop instance $instance");
             $this->docker->stopContainerByDockerCompose($path);
             $this->writer->endBlock();

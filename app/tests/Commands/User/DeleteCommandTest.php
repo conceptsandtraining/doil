@@ -25,7 +25,7 @@ class DeleteCommandTest extends TestCase
         $tester = new CommandTester($command);
 
         $this->expectException(InvalidArgumentException::class);
-        $tester->execute([]);
+        $tester->execute(["foo" => "bar"]);
     }
 
     public function test_execute_as_non_root() : void
@@ -40,8 +40,8 @@ class DeleteCommandTest extends TestCase
 
         $posix
             ->expects($this->once())
-            ->method("getUserId")
-            ->willReturn(1)
+            ->method("isSudo")
+            ->willReturn(false)
         ;
 
         $execute_result = $tester->execute(["name" => "foo1"]);
@@ -65,8 +65,8 @@ class DeleteCommandTest extends TestCase
 
         $posix
             ->expects($this->once())
-            ->method("getUserId")
-            ->willReturn(0)
+            ->method("isSudo")
+            ->willReturn(true)
         ;
         $posix
             ->expects($this->once())
@@ -97,8 +97,8 @@ class DeleteCommandTest extends TestCase
 
         $posix
             ->expects($this->once())
-            ->method("getUserId")
-            ->willReturn(0)
+            ->method("isSudo")
+            ->willReturn(true)
         ;
         $posix
             ->expects($this->once())
@@ -142,8 +142,8 @@ class DeleteCommandTest extends TestCase
 
         $posix
             ->expects($this->once())
-            ->method("getUserId")
-            ->willReturn(0)
+            ->method("isSudo")
+            ->willReturn(true)
         ;
         $posix
             ->expects($this->once())

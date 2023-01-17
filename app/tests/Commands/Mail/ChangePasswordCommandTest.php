@@ -22,8 +22,8 @@ class ChangePasswordCommandTest extends TestCase
 
         $posix
             ->expects($this->once())
-            ->method("getUserId")
-            ->willReturn(1)
+            ->method("isSudo")
+            ->willReturn(false)
         ;
 
         $execute_result = $tester->execute(["password" => "foo"]);
@@ -45,8 +45,8 @@ class ChangePasswordCommandTest extends TestCase
 
         $posix
             ->expects($this->once())
-            ->method("getUserId")
-            ->willReturn(0)
+            ->method("isSudo")
+            ->willReturn(true)
         ;
 
         $docker

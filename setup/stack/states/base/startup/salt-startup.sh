@@ -3,10 +3,14 @@
 # start cron service
 service cron start
 
-# we need to remove the master pub key becase the
-# startup of this machine envokes new not accepted
+# we need to remove the master pub key because the
+# startup of this machine invokes new not accepted
 # crypto stuff
-rm /var/lib/salt/pki/minion/minion_master.pub
+if [ -f "/var/lib/salt/pki/minion/minion_master.pub" ]
+then
+  rm /var/lib/salt/pki/minion/minion_master.pub
+fi
+
 
 # call the event which calls the script to build the
 # configuration for the proxy server

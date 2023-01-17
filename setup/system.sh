@@ -246,10 +246,13 @@ function doil_system_setup_log() {
 }
 
 function doil_system_stop_all_services() {
-  doil down -a
   doil proxy:down
   doil salt:down
   doil mail:down
+}
+
+function doil_system_stop_instances() {
+  doil down -a --quiet
 }
 
 function doil_system_remove_services() {
