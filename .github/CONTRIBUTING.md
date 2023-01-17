@@ -25,12 +25,16 @@ Version 1.4.5 of doil will be the last version using the [semantic versioning sc
 ### Regarding Issues, PRs, Commits
 
 * Every issue will be added with the predefined issue forms such as "Improvment" and "Issue Report"
-* Every new issue will be reviewed by the project maintainer. If the issue will be approved it will assigned with certain labels (improvement, bug, ...) and will be added to the [project](https://github.com/conceptsandtraining/doil/projects/7) to the column "Backlog".
-* The way every issue follows: Backlog (New) > Todo (Next thing to do) > Doing > Review (done by maintainer) > Done (closed or merged). Usually this will be done automatically but will be overlooked by the maintainer.
-* Every commit must be linked to the issue with following pattern: `#${ISSUENUMBER} - ${MESSAGE}`
+* Every new issue will be reviewed by the project maintainer. If the issue is approved, it will be assigned certain labels (improvement, bug, ...).
+* Every commit must be linked to the issue with the following pattern: `#${ISSUENUMBER}`
 * Every PR only contains one commit and one reference to a specific issue
 
 ## Coding Guidelines
 
+### setup
 * We want to implement the [google shell styleguide](https://google.github.io/styleguide/shellguide.html) in the long run.
 * doil is using an internal unit testing tool called "tstfy" which handles automated tests. Every developer is required to use it.
+
+### app
+* This part of **doil** is implemented in PHP7.4. We want to accomplish the [PSR-12](https://www.php-fig.org/psr/psr-12/) guidelines.
+* This part of **doil** is under unit testing. Please ensure to only add php code, which is also under unit testing.
