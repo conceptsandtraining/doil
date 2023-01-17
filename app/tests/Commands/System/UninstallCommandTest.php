@@ -30,8 +30,8 @@ class UninstallCommandTest extends TestCase
 
        $posix
            ->expects($this->once())
-           ->method("getUserId")
-           ->willReturn(1)
+           ->method("isSudo")
+           ->willReturn(false)
        ;
 
         $execute_result = $tester->execute([]);
@@ -58,8 +58,8 @@ class UninstallCommandTest extends TestCase
 
         $posix
             ->expects($this->once())
-            ->method("getUserId")
-            ->willReturn(0)
+            ->method("isSudo")
+            ->willReturn(true)
         ;
 
         $tester->setInputs(["N"]);
@@ -90,8 +90,8 @@ class UninstallCommandTest extends TestCase
 
         $posix
             ->expects($this->once())
-            ->method("getUserId")
-            ->willReturn(0)
+            ->method("isSudo")
+            ->willReturn(true)
         ;
 
         $user_manager
@@ -213,6 +213,17 @@ class UninstallCommandTest extends TestCase
         ;
         $docker
             ->expects($this->exactly(4))
+            ->method("hasVolume")
+            ->withConsecutive(
+                ["proxy_persistent"],
+                ["salt_persistent"],
+                ["mail_mail"],
+                ["mail_sieve"]
+            )
+            ->willReturn(true)
+        ;
+        $docker
+            ->expects($this->exactly(4))
             ->method("removeVolume")
             ->withConsecutive(
                 ["proxy_persistent"],
@@ -253,8 +264,8 @@ class UninstallCommandTest extends TestCase
 
         $posix
             ->expects($this->once())
-            ->method("getUserId")
-            ->willReturn(0)
+            ->method("isSudo")
+            ->willReturn(true)
         ;
 
         $filesystem
@@ -307,6 +318,17 @@ class UninstallCommandTest extends TestCase
                 ["456"],
                 ["789"]
             )
+        ;
+        $docker
+            ->expects($this->exactly(4))
+            ->method("hasVolume")
+            ->withConsecutive(
+                ["proxy_persistent"],
+                ["salt_persistent"],
+                ["mail_mail"],
+                ["mail_sieve"]
+            )
+            ->willReturn(true)
         ;
         $docker
             ->expects($this->exactly(4))

@@ -60,7 +60,7 @@ class UninstallCommand extends Command
 
     public function execute(InputInterface $input, OutputInterface $output) : int
     {
-        if ($this->posix->getUserId() !== 0) {
+        if (! $this->posix->isSudo()) {
             $this->writer->error($output, "Please execute this script as sudo user!");
             return Command::FAILURE;
         }
@@ -122,7 +122,9 @@ class UninstallCommand extends Command
         foreach ($this->docker->getImageIdsByName("doil_proxy") as $id) {
             $this->docker->removeImage($id);
         }
-        $this->docker->removeVolume("proxy_persistent");
+        if ($this->docker->hasVolume("proxy_persistent")) {
+            $this->docker->removeVolume("proxy_persistent");
+        }
         $this->writer->endBlock();
 
         $this->writer->beginBlock($output, "Removing salt server ");
@@ -132,7 +134,9 @@ class UninstallCommand extends Command
         foreach ($this->docker->getImageIdsByName("doil_saltmain") as $id) {
             $this->docker->removeImage($id);
         }
-        $this->docker->removeVolume("salt_persistent");
+        if ($this->docker->hasVolume("salt_persistent")) {
+            $this->docker->removeVolume("salt_persistent");
+        }
         $this->writer->endBlock();
 
         $this->writer->beginBlock($output, "Removing mail server");
@@ -142,8 +146,12 @@ class UninstallCommand extends Command
         foreach ($this->docker->getImageIdsByName("doil_postfix") as $id) {
             $this->docker->removeImage($id);
         }
-        $this->docker->removeVolume("mail_mail");
-        $this->docker->removeVolume("mail_sieve");
+        if ($this->docker->hasVolume("mail_mail")) {
+            $this->docker->removeVolume("mail_mail");
+        }
+        if ($this->docker->hasVolume("mail_sieve")) {
+            $this->docker->removeVolume("mail_sieve");
+        }
         $this->writer->endBlock();
 
         $this->writer->beginBlock($output, "Removing doil");

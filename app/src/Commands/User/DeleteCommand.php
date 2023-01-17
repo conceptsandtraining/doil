@@ -45,7 +45,7 @@ class DeleteCommand extends Command
 
     public function execute(InputInterface $input, OutputInterface $output) : int
     {
-        if ($this->posix->getUserId() !== 0) {
+        if (! $this->posix->isSudo()) {
             $this->writer->error(
                 $output,
                 "Please execute this script as sudo user!"

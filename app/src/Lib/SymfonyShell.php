@@ -33,7 +33,7 @@ trait SymfonyShell
         $process->run();
 
         // executes after the command finishes
-        if (! $process->isSuccessful()) {
+        if (! $process->isSuccessful() && ! $process->isTerminated()) {
             $logger->error($process->getErrorOutput() ?: $process->getCommandLine());
             throw new ProcessFailedException($process);
         }

@@ -62,13 +62,11 @@ class RestartCommandTest extends TestCase
             ->willReturn(["foo1", "foo2"])
         ;
         $docker
-            ->expects($this->exactly(4))
+            ->expects($this->exactly(2))
             ->method("executeDockerCommand")
             ->withConsecutive(
                 ["foo1", "supervisorctl start startup"],
-                ["foo1", "/etc/init.d/salt-minion restart"],
-                ["foo2", "supervisorctl start startup"],
-                ["foo2", "/etc/init.d/salt-minion restart"]
+                ["foo2", "supervisorctl start startup"]
             )
         ;
 

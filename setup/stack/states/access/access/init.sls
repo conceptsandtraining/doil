@@ -25,7 +25,7 @@ packages_check:
       - user
       - group
 
-{%- if salt['file.directory_exists' ]('/var/www/html/CI/tools') %}
+{%- if salt['file.file_exists' ]('/var/www/html/CI/tools/compile-skins.sh') %}
 /var/www/html/CI/tools/compile-skins.sh:
   file.managed:
     - mode: 775
