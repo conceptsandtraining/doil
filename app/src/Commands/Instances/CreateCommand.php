@@ -310,6 +310,8 @@ class CreateCommand extends Command
         $this->docker->executeDockerCommand("doil_saltmain", "salt \"" . $instance_salt_name . "\" saltutil.refresh_grains");
         $this->writer->endBlock();
 
+        $this->docker->executeDockerCommand($instance_name, "git config --global --add safe.directory \"*\"");
+
         // apply base state
         $this->writer->beginBlock($output, "Apply base state");
         $this->docker->applyState($instance_salt_name, "base");
