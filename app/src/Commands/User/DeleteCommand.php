@@ -60,6 +60,10 @@ class DeleteCommand extends Command
             throw new InvalidArgumentException("Not enough arguments (missing: \"name\" or \"all\")");
         }
 
+        if (! $this->confirmAcknowledgement($input, $output)) {
+            return Command::FAILURE;
+        }
+
         if ($all) {
             $users = $this->user_manager->getUsers();
 
@@ -119,5 +123,16 @@ class DeleteCommand extends Command
         $this->writer->endBlock();
 
         return Command::SUCCESS;
+    }
+
+    protected function confirmAcknowledgement(InputInterface $input, OutputInterface $output) : bool
+    {
+        $helper = $this->getHelper('question');
+        $question = new ConfirmationQuestion("Please ensure to stop and delete all user relevant instances before deleting a user.\nAfter deletion, doil no longer has access to the instances. Proceed [yN]: ", false);
+        if (! $helper->ask($input, $output, $question)) {
+            $output->writeln("Abort by user!");
+            return false;
+        }
+        return true;
     }
 }
