@@ -130,7 +130,7 @@ class ExportCommand extends Command
             if ("" == $name) {
                 throw new RuntimeException("Name of the instance cannot be empty!");
             }
-            if (! preg_match("/^[a-zA-Z0-9]*$/", $name)) {
+            if (! preg_match("/^[a-zA-Z0-9_]*$/", $name)) {
                 throw new RuntimeException("Invalid characters! Only letters and numbers are allowed!");
             }
 
