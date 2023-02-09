@@ -204,6 +204,14 @@ function set_host() {
 function doil_perform_update() {
   declare -a UPDATES
 
+  # No doil binary found > no update
+  # Prevents a file not found error in doil_get_doil_version() if update.sh is called without an existing version
+  if [ ! -f "/usr/local/bin/doil" ]
+  then
+    echo "No current doil version found at /usr/local/bin/doil."
+    exit
+  fi
+
   # if we are on a version somewhere around 1.4 we need
   # to apply all of the updates
   # otherwise we only apply the updates we need
