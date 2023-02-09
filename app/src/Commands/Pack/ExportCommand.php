@@ -16,6 +16,7 @@ use Symfony\Component\Console\Question\Question;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\Console\Question\ConfirmationQuestion;
 
 class ExportCommand extends Command
 {
@@ -50,6 +51,7 @@ class ExportCommand extends Command
     public function execute(InputInterface $input, OutputInterface $output) : int
     {
         $instance = $input->getArgument("instance");
+        $name = $instance . "-doilpack";
 
         $check = $this->checkName();
         $check($instance);
@@ -60,6 +62,12 @@ class ExportCommand extends Command
             $home_dir = $this->posix->getHomeDirectory($this->posix->getUserId());
             $path = "$home_dir/.doil/instances/$instance";
             $suffix = "local";
+        }
+
+        if ($this->filesystem->exists($name . ".zip")) {
+            if (! $this->confirmOverwriting($input, $output, $name)) {
+                return Command::FAILURE;
+            }
         }
 
         if (! $this->hasDockerComposeFile($path, $output)) {
@@ -89,7 +97,6 @@ class ExportCommand extends Command
         $this->writer->endBlock();
 
         $this->writer->beginBlock($output, "Exporting data");
-        $name = $instance . "-doilpack";
 
         $this->filesystem->remove($name);
         $this->filesystem->makeDirectoryRecursive($name . "/var/www/html");
@@ -122,6 +129,17 @@ class ExportCommand extends Command
         $this->writer->endBlock();
 
         return Command::SUCCESS;
+    }
+
+    protected function confirmOverwriting(InputInterface $input, OutputInterface $output, string $name) : bool
+    {
+        $helper = $this->getHelper('question');
+        $question = new ConfirmationQuestion("The file '$name.zip' already exist, do you want to overwrite it [yN]: ", false);
+        if (! $helper->ask($input, $output, $question)) {
+            $output->writeln("Abort by user!");
+            return false;
+        }
+        return true;
     }
 
     protected function checkName() : Closure
