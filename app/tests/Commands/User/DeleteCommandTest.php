@@ -10,7 +10,17 @@ use PHPUnit\Framework\TestCase;
 use CaT\Doil\Lib\ConsoleOutput\Writer;
 use CaT\Doil\Lib\ConsoleOutput\CommandWriter;
 use Symfony\Component\Console\Tester\CommandTester;
+use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Exception\InvalidArgumentException;
+
+class DeleteCommandDummy extends DeleteCommand
+{
+    protected function confirmAcknowledgement(InputInterface $input, OutputInterface $output) : bool
+    {
+        return true;
+    }
+}
 
 class DeleteCommandTest extends TestCase
 {
@@ -21,7 +31,7 @@ class DeleteCommandTest extends TestCase
         $linux = $this->createMock(Linux::class);
         $writer = new CommandWriter();
 
-        $command = new DeleteCommand($user_manager, $posix, $linux, $writer);
+        $command = new DeleteCommandDummy($user_manager, $posix, $linux, $writer);
         $tester = new CommandTester($command);
 
         $this->expectException(InvalidArgumentException::class);
@@ -35,7 +45,7 @@ class DeleteCommandTest extends TestCase
         $linux = $this->createMock(Linux::class);
         $writer = new CommandWriter();
 
-        $command = new DeleteCommand($user_manager, $posix, $linux, $writer);
+        $command = new DeleteCommandDummy($user_manager, $posix, $linux, $writer);
         $tester = new CommandTester($command);
 
         $posix
@@ -60,7 +70,7 @@ class DeleteCommandTest extends TestCase
         $linux = $this->createMock(Linux::class);
         $writer = new CommandWriter();
 
-        $command = new DeleteCommand($user_manager, $posix, $linux, $writer);
+        $command = new DeleteCommandDummy($user_manager, $posix, $linux, $writer);
         $tester = new CommandTester($command);
 
         $posix
@@ -92,7 +102,7 @@ class DeleteCommandTest extends TestCase
         $writer = new CommandWriter();
         $user = new User("doil");
 
-        $command = new DeleteCommand($user_manager, $posix, $linux, $writer);
+        $command = new DeleteCommandDummy($user_manager, $posix, $linux, $writer);
         $tester = new CommandTester($command);
 
         $posix
@@ -137,7 +147,7 @@ class DeleteCommandTest extends TestCase
         $writer = $this->createMock(Writer::class);
         $user = new User("doil");
 
-        $command = new DeleteCommand($user_manager, $posix, $linux, $writer);
+        $command = new DeleteCommandDummy($user_manager, $posix, $linux, $writer);
         $tester = new CommandTester($command);
 
         $posix
