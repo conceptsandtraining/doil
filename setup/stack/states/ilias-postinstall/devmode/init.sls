@@ -3,3 +3,4 @@
     - pattern: '^DEBUG = "0"'
     - repl: 'DEVMODE = "1"\nUSE_WHOOPS = "1"'
     - backup: false
+    - ignore_if_missing: true
