@@ -658,10 +658,6 @@ file_roots:
     - /srv/salt/states/disable-xdebug
   enable-xdebug:
     - /srv/salt/states/enable-xdebug
-  php7.0:
-    - /srv/salt/states/php7.0
-  php7.1:
-    - /srv/salt/states/php7.1
   php7.2:
     - /srv/salt/states/php7.2
   php7.3:
