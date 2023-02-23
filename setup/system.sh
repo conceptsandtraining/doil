@@ -125,7 +125,7 @@ function doil_system_run_composer() {
     rm /usr/local/lib/doil/app/composer.lock
   fi
   COMPOSER=$(which composer)
-  COMPOSER_ALLOW_SUPERUSER=1 ${COMPOSER} -d /usr/local/lib/doil/app/ install -n -q
+  COMPOSER_ALLOW_SUPERUSER=1 ${COMPOSER} install -d /usr/local/lib/doil/app/ -n -q
 
   return 0
 }

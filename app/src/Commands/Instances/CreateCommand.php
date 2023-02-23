@@ -328,7 +328,7 @@ class CreateCommand extends Command
         $this->writer->endBlock();
 
         // apply ilias state
-        $this->writer->beginBlock($output, "Apply ilias state ...");
+        $this->writer->beginBlock($output, "Apply ilias state");
         $this->docker->applyState($instance_salt_name, "ilias");
         $this->writer->endBlock();
 
