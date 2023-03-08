@@ -26,7 +26,6 @@ class GitShell implements Git
             "-C",
             $path,
             "branch",
-            "-a",
             "--format=%(refname:short)",
         ];
 
@@ -34,17 +33,16 @@ class GitShell implements Git
         return array_filter(explode("\n", $this->run($cmd, $this->logger)));
     }
 
-    public function fetchBare(string $path, string $url) : void
+    public function fetchBare(string $path) : void
     {
         $cmd = [
             "git",
             "-C",
             $path,
-            "fetch",
-            $url
+            "fetch"
         ];
 
-        $this->logger->info("Fetch url '$url' to path '$path'");
+        $this->logger->info("Fetch to path '$path'");
         $this->run($cmd, $this->logger);
     }
 

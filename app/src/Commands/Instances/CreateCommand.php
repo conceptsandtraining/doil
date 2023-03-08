@@ -625,7 +625,12 @@ class CreateCommand extends Command
     protected function getBranches(OutputInterface $output, string $path, string $url) : array
     {
         $this->writer->beginBlock($output, "Update repo $url");
-        $this->git->fetchBare($path, $url);
+        $this->git->setLocalConfig(
+            $path,
+            "remote.origin.fetch",
+            "refs/heads/*:refs/heads/*"
+        );
+        $this->git->fetchBare($path);
         $branches = $this->git->getBranches($path);
         $this->writer->endBlock();
         return $branches;
