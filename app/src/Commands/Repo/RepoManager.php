@@ -107,7 +107,12 @@ class RepoManager
         $repo = array_shift($repos);
 
         if ($this->filesystem->exists($path . "/" . $repo->getName())) {
-            $this->git->fetchBare($path . "/" . $repo->getName(), $repo->getUrl());
+            $this->git->setLocalConfig(
+                $path . "/" . $repo->getName(),
+                "remote.origin.fetch",
+                "+refs/heads/*:refs/remotes/origin/*"
+            );
+            $this->git->fetchBare($path . "/" . $repo->getName());
             return;
         }
 

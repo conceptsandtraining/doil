@@ -207,7 +207,7 @@ class RepoManagerTest extends TestCase
         $git
             ->expects($this->once())
             ->method("fetchBare")
-            ->with("/usr/local/share/doil/repositories/global1", "https://global1.git")
+            ->with("/usr/local/share/doil/repositories/global1")
         ;
 
         $repo_manager->updateRepo($repo);
@@ -244,7 +244,7 @@ class RepoManagerTest extends TestCase
         $git
             ->expects($this->once())
             ->method("fetchBare")
-            ->with("/home/doil/.doil/repositories/local1", "https://local1.git")
+            ->with("/home/doil/.doil/repositories/local1")
         ;
 
         $repo_manager->updateRepo($repo);
