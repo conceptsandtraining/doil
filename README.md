@@ -76,7 +76,7 @@ After you installed doil the basic system is ready to go. To get an instance of
 ILIAS running you simply need to do following steps:
 
 1. Head to a folder where you want to store your project. Usually `~/Projects`
-1. Enter following command: `doil create -n -e ilias7 -r ilias -b release_7 -p 7.4 -u`
+1. Enter following command: `doil create -e ilias7 -r ilias -b release_7 -p 7.4 -u`
 
 Don't worry, this will take a while. It creates and instance of ILIAS named `ilias7`
 in your location from the repository `ilias` (see `doil repo:list`) with the known
@@ -255,7 +255,7 @@ via Dockers volumes and can be accessed from the host system.
 
 ### System
 
-**doil** comes with some helpers which are usefull if you want to hack on **doil**:
+**doil** comes with some helpers which are useful if you want to hack on **doil**:
 
 * `doil system:uninstall` will remove doil from your system. users, instance and config remain 
 * `doil system:uninstall --prune` will remove doil completely from your system for all users
@@ -330,7 +330,7 @@ users, so make sure to understand what you are doing.
 Option 1: An instance can be created with the '-x' flag, or alternatively 
 in interactive mode you will be asked to install xdebug.  
 On the command line it could look like this:  
-* `doil create -n -e ilias7 -r ilias -b release_7 -p 7.4 -u -x`
+* `doil create -e ilias7 -r ilias -b release_7 -p 7.4 -u -x`
 
 Option 2: You can apply a state to an already existing instance.  
 To activate xdebug use the following command:

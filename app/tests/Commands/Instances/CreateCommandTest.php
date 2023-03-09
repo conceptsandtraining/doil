@@ -45,36 +45,6 @@ class CreateCommandWrapper extends CreateCommand
 
 class CreateCommandTest extends TestCase
 {
-    public function test_execute_with_empty_instance_param() : void
-    {
-        $docker = $this->createMock(Docker::class);
-        $repo_manager = $this->createMock(RepoManager::class);
-        $git = $this->createMock(Git::class);
-        $posix = $this->createMock(Posix::class);
-        $filesystem = $this->createMock(Filesystem::class);
-        $linux = $this->createMock(Linux::class);
-        $project_config = $this->createMock(ProjectConfig::class);
-        $writer = new CommandWriter();
-
-        $command = new CreateCommand(
-            $docker,
-            $repo_manager,
-            $git,
-            $posix,
-            $filesystem,
-            $linux,
-            $project_config,
-            $writer
-        );
-        $tester = new CommandTester($command);
-        $app = new Application("doil");
-        $command->setApplication($app);
-
-        $this->expectException(RuntimeException::class);
-        $this->expectExceptionMessage("Name of the instance cannot be empty!");
-        $tester->execute(["--no-interaction" => true]);
-    }
-
     public function test_execute_with_wrong_chars_in_instance_param() : void
     {
         $docker = $this->createMock(Docker::class);
@@ -130,69 +100,9 @@ class CreateCommandTest extends TestCase
         $app = new Application("doil");
         $command->setApplication($app);
 
-        $this->expectException(RuntimeException::class);
-        $this->expectExceptionMessage("Repo can not be null!");
+        $this->expectException(\LogicException::class);
+        $this->expectExceptionMessage("Choice question must have at least 1 choice available.");
         $tester->execute(["--no-interaction" => true, "--name" => "1232"]);
-    }
-
-    public function test_execute_with_no_branch_param() : void
-    {
-        $docker = $this->createMock(Docker::class);
-        $repo_manager = $this->createMock(RepoManager::class);
-        $git = $this->createMock(Git::class);
-        $posix = $this->createMock(Posix::class);
-        $filesystem = $this->createMock(Filesystem::class);
-        $linux = $this->createMock(Linux::class);
-        $project_config = $this->createMock(ProjectConfig::class);
-        $writer = new CommandWriter();
-
-        $command = new CreateCommand(
-            $docker,
-            $repo_manager,
-            $git,
-            $posix,
-            $filesystem,
-            $linux,
-            $project_config,
-            $writer
-        );
-        $tester = new CommandTester($command);
-        $app = new Application("doil");
-        $command->setApplication($app);
-
-        $this->expectException(RuntimeException::class);
-        $this->expectExceptionMessage("Branch can not be null!");
-        $tester->execute(["--no-interaction" => true, "--name" => "1232", "--repo" => "foo"]);
-    }
-
-    public function test_execute_with_no_phpversion_param() : void
-    {
-        $docker = $this->createMock(Docker::class);
-        $repo_manager = $this->createMock(RepoManager::class);
-        $git = $this->createMock(Git::class);
-        $posix = $this->createMock(Posix::class);
-        $filesystem = $this->createMock(Filesystem::class);
-        $linux = $this->createMock(Linux::class);
-        $project_config = $this->createMock(ProjectConfig::class);
-        $writer = new CommandWriter();
-
-        $command = new CreateCommand(
-            $docker,
-            $repo_manager,
-            $git,
-            $posix,
-            $filesystem,
-            $linux,
-            $project_config,
-            $writer
-        );
-        $tester = new CommandTester($command);
-        $app = new Application("doil");
-        $command->setApplication($app);
-
-        $this->expectException(RuntimeException::class);
-        $this->expectExceptionMessage("PHP version can not be null!");
-        $tester->execute(["--no-interaction" => true, "--name" => "1232", "--repo" => "foo", "--branch" => "foo"]);
     }
 
     public function test_execute_with_wrong_formatted_phpversion_param() : void
@@ -258,11 +168,6 @@ class CreateCommandTest extends TestCase
 
         $filesystem
             ->expects($this->once())
-            ->method("getCurrentWorkingDirectory")
-            ->willReturn("/home/test")
-        ;
-        $filesystem
-            ->expects($this->once())
             ->method("exists")
             ->with("/home/test")
             ->willReturn(false)
@@ -271,11 +176,11 @@ class CreateCommandTest extends TestCase
         $this->expectException(RuntimeException::class);
         $this->expectExceptionMessage("the path '/home/test' does not exists!");
         $tester->execute([
-            "--no-interaction" => true,
             "--name" => "1232",
             "--repo" => "foo",
             "--branch" => "foo",
-            "--phpversion" => "2.3"
+            "--phpversion" => "2.3",
+            "--target" => "/home/test"
         ]);
     }
 
@@ -306,11 +211,6 @@ class CreateCommandTest extends TestCase
 
         $filesystem
             ->expects($this->once())
-            ->method("getCurrentWorkingDirectory")
-            ->willReturn("/home/test")
-        ;
-        $filesystem
-            ->expects($this->once())
             ->method("exists")
             ->with("/home/test")
             ->willReturn(true)
@@ -329,7 +229,8 @@ class CreateCommandTest extends TestCase
             "--name" => "1232",
             "--repo" => "foo",
             "--branch" => "foo",
-            "--phpversion" => "2.3"
+            "--phpversion" => "2.3",
+            "--target" => "/home/test"
         ]);
     }
 
@@ -425,11 +326,11 @@ class CreateCommandTest extends TestCase
         ;
 
         $tester->execute([
-            "--no-interaction" => true,
             "--name" => "1232",
             "--repo" => "foo",
             "--branch" => "foo",
-            "--phpversion" => "2.3"
+            "--phpversion" => "2.3",
+            "--target" => "/home/test"
         ]);
     }
 }
