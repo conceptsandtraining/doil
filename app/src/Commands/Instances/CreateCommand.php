@@ -95,11 +95,7 @@ class CreateCommand extends Command
 
     public function execute(InputInterface $input, OutputInterface $output) : int
     {
-        if (! $input->getOption("no-interaction")) {
-            $options = $this->getUserInputOptions($input, $output);
-        } else {
-            $options = $this->getCommandlineOptions($input, $output);
-        }
+        $options = $this->gatherOptionData($input, $output);
 
         $instance_path = $options["target"] . "/" . $options["name"];
         $suffix = $options["global"] ? "global" : "local";
@@ -114,7 +110,6 @@ class CreateCommand extends Command
             );
             return Command::FAILURE;
         }
-        // TODO: implement logging
 
         $this->writer->beginBlock($output, "Creating instance " . $options['name']);
 
@@ -122,10 +117,11 @@ class CreateCommand extends Command
             $this->writer->beginBlock($output, "Clone repo. This will take a while. Please be patient");
             $this->git->cloneBare($options["repo_url"], $options["repo_path"]);
             $this->writer->endBlock();
+        }
 
+        if (isset($options["repo_path"])) {
             $branches = $this->getBranches($output, $options["repo_path"], $options["repo_url"]);
-
-            if (! in_array($options["branch"], $branches)) {
+            if (!in_array($options["branch"], $branches)) {
                 throw new RuntimeException($options["branch"] . " is not a branch from " . $options["repo_url"]);
             }
         }
@@ -392,166 +388,174 @@ class CreateCommand extends Command
         return Command::SUCCESS;
     }
 
-    protected function getUserInputOptions(InputInterface $input, OutputInterface $output) : array
+    protected function gatherOptionData(InputInterface $input, OutputInterface $output) : array
     {
         $options = [];
 
         $helper = $this->getHelper('question');
+        $name = $input->getOption("name");
+        $repo = $input->getOption("repo");
+        $branch = $input->getOption("branch");
+        $php_version = $input->getOption("phpversion");
+        $target = $input->getOption("target");
+        $xdebug = $input->getOption("xdebug");
+        $global = $input->getOption("global");
+        $skip_readme = $input->getOption("skip-readme");
+
+        $one_option_missed = is_null($name) || is_null($repo) || is_null($branch) || is_null($php_version) || is_null($target);
 
         // Name
-        $question = new Question("Please enter a name for the instance to create: ");
-        $question->setNormalizer(function($v) { return $v ? trim($v) : ''; });
-        $question->setValidator($this->checkName());
+        if (is_null($name)) {
+            $question = new Question("Please enter a name for the instance to create: ");
+            $question->setNormalizer(function ($v) {
+                return $v ? trim($v) : '';
+            });
+            $question->setValidator($this->checkName());
 
-        $options["name"] = $helper->ask($input, $output, $question);
+            $name = $helper->ask($input, $output, $question);
+        }
+        call_user_func($this->checkName(), $name);
+        $options["name"] = $name;
 
         // Repo
-        $local_repos = $this->repo_manager->getLocalRepos();
-        $local = array_map(function(Repo $a) {
-            return "Local - " . $a->getName() . " - " . $a->getUrl();
-        }, $local_repos);
-        $global_repos = $this->repo_manager->getGlobalRepos();
-        $global = array_map(function(Repo $a) {
-            return "Global - " . $a->getName() . " - " . $a->getUrl();
-        }, $global_repos);
+        if (is_null($repo)) {
+            $local_repos = $this->repo_manager->getLocalRepos();
+            $local_repos = array_map(function (Repo $a) {
+                return "Local - " . $a->getName() . " - " . $a->getUrl();
+            }, $local_repos);
 
-        $question = new ChoiceQuestion(
-            "Please select a repository to create from:",
-            array_merge($local, $global),
-            0
-        );
-        $question->setErrorMessage("Repository %s is invalid!");
+            $global_repos = $this->repo_manager->getGlobalRepos();
+            $global_repos = array_map(function (Repo $a) {
+                return "Global - " . $a->getName() . " - " . $a->getUrl();
+            }, $global_repos);
 
-        list($type, $name, $url) = explode(" - ", $helper->ask($input, $output, $question));
+            $question = new ChoiceQuestion(
+                "Please select a repository to create from:",
+                array_merge($local_repos, $global_repos),
+                0
+            );
+            $question->setErrorMessage("Repository %s is invalid!");
 
-        $options["repo"] = $name;
-        $options["repo_url"] = $url;
-        $options["use_global_repo"] = true;
-        if ($type == "Local") {
-            $options["use_global_repo"] = false;
+            list($repo_type, $repo_name, $repo_url) = explode(" - ", $helper->ask($input, $output, $question));
+
+            $options["repo"] = $repo_name;
+            $options["repo_url"] = $repo_url;
+            $options["use_global_repo"] = true;
+            if ($repo_type == "Local") {
+                $options["use_global_repo"] = false;
+            }
+        } else {
+            $use_global_repo = $input->getOption("use-global-repo");
+
+            if ($use_global_repo) {
+                $options["repo_path"] = self::GLOBAL_REPO_PATH . "/" . $repo;
+                $r = $this->repo_manager->getGlobalRepo($repo);
+            }
+
+            if (!$use_global_repo) {
+                $home_dir = $this->posix->getHomeDirectory($this->posix->getUserId());
+                $options["repo_path"] = $home_dir . self::LOCAL_REPO_PATH . "/" . $repo;
+                $r = $this->repo_manager->getLocalRepo($repo);
+            }
+
+            $options["repo"] = $r->getName();
+            $options["repo_url"] = $r->getUrl();
+            $options["use_global_repo"] = $use_global_repo;
         }
 
         // Branch
-        $path = self::GLOBAL_REPO_PATH . "/" . $options["repo"];
-        if (! $options["use_global_repo"]) {
-            $home_dir = $this->posix->getHomeDirectory($this->posix->getUserId());
-            $path = $home_dir . self::LOCAL_REPO_PATH . "/" . $options["repo"];
-        }
-
-        if (!$this->filesystem->exists($path)) {
-            $question = new ConfirmationQuestion(
-                "The selected repo $name is not cloned to disk yet. Want to clone it now? [Yn]: ",
-                true
-            );
-
-            if ($helper->ask($input, $output, $question)) {
-                $this->writer->beginBlock($output, "Clone repo. This will take a while. Please be patient");
-                $this->git->cloneBare($url, $path);
-                $this->writer->endBlock();
-
+        if (is_null($branch)) {
+            $path = self::GLOBAL_REPO_PATH . "/" . $options["repo"];
+            if (!$options["use_global_repo"]) {
+                $home_dir = $this->posix->getHomeDirectory($this->posix->getUserId());
+                $path = $home_dir . self::LOCAL_REPO_PATH . "/" . $options["repo"];
             }
-        }
 
-        if ($this->filesystem->exists($path)) {
-            $branches = $this->getBranches($output, $path, $url);
+            if (!$this->filesystem->exists($path)) {
+                $question = new ConfirmationQuestion(
+                    "The selected repo $name is not cloned to disk yet. Want to clone it now? [Yn]: ",
+                    true
+                );
 
-            $question = new ChoiceQuestion(
-                "Please select a branch to create from:",
-                $branches,
-                0
-            );
-            $question->setErrorMessage("Branch %s is invalid!");
-        } else {
-            $question = new Question("Please enter the branch name: ");
+                if ($helper->ask($input, $output, $question)) {
+                    $this->writer->beginBlock($output, "Clone repo. This will take a while. Please be patient");
+                    $this->git->cloneBare($options["repo_url"], $path);
+                    $this->writer->endBlock();
+
+                }
+            }
+
+            if ($this->filesystem->exists($path)) {
+                $branches = $this->getBranches($output, $path, $options["repo_url"]);
+
+                $question = new ChoiceQuestion(
+                    "Please select a branch to create from:",
+                    $branches,
+                    0
+                );
+                $question->setErrorMessage("Branch %s is invalid!");
+            } else {
+                $question = new Question("Please enter the branch name: ");
+            }
+            $branch = $helper->ask($input, $output, $question);
         }
-        $options["branch"] = $helper->ask($input, $output, $question);
+        call_user_func($this->checkBranch(), $branch);
+        $options["branch"] = $branch;
 
         // PHP-Version
-        $question = new Question("Please enter the php version you want (format=*.*) : ");
-        $question->setNormalizer(function($v) { return $v ? trim($v) : ''; });
-        $question->setValidator($this->checkPHPVersion());
-        $options["phpversion"] = $helper->ask($input, $output, $question);
+        if (is_null($php_version)) {
+            $question = new Question("Please enter the php version you want (format=*.*) : ");
+            $question->setNormalizer(function ($v) {
+                return $v ? trim($v) : '';
+            });
+            $question->setValidator($this->checkPHPVersion());
+            $php_version = $helper->ask($input, $output, $question);
+        }
+        call_user_func($this->checkPHPVersion(), $php_version);
+        $options["phpversion"] = $php_version;
 
         // Target
-        $question = new Question("Please enter a target where doil should install " . $options["name"] . ". Leave blank for current directory. : ");
-        $question->setNormalizer($this->normalizeTarget());
-        $question->setValidator($this->checkTarget());
-        $options["target"] = $helper->ask($input, $output, $question);
+        if (is_null($target)) {
+            $question = new Question("Please enter a target where doil should install " . $options["name"] . ". Leave blank for current directory. : ");
+            $question->setNormalizer($this->normalizeTarget());
+            $question->setValidator($this->checkTarget());
+            $target = $helper->ask($input, $output, $question);
+        }
+        call_user_func($this->normalizeTarget(), $target);
+        call_user_func($this->checkTarget(), $target);
+        $options["target"] = $target;
 
         // Install xdebug
-        $question = new ConfirmationQuestion(
-            "Install xdebug? [yN]: ",
-            false
-        );
-        $options["xdebug"] = $helper->ask($input, $output, $question);
+        if (!$xdebug && $one_option_missed) {
+            $question = new ConfirmationQuestion(
+                "Install xdebug? [yN]: ",
+                false
+            );
+            $xdebug = $helper->ask($input, $output, $question);
+        }
+        $options["xdebug"] = $xdebug;
 
         // Global instance
-        $question = new ConfirmationQuestion(
-            "Create a global instance? [yN]: ",
-            false
-        );
-        $options["global"] = $helper->ask($input, $output, $question);
+        if (!$global && $one_option_missed) {
+            $question = new ConfirmationQuestion(
+                "Create a global instance? [yN]: ",
+                false
+            );
+            $global = $helper->ask($input, $output, $question);
+        }
+        $options["global"] = $global;
 
         // Skip readme
-        $question = new ConfirmationQuestion(
-            "Skip creating readme file? [yN]: ",
-            false
-        );
-        $options["skip_readme"] = $helper->ask($input, $output, $question);
+        if (!$skip_readme && $one_option_missed) {
+            $question = new ConfirmationQuestion(
+                "Skip creating readme file? [yN]: ",
+                false
+            );
+            $skip_readme = $helper->ask($input, $output, $question);
+        }
+        $options["skip_readme"] = $skip_readme;
 
         return $options;
-    }
-
-    protected function getCommandlineOptions(InputInterface $input, OutputInterface $output) : array
-    {
-        $name = $input->getOption("name");
-        call_user_func($this->checkName(), $name);
-
-        $repo_name = $input->getOption("repo");
-        call_user_func($this->checkRepo(), $repo_name);
-
-        $use_global_repo = $input->getOption("use-global-repo");
-
-        $branch = $input->getOption("branch");
-        call_user_func($this->checkBranch(), $branch);
-
-        $phpversion = $input->getOption("phpversion");
-        $phpversion = call_user_func($this->checkPHPVersion(), $phpversion);
-
-        $target = $input->getOption("target");
-        $target = call_user_func($this->normalizeTarget(), $target);
-        $target = call_user_func($this->checkTarget(), $target);
-
-        $xdebug = $input->getOption("xdebug");
-
-        $global = $input->getOption("global");
-
-        $skip_readme = $input->getOption("skip-readme");
-
-        if ($use_global_repo) {
-            $path = self::GLOBAL_REPO_PATH . "/" . $repo_name;
-            $repo = $this->repo_manager->getGlobalRepo($repo_name);
-        }
-
-        if (!$use_global_repo) {
-            $home_dir = $this->posix->getHomeDirectory($this->posix->getUserId());
-            $path = $home_dir . self::LOCAL_REPO_PATH . "/" . $repo_name;
-            $repo = $this->repo_manager->getLocalRepo($repo_name);
-        }
-
-        return [
-            "name" => $name,
-            "repo" => $repo->getName(),
-            "repo_url" => $repo->getUrl(),
-            "repo_path" => $path,
-            "use_global_repo" => $use_global_repo,
-            "branch" => $branch,
-            "phpversion" => $phpversion,
-            "target" => $target,
-            "xdebug" => $xdebug,
-            "global" => $global,
-            "skip_readme" => $skip_readme
-        ];
     }
 
     protected function checkName() : Closure
@@ -565,15 +569,6 @@ class CreateCommand extends Command
             }
 
             return $name;
-        };
-    }
-
-    protected function checkRepo() : Closure
-    {
-        return function(?string $repo) {
-            if (is_null($repo) || "" == $repo) {
-                throw new RuntimeException("Repo can not be null!");
-            }
         };
     }
 

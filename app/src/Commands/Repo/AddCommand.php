@@ -43,23 +43,14 @@ class AddCommand extends Command
 
     public function execute(InputInterface $input, OutputInterface $output) : int
     {
-        $repo = $this->repo_manager->getEmptyRepo();
-        $repo = $repo
-            ->withName($input->getOption("name") ? $input->getOption("name") : "")
-            ->withUrl($input->getOption("url") ? $input->getOption("url") : "")
-            ->withIsGlobal($input->getOption("global"))
-        ;
 
-        if (! $input->getOption("no-interaction")) {
-            $repo = $this->fillOptionsByUserInput($repo, $input, $output);
-        }
 
-        if ($input->getOption("no-interaction")) {
-            $check = $this->checkName();
-            $check($repo->getName());
-            $check = $this->checkUrl();
-            $check($repo->getUrl());
-        }
+        $repo = $this->gatherRepoData($input, $output);
+
+        $check = $this->checkName();
+        $check($repo->getName());
+        $check = $this->checkUrl();
+        $check($repo->getUrl());
 
         if ($this->repo_manager->repoExists($repo)) {
             $this->writer->error(
@@ -78,31 +69,45 @@ class AddCommand extends Command
         return Command::SUCCESS;
     }
 
-    protected function fillOptionsByUserInput(Repo $repo, InputInterface $input, OutputInterface $output) : Repo
+    protected function gatherRepoData(InputInterface $input, OutputInterface $output) : Repo
     {
+        $repo = $this->repo_manager->getEmptyRepo();
         $helper = $this->getHelper('question');
 
         // Name
-        $question = new Question("Please enter a name for the repo to add: ");
-        $question->setNormalizer(function($v) { return $v ? trim($v) : ''; });
-        $question->setValidator($this->checkName());
+        $name = $input->getOption("name");
+        if (is_null($name)) {
+            $question = new Question("Please enter a name for the repo to add: ");
+            $question->setNormalizer(function ($v) {
+                return $v ? trim($v) : '';
+            });
+            $question->setValidator($this->checkName());
+            $name = $helper->ask($input, $output, $question);
+        }
+        $repo = $repo->withName($name);
 
-        $repo = $repo->withName($helper->ask($input, $output, $question));
-
-        // Repo
-        $question = new Question("Please enter a url for the repo to add: ");
-        $question->setNormalizer(function($v) { return $v ? trim($v) : ''; });
-        $question->setValidator($this->checkUrl());
-
-        $repo = $repo->withUrl($helper->ask($input, $output, $question));
+        // URL
+        $url = $input->getOption("url");
+        if (is_null($url)) {
+            $question = new Question("Please enter a url for the repo to add: ");
+            $question->setNormalizer(function ($v) {
+                return $v ? trim($v) : '';
+            });
+            $question->setValidator($this->checkUrl());
+            $url = $helper->ask($input, $output, $question);
+        }
+        $repo = $repo->withUrl($url);
 
         // Global
-        $question = new ConfirmationQuestion("Should the repo be global [yN]: ", false);
+        $global = $input->getOption("global");
+        if (!$global && (is_null($name) || is_null($url))) {
+            $question = new ConfirmationQuestion("Should the repo be global [yN]: ", false);
 
-        $repo = $repo->withIsGlobal(false);
-        if ($helper->ask($input, $output, $question)) {
-            $repo = $repo->withIsGlobal(true);
+            if ($helper->ask($input, $output, $question)) {
+                $global = true;
+            }
         }
+        $repo = $repo->withIsGlobal($global);
 
         return $repo;
     }
