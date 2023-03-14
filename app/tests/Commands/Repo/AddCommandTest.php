@@ -112,7 +112,7 @@ class AddCommandTest extends TestCase
         $this->assertEquals(1, $execute_result);
     }
 
-    public function test_execute_with_already_existing_repo() : void
+    public function test_execute_with_already_existing_repo_url() : void
     {
         $repo_manager = $this->createMock(RepoManager::class);
         $writer = new CommandWriter();
@@ -130,7 +130,7 @@ class AddCommandTest extends TestCase
         $repo = new Repo("doil", "https://test/doil.git", false);
         $repo_manager
             ->expects($this->once())
-            ->method("repoExists")
+            ->method("repoUrlExists")
             ->with($repo)
             ->willReturn(true)
         ;
@@ -138,7 +138,38 @@ class AddCommandTest extends TestCase
         $execute_result = $tester->execute(["--no-interaction" => true, "--name" => "doil", "--url" => "https://test/doil.git"]);
         $output = $tester->getDisplay(true);
 
-        $result = "Error:\n\tRepository doil already exists!\n\tUse doil repo:list to see current installed repos.\n";
+        $result = "Error:\n\tRepository with url 'https://test/doil.git' already exists!\n\tUse doil repo:list to see current installed repos.\n";
+        $this->assertEquals($result, $output);
+        $this->assertEquals(1, $execute_result);
+    }
+
+    public function test_execute_with_already_existing_repo_name() : void
+    {
+        $repo_manager = $this->createMock(RepoManager::class);
+        $writer = new CommandWriter();
+
+        $command = new AddCommand($repo_manager, $writer);
+        $tester = new CommandTester($command);
+        $app = new Application("doil");
+        $command->setApplication($app);
+
+        $repo_manager
+            ->expects($this->once())
+            ->method("getEmptyRepo")
+            ->willReturn(new Repo())
+        ;
+        $repo = new Repo("doil", "https://test/doil.git", false);
+        $repo_manager
+            ->expects($this->once())
+            ->method("repoNameExists")
+            ->with($repo)
+            ->willReturn(true)
+        ;
+
+        $execute_result = $tester->execute(["--no-interaction" => true, "--name" => "doil", "--url" => "https://test/doil.git"]);
+        $output = $tester->getDisplay(true);
+
+        $result = "Error:\n\tRepository with name 'doil' already exists!\n\tUse doil repo:list to see current installed repos.\n";
         $this->assertEquals($result, $output);
         $this->assertEquals(1, $execute_result);
     }
@@ -161,7 +192,13 @@ class AddCommandTest extends TestCase
         $repo = new Repo("doil", "https://test/doil.git", false);
         $repo_manager
             ->expects($this->once())
-            ->method("repoExists")
+            ->method("repoUrlExists")
+            ->with($repo)
+            ->willReturn(false)
+        ;
+        $repo_manager
+            ->expects($this->once())
+            ->method("repoNameExists")
             ->with($repo)
             ->willReturn(false)
         ;
