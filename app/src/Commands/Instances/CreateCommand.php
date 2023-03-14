@@ -449,13 +449,13 @@ class CreateCommand extends Command
 
             if ($use_global_repo) {
                 $options["repo_path"] = self::GLOBAL_REPO_PATH . "/" . $repo;
-                $r = $this->repo_manager->getGlobalRepo($repo);
+                $r = $this->repo_manager->getGlobalRepoByName($repo);
             }
 
             if (!$use_global_repo) {
                 $home_dir = $this->posix->getHomeDirectory($this->posix->getUserId());
                 $options["repo_path"] = $home_dir . self::LOCAL_REPO_PATH . "/" . $repo;
-                $r = $this->repo_manager->getLocalRepo($repo);
+                $r = $this->repo_manager->getLocalRepoByName($repo);
             }
 
             $options["repo"] = $r->getName();
@@ -623,7 +623,7 @@ class CreateCommand extends Command
         $this->git->setLocalConfig(
             $path,
             "remote.origin.fetch",
-            "refs/heads/*:refs/heads/*"
+            "+refs/heads/*:refs/heads/*"
         );
         $this->git->fetchBare($path);
         $branches = $this->git->getBranches($path);

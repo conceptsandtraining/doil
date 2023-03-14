@@ -57,7 +57,7 @@ class RepoManagerTest extends TestCase
         $this->assertFalse($repo->isGlobal());
     }
 
-    public function test_repoExists_with_no_repos() : void
+    public function test_repoNameExists_with_no_repos() : void
     {
         $git = $this->createMock(Git::class);
         $posix = $this->createMock(Posix::class);
@@ -85,12 +85,12 @@ class RepoManagerTest extends TestCase
             ->willReturn(false)
         ;
 
-        $result = $repo_manager->repoExists($repo);
+        $result = $repo_manager->repoNameExists($repo);
 
         $this->assertFalse($result);
     }
 
-    public function test_repoExists_with_existing_repo() : void
+    public function test_repoNameExists_with_existing_repo() : void
     {
         $git = $this->createMock(Git::class);
         $posix = $this->createMock(Posix::class);
@@ -124,7 +124,79 @@ class RepoManagerTest extends TestCase
             ->willReturn([$repo])
         ;
 
-        $result = $repo_manager->repoExists($repo);
+        $result = $repo_manager->repoNameExists($repo);
+
+        $this->assertTrue($result);
+    }
+
+    public function test_repoUrlExists_with_no_repos() : void
+    {
+        $git = $this->createMock(Git::class);
+        $posix = $this->createMock(Posix::class);
+        $filesystem = $this->createMock(Filesystem::class);
+        $repo = new Repo();
+
+        $repo_manager = new RepoManager($git, $posix, $filesystem);
+
+        $posix
+            ->expects($this->once())
+            ->method("getUserId")
+            ->willReturn(1000)
+        ;
+        $posix
+            ->expects($this->once())
+            ->method("getHomeDirectory")
+            ->with(1000)
+            ->willReturn("/home/doil")
+        ;
+
+        $filesystem
+            ->expects($this->once())
+            ->method("exists")
+            ->with("/home/doil/.doil/config/repositories.json")
+            ->willReturn(false)
+        ;
+
+        $result = $repo_manager->repoUrlExists($repo);
+
+        $this->assertFalse($result);
+    }
+
+    public function test_repoUrlExists_with_existing_repo() : void
+    {
+        $git = $this->createMock(Git::class);
+        $posix = $this->createMock(Posix::class);
+        $filesystem = $this->createMock(Filesystem::class);
+        $repo = new Repo("doil", "http://test/doil.git", false);
+
+        $repo_manager = new RepoManager($git, $posix, $filesystem);
+
+        $posix
+            ->expects($this->once())
+            ->method("getUserId")
+            ->willReturn(1000)
+        ;
+        $posix
+            ->expects($this->once())
+            ->method("getHomeDirectory")
+            ->with(1000)
+            ->willReturn("/home/doil")
+        ;
+
+        $filesystem
+            ->expects($this->once())
+            ->method("exists")
+            ->with("/home/doil/.doil/config/repositories.json")
+            ->willReturn(true)
+        ;
+        $filesystem
+            ->expects($this->once())
+            ->method("readFromJsonFile")
+            ->with("/home/doil/.doil/config/repositories.json")
+            ->willReturn([$repo])
+        ;
+
+        $result = $repo_manager->repoUrlExists($repo);
 
         $this->assertTrue($result);
     }
@@ -312,7 +384,7 @@ class RepoManagerTest extends TestCase
         $repo_manager->updateRepo($repo);
     }
 
-    public function test_getLocalRepo_fail() : void
+    public function test_getLocalRepoByName_fail() : void
     {
         $git = $this->createMock(Git::class);
         $posix = $this->createMock(Posix::class);
@@ -321,12 +393,12 @@ class RepoManagerTest extends TestCase
         $repo_manager = new RepoManagerWrapper($git, $posix, $filesystem);
 
         $this->expectException(RuntimeException::class);
-        $this->expectExceptionMessage("Repo undefined not found in local repos.");
+        $this->expectExceptionMessage("Repo with name 'undefined' not found in local repos.");
 
-        $repo_manager->getLocalRepo("undefined");
+        $repo_manager->getLocalRepoByName("undefined");
     }
 
-    public function test_getGlobalRepo_fail() : void
+    public function test_getLocalRepoByUrl_fail() : void
     {
         $git = $this->createMock(Git::class);
         $posix = $this->createMock(Posix::class);
@@ -335,12 +407,12 @@ class RepoManagerTest extends TestCase
         $repo_manager = new RepoManagerWrapper($git, $posix, $filesystem);
 
         $this->expectException(RuntimeException::class);
-        $this->expectExceptionMessage("Repo undefined not found in global repos.");
+        $this->expectExceptionMessage("Repo with url 'undefined' not found in local repos.");
 
-        $repo_manager->getGlobalRepo("undefined");
+        $repo_manager->getLocalRepoByUrl("undefined");
     }
 
-    public function test_getLocalRepo() : void
+    public function test_getGlobalRepoByName_fail() : void
     {
         $git = $this->createMock(Git::class);
         $posix = $this->createMock(Posix::class);
@@ -348,7 +420,21 @@ class RepoManagerTest extends TestCase
 
         $repo_manager = new RepoManagerWrapper($git, $posix, $filesystem);
 
-        $result = $repo_manager->getLocalRepo("local1");
+        $this->expectException(RuntimeException::class);
+        $this->expectExceptionMessage("Repo with name 'undefined' not found in global repos.");
+
+        $repo_manager->getGlobalRepoByName("undefined");
+    }
+
+    public function test_getLocalRepoByName() : void
+    {
+        $git = $this->createMock(Git::class);
+        $posix = $this->createMock(Posix::class);
+        $filesystem = $this->createMock(Filesystem::class);
+
+        $repo_manager = new RepoManagerWrapper($git, $posix, $filesystem);
+
+        $result = $repo_manager->getLocalRepoByName("local1");
 
         $this->assertIsObject($result, Repo::class);
         $this->assertEquals("local1", $result->getName());
@@ -356,7 +442,7 @@ class RepoManagerTest extends TestCase
         $this->assertFalse($result->isGlobal());
     }
 
-    public function test_getGlobalRepo() : void
+    public function test_getLocalRepoByUrl() : void
     {
         $git = $this->createMock(Git::class);
         $posix = $this->createMock(Posix::class);
@@ -364,7 +450,53 @@ class RepoManagerTest extends TestCase
 
         $repo_manager = new RepoManagerWrapper($git, $posix, $filesystem);
 
-        $result = $repo_manager->getGlobalRepo("global1");
+        $result = $repo_manager->getLocalRepoByUrl("https://local1.git");
+
+        $this->assertIsObject($result, Repo::class);
+        $this->assertEquals("local1", $result->getName());
+        $this->assertEquals("https://local1.git", $result->getUrl());
+        $this->assertFalse($result->isGlobal());
+    }
+
+    public function test_getGlobalRepoByName() : void
+    {
+        $git = $this->createMock(Git::class);
+        $posix = $this->createMock(Posix::class);
+        $filesystem = $this->createMock(Filesystem::class);
+
+        $repo_manager = new RepoManagerWrapper($git, $posix, $filesystem);
+
+        $result = $repo_manager->getGlobalRepoByName("global1");
+
+        $this->assertIsObject($result, Repo::class);
+        $this->assertEquals("global1", $result->getName());
+        $this->assertEquals("https://global1.git", $result->getUrl());
+        $this->assertTrue($result->isGlobal());
+    }
+
+    public function test_getGlobalRepoByUrl_fail() : void
+    {
+        $git = $this->createMock(Git::class);
+        $posix = $this->createMock(Posix::class);
+        $filesystem = $this->createMock(Filesystem::class);
+
+        $repo_manager = new RepoManagerWrapper($git, $posix, $filesystem);
+
+        $this->expectException(RuntimeException::class);
+        $this->expectExceptionMessage("Repo with url 'undefined' not found in global repos.");
+
+        $repo_manager->getGlobalRepoByUrl("undefined");
+    }
+
+    public function test_getGlobalRepoByUrl() : void
+    {
+        $git = $this->createMock(Git::class);
+        $posix = $this->createMock(Posix::class);
+        $filesystem = $this->createMock(Filesystem::class);
+
+        $repo_manager = new RepoManagerWrapper($git, $posix, $filesystem);
+
+        $result = $repo_manager->getGlobalRepoByUrl("https://global1.git");
 
         $this->assertIsObject($result, Repo::class);
         $this->assertEquals("global1", $result->getName());

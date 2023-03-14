@@ -123,17 +123,31 @@ class ImportCommand extends Command
                 ->withUrl($project_config->getRepositoryUrl())
             ;
 
-            if ($this->repo_manager->repoExists($repo)) {
-                $this->writer->error(
-                    $output,
-                    "Repository {$repo->getName()} already exists!",
-                    "Use <fg=gray>doil repo:list</> to see current installed repos"
-                );
-
-                return Command::FAILURE;
+            $existing_repo = null;
+            if ($this->repo_manager->repoUrlExists($repo)) {
+                $existing_repo = $this->repo_manager->getLocalRepoByUrl($repo->getUrl());
+            } else {
+                $repo = $repo->withIsGlobal(true);
+                if ($this->repo_manager->repoUrlExists($repo)) {
+                    $existing_repo = $this->repo_manager->getGlobalRepoByUrl($repo->getUrl());
+                }
             }
 
-            $this->repo_manager->addRepo($repo);
+            if (! is_null($existing_repo)) {
+                $repo = $existing_repo;
+            } else {
+                if ($this->repo_manager->repoNameExists($repo)) {
+                    $this->writer->error(
+                        $output,
+                        "Repository with name '{$repo->getName()}' already exists!",
+                        "Use <fg=gray>doil repo:list</> to see current installed repos"
+                    );
+
+                    return Command::FAILURE;
+                }
+
+                $this->repo_manager->addRepo($repo);
+            }
 
             $create_command = $this->getApplication()->find('instances:create');
             $args = [
@@ -144,6 +158,10 @@ class ImportCommand extends Command
                 '--phpversion' => $project_config->getPhpVersion(),
                 '--global' => $input->getOption("global")
             ];
+
+            if ($repo->isGlobal()) {
+                $args += ["--use-global-repo" => true];
+            }
 
             $create_input = new ArrayInput($args);
             $create_command->run($create_input, $output);

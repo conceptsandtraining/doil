@@ -43,8 +43,6 @@ class AddCommand extends Command
 
     public function execute(InputInterface $input, OutputInterface $output) : int
     {
-
-
         $repo = $this->gatherRepoData($input, $output);
 
         $check = $this->checkName();
@@ -52,10 +50,20 @@ class AddCommand extends Command
         $check = $this->checkUrl();
         $check($repo->getUrl());
 
-        if ($this->repo_manager->repoExists($repo)) {
+        if ($this->repo_manager->repoUrlExists($repo)) {
             $this->writer->error(
                 $output,
-                "Repository {$repo->getName()} already exists!",
+                "Repository with url '{$repo->getUrl()}' already exists!",
+                "Use <fg=gray>doil repo:list</> to see current installed repos."
+            );
+
+            return Command::FAILURE;
+        }
+
+        if ($this->repo_manager->repoNameExists($repo)) {
+            $this->writer->error(
+                $output,
+                "Repository with name '{$repo->getName()}' already exists!",
                 "Use <fg=gray>doil repo:list</> to see current installed repos."
             );
 

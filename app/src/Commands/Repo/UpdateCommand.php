@@ -95,7 +95,7 @@ class UpdateCommand extends Command
             ->withIsGlobal($global)
         ;
 
-        if (! $this->repo_manager->repoExists($repo)) {
+        if (! $this->repo_manager->repoNameExists($repo)) {
             $this->writer->error(
                 $output,
                 "Repository $name does not exists!",

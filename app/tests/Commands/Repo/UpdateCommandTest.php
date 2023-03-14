@@ -67,7 +67,7 @@ class UpdateCommandTest extends TestCase
         $repo = new Repo("doil");
         $repo_manager
             ->expects($this->once())
-            ->method("repoExists")
+            ->method("repoNameExists")
             ->with($repo)
             ->willReturn(false)
         ;
@@ -96,7 +96,7 @@ class UpdateCommandTest extends TestCase
         $repo = new Repo("doil");
         $repo_manager
             ->expects($this->once())
-            ->method("repoExists")
+            ->method("repoNameExists")
             ->with($repo)
             ->willReturn(true)
         ;
