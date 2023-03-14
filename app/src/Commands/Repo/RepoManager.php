@@ -32,7 +32,7 @@ class RepoManager
         return new Repo();
     }
 
-    public function repoExists(Repo $repo) : bool
+    public function repoNameExists(Repo $repo) : bool
     {
         $repos = $this->getLocalRepos();
         if ($repo->isGlobal()) {
@@ -41,6 +41,23 @@ class RepoManager
 
         $repos = array_filter($repos, function(Repo $r) use ($repo) {
             if ($repo->getName() == $r->getName()) {
+                return true;
+            }
+            return false;
+        });
+
+        return (bool) count($repos);
+    }
+
+    public function repoUrlExists(Repo $repo) : bool
+    {
+        $repos = $this->getLocalRepos();
+        if ($repo->isGlobal()) {
+            $repos = $this->getGlobalRepos();
+        }
+
+        $repos = array_filter($repos, function(Repo $r) use ($repo) {
+            if ($repo->getUrl() == $r->getUrl()) {
                 return true;
             }
             return false;
@@ -145,7 +162,7 @@ class RepoManager
         return $this->filesystem->readFromJsonFile(self::GLOBAL_REPO_CONFIG_PATH);
     }
 
-    public function getLocalRepo(string $name) : Repo
+    public function getLocalRepoByName(string $name) : Repo
     {
         $repos = $this->getLocalRepos();
         $repos = array_filter($repos, function(Repo $r) use ($name) {
@@ -156,13 +173,30 @@ class RepoManager
         });
 
         if (! count($repos)) {
-            throw new RuntimeException("Repo $name not found in local repos.");
+            throw new RuntimeException("Repo with name '$name' not found in local repos.");
         }
 
         return array_shift($repos);
     }
 
-    public function getGlobalRepo(string $name) : Repo
+    public function getLocalRepoByUrl(string $url) : Repo
+    {
+        $repos = $this->getLocalRepos();
+        $repos = array_filter($repos, function(Repo $r) use ($url) {
+            if ($url == $r->getUrl()) {
+                return true;
+            }
+            return false;
+        });
+
+        if (! count($repos)) {
+            throw new RuntimeException("Repo with url '$url' not found in local repos.");
+        }
+
+        return array_shift($repos);
+    }
+
+    public function getGlobalRepoByName(string $name) : Repo
     {
         $repos = $this->getGlobalRepos();
         $repos = array_filter($repos, function(Repo $r) use ($name) {
@@ -173,7 +207,24 @@ class RepoManager
         });
 
         if (! count($repos)) {
-            throw new RuntimeException("Repo $name not found in global repos.");
+            throw new RuntimeException("Repo with name '$name' not found in global repos.");
+        }
+
+        return array_shift($repos);
+    }
+
+    public function getGlobalRepoByUrl(string $url) : Repo
+    {
+        $repos = $this->getGlobalRepos();
+        $repos = array_filter($repos, function(Repo $r) use ($url) {
+            if ($url == $r->getUrl()) {
+                return true;
+            }
+            return false;
+        });
+
+        if (! count($repos)) {
+            throw new RuntimeException("Repo with url '$url' not found in global repos.");
         }
 
         return array_shift($repos);
