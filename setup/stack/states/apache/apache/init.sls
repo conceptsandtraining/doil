@@ -32,9 +32,16 @@ apache_supervisor_signal:
   supervisord.running:
     - name: apache2
     - restart: True
+    - user: root
     - watch:
       - file: /etc/supervisor/conf.d/apache2.conf
       - file: /etc/apache2/sites-enabled/000-default.conf
+
+restart_apache:
+  cmd.run:
+    - name: supervisorctl restart apache2
+    - watch:
+      - apache_supervisor_signal
 
 apache_grain:
   grains.present:

@@ -20,6 +20,21 @@ class ApplyCommand extends Command
 {
     protected const PATH_STATES = "/usr/local/share/doil/stack/states";
 
+    protected static array $non_user_states = [
+        "autoinstall",
+        "base",
+        "composer",
+        "composer2",
+        "composer54",
+        "dev",
+        "ilias",
+        "mailservices",
+        "proxyservices",
+        "reactor",
+        "change-roundcube-password",
+        "nodejs"
+    ];
+
     protected static $defaultName = "instances:apply";
     protected static $defaultDescription =
         "Apply state for the given instance. This is useful for re-applying singular state to your instance.";
@@ -62,12 +77,7 @@ class ApplyCommand extends Command
             throw new InvalidArgumentException("Not enough arguments (missing: \"instance\" or \"all\")");
         }
 
-        if (
-            $state == "mailservices" ||
-            $state == "proxyservices" ||
-            $state == "reactor" ||
-            $state == "change-roundcube-password"
-        ) {
+        if (in_array($state, self::$non_user_states)) {
             $this->writer->error(
                 $output,
                 "State '$state' is not allowed!",
@@ -96,17 +106,12 @@ class ApplyCommand extends Command
         if (is_null($state)) {
             $states = $this->filesystem->getFilesInPath(self::PATH_STATES);
 
-            $states = array_filter($states, function ($s) {
-               if (
-                   $s == "mailservices" ||
-                   $s == "proxyservices" ||
-                   $s == "reactor" ||
-                   $s == "change-roundcube-password"
-               ) {
+            $states = array_values(array_filter($states, function ($s) {
+               if (in_array($s, self::$non_user_states)) {
                    return false;
                }
                return true;
-            });
+            }));
 
             $helper = $this->getHelper("question");
             $question = new ChoiceQuestion(
