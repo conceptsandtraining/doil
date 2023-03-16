@@ -1,0 +1,3 @@
+composer-install:
+  '*':
+    - composer-install

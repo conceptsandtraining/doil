@@ -658,6 +658,10 @@ file_roots:
     - /srv/salt/states/disable-xdebug
   enable-xdebug:
     - /srv/salt/states/enable-xdebug
+  disable-whoops-devmode:
+    - /srv/salt/states/disable-whoops-devmode
+  enable-whoops-devmode:
+    - /srv/salt/states/enable-whoops-devmode
   php7.2:
     - /srv/salt/states/php7.2
   php7.3:
@@ -672,16 +676,16 @@ file_roots:
     - /srv/salt/states/php8.2
   ilias:
     - /srv/salt/states/ilias
-  ilias-postinstall:
-    - /srv/salt/states/ilias-postinstall
+  compile-skins:
+    - /srv/salt/states/compile-skins
   composer:
     - /srv/salt/states/composer
   composer2:
     - /srv/salt/states/composer2
   composer54:
     - /srv/salt/states/composer54
-  composerupdate:
-    - /srv/salt/states/composerupdate
+  composer-install:
+    - /srv/salt/states/composer-install
   autoinstall:
     - /srv/salt/states/autoinstall
   access:
@@ -692,6 +696,8 @@ file_roots:
     - /srv/salt/states/proxyservices
   nodejs:
       - /srv/salt/states/nodejs
+  apache:
+      - /srv/salt/states/apache
 
 
 # The master_roots setting configures a master-only copy of the file_roots dictionary,

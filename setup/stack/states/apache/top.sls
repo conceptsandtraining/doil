@@ -1,0 +1,3 @@
+apache:
+  '*':
+    - apache
