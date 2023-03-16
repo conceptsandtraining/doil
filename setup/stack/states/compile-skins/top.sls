@@ -1,0 +1,3 @@
+compile-skins:
+  '*':
+    - compileskins

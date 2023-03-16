@@ -313,6 +313,11 @@ class CreateCommand extends Command
         $this->docker->applyState($instance_salt_name, "base");
         $this->writer->endBlock();
 
+        // apply apache state
+        $this->writer->beginBlock($output, "Apply apache state");
+        $this->docker->applyState($instance_salt_name, "apache");
+        $this->writer->endBlock();
+
         // apply dev state
         $this->writer->beginBlock($output, "Apply dev state");
         $this->docker->applyState($instance_salt_name, "dev");
@@ -360,9 +365,14 @@ class CreateCommand extends Command
         $this->docker->applyState($instance_salt_name, "access");
         $this->writer->endBlock();
 
-        // apply access state
-        $this->writer->beginBlock($output, "Apply ilias-postinstall state");
-        $this->docker->applyState($instance_salt_name, "ilias-postinstall");
+        // apply enable-whoops-devmode state
+        $this->writer->beginBlock($output, "Apply enable-whoops-devmode state");
+        $this->docker->applyState($instance_salt_name, "enable-whoops-devmode");
+        $this->writer->endBlock();
+
+        // apply compile-skins state
+        $this->writer->beginBlock($output, "Apply compile-skins state");
+        $this->docker->applyState($instance_salt_name, "compile-skins");
         $this->writer->endBlock();
 
         // finalizing docker image
