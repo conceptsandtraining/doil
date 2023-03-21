@@ -60,9 +60,9 @@ class AddCommandTest extends TestCase
         ;
 
         $this->expectException(RuntimeException::class);
-        $this->expectExceptionMessage("Invalid characters! Only letters, numbers and underscores are allowed!");
+        $this->expectExceptionMessage("Invalid characters! Only lowercase letters, numbers and underscores are allowed!");
 
-        $execute_result = $tester->execute(["--no-interaction" => true, "--name" => "33%sj", "--url" => "https://test/doil"]);
+        $execute_result = $tester->execute(["--no-interaction" => true, "--name" => "FooBar", "--url" => "https://test/doil"]);
         $this->assertEquals(1, $execute_result);
     }
 
