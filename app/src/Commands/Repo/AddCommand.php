@@ -126,8 +126,8 @@ class AddCommand extends Command
             if ("" == $name) {
                 throw new RuntimeException("Name of the repo cannot be empty!");
             }
-            if (! preg_match("/^[a-zA-Z0-9_]*$/", $name)) {
-                throw new RuntimeException("Invalid characters! Only letters, numbers and underscores are allowed!");
+            if (! preg_match("/^[a-z0-9_]*$/", $name)) {
+                throw new RuntimeException("Invalid characters! Only lowercase letters, numbers and underscores are allowed!");
             }
 
             return $name;

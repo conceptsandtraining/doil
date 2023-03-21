@@ -49,7 +49,7 @@ class DeleteCommandTest extends TestCase
 
         $this->expectException(RuntimeException::class);
         $this->expectExceptionMessage("Invalid characters! Only letters, numbers and underscores are allowed!");
-        $execute_result = $tester->execute(["name" => "3209§09klj"]);
+        $execute_result = $tester->execute(["name" => "Foo§Bar"]);
         $this->assertEquals(1, $execute_result);
     }
 

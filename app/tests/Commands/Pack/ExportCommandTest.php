@@ -54,7 +54,7 @@ class ExportCommandTest extends TestCase
 
         $this->expectException(RuntimeException::class);
         $this->expectExceptionMessage("Invalid characters! Only letters and numbers are allowed!");
-        $tester->execute(["instance" => "32$2323"]);
+        $tester->execute(["instance" => "Foo§Bar"]);
     }
 
     public function test_execute_with_no_docker_compose_file() : void

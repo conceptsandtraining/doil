@@ -71,8 +71,8 @@ class CreateCommandTest extends TestCase
         $command->setApplication($app);
 
         $this->expectException(RuntimeException::class);
-        $this->expectExceptionMessage("Invalid characters! Only letters, numbers and underscores are allowed!");
-        $tester->execute(["--no-interaction" => true, "--name" => "12$32"]);
+        $this->expectExceptionMessage("Invalid characters! Only lowercase letters, numbers and underscores are allowed!");
+        $tester->execute(["--no-interaction" => true, "--name" => "FooBar"]);
     }
 
     public function test_execute_with_no_repo_param() : void

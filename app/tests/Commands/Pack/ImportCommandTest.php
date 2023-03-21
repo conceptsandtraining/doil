@@ -89,14 +89,15 @@ class ImportCommandTest extends TestCase
         $docker = $this->createMock(Docker::class);
         $posix = $this->createMock(Posix::class);
         $filesystem = $this->createMock(Filesystem::class);
+        $repo_manager = $this->createMock(RepoManager::class);
         $writer = new CommandWriter();
 
-        $command = new ExportCommand($docker, $posix, $filesystem, $writer);
+        $command = new ImportCommand($docker, $posix, $filesystem, $repo_manager, $writer);
         $tester = new CommandTester($command);
 
         $this->expectException(RuntimeException::class);
         $this->expectExceptionMessage("Name of the instance cannot be empty!");
-        $tester->execute(["instance" => ""]);
+        $tester->execute(["instance" => "", "package" => "foo.zip"]);
     }
 
     public function test_execute_with_wrong_chars_in_instance_param() : void
@@ -104,13 +105,14 @@ class ImportCommandTest extends TestCase
         $docker = $this->createMock(Docker::class);
         $posix = $this->createMock(Posix::class);
         $filesystem = $this->createMock(Filesystem::class);
+        $repo_manager = $this->createMock(RepoManager::class);
         $writer = new CommandWriter();
 
-        $command = new ExportCommand($docker, $posix, $filesystem, $writer);
+        $command = new ImportCommand($docker, $posix, $filesystem, $repo_manager, $writer);
         $tester = new CommandTester($command);
 
         $this->expectException(RuntimeException::class);
-        $this->expectExceptionMessage("Invalid characters! Only letters and numbers are allowed!");
-        $tester->execute(["instance" => "32$2323"]);
+        $this->expectExceptionMessage("Invalid characters! Only lowercase letters, numbers and underscores are allowed!");
+        $tester->execute(["instance" => "FooBar", "package" => "foo.zip"]);
     }
 }
