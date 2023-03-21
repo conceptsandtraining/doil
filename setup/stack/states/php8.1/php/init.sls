@@ -34,7 +34,7 @@ php8.1:
       - php8.1-xsl
       - php8.1-zip
 
-{% for version in ['7.0','7.1','7.2','7.3','7.4','8.0'] %}
+{% for version in ['7.0','7.1','7.2','7.3','7.4','8.0','8.2'] %}
 php{{ version }}:
   pkg.purged:
     - refresh: True

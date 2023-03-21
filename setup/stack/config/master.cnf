@@ -668,6 +668,8 @@ file_roots:
     - /srv/salt/states/php8.0
   php8.1:
     - /srv/salt/states/php8.1
+  php8.2:
+    - /srv/salt/states/php8.2
   ilias:
     - /srv/salt/states/ilias
   ilias-postinstall:
