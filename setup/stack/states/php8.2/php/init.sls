@@ -12,29 +12,29 @@ php_repo_key:
     - name: wget -O /etc/apt/trusted.gpg.d/php.gpg https://packages.sury.org/php/apt.gpg
     - unless: test -f /etc/apt/trusted.gpg.d/php.gpg
 
-php7.3:
+php8.2:
   pkg.installed:
     - refresh: True
     - pkgs:
-      - libapache2-mod-php7.3
-      - php7.3-json
-      - php7.3-apcu
-      - php7.3-bcmath
-      - php7.3-cli
-      - php7.3-curl
-      - php7.3-gd
-      - php7.3-imap
-      - php7.3-mbstring
-      - php7.3-mysql
-      - php7.3-opcache
-      - php7.3-readline
-      - php7.3-soap
-      - php7.3-xml
-      - php7.3-xmlrpc
-      - php7.3-xsl
-      - php7.3-zip
+      - libapache2-mod-php8.2
+      - php-json
+      - php8.2-apcu
+      - php8.2-bcmath
+      - php8.2-cli
+      - php8.2-curl
+      - php8.2-gd
+      - php8.2-imap
+      - php8.2-mbstring
+      - php8.2-mysql
+      - php8.2-opcache
+      - php8.2-readline
+      - php8.2-soap
+      - php8.2-xml
+      - php8.2-xmlrpc
+      - php8.2-xsl
+      - php8.2-zip
 
-{% for version in ['7.0','7.1','7.2','7.4','8.0','8.1','8.2'] %}
+{% for version in ['7.0','7.1','7.2','7.3','7.4','8.0','8.1'] %}
 php{{ version }}:
   pkg.purged:
     - refresh: True
@@ -61,36 +61,36 @@ php{{ version }}:
 
 ini_filesize_apache2:
   cmd.run:
-    - name: sed -i "/upload_max_filesize*/c upload_max_filesize = 4096M" /etc/php/7.3/apache2/php.ini
+    - name: sed -i "/upload_max_filesize*/c upload_max_filesize = 4096M" /etc/php/8.2/apache2/php.ini
 
 ini_filesize_cli:
   cmd.run:
-    - name: sed -i "/upload_max_filesize*/c upload_max_filesize = 4096M" /etc/php/7.3/cli/php.ini
+    - name: sed -i "/upload_max_filesize*/c upload_max_filesize = 4096M" /etc/php/8.2/cli/php.ini
 
 ini_postmax_apache2:
   cmd.run:
-    - name: sed -i "/post_max_size*/c post_max_size = 4096M" /etc/php/7.3/apache2/php.ini
+    - name: sed -i "/post_max_size*/c post_max_size = 4096M" /etc/php/8.2/apache2/php.ini
 
 ini_postmax_cli:
   cmd.run:
-    - name: sed -i "/post_max_size*/c post_max_size = 4096M" /etc/php/7.3/cli/php.ini
+    - name: sed -i "/post_max_size*/c post_max_size = 4096M" /etc/php/8.2/cli/php.ini
 
 ini_max_execution_time_apache2:
   cmd.run:
-    - name: sed -i "/max_execution_time*/c max_execution_time = 3600" /etc/php/7.3/apache2/php.ini
+    - name: sed -i "/max_execution_time*/c max_execution_time = 3600" /etc/php/8.2/apache2/php.ini
 
 ini_max_execution_time_cli:
   cmd.run:
-    - name: sed -i "/max_execution_time*/c max_execution_time = 3600" /etc/php/7.3/cli/php.ini
+    - name: sed -i "/max_execution_time*/c max_execution_time = 3600" /etc/php/8.2/cli/php.ini
 
 a2_enable_php:
   module.run:
     - name: apache.a2enmod
-    - mod: php7.3
+    - mod: php8.2
 
 update_alternatives_php:
   cmd.run:
-    - name: update-alternatives --set php /usr/bin/php7.3 &>/dev/null
+    - name: update-alternatives --set php /usr/bin/php8.2 &>/dev/null
 
 apache2_supervisor_signal:
   cmd.run:
