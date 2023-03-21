@@ -48,7 +48,7 @@ class UpdateCommandTest extends TestCase
 
         $this->expectException(RuntimeException::class);
         $this->expectExceptionMessage("Invalid characters! Only letters, numbers and underscores are allowed!");
-        $tester->execute(["name" => "324$34"]);
+        $tester->execute(["name" => "Foo§Bar"]);
     }
 
     public function test_execute_with_non_existing_repo() : void
