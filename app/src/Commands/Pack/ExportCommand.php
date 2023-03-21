@@ -12,7 +12,6 @@ use CaT\Doil\Lib\ConsoleOutput\Writer;
 use CaT\Doil\Lib\FileSystem\Filesystem;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputOption;
-use Symfony\Component\Console\Question\Question;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -52,6 +51,7 @@ class ExportCommand extends Command
     {
         $instance = $input->getArgument("instance");
         $name = $instance . "-doilpack";
+        $starting = false;
 
         $check = $this->checkName();
         $check($instance);
@@ -77,22 +77,21 @@ class ExportCommand extends Command
         $this->writer->beginBlock($output, "Building zip file for " . $instance . "_" . $suffix);
 
         if (! $this->docker->isInstanceUp($path)) {
+            $this->writer->beginBlock($output, "Starting instance $instance");
             $this->docker->startContainerByDockerCompose($path);
+            $starting = true;
+            sleep(5);
+            $this->writer->endBlock();
         }
 
         $this->writer->beginBlock($output, "Exporting database");
-        if ($this->filesystem->exists($path . "/README.md")) {
-            $mysql_password = $this->filesystem->grepMysqlPasswordFromFile($path . "/README.md");
-        } else {
-            $mysql_password = $this->askForMysqlPassword($input, $output);
-        }
 
         $this->docker->executeCommand(
             $path,
             $instance,
             "bash",
             "-c",
-            "mysqldump --user=root --password=$mysql_password ilias > /var/ilias/data/ilias.sql"
+            "mysqldump ilias > /var/ilias/data/ilias.sql"
         );
         $this->writer->endBlock();
 
@@ -126,6 +125,12 @@ class ExportCommand extends Command
         );
         $this->writer->endBlock();
 
+        if ($starting) {
+            $this->writer->beginBlock($output, "Stopping instance $instance");
+            $this->docker->stopContainerByDockerCompose($path);
+            $this->writer->endBlock();
+        }
+
         $this->writer->endBlock();
 
         return Command::SUCCESS;
@@ -154,15 +159,6 @@ class ExportCommand extends Command
 
             return $name;
         };
-    }
-
-    protected function askForMysqlPassword(InputInterface $input, OutputInterface $output) : string
-    {
-        $helper = $this->getHelper('question');
-        $question = new Question('Please enter a new MySQL password: ');
-        $question->setNormalizer(function($v) { return $v ? trim($v) : ''; });
-        $question->setValidator($this->checkName());
-        return $helper->ask($input, $output, $question);
     }
 
     public function hasDockerComposeFile(string $path, OutputInterface $output) : bool
