@@ -341,6 +341,13 @@ class CreateCommand extends Command
             $this->writer->endBlock();
         }
 
+        // apply npm-update state
+        if ($ilias_version >= 9.0) {
+            $this->writer->beginBlock($output, "Apply nodejs state");
+            $this->docker->applyState($instance_salt_name, "nodejs");
+            $this->writer->endBlock();
+        }
+
         // apply enable-xdebug state
         if ($options['xdebug']) {
             $this->writer->beginBlock($output, "Apply enable-xdebug state");
