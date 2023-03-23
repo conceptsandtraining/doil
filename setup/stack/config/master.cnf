@@ -690,6 +690,8 @@ file_roots:
     - /srv/salt/states/mailservices
   proxyservices:
     - /srv/salt/states/proxyservices
+  nodejs:
+      - /srv/salt/states/nodejs
 
 
 # The master_roots setting configures a master-only copy of the file_roots dictionary,
