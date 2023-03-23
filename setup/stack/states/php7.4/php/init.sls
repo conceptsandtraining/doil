@@ -57,6 +57,7 @@ php{{ version }}:
           - php{{ version }}-xmlrpc
           - php{{ version }}-xsl
           - php{{ version }}-zip
+          - php{{ version }}-imagick
 {% endfor %}
 
 ini_filesize_apache2:
