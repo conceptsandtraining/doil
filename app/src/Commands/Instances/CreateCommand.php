@@ -490,7 +490,7 @@ class CreateCommand extends Command
 
             if (!$this->filesystem->exists($path)) {
                 $question = new ConfirmationQuestion(
-                    "The selected repo $name is not cloned to disk yet. Want to clone it now? [Yn]: ",
+                    "The selected repo " . $options["repo"] . " is not cloned to disk yet. Want to clone it now? [Yn]: ",
                     true
                 );
 
