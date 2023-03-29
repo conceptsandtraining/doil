@@ -5,3 +5,6 @@ compile_skins:
     - cwd: /var/www/html
     - runas: root
 {%- endif %}
+empty:
+  cmd.run:
+    - name: echo ''
