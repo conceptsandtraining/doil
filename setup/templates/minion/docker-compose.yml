@@ -2,7 +2,7 @@ version: "3.5"
 services:
   %TPL_PROJECT_NAME%:
     build:
-      context: .
+      context: /usr/local/share/doil/templates/base
       dockerfile: Dockerfile
     image: doil/%TPL_PROJECT_NAME%_%TPL_PROJECT_DOMAINNAME%:stable
     container_name: %TPL_PROJECT_NAME%_%TPL_PROJECT_DOMAINNAME%

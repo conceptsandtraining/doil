@@ -10,8 +10,8 @@ class UserTest extends TestCase
 {
     public function test_create() : void
     {
-        $repo = new User("user");
+        $user = new User("user");
 
-        $this->assertEquals("user", $repo->getName());
+        $this->assertEquals("user", $user->getName());
     }
 }

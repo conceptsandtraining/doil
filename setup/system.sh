@@ -114,6 +114,7 @@ function doil_system_copy_doil() {
   cp -r setup/templates/proxy /usr/local/lib/doil/server/
   cp -r setup/templates/salt /usr/local/lib/doil/server/
   cp -r setup/templates/minion /usr/local/share/doil/templates
+  cp -r setup/templates/base /usr/local/share/doil/templates
   cp -r setup/stack/* /usr/local/share/doil/stack
 
   return 0

@@ -308,7 +308,17 @@ class CreateCommandTest extends TestCase
             ->method("getSaltAcceptedKeys")
             ->willReturn(["1232.local"])
         ;
+        $docker
+            ->expects($this->once())
+            ->method("getImageIdsByName")
+            ->willReturn([""])
+        ;
 
+        $filesystem
+            ->expects($this->exactly(3))
+            ->method("exists")
+            ->willReturn(false, true, true)
+        ;
         $filesystem
             ->expects($this->exactly(2))
             ->method("getLineInFile")

@@ -10,6 +10,7 @@ use CaT\Doil\Lib\Linux\Linux;
 use PHPUnit\Framework\TestCase;
 use CaT\Doil\Lib\ConsoleOutput\Writer;
 use CaT\Doil\Lib\FileSystem\Filesystem;
+use CaT\Doil\Commands\Repo\RepoManager;
 use CaT\Doil\Lib\ConsoleOutput\CommandWriter;
 use Symfony\Component\Console\Tester\CommandTester;
 
@@ -21,9 +22,10 @@ class AddCommandTest extends TestCase
         $posix = $this->createMock(Posix::class);
         $linux = $this->createMock(Linux::class);
         $filesystem = $this->createMock(Filesystem::class);
+        $repo_manager = $this->createMock(RepoManager::class);
         $writer = new CommandWriter();
 
-        $command = new AddCommand($user_manager, $posix, $linux, $filesystem, $writer);
+        $command = new AddCommand($user_manager, $posix, $linux, $filesystem, $writer, $repo_manager);
         $tester = new CommandTester($command);
 
         $this->expectException(RuntimeException::class);
@@ -36,9 +38,10 @@ class AddCommandTest extends TestCase
         $posix = $this->createMock(Posix::class);
         $linux = $this->createMock(Linux::class);
         $filesystem = $this->createMock(Filesystem::class);
+        $repo_manager = $this->createMock(RepoManager::class);
         $writer = new CommandWriter();
 
-        $command = new AddCommand($user_manager, $posix, $linux, $filesystem, $writer);
+        $command = new AddCommand($user_manager, $posix, $linux, $filesystem, $writer, $repo_manager);
         $tester = new CommandTester($command);
 
         $posix
@@ -62,9 +65,10 @@ class AddCommandTest extends TestCase
         $posix = $this->createMock(Posix::class);
         $linux = $this->createMock(Linux::class);
         $filesystem = $this->createMock(Filesystem::class);
+        $repo_manager = $this->createMock(RepoManager::class);
         $writer = new CommandWriter();
 
-        $command = new AddCommand($user_manager, $posix, $linux, $filesystem, $writer);
+        $command = new AddCommand($user_manager, $posix, $linux, $filesystem, $writer, $repo_manager);
         $tester = new CommandTester($command);
 
         $posix
@@ -94,10 +98,11 @@ class AddCommandTest extends TestCase
         $posix = $this->createMock(Posix::class);
         $linux = $this->createMock(Linux::class);
         $filesystem = $this->createMock(Filesystem::class);
+        $repo_manager = $this->createMock(RepoManager::class);
         $writer = new CommandWriter();
         $user = new User("doil");
 
-        $command = new AddCommand($user_manager, $posix, $linux, $filesystem, $writer);
+        $command = new AddCommand($user_manager, $posix, $linux, $filesystem, $writer, $repo_manager);
         $tester = new CommandTester($command);
 
         $posix
@@ -147,10 +152,11 @@ class AddCommandTest extends TestCase
         $posix = $this->createMock(Posix::class);
         $linux = $this->createMock(Linux::class);
         $filesystem = $this->createMock(Filesystem::class);
+        $repo_manager = $this->createMock(RepoManager::class);
         $writer = $this->createMock(Writer::class);
         $user = new User("doil");
 
-        $command = new AddCommand($user_manager, $posix, $linux, $filesystem, $writer);
+        $command = new AddCommand($user_manager, $posix, $linux, $filesystem, $writer, $repo_manager);
         $tester = new CommandTester($command);
 
         $posix
@@ -195,6 +201,11 @@ class AddCommandTest extends TestCase
             ->with("/home/doil_test", "doil")
         ;
 
+        $linux
+            ->expects($this->once())
+            ->method("initComposer")
+            ->with("doil")
+        ;
         $linux
             ->expects($this->once())
             ->method("addUserToGroup")

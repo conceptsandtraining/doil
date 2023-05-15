@@ -4,6 +4,7 @@
 
 namespace CaT\Doil\Commands\User;
 
+use CaT\Doil\Commands\Repo\Repo;
 use CaT\Doil\Lib\FileSystem\Filesystem;
 
 class UserManager
@@ -76,6 +77,16 @@ class UserManager
         });
 
         $this->saveUsers($users);
+    }
+
+    /**
+     * @param array<Repo>  $repos
+     */
+    public function ensureGlobalReposAreGitSafe(string $home_dir, array $repos) : void
+    {
+        foreach ($repos as $repo) {
+            $this->filesystem->addToGitConfig($home_dir, "safe", "directory = /usr/local/share/doil/repositories/" . $repo->getName());
+        }
     }
 
     /**
