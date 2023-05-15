@@ -1,4 +1,4 @@
-FROM debian:stable
+FROM debian:11
 
 # base
 RUN apt-get update && apt-get install -y supervisor salt-minion

@@ -51,6 +51,7 @@ however **doil** needs [Docker](https://www.docker.com/) in order to work:
 * php*.*-dom
 * composer version = depending on installed php version
 * git
+* .ssh folder in your home directory. **doil** will mount it into the container. **doil** needs this to have access to any private git repositories that may be used. 
 
 Additional dependencies, but these are installed automatically during setup.
 

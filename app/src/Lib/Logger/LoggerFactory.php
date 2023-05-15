@@ -17,7 +17,7 @@ class LoggerFactory
     public function getDoilLogger(string $channel) : LoggerInterface
     {
         $logger = new Logger($channel);
-        $stream = new StreamHandler(self::DOIL_LOG_PATH, Logger::DEBUG);
+        $stream = new StreamHandler(self::DOIL_LOG_PATH, Logger::DEBUG, true, 0777);
         $form = new LineFormatter(null,null,true,false,true);
         $form->setJsonPrettyPrint(true);
         $stream->setFormatter($form);
@@ -28,7 +28,7 @@ class LoggerFactory
     public function getSaltLogger(string $channel) : LoggerInterface
     {
         $logger = new Logger($channel);
-        $stream = new StreamHandler(self::SALT_LOG_PATH, Logger::DEBUG);
+        $stream = new StreamHandler(self::SALT_LOG_PATH, Logger::DEBUG, true, 0777);
         $form = new LineFormatter(null,null,true,false,true);
         $form->setJsonPrettyPrint(true);
         $stream->setFormatter($form);

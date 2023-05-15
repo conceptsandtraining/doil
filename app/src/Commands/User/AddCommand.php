@@ -8,6 +8,7 @@ use CaT\Doil\Lib\Linux\Linux;
 use CaT\Doil\Lib\Posix\Posix;
 use CaT\Doil\Lib\ConsoleOutput\Writer;
 use CaT\Doil\Lib\FileSystem\Filesystem;
+use CaT\Doil\Commands\Repo\RepoManager;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
@@ -23,13 +24,15 @@ class AddCommand extends Command
     protected Linux $linux;
     protected Filesystem $filesystem;
     protected Writer $writer;
+    protected RepoManager $repo_manager;
 
     public function __construct(
         UserManager $user_manager,
         Posix $posix,
         Linux $linux,
         Filesystem $filesystem,
-        Writer $writer
+        Writer $writer,
+        RepoManager $repo_manager
     ) {
         parent::__construct();
 
@@ -38,6 +41,7 @@ class AddCommand extends Command
         $this->linux = $linux;
         $this->filesystem = $filesystem;
         $this->writer = $writer;
+        $this->repo_manager = $repo_manager;
     }
 
     public function configure() : void
@@ -83,8 +87,13 @@ class AddCommand extends Command
         $this->writer->beginBlock($output, "Add user {$user->getName()} to doil");
         $this->user_manager->addUser($user);
         $this->user_manager->createFileInfrastructure($home_dir, $user->getName());
+        $this->user_manager->ensureGlobalReposAreGitSafe($home_dir, $this->repo_manager->getGlobalRepos());
+        $this->linux->initComposer($user->getName());
         $this->linux->addUserToGroup($user->getName(), "doil");
         $this->writer->endBlock();
+
+        $output->writeln("\nPlease ensure that {$user->getName()} is also member of the docker group!");
+        $output->writeln("\t<fg=gray>sudo usermod -aG docker {$user->getName()}</>");
 
         return Command::SUCCESS;
     }

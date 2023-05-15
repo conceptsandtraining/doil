@@ -345,16 +345,16 @@ class DockerShell implements Docker
         return explode("\n", trim($this->run($cmd, $logger)));
     }
 
-    public function pull(string $name) : void
+    public function pull(string $name, string $tag) : void
     {
         $cmd = [
             "docker",
             "pull",
-            $name . ":stable"
+            $name . ":" . $tag
         ];
 
         $logger = $this->logger->getDoilLogger("DOCKER");
-        $logger->info("Pull image $name:stable");
+        $logger->info("Pull image $name:$tag");
         $this->run($cmd, $logger);
     }
 
@@ -365,7 +365,9 @@ class DockerShell implements Docker
             "build",
             "-t",
             "doil/" . $name . ":stable",
-            $path
+            "-f",
+            $path,
+            "."
         ];
 
         $logger = $this->logger->getDoilLogger($name);
@@ -381,7 +383,7 @@ class DockerShell implements Docker
             "-d",
             "--name",
             $name,
-            "doil/" . $name . ":stable"
+            "doil/base_global:stable"
         ];
 
         $logger = $this->logger->getDoilLogger($name);

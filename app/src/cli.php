@@ -403,7 +403,8 @@ function buildContainerForApp() : Container
             $c["posix.shell"],
             $c["linux.shell"],
             $c["filesystem.shell"],
-            $c["command.writer"]
+            $c["command.writer"],
+            $c["repo.manager"]
         );
     };
 

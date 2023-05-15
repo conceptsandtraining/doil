@@ -201,4 +201,19 @@ class FilesystemShell implements Filesystem
 
         return "";
     }
+
+    public function addToGitConfig(string $path, string $section, string $line) : void
+    {
+        $path = $path . "/.gitconfig";
+        if (! $this->exists($path)) {
+            $this->symfony_file_system->touch($path);
+        }
+
+        if (! is_null($this->getLineInFile($path, $line))) {
+            return;
+        }
+
+        $this->symfony_file_system->appendToFile($path, "[$section]\n");
+        $this->symfony_file_system->appendToFile($path, "\t" . $line . "\n");
+    }
 }

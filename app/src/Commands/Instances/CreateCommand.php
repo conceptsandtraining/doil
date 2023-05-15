@@ -25,6 +25,7 @@ use Symfony\Component\Console\Question\ConfirmationQuestion;
 
 class CreateCommand extends Command
 {
+    protected const DEBIAN_TAG = "11";
     protected const LOCAL_REPO_PATH = "/.doil/repositories";
     protected const GLOBAL_REPO_PATH = "/usr/local/share/doil/repositories";
     protected const LOCAL_INSTANCES_PATH = "/.doil/instances";
@@ -101,12 +102,30 @@ class CreateCommand extends Command
         $suffix = $options["global"] ? "global" : "local";
         $instance_name = $options["name"] . "_" . $suffix;
         $instance_salt_name = $options["name"] . "." . $suffix;
+        $user_name = $this->posix->getCurrentUserName();
+        $home_dir = $this->posix->getHomeDirectory($this->posix->getUserId());
 
         if ($this->filesystem->exists($instance_path)) {
             $this->writer->error(
                 $output,
                 $options["name"] . " already exists!",
                 "See <fg=gray>doil instances:create --help</> for more information."
+            );
+            return Command::FAILURE;
+        }
+
+        if (! $this->filesystem->exists($home_dir . "/.ssh")) {
+            $this->writer->error(
+                $output,
+                "Folder $home_dir/.ssh not found."
+            );
+            return Command::FAILURE;
+        }
+
+        if ($suffix == "global" && stristr($instance_path, "/home/") !== false) {
+            $this->writer->error(
+                $output,
+                "Global instances must not be created below /home directory."
             );
             return Command::FAILURE;
         }
@@ -126,10 +145,15 @@ class CreateCommand extends Command
             }
         }
 
-        // update debian image
-        $this->writer->beginBlock($output, "Updating debian image");
-        $this->docker->pull("debian");
-        $this->writer->endBlock();
+        // install base image if not exists
+        if ($this->docker->getImageIdsByName("doil/base_global")[0] == "") {
+            $this->writer->beginBlock($output, "Update debian image");
+            $this->docker->pull("debian", self::DEBIAN_TAG);
+            $this->writer->endBlock();
+            $this->writer->beginBlock($output, "Install base image");
+            $this->docker->build("/usr/local/share/doil/templates/base/Dockerfile", "base_global");
+            $this->writer->endBlock();
+        }
 
         // create basic folders
         $this->writer->beginBlock($output, "Create basic folders");
@@ -143,7 +167,6 @@ class CreateCommand extends Command
         if ($options["global"]) {
             $this->filesystem->symlink($instance_path, self::GLOBAL_INSTANCES_PATH . "/" . $options["name"]);
         } else {
-            $home_dir = $this->posix->getHomeDirectory($this->posix->getUserId());
             $this->filesystem->symlink($instance_path, $home_dir . self::LOCAL_INSTANCES_PATH . "/" . $options["name"]);
         }
         $this->writer->endBlock();
@@ -153,15 +176,15 @@ class CreateCommand extends Command
         if ($options["global"]) {
             $this->filesystem->chownRecursive(
                 $instance_path,
-                $this->posix->getCurrentUserName(),
+                $user_name,
                 "doil"
             );
             $this->filesystem->chmod($instance_path, 02775);
         } else {
             $this->filesystem->chownRecursive(
                 $instance_path,
-                $this->posix->getCurrentUserName(),
-                $this->posix->getCurrentUserName()
+                $user_name,
+                $user_name
             );
         }
         $this->writer->endBlock();
@@ -171,10 +194,6 @@ class CreateCommand extends Command
         $this->filesystem->copy(
             "/usr/local/share/doil/templates/minion/run-supervisor.sh",
             $instance_path . "/conf/run-supervisor.sh"
-        );
-        $this->filesystem->copy(
-            "/usr/local/share/doil/templates/minion/Dockerfile",
-            $instance_path . "/Dockerfile"
         );
         $this->filesystem->copy(
             "/usr/local/share/doil/templates/minion/salt-minion.conf",
@@ -206,7 +225,6 @@ class CreateCommand extends Command
         $this->writer->beginBlock($output, "Copying ilias to target");
         $git_path = Filesystem::DOIL_PATH_SHARE . "/repositories/" . $options["repo"];
         if (! $options["use_global_repo"]) {
-            $home_dir = $this->posix->getHomeDirectory($this->posix->getUserId());
             $git_path = $home_dir . "/.doil/repositories/" . $options["repo"];
         }
 
@@ -237,23 +255,15 @@ class CreateCommand extends Command
             "%TPL_PROJECT_DOMAINNAME%",
             $suffix
         );
-        $this->filesystem->replaceStringInFile(
-            $instance_path . "/Dockerfile",
-            "%USER_ID%",
-            (string) $this->posix->getUserId()
-        );
-        $this->filesystem->replaceStringInFile(
-            $instance_path . "/Dockerfile",
-            "%GROUP_ID%",
-            (string) $this->posix->getGroupId()
-        );
         $this->writer->endBlock();
 
         // building minion image
         $this->writer->beginBlock($output, "Building minion image. This will take a while. Please be patient");
-        $this->docker->build($instance_path, $instance_name);
         $this->docker->runContainer($instance_name);
-        $this->docker->executeDockerCommand($instance_name, "apt install -y mariadb-server python3-mysqldb");
+        $usr_id = (string) $this->posix->getUserId();
+        $group_id = (string) $this->posix->getGroupId();
+        $this->docker->executeDockerCommand($instance_name, "usermod -u $usr_id www-data");
+        $this->docker->executeDockerCommand($instance_name, "groupmod -g $group_id www-data");
         $this->docker->executeDockerCommand($instance_name, "/etc/init.d/mariadb start");
         sleep(5);
         $this->docker->executeDockerCommand($instance_name, "/etc/init.d/mariadb stop");
@@ -280,7 +290,6 @@ class CreateCommand extends Command
             $this->docker->executeDockerCommand($instance_name, "rm -rf /var/lib/salt/pki/minion/*");
             $this->docker->executeDockerCommand("doil_saltmain", "salt-key -d " . $instance_salt_name . " -y");
             $this->docker->executeDockerCommand($instance_name, "salt-minion -d");
-
             sleep(5);
             $salt_keys = $this->docker->getSaltAcceptedKeys();
         }
@@ -401,7 +410,6 @@ class CreateCommand extends Command
         }
 
         $output->writeln("Please start the created instance by <fg=gray>doil up {$options["name"]}$flag</>.");
-
         return Command::SUCCESS;
     }
 

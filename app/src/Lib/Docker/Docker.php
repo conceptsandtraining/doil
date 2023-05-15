@@ -28,7 +28,7 @@ interface Docker
     public function applyState(string $name, string $state) : void;
     public function copy(string $instance_name, string $from, string $to) : void;
     public function listContainerDirectory(string $container_name, string $path) : array;
-    public function pull(string $name) : void;
+    public function pull(string $name, string $tag) : void;
     public function build(string $path, string $name) : void;
     public function runContainer(string $name) : void;
     public function stop(string $name) : void;
