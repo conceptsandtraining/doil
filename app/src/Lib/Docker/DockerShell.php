@@ -365,9 +365,7 @@ class DockerShell implements Docker
             "build",
             "-t",
             "doil/" . $name . ":stable",
-            "-f",
-            $path,
-            "."
+            $path
         ];
 
         $logger = $this->logger->getDoilLogger($name);
