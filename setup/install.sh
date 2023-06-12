@@ -43,14 +43,19 @@ then
 fi
 doil_status_okay
 
-doil_status_send_message_nl "Set host variable"
-doil_set_host
-if [[ $? -ne 0 ]]
+if [ -z $1 ]
 then
-  doil_status_failed
-  exit
+  doil_status_send_message_nl "Set host variable"
+  doil_set_host
+  if [[ $? -ne 0 ]]
+  then
+    doil_status_failed
+    exit
+  fi
+  doil_status_okay
+else
+  set_host ${1}
 fi
-doil_status_okay
 
 doil_status_send_message "Creating log file"
 doil_system_setup_log
