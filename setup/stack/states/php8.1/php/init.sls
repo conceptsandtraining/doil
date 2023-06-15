@@ -39,6 +39,7 @@ php8.1:
 php{{ version }}:
   pkg.purged:
     - refresh: True
+    - skip_verify: True
     - pkgs:
           - libapache2-mod-php{{ version }}
           - php{{ version }}-apcu

@@ -15,6 +15,7 @@ php_repo_key:
 php8.2:
   pkg.installed:
     - refresh: True
+    - skip_verify: True
     - pkgs:
       - libapache2-mod-php8.2
       - php-json

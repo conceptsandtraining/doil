@@ -15,6 +15,7 @@ php_repo_key:
 php7.3:
   pkg.installed:
     - refresh: True
+    - skip_verify: True
     - pkgs:
       - libapache2-mod-php7.3
       - php7.3-json

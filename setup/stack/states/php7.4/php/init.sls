@@ -15,6 +15,7 @@ php_repo_key:
 php7.4:
   pkg.installed:
     - refresh: True
+    - skip_verify: True
     - pkgs:
       - libapache2-mod-php7.4
       - php7.4-json
