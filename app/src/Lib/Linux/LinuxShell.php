@@ -74,7 +74,7 @@ class LinuxShell implements Linux
             "su",
             $user,
             "-c",
-            "$(which composer)"
+            "/usr/bin/php7.4 -c /srv/php/php.ini $(which composer)"
         ];
 
         $this->logger->info("Init composer for user '$user'.");

@@ -1,13 +1,13 @@
 version: "3.5"
 services:
-  doil_postfix:
+  doil_mail:
     build:
       context: .
       dockerfile: Dockerfile
-    image: doil_postfix:stable
-    container_name: doil_postfix
+    image: doil_mail:stable
+    container_name: doil_mail
     hostname: doil
-    domainname: postfix
+    domainname: mail
     networks:
       doil_proxy:
         ipv4_address: 172.24.0.253

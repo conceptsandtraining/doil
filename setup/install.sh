@@ -5,7 +5,7 @@
 # It is able to download ILIAS and other ILIAS related software
 # like cate.
 #
-# Copyright (C) 2020 - 2021 Laura Herzog (laura.herzog@concepts-and-training.de)
+# Copyright (C) 2020 - 2023 Daniel Weise (daniel.weise@concepts-and-training.de)
 # Permission to copy and modify is granted under the AGPL license
 #
 # Contribute: https://github.com/conceptsandtraining/doil
@@ -16,11 +16,11 @@
 # get the helper
 SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 
+source ${SCRIPT_DIR}/check_requirements.sh
 source ${SCRIPT_DIR}/checks.sh
-source ${SCRIPT_DIR}/helper.sh
 source ${SCRIPT_DIR}/log.sh
 source ${SCRIPT_DIR}/system.sh
-source ${SCRIPT_DIR}/check_requirements.sh
+source ${SCRIPT_DIR}/helper.sh
 
 check_requirements
 
@@ -33,7 +33,16 @@ then
 fi
 doil_status_okay
 
+doil_status_send_message "Adding user to group 'doil'"
 doil_system_add_user_to_doil_group
+if [[ $? -ne 0 ]]
+then
+  doil_status_failed
+  exit
+fi
+doil_status_okay
+
+doil_status_send_message "Checking if user is in 'doil' group"
 doil_check_user_in_doil_group
 if [[ $? -ne 0 ]]
 then
@@ -42,20 +51,6 @@ then
   exit
 fi
 doil_status_okay
-
-if [ -z $1 ]
-then
-  doil_status_send_message_nl "Set host variable"
-  doil_set_host
-  if [[ $? -ne 0 ]]
-  then
-    doil_status_failed
-    exit
-  fi
-  doil_status_okay
-else
-  set_host ${1}
-fi
 
 doil_status_send_message "Creating log file"
 doil_system_setup_log
@@ -84,15 +79,6 @@ then
 fi
 doil_status_okay
 
-doil_status_send_message "Run composer"
-doil_system_run_composer
-if [[ $? -ne 0 ]]
-then
-  doil_status_failed
-  exit
-fi
-doil_status_okay
-
 doil_status_send_message "Setting up basic configuration"
 doil_system_setup_config
 if [[ $? -ne 0 ]]
@@ -102,17 +88,15 @@ then
 fi
 doil_status_okay
 
-if [[ "${HOST}" == "doil" ]]
+
+doil_status_send_message "Setting up IP"
+doil_system_setup_ip
+if [[ $? -ne 0 ]]
 then
-  doil_status_send_message "Setting up IP"
-  doil_system_setup_ip
-  if [[ $? -ne 0 ]]
-  then
-    doil_status_failed
-    exit
-  fi
-  doil_status_okay
+  doil_status_failed
+  exit
 fi
+doil_status_okay
 
 doil_status_send_message "Setting up access rights"
 doil_system_setup_access
@@ -134,6 +118,11 @@ doil_status_okay
 
 if [[ -z ${GHRUN} ]]
 then
+  # start salt server
+  doil_status_send_message "Building doil php image"
+  doil_system_build_php_image
+  doil_status_okay
+
   # start salt server
   doil_status_send_message "Installing salt server"
   doil_system_install_saltserver

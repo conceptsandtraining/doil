@@ -5,7 +5,7 @@
 # It is able to download ILIAS and other ILIAS related software
 # like cate.
 #
-# Copyright (C) 2020 - 2021 Laura Herzog (laura.herzog@concepts-and-training.de)
+# Copyright (C) 2020 - 2023 Daniel Weise (daniel.weise@concepts-and-training.de)
 # Permission to copy and modify is granted under the AGPL license
 #
 # Contribute: https://github.com/conceptsandtraining/doil
@@ -14,25 +14,116 @@
 # Thanks to Concepts and Training for supporting doil
 
 function doil_system_remove_old_version() {
-
   # removing old version
-  if [ -f "/usr/local/bin/doil" ]
-  then
-    rm /usr/local/bin/doil
-  fi
-  if [ -d "/usr/local/lib/doil" ]
+  if [ -d /usr/local/lib/doil ]
   then
     rm -rf /usr/local/lib/doil
   fi
-  if [ -d "/usr/local/share/doil/stack" ]
+
+  if [ -d /usr/local/share/doil/stack ]
   then
-    rm -rf /usr/local/share/doil/stack/*
+    rm -rf /usr/local/share/doil/stack
   fi
+
+  if [ -d /usr/local/share/doil/templates ]
+  then
+    rm -rf /usr/local/share/doil/templastes
+  fi
+
   return 0
 }
 
-function doil_system_add_group() {
+function doil_system_remove_all() {
+  GLOBAL_INSTANCES_PATH=$(doil_get_conf global_instances_path)
+  HOST=$(doil_get_conf host)
+  if [ -d "${GLOBAL_INSTANCES_PATH}" ]
+  then
+    rm -rf "${GLOBAL_INSTANCES_PATH}"
+  fi
 
+  if [ -d /usr/local/share/doil ]
+  then
+    rm -rf /usr/local/share/doil
+  fi
+
+  if [ -d /etc/doil ]
+  then
+    rm -rf /etc/doil
+  fi
+
+  if [ -d /var/log/doil ]
+  then
+    rm -rf /var/log/doil
+  fi
+
+  if [ -f /usr/local/bin/doil ]
+  then
+    rm /usr/local/bin/doil
+  fi
+
+  doil_system_stop_instances
+  doil_system_remove_instances
+  doil_system_remove_all_images
+  doil_system_remove_networks
+  doil_system_remove_volumes
+  doil_system_remove_instances_on_disk
+  doil_system_remove_user_doil_folders
+  doil_system_remove_hosts_entry
+
+  delgroup doil
+}
+
+function doil_system_stop_instances() {
+  if [ $(docker ps -q --filter "name=_local" --filter "name=_global" --filter "name=doil_" | wc -l) -gt 0 ]
+  then
+    (docker kill $(docker ps -q --filter "name=_local" --filter "name=_global" --filter "name=doil_")) 2>&1 > /dev/null
+  fi
+}
+
+function doil_system_remove_instances() {
+  if [ $(docker ps -a -q --filter "name=_local" --filter "name=_global" --filter "name=doil_" | wc -l) -gt 0 ]
+  then
+    (docker rm $(docker ps -a -q --filter "name=_local" --filter "name=_global" --filter "name=doil_")) 2>&1 > /dev/null
+  fi
+}
+
+function doil_system_rm_system_instances() {
+  if [ $(docker ps -a -q --filter "name=doil_" | wc -l) -gt 0 ]
+  then
+    (docker rm $(docker ps -a -q --filter "name=doil_")) 2>&1 > /dev/null
+  fi
+}
+
+function doil_system_remove_all_images() {
+  docker rmi -f $(docker images -q --filter reference=doil[/,_]*) 2>&1 > /dev/null
+}
+
+function doil_system_remove_doil_system_images() {
+  docker rmi -f $(docker images -q --filter reference=doil_*) 2>&1 > /dev/null
+  docker image prune -f 2>&1 > /dev/null
+}
+
+function doil_system_remove_instances_on_disk() {
+  (find /home -type l | grep .doil | xargs realpath | xargs rm -rf) 2>&1 > /dev/null
+}
+
+function doil_system_remove_networks() {
+  docker network prune -f 2>&1 > /dev/null
+}
+
+function doil_system_remove_volumes() {
+  docker volume prune -f 2>&1 > /dev/null
+}
+
+function doil_system_remove_user_doil_folders() {
+  find /home -name .doil -type d -exec rm -rf {} +
+}
+
+function doil_system_remove_hosts_entry() {
+  sed -i "/172.24.0.254 ${HOST}/d" /etc/hosts
+}
+
+function doil_system_add_group() {
   CHECK_GROUP=$(grep doil /etc/group)
   if [[ -z ${CHECK_GROUP} ]]
   then
@@ -52,20 +143,10 @@ function doil_system_add_user_to_doil_group() {
 }
 
 function doil_system_create_folder() {
-
-  if [ ! -d /usr/local/lib/doil ]
+  GLOBAL_INSTANCES_PATH=$(cat ./setup/conf/doil.conf | grep "global_instances_path" | cut -d '=' -f 2-)
+  if [ ! -d "${GLOBAL_INSTANCES_PATH}" ]
   then
-    mkdir /usr/local/lib/doil
-  fi
-
-  if [ ! -d /usr/local/lib/doil/app ]
-  then
-    mkdir /usr/local/lib/doil/app
-  fi
-
-  if [ ! -d /usr/local/lib/doil/server ]
-  then
-    mkdir /usr/local/lib/doil/server
+    mkdir -p "${GLOBAL_INSTANCES_PATH}"
   fi
 
   if [ ! -d /etc/doil ]
@@ -73,68 +154,44 @@ function doil_system_create_folder() {
     mkdir /etc/doil/
   fi
 
-  if [ ! -d /usr/local/share/doil ]
+  if [ ! -d /usr/local/lib/doil ]
   then
-    mkdir /usr/local/share/doil
+    mkdir /usr/local/lib/doil
   fi
 
-  if [ ! -d /usr/local/share/doil/templates ]
+  if [ ! -d /usr/local/lib/doil/server ]
   then
-    mkdir /usr/local/share/doil/templates
-  fi
-
-  if [ ! -d /usr/local/share/doil/instances ]
-  then
-    mkdir /usr/local/share/doil/instances
-  fi
-
-  if [ ! -d /usr/local/share/doil/stack ]
-  then
-    mkdir /usr/local/share/doil/stack
+    mkdir /usr/local/lib/doil/server
   fi
 
   if [ ! -d /usr/local/share/doil/instances ]
   then
-    mkdir /usr/local/share/doil/instances
+    mkdir -p /usr/local/share/doil/instances
   fi
 
   if [ ! -d /usr/local/share/doil/repositories ]
   then
-    mkdir /usr/local/share/doil/repositories
+    mkdir -p /usr/local/share/doil/repositories
   fi
+
+  if [ ! -d /usr/local/share/doil/templates ]
+    then
+      mkdir /usr/local/share/doil/templates
+    fi
 
   return 0
 }
 
 function doil_system_copy_doil() {
-
   cp setup/doil.sh /usr/local/bin/doil
-  cp -r app/* /usr/local/lib/doil/app/
   cp -r setup/templates/mail /usr/local/lib/doil/server/
   cp -r setup/templates/proxy /usr/local/lib/doil/server/
   cp -r setup/templates/salt /usr/local/lib/doil/server/
+  cp -r setup/templates/php /usr/local/lib/doil/server/
   cp -r setup/templates/minion /usr/local/share/doil/templates
   cp -r setup/templates/base /usr/local/share/doil/templates
-  cp -r setup/stack/* /usr/local/share/doil/stack
-
-  return 0
-}
-
-function doil_system_run_composer() {
-  if [ -f /usr/local/lib/doil/app/composer.lock ]
-  then
-    rm /usr/local/lib/doil/app/composer.lock
-  fi
-  COMPOSER=$(which composer)
-  COMPOSER_ALLOW_SUPERUSER=1 ${COMPOSER} install -d /usr/local/lib/doil/app/ -n -q
-
-  return 0
-}
-
-function doil_system_replace_salt_stack() {
-
-  rm -rf /usr/local/share/doil/stack/*
-  cp -r setup/stack/* /usr/local/share/doil/stack
+  cp -r app /usr/local/lib/doil
+  cp -r setup/stack /usr/local/share/doil
 
   return 0
 }
@@ -166,19 +223,24 @@ function doil_system_setup_ip() {
   IPEXIST=$(grep "172.24.0.254" /etc/hosts)
   if [[ -z ${IPEXIST} ]]
   then
-    printf "172.24.0.254 doil" >> "/etc/hosts"
+    HOST=$(doil_get_conf host)
+    printf "172.24.0.254 ${HOST}" >> "/etc/hosts"
   fi
   return 0
 }
 
 function doil_system_setup_access() {
+  GLOBAL_INSTANCES_PATH=$(cat ./setup/conf/doil.conf | grep "global_instances_path" | cut -d '=' -f 2-)
 
+  chown -R root:doil "${GLOBAL_INSTANCES_PATH}"
   chown -R root:doil /usr/local/lib/doil
   chown -R root:doil /etc/doil
   chown -R root:doil /usr/local/share/doil
   chown root:doil /usr/local/bin/doil
   chown -R root:doil /var/log/doil/
 
+  chmod g+w "${GLOBAL_INSTANCES_PATH}"
+  chmod -R g+s "${GLOBAL_INSTANCES_PATH}"
   chmod g+w /etc/doil/repositories.json
   chmod g+w /etc/doil/user.json
   chmod -R g+w /etc/doil
@@ -188,7 +250,6 @@ function doil_system_setup_access() {
   chmod -R g+w /usr/local/share/doil/repositories
   chmod -R g+s /usr/local/share/doil/repositories
   chmod +x /usr/local/bin/doil
-  chmod -R 777 /usr/local/lib/doil/server/proxy/conf/
   chmod -R 777 /var/log/doil/
 
   return 0
@@ -246,18 +307,9 @@ function doil_system_setup_log() {
   fi
 }
 
-function doil_system_stop_all_services() {
-  doil proxy:down
-  doil salt:down
-  doil mail:down
-}
-
-function doil_system_stop_instances() {
-  doil down -a --quiet
-}
-
-function doil_system_remove_services() {
-  sudo doil system:uninstall -y
+function doil_system_build_php_image() {
+  (docker build -q -t doil_php:stable /usr/local/lib/doil/server/php) 2>&1 > /var/log/doil/stream.log
+  docker run --rm -ti -v /home:/home -v /usr/local/lib/doil:/usr/local/lib/doil -e PHP_INI_SCAN_DIR=/srv/php/mods-available -w /usr/local/lib/doil/app --user $(id -u):$(id -g) doil_php:stable /usr/bin/php7.4 -c /srv/php/php.ini /usr/local/bin/composer -q -n install
 }
 
 function doil_system_install_saltserver() {
@@ -280,13 +332,13 @@ function doil_system_install_mailserver() {
   cd /usr/local/lib/doil/server/mail
   BUILD=$(docker-compose up -d 2>&1 > /var/log/doil/stream.log) 2>&1 > /var/log/doil/stream.log
   sleep 10
-  docker exec -i doil_saltmain bash -c "salt 'doil.postfix' state.highstate saltenv=mailservices" 2>&1 > /var/log/doil/stream.log
+  docker exec -i doil_saltmain bash -c "salt 'doil.mail' state.highstate saltenv=mailservices" 2>&1 > /var/log/doil/stream.log
   PASSWORD=$(doil_get_conf mail_password)
   if [[ "${PASSWORD}" != "ilias" ]]
   then
-    PASSWORD_HASH=$(docker exec -i doil_saltmain bash -c "salt \"doil.postfix\" shadow.gen_password \"${PASSWORD}\" --out txt" | cut -d ' ' -f 2-)
-    docker exec -i doil_saltmain bash -c "salt \"doil.postfix\" grains.setval 'roundcube_password' '${PASSWORD_HASH}'" 2>&1 > /var/log/doil/stream.log
-    docker exec -i doil_saltmain bash -c "salt \"doil.postfix\" state.highstate saltenv=change-roundcube-password" 2>&1 > /var/log/doil/stream.log
+    PASSWORD_HASH=$(docker exec -i doil_saltmain bash -c "salt \"doil.mail\" shadow.gen_password \"${PASSWORD}\" --out txt" | cut -d ' ' -f 2-)
+    docker exec -i doil_saltmain bash -c "salt \"doil.mail\" grains.setval 'roundcube_password' '${PASSWORD_HASH}'" 2>&1 > /var/log/doil/stream.log
+    docker exec -i doil_saltmain bash -c "salt \"doil.mail\" state.highstate saltenv=change-roundcube-password" 2>&1 > /var/log/doil/stream.log
   fi
-  docker commit doil_postfix doil_postfix:stable 2>&1 > /var/log/doil/stream.log
+  docker commit doil_mail doil_mail:stable 2>&1 > /var/log/doil/stream.log
 }

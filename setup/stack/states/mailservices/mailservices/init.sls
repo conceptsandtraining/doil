@@ -1,4 +1,4 @@
-# salt 'doil.postfix' state.highstate saltenv=mailservices
+# salt 'doil.mail' state.highstate saltenv=mailservices
 {% set cpu = salt['grains.get']('num_cpus', '4') %}
 {% set ram = salt['grains.get']('mem_total', '4096') %}
 {% set doil_host_system = salt['grains.get']('doil_host_system', 'linux') %}

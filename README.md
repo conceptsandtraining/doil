@@ -3,13 +3,17 @@
 **doil** provides you with a simple way to create and manage development and
 testing environments for ILIAS. It will create and provision a docker container
 according to your requirements, pull the ILIAS version you want to use and even
-install it if possible.
+install it if possible. Also, **doil** provides you with a mail server wich collects 
+all mails from your instances, so you can test the ILIAS emailing.
 
 ## Installation
 
 1. download and unpack the [latest release](https://github.com/conceptsandtraining/doil/releases)
 1. cd into the unpacked directory
 1. if you run doil on a remote host ensure to change the host name in `setup/conf/doil.conf` to your host name
+1. adjust your mail password in `setup/conf/doil.conf`
+1. if you run global instances make sure to adjust 'global_instances_path' in `setup/conf/doil.conf` to specify
+   where to place them, default is '/srv/instances'. Attention, paths with 'home' are not allowed here.
 1. execute `sudo ./setup/install.sh` in order to install **doil**
 1. you can remove the downloaded folder afterwards
 1. check `doil help` for available commands and further instructions
@@ -35,8 +39,11 @@ Otherwise, use the update script.
 
 1. checkout the newest master branch or copy and extract the zip
 2. cd into the unpacked directory
-3. execute sudo ./setup/update.sh in order to update **doil**
-4. you can remove the downloaded folder afterwards
+3. if you run global instances make sure to adjust 'global_instances_path' in `setup/conf/doil.conf` to specify 
+where to place them, default is '/srv/instances'. Attention, paths with 'home' are not allowed here. The update
+will move all global instances to the set path.
+4. execute sudo ./setup/update.sh in order to update **doil**
+5. you can remove the downloaded folder afterward
 
 
 ## Dependencies
@@ -46,15 +53,15 @@ however **doil** needs [Docker](https://www.docker.com/) in order to work:
 
 * docker version >= 19.03
 * docker-compose version >= 1.25.0 (ensure that root has access too)
-* php version => 7.4
-* php*.*-zip
-* php*.*-dom
-* composer version = depending on installed php version
 * git
 * .ssh folder in your home directory. **doil** will mount it into the container. **doil** needs this to have access to any private git repositories that may be used. 
 
 Additional dependencies, but these are installed automatically during setup.
 
+* php version => 7.4
+* php*.*-zip
+* php*.*-dom
+* composer version = depending on installed php version
 * symfony/console
 * symfony/filesystem
 * symfony/process
@@ -143,8 +150,8 @@ The user who installed doil on the machine is already registered at doil. To add
 another user simply use `doil system:user add <username>`. You can manage the users
 with following commands:
 
-* `doil user:add <username>` adds a user
-* `doil user:delete <username>` deletes a user
+* `doil user:add <username>` adds a user (needs sudo privileges)
+* `doil user:delete <username>` deletes a user (needs sudo privileges)
 * `doil user:list` lists the available users
 
 See `doil user:<command> --help` for more information
@@ -258,10 +265,18 @@ via Dockers volumes and can be accessed from the host system.
 
 **doil** comes with some helpers which are useful if you want to hack on **doil**:
 
-* `doil system:uninstall` will remove doil from your system. users, instance and config remain 
-* `doil system:uninstall --prune` will remove doil completely from your system for all users
 * `doil -V|--version` displays the version
 * `doil` displays the main help page
+
+Also, there is a script to uninstall **doil** in the doil repo. If you have already deleted
+the folder easily clone it again from [doil](https://github.com/conceptsandtraining/doil).
+
+Cd into the cloned folder and execute the script.
+
+`sudo ./setup/uninstall`
+
+The script will ask you if you want to remove **doil** completely from your system or if you
+want to keep your instances, images ...
 
 
 ### SaltStack
