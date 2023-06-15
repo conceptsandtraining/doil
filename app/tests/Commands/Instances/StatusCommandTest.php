@@ -17,13 +17,13 @@ class StatusCommandTest extends TestCase
         $docker
             ->expects($this->once())
             ->method("ps")
-            ->willReturn(["doil_postfix", "doil/master_local", "doil/ilias7_global", "ilias8", "trunk"])
+            ->willReturn(["doil_mail", "doil/master_local", "doil/ilias7_global", "ilias8", "trunk"])
         ;
 
         $tester->execute([]);
         $output = $tester->getDisplay(true);
 
-        $this->assertStringContainsString("doil_postfix", $output);
+        $this->assertStringContainsString("doil_mail", $output);
         $this->assertStringContainsString("doil/master_local", $output);
         $this->assertStringContainsString("doil/ilias7_global", $output);
         $this->assertStringNotContainsString("ilias8", $output);

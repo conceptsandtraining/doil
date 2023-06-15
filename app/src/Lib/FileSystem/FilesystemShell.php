@@ -170,7 +170,7 @@ class FilesystemShell implements Filesystem
         $data = file($path);
         foreach ($data as $value) {
             if (stristr($value, $needle)) {
-                return $value;
+                return trim(preg_replace("/[[:cntrl:]]/", "", $value));
             }
         }
         return null;

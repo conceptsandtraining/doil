@@ -6,10 +6,7 @@ namespace CaT\Doil\Lib\FileSystem;
 
 interface Filesystem
 {
-    public const DOIL_PATH_MAIN_CONFIG = "/etc/doil";
-    public const DOIL_PATH_LIB = "/usr/local/lib/doil";
     public const DOIL_PATH_SHARE = "/usr/local/share/doil";
-    public const DOIL_PATH_BIN = "/usr/local/bin/doil";
 
     public function getCurrentWorkingDirectory() : string;
     public function getFilenameFromPath(string $path) : string;

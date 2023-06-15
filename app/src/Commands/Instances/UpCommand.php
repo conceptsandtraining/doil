@@ -109,7 +109,7 @@ class UpCommand extends Command
 
     protected function hasDockerComposeFile(string $path, OutputInterface $output) : bool
     {
-        if (file_exists($path . "/docker-compose.yml")) {
+        if ($this->filesystem->exists($path . "/docker-compose.yml")) {
             return true;
         }
 

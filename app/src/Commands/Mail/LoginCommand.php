@@ -32,7 +32,7 @@ class LoginCommand extends Command
             $this->docker->startContainerByDockerCompose(self::MAIL_PATH);
         }
 
-        $this->docker->loginIntoContainer(self::MAIL_PATH, "doil_postfix");
+        $this->docker->loginIntoContainer(self::MAIL_PATH, "doil_mail");
         return Command::SUCCESS;
     }
 }

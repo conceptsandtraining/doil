@@ -34,7 +34,8 @@ class StatusCommand extends Command
         $doil_instances = array_filter($doil_instances, function($a) {
             if (
                 strstr($a, "CONTAINER ID") ||
-                strstr($a, "doil") ||
+                strstr($a, "doil_mail") ||
+                strstr($a, "doil_proxy") ||
                 strstr($a, "doil_saltmain") ||
                 strstr($a, "_local") ||
                 strstr($a, "_global")

@@ -40,7 +40,7 @@ class UpCommand extends Command
         $this->docker->startContainerByDockerCompose(self::MAIL_PATH);
         sleep(3);
         $this->docker->executeDockerCommand(
-            "doil_postfix",
+            "doil_mail",
             "supervisorctl start startup"
         );
         $this->writer->endBlock();
