@@ -10,7 +10,6 @@ use CaT\Doil\Commands\Pack;
 use CaT\Doil\Commands\Salt;
 use CaT\Doil\Commands\User;
 use CaT\Doil\Commands\Proxy;
-use CaT\Doil\Commands\System;
 use CaT\Doil\Lib\Git\GitShell;
 use CaT\Doil\Lib\ProjectConfig;
 use CaT\Doil\Commands\Instances;
@@ -22,8 +21,6 @@ use CaT\Doil\Commands\Repo\RepoManager;
 use CaT\Doil\Lib\FileSystem\FilesystemShell;
 use CaT\Doil\Lib\ConsoleOutput\CommandWriter;
 
-use Monolog\Logger;
-use Monolog\Handler\StreamHandler;
 require_once __DIR__ . "/../vendor/autoload.php";
 
 $c = buildContainerForApp();
@@ -69,7 +66,6 @@ function buildContainerForApp() : Container
             $c["command.salt.up"],
             $c["command.salt.states"],
             $c["command.salt.down"],
-            $c["command.system.uninstall"],
             $c["command.user.add"],
             $c["command.user.delete"],
             $c["command.user.list"]
@@ -382,17 +378,6 @@ function buildContainerForApp() : Container
     $c["command.salt.up"] = function($c) {
         return new Salt\UpCommand(
             $c["docker.shell"],
-            $c["command.writer"]
-        );
-    };
-
-    $c["command.system.uninstall"] = function($c) {
-        return new System\UninstallCommand(
-            $c["docker.shell"],
-            $c["posix.shell"],
-            $c["filesystem.shell"],
-            $c["linux.shell"],
-            $c["user.manager"],
             $c["command.writer"]
         );
     };

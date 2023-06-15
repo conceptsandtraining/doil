@@ -62,23 +62,23 @@ class ChangePasswordCommandTest extends TestCase
         $docker
             ->expects($this->once())
             ->method("getShadowHashForInstance")
-            ->with("doil.postfix", "foo")
+            ->with("doil.mail", "foo")
             ->willReturn('$xyz')
         ;
         $docker
             ->expects($this->once())
             ->method("setGrain")
-            ->with("doil.postfix", "roundcube_password", '\$xyz')
+            ->with("doil.mail", "roundcube_password", '\$xyz')
         ;
         $docker
             ->expects($this->once())
             ->method("applyState")
-            ->with("doil.postfix", "change-roundcube-password")
+            ->with("doil.mail", "change-roundcube-password")
         ;
         $docker
             ->expects($this->once())
             ->method("commit")
-            ->with("doil_postfix", "doil_postfix")
+            ->with("doil_mail", "doil_mail")
         ;
 
         $tester->execute(["password" => "foo"]);

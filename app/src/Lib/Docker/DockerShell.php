@@ -518,7 +518,7 @@ class DockerShell implements Docker
             $this->startContainerByDockerComposeWithForceRecreate(self::MAIL);
             sleep(5);
             $this->executeDockerCommand(
-                "doil_postfix",
+                "doil_mail",
                 "supervisorctl start startup"
             );
         }

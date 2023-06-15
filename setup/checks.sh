@@ -5,7 +5,7 @@
 # It is able to download ILIAS and other ILIAS related software
 # like cate.
 #
-# Copyright (C) 2020 - 2021 Laura Herzog (laura.herzog@concepts-and-training.de)
+# Copyright (C) 2020 - 2023 Daniel Weise (daniel.weise@concepts-and-training.de)
 # Permission to copy and modify is granted under the AGPL license
 #
 # Contribute: https://github.com/conceptsandtraining/doil
@@ -16,6 +16,15 @@
 # get additional helper
 SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 source ${SCRIPT_DIR}/helper.sh
+
+
+function doil_check_doil_artifacts() {
+  if [[ -d /etc/doil || -d /usr/local/lib/doil || -d /usr/local/share/doil || -d /home/$SUDO_USER/.doil || -f /usr/local/bin/doil || -d /var/log/doil ]]
+  then
+    return 255
+  fi
+  return 0
+}
 
 # checks if the current user is a sudo user
 #
@@ -45,12 +54,12 @@ function doil_check_ports() {
   return 255
 }
 
-# checks if user is in docker group
+# checks if user is in doil group
 #
-# return 255 if user is not in docker group
-# return 0 if user is in docker group
-function doil_check_user_in_docker_group() {
-  id -nG $SUDO_USER | grep -qw 'docker'
+# return 255 if user is not in doil group
+# return 0 if user is in doil group
+function doil_check_user_in_doil_group() {
+  id -nG $SUDO_USER | grep -qw 'doil' > /dev/null 2>&1
   if [[ $? -ne 0 ]]
     then
       return 255
@@ -58,12 +67,12 @@ function doil_check_user_in_docker_group() {
   return 0
 }
 
-# checks if user is in doil group
+# checks if user is in docker group
 #
-# return 255 if user is not in doil group
-# return 0 if user is in doil group
-function doil_check_user_in_doil_group() {
-  id -nG $SUDO_USER | grep -qw 'doil'
+# return 255 if user is not in docker group
+# return 0 if user is in docker group
+function doil_check_user_in_docker_group() {
+  id -nG $SUDO_USER | grep -qw 'docker'
   if [[ $? -ne 0 ]]
     then
       return 255
@@ -103,84 +112,6 @@ function doil_check_host() {
       ;;
   esac
   return 0
-}
-
-# checks if the php version is supported
-#
-# return 255 if php is not supported
-# return 0 if php is supported
-function doil_check_php_version() {
-  PHP=$(php --ini | grep Loaded | cut -d' ' -f12 | cut -d/ -f4)
-  case "${PHP}" in
-    "8.2")
-      return 0
-      ;;
-    "8.1")
-      return 0
-      ;;
-    "8.0")
-      return 0
-      ;;
-    "7.4")
-      return 0
-      ;;
-    *)
-      return 255
-      ;;
-    esac
-  return 0
-}
-
-# checks if the php module dom is supported
-#
-# return 255 if module is not supported
-# return 0 if module is supported
-function doil_check_php_module_dom() {
-  DOM=$(php --ini | grep dom | wc -l)
-  if [[ ${DOM} -ne 0 ]]
-  then
-    return 0
-  fi
-  return 255
-}
-
-# checks if the php module zip is supported
-#
-# return 255 if module is not supported
-# return 0 if module is supported
-function doil_check_php_module_zip() {
-  DOM=$(php --ini | grep zip | wc -l)
-  if [[ ${DOM} -ne 0 ]]
-  then
-    return 0
-  fi
-  return 255
-}
-
-# checks if the composer is supported
-#
-# return 255 if composer is not supported
-# return 0 if composer is supported
-function doil_check_composer() {
-  COMPOSER=$(su $SUDO_USER -c 'composer -n | wc -l')
-  if [[ ${COMPOSER} -ne 0 ]]
-    then
-      return 0
-    fi
-  return 255
-}
-
-# checks if the git is supported
-#
-# return 255 if git is not supported
-# return 0 if git is supported
-function doil_check_git() {
-  GIT=$(su $SUDO_USER -c 'git --version | wc -l')
-  if [[ ${GIT} -ne 0 ]]
-    then
-      return 0
-    fi
-  return 255
 }
 
 # checks if the installed docker version is

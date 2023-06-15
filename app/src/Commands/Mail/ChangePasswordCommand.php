@@ -54,17 +54,17 @@ class ChangePasswordCommand extends Command
         }
 
         $password = $input->getArgument("password");
-        $hash = $this->docker->getShadowHashForInstance("doil.postfix", $password);
+        $hash = $this->docker->getShadowHashForInstance("doil.mail", $password);
         $hash = $this->escapeDollarChar($hash);
-        $this->docker->setGrain("doil.postfix", "roundcube_password", $hash);
+        $this->docker->setGrain("doil.mail", "roundcube_password", $hash);
         sleep(1);
 
-        $this->writer->beginBlock($output, "Apply state change-roundcube-password to doil_postfix");
-        $this->docker->applyState("doil.postfix", "change-roundcube-password");
+        $this->writer->beginBlock($output, "Apply state change-roundcube-password to doil_mail");
+        $this->docker->applyState("doil.mail", "change-roundcube-password");
         $this->writer->endBlock();
 
         $this->writer->beginBlock($output, "Apply changes to image");
-        $this->docker->commit("doil_postfix", "doil_postfix");
+        $this->docker->commit("doil_mail", "doil_mail");
         $this->writer->endBlock();
 
         return Command::SUCCESS;
