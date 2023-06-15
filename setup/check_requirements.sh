@@ -5,7 +5,7 @@
 # It is able to download ILIAS and other ILIAS related software
 # like cate.
 #
-# Copyright (C) 2020 - 2021 Laura Herzog (laura.herzog@concepts-and-training.de)
+# Copyright (C) 2020 - 2023 Daniel Weise (daniel.weise@concepts-and-training.de)
 # Permission to copy and modify is granted under the AGPL license
 #
 # Contribute: https://github.com/conceptsandtraining/doil
@@ -18,6 +18,17 @@ function check_requirements() {
 
   # check requirements
   doil_status_send_message "Checking requirements"
+
+  if [[ ${UPDATE} == "" ]]
+  then
+    doil_check_doil_artifacts
+    if [[ $? -ne 0 ]]
+      then
+        doil_status_failed
+        doil_status_send_error "REQUIREMENT ERROR" "Detect doil artifact. Please ensure to remove doil completely from your system before running install. Otherwise use 'doil update'!"
+        exit
+      fi
+  fi
 
   # sudo user check
   doil_check_sudo
@@ -73,51 +84,6 @@ function check_requirements() {
   then
     doil_status_failed
     doil_status_send_error "REQUIREMENT ERROR" "Your docker version is not supported!"
-    exit
-  fi
-
-  # php version check
-  doil_check_php_version
-  if [[ $? -ne 0 ]]
-  then
-    doil_status_failed
-    doil_status_send_error "REQUIREMENT ERROR" "Your php version is not supported!"
-    exit
-  fi
-
-  # php module dom check
-  doil_check_php_module_dom
-  if [[ $? -ne 0 ]]
-  then
-    doil_status_failed
-    doil_status_send_error "REQUIREMENT ERROR" "Missing php module dom!"
-    exit
-  fi
-
-  # php module zip check
-  doil_check_php_module_zip
-  if [[ $? -ne 0 ]]
-  then
-    doil_status_failed
-    doil_status_send_error "REQUIREMENT ERROR" "Missing php module zip!"
-    exit
-  fi
-
-  # composer installed check
-  doil_check_composer
-  if [[ $? -ne 0 ]]
-  then
-    doil_status_failed
-    doil_status_send_error "REQUIREMENT ERROR" "Missing composer!"
-    exit
-  fi
-
-  # git installed check
-  doil_check_git
-  if [[ $? -ne 0 ]]
-  then
-    doil_status_failed
-    doil_status_send_error "REQUIREMENT ERROR" "Missing git!"
     exit
   fi
 

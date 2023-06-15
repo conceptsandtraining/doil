@@ -11,11 +11,6 @@ Before a release doil needs to be tested deeply. For that we implemented a manda
 * [ ] Update should inform you, if root has no access to docker-compose
 * [ ] Update should inform you, if your operating system isn't Darwin or Linux
 * [ ] Update should inform you, if you run a docker version lower than 19.03
-* [ ] Update should inform you, if your php version is lower than 7.4
-* [ ] Update should inform you, if you haven't installed php module zip
-* [ ] Update should inform you, if you haven't installed php module dom
-* [ ] Update should inform you, if you haven't installed composer
-* [ ] Update should inform you, if you haven't installed git
 * [ ] Change mail_password in setup/conf/doil.conf before update. After update, you should be able to login to http://doil/mails with www-data and the password you set.
 * [ ] Update should only run, if a new version is detected
 * [ ] Update runs completely without errors
@@ -28,11 +23,6 @@ Before a release doil needs to be tested deeply. For that we implemented a manda
 * [ ] Setup should inform you, if root has no access to docker-compose
 * [ ] Setup should inform you, if your operating system isn't Darwin or Linux
 * [ ] Setup should inform you, if you run a docker version lower than 19.03
-* [ ] Setup should inform you, if your php version is lower than 7.4
-* [ ] Setup should inform you, if you haven't installed php module zip
-* [ ] Setup should inform you, if you haven't installed php module dom
-* [ ] Setup should inform you, if you haven't installed composer
-* [ ] Setup should inform you, if you haven't installed git
 * [ ] Change mail_password in setup/conf/doil.conf before setup. After setup, you should be able to login to http://doil/mails with www-data and the password you set.
 * [ ] Setup runs completely without errors
 
@@ -109,8 +99,8 @@ Before a release doil needs to be tested deeply. For that we implemented a manda
 
 * [ ] Currently installed instances can be listed
 * [ ] Currently running instances can be listed
-* [ ] doil can be uninstalled (instances remain)
-* [ ] doil can be uninstalled with --prune (no instances remain)
+* [ ] doil can be uninstalled via script with --not-all (instances remain) 
+* [ ] doil can be uninstalled via script with --all (no instances remain)
 * [ ] Version can be displayed
 * [ ] Each command has its help page
 

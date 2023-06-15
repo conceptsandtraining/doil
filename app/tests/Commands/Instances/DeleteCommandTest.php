@@ -120,12 +120,9 @@ class DeleteCommandTest extends TestCase
         $command->setApplication($app);
 
         $filesystem
-            ->expects($this->exactly(2))
+            ->expects($this->exactly(1))
             ->method("exists")
-            ->withConsecutive(
-                ["/usr/local/share/doil/instances/master"],
-                ["/usr/local/lib/doil/server/proxy/conf/nginx/sites/$instance.conf"]
-            )
+            ->with("/usr/local/share/doil/instances/master")
             ->willReturn(true)
         ;
 
@@ -155,7 +152,7 @@ class DeleteCommandTest extends TestCase
                 ["/usr/local/share/doil/instances/master", "master", "chown", "-R", "22:33", "/etc/php"],
                 ["/usr/local/lib/doil/server/salt/", "doil_saltmain", "salt-key", "-d", "master.global", "-y", "-q"],
                 ["/usr/local/lib/doil/server/proxy/", "doil_proxy", "/bin/bash", "-c", "/etc/init.d/nginx reload &>/dev/null"],
-                ["/usr/local/lib/doil/server/mail/", "doil_postfix", "/bin/bash", "-c", "/root/delete-postbox-configuration.sh $instance &>/dev/null"]
+                ["/usr/local/lib/doil/server/mail/", "doil_mail", "/bin/bash", "-c", "/root/delete-postbox-configuration.sh $instance &>/dev/null"]
             )
         ;
         $docker
@@ -198,12 +195,11 @@ class DeleteCommandTest extends TestCase
             ->willReturn("/home/user/instances/master")
         ;
         $filesystem
-            ->expects($this->exactly(3))
+            ->expects($this->exactly(2))
             ->method("remove")
             ->withConsecutive(
                 ["/usr/local/share/doil/instances/master"],
-                ["/home/user/instances/master"],
-                ["/usr/local/lib/doil/server/proxy/conf/nginx/sites/master.conf"]
+                ["/home/user/instances/master"]
             )
         ;
 

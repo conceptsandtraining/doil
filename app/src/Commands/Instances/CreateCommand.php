@@ -87,7 +87,7 @@ class CreateCommand extends Command
             ->addOption("use-global-repo", "u", InputOption::VALUE_NONE, "Determines if the repo is global one or not")
             ->addOption("branch", "b", InputOption::VALUE_OPTIONAL, "Sets the branch to use")
             ->addOption("phpversion", "p", InputOption::VALUE_OPTIONAL, "Sets the php version to use")
-            ->addOption("target", "t", InputOption::VALUE_OPTIONAL, "Sets the target destination for the instance. If the folder does not exist, it will be created")
+            ->addOption("target", "t", InputOption::VALUE_OPTIONAL, "Sets the target destination for the instance. If the folder does not exist, it will be created. Will be ignored while creating global instances")
             ->addOption("xdebug", "x", InputOption::VALUE_NONE, "Determines if xdebug should be installed or not")
             ->addOption("global", "g", InputOption::VALUE_NONE, "Determines if an instance is global or not")
             ->addOption("skip-readme", "s", InputOption::VALUE_NONE, "Doesn't create the README.md file")
@@ -122,14 +122,6 @@ class CreateCommand extends Command
             return Command::FAILURE;
         }
 
-        if ($suffix == "global" && stristr($instance_path, "/home/") !== false) {
-            $this->writer->error(
-                $output,
-                "Global instances must not be created below /home directory."
-            );
-            return Command::FAILURE;
-        }
-
         $this->writer->beginBlock($output, "Creating instance " . $options['name']);
 
         if (isset($options["repo_path"]) && ! $this->filesystem->exists($options["repo_path"])) {
@@ -150,7 +142,8 @@ class CreateCommand extends Command
             $this->writer->beginBlock($output, "Update debian image");
             $this->docker->pull("debian", self::DEBIAN_TAG);
             $this->writer->endBlock();
-            $this->writer->beginBlock($output, "Install base image");
+
+            $this->writer->beginBlock($output, "Install base image. This will take a while. Please be patient");
             $this->docker->build("/usr/local/share/doil/templates/base", "base_global");
             $this->writer->endBlock();
         }
@@ -258,7 +251,7 @@ class CreateCommand extends Command
         $this->writer->endBlock();
 
         // building minion image
-        $this->writer->beginBlock($output, "Building minion image. This will take a while. Please be patient");
+        $this->writer->beginBlock($output, "Building minion image");
         $this->docker->runContainer($instance_name);
         $usr_id = (string) $this->posix->getUserId();
         $group_id = (string) $this->posix->getGroupId();
@@ -539,17 +532,6 @@ class CreateCommand extends Command
         call_user_func($this->checkPHPVersion(), $php_version);
         $options["phpversion"] = $php_version;
 
-        // Target
-        if (is_null($target)) {
-            $question = new Question("Please enter a target where doil should install " . $options["name"] . ". Leave blank for current directory. : ");
-            $question->setNormalizer($this->normalizeTarget());
-            $question->setValidator($this->checkTarget());
-            $target = $helper->ask($input, $output, $question);
-        }
-        call_user_func($this->normalizeTarget(), $target);
-        call_user_func($this->checkTarget(), $target);
-        $options["target"] = $target;
-
         // Install xdebug
         if (!$xdebug && $one_option_missed) {
             $question = new ConfirmationQuestion(
@@ -570,6 +552,14 @@ class CreateCommand extends Command
         }
         $options["global"] = $global;
 
+        if ($global) {
+            $target = explode("=", $this->filesystem->getLineInFile("/etc/doil/doil.conf", "global_instances_path") ?? "")[1];
+            if (! $target) {
+                $target = "";
+            }
+            call_user_func($this->checkGlobalTarget(), $target);
+        }
+
         // Skip readme
         if (!$skip_readme && $one_option_missed) {
             $question = new ConfirmationQuestion(
@@ -579,6 +569,17 @@ class CreateCommand extends Command
             $skip_readme = $helper->ask($input, $output, $question);
         }
         $options["skip_readme"] = $skip_readme;
+
+        // Target
+        if (is_null($target) && !$global) {
+            $question = new Question("Please enter a target where doil should install " . $options["name"] . ". Leave blank for current directory. : ");
+            $question->setNormalizer($this->normalizeTarget());
+            $question->setValidator($this->checkTarget());
+            $target = $helper->ask($input, $output, $question);
+        }
+        call_user_func($this->normalizeTarget(), $target);
+        call_user_func($this->checkTarget(), $target);
+        $options["target"] = $target;
 
         return $options;
     }
@@ -639,6 +640,17 @@ class CreateCommand extends Command
                 throw new RuntimeException("the path '$t' is not writeable!");
             }
             return $t;
+        };
+    }
+    protected function checkGlobalTarget() : Closure
+    {
+        return function(string $t) {
+            if (is_null($t) || $t == "") {
+                throw new RuntimeException("Missing config entry 'global_instances_path'. Please add this entry to /etc/doil/doil.conf to create global instances.");
+            }
+            if (stristr($t, "/home/") !== false) {
+                throw new RuntimeException("Global instances must not be created below /home directory. Please change the entry in /etc/doil/doil.conf.");
+            }
         };
     }
 

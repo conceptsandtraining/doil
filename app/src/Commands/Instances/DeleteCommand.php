@@ -20,7 +20,6 @@ class DeleteCommand extends Command
 {
     protected const SALT_MAIN = "/usr/local/lib/doil/server/salt/";
     protected const POSTFIX = "/usr/local/lib/doil/server/mail/";
-    protected const PROXY_SITES = "/usr/local/lib/doil/server/proxy/conf/nginx/sites/";
     protected const PROXY_PATH = "/usr/local/lib/doil/server/proxy/";
 
     protected static $defaultName = "instances:delete";
@@ -144,12 +143,6 @@ class DeleteCommand extends Command
         $this->docker->removeContainer($instance . "_" . $suffix);
 
         $this->docker->executeCommand(self::SALT_MAIN, "doil_saltmain", "salt-key", "-d", "$instance.$suffix", "-y", "-q");
-
-        $proxy_path = self::PROXY_SITES . $instance . ".conf";
-        if ($this->filesystem->exists($proxy_path)) {
-            $this->filesystem->remove($proxy_path);
-        }
-
         $this->docker->executeCommand(self::PROXY_PATH, "doil_proxy", "/bin/bash", "-c", "/etc/init.d/nginx reload &>/dev/null");
 
         if ($this->docker->hasVolume($instance)) {
@@ -160,7 +153,7 @@ class DeleteCommand extends Command
             $this->docker->removeImage($id);
         }
 
-        $this->docker->executeCommand(self::POSTFIX, "doil_postfix", "/bin/bash", "-c", "/root/delete-postbox-configuration.sh $instance &>/dev/null");
+        $this->docker->executeCommand(self::POSTFIX, "doil_mail", "/bin/bash", "-c", "/root/delete-postbox-configuration.sh $instance &>/dev/null");
 
         $this->writer->endBlock();
 
