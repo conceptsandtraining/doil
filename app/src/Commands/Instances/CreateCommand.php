@@ -151,7 +151,7 @@ class CreateCommand extends Command
             $this->docker->pull("debian", self::DEBIAN_TAG);
             $this->writer->endBlock();
             $this->writer->beginBlock($output, "Install base image");
-            $this->docker->build("/usr/local/share/doil/templates/base/Dockerfile", "base_global");
+            $this->docker->build("/usr/local/share/doil/templates/base", "base_global");
             $this->writer->endBlock();
         }
 
