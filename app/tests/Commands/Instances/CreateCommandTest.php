@@ -41,6 +41,11 @@ class CreateCommandWrapper extends CreateCommand
     {
         return ["foo"];
     }
+
+    protected function getIliasVersion(string $path) : string
+    {
+        return "8";
+    }
 }
 
 class CreateCommandTest extends TestCase
@@ -56,7 +61,7 @@ class CreateCommandTest extends TestCase
         $project_config = $this->createMock(ProjectConfig::class);
         $writer = new CommandWriter();
 
-        $command = new CreateCommand(
+        $command = new CreateCommandWrapper(
             $docker,
             $repo_manager,
             $git,
@@ -320,12 +325,9 @@ class CreateCommandTest extends TestCase
             ->willReturn(false, true, true)
         ;
         $filesystem
-            ->expects($this->exactly(2))
+            ->expects($this->once())
             ->method("getLineInFile")
-            ->withConsecutive(
-                ["/etc/doil/doil.conf", "host"],
-                ["/home/test/1232/volumes/ilias/include/inc.ilias_version.php", "ILIAS_VERSION_NUMERIC"]
-            )
+            ->with("/etc/doil/doil.conf", "host")
             ->willReturnOnConsecutiveCalls("foo=doil", "7.8")
         ;
         $filesystem
