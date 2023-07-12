@@ -21,6 +21,7 @@ ilias_logfile_cron:
     - hour: 4
     - minute: 0
 
+{% if cron_password != "not-needed" %}
 ilias_cron:
   cron:
     - name: /usr/local/bin/ilias_cron.sh > /dev/null 2>&1
@@ -35,13 +36,19 @@ ilias_cron:
   file:
     - managed
     - backup: minion
+    {% if cron_password == "not-needed" %}
+    - source: salt://ilCron/ilias_cron_9.sh
+    {% else %}
     - source: salt://ilCron/ilias_cron.sh
+    {% endif %}
     - user: www-data
     - group: root
     - mode: 750
     - template: jinja
     - context:
+      {% if cron_password != "not-needed" %}
       passwd: {{ cron_password }}
+      {% endif %}
       cronuser: cron
       path: /var/www/html/
       instance: ilias
