@@ -288,10 +288,15 @@ class CreateCommand extends Command
         }
         $this->writer->endBlock();
 
+        $ilias_version = $this->getIliasVersion($instance_path);
+
         // set grains
         $this->writer->beginBlock($output, "Setting up instance configuration");
         $mysql_password = $this->generatePassword(16);
-        $cron_password = $this->generatePassword(16);
+        $cron_password = "not-needed";
+        if ($ilias_version < 9) {
+            $cron_password = $this->generatePassword(16);
+        }
         $host = explode("=", $this->filesystem->getLineInFile("/etc/doil/doil.conf", "host"));
         $this->docker->setGrain($instance_salt_name, "mysql_password", $mysql_password);
         sleep(1);
@@ -337,7 +342,6 @@ class CreateCommand extends Command
 
         // apply composer state
         $this->writer->beginBlock($output, "Apply composer state");
-        $ilias_version = $this->getIliasVersion($instance_path);
         $this->docker->applyState($instance_salt_name, $this->getComposerVersion($ilias_version));
         $this->writer->endBlock();
 
