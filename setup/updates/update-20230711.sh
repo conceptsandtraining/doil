@@ -4,7 +4,7 @@ SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 
 source ${SCRIPT_DIR}/update.sh
 
-doil_update_20230621() {
+doil_update_20230711() {
   GLOBAL_INSTANCES_PATH=$(cat ./setup/conf/doil.conf | grep "global_instances_path" | cut -d '=' -f 2-)
 
 cat <<Message

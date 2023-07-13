@@ -695,9 +695,11 @@ file_roots:
   proxyservices:
     - /srv/salt/states/proxyservices
   nodejs:
-      - /srv/salt/states/nodejs
+    - /srv/salt/states/nodejs
   apache:
-      - /srv/salt/states/apache
+    - /srv/salt/states/apache
+  reset-ilias-root-password:
+    - /srv/salt/states/reset-ilias-root-password
 
 
 # The master_roots setting configures a master-only copy of the file_roots dictionary,
