@@ -101,9 +101,7 @@ function doil_perform_update() {
     exit
   fi
 
-  UPDATE_FILES=$(find ./setup/updates/ -type f -name "update-*")
-
-  for UPDATE_FILE in "${UPDATE_FILES[@]}"
+  for UPDATE_FILE in $(find ./setup/updates/ -type f -name "update-*")
   do
     source ${UPDATE_FILE}
     for UPDATE in $(set | grep  -E '^doil_update.* \(\)' | sed -e 's: .*::')
