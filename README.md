@@ -273,7 +273,7 @@ the folder easily clone it again from [doil](https://github.com/conceptsandtrain
 
 Cd into the cloned folder and execute the script.
 
-`sudo ./setup/uninstall`
+`sudo ./setup/uninstall.sh`
 
 The script will ask you if you want to remove **doil** completely from your system or if you
 want to keep your instances, images ...
