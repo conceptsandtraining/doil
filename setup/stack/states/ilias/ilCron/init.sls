@@ -10,7 +10,7 @@ ilCron_packages:
     - source: salt://ilCron/ilias_logrotate
     - user: root
     - group: root
-    - mode: 750
+    - mode: '0750'
 
 ilias_logfile_cron:
   cron:
@@ -21,7 +21,6 @@ ilias_logfile_cron:
     - hour: 4
     - minute: 0
 
-{% if cron_password != "not-needed" %}
 ilias_cron:
   cron:
     - name: /usr/local/bin/ilias_cron.sh > /dev/null 2>&1
@@ -43,7 +42,7 @@ ilias_cron:
     {% endif %}
     - user: www-data
     - group: root
-    - mode: 750
+    - mode: '0750'
     - template: jinja
     - context:
       {% if cron_password != "not-needed" %}
