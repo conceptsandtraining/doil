@@ -33,7 +33,8 @@ Removal Tips:
 * `docker volume ls` shows all volumes
 * `docker volume rm <volume_name>` remove volume by name (ensure to delete mail, proxy and salt)
 * `docker network prune` removes all networks without dependencies
-* `sudo rm -rf /etc/doil /usr/local/lib/doil /usr/local/share/doil /usr/local/bin/doil ~/.doil`
+* `sudo rm -rf /etc/doil /usr/local/lib/doil /usr/local/share/doil /usr/local/bin/doil ~/.doil /var/log/doil`
+* remove the instances folders or if you placed all instances in one folder remove the whole folder
 
 Otherwise, use the update script.
 
