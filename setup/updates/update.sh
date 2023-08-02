@@ -44,6 +44,10 @@ update() {
   doil_system_copy_doil
   doil_status_okay
 
+  doil_status_send_message "Delete potential composer lock file"
+  doil_system_delete_potential_composer_lock
+  doil_status_okay
+
   doil_status_send_message "Building doil php image"
   doil_system_build_php_image
   if [[ $? -ne 0 ]]

@@ -306,10 +306,17 @@ function doil_system_setup_log() {
     touch /var/log/doil/stream.log
   fi
 }
+function doil_system_delete_potential_composer_lock() {
+  if [ -f /usr/local/lib/doil/app/composer.lock ]
+  then
+    rm -rf /usr/local/lib/doil/app/composer.lock
+  fi
+  return 0
+}
 
 function doil_system_build_php_image() {
   (docker build -q -t doil_php:stable /usr/local/lib/doil/server/php) 2>&1 > /var/log/doil/stream.log
-  docker run --rm -ti -v /home:/home -v /usr/local/lib/doil:/usr/local/lib/doil -e PHP_INI_SCAN_DIR=/srv/php/mods-available -w /usr/local/lib/doil/app --user $(id -u):$(id -g) doil_php:stable /usr/bin/php7.4 -c /srv/php/php.ini /usr/local/bin/composer -q -n install
+  docker run --rm -ti -v /home:/home -v /usr/local/lib/doil:/usr/local/lib/doil -e PHP_INI_SCAN_DIR=/srv/php/mods-available -w /usr/local/lib/doil/app --user $(id -u):$(id -g) doil_php:stable /usr/local/bin/composer -q -n install
 }
 
 function doil_system_install_saltserver() {
