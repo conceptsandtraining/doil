@@ -18,6 +18,7 @@ test_doil_check_host() {
 
 test_doil_check_docker_version() {
   source ./setup/checks.sh
+  source ./setup/helper.sh
 
   doil_check_docker_version
   local CHECK=$?

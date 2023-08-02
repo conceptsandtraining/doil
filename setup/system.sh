@@ -143,7 +143,7 @@ function doil_system_add_user_to_doil_group() {
 }
 
 function doil_system_create_folder() {
-  GLOBAL_INSTANCES_PATH=$(cat ./setup/conf/doil.conf | grep "global_instances_path" | cut -d '=' -f 2-)
+  GLOBAL_INSTANCES_PATH=$(cat ${SCRIPT_DIR}/conf/doil.conf | grep "global_instances_path" | cut -d '=' -f 2-)
   if [ ! -d "${GLOBAL_INSTANCES_PATH}" ]
   then
     mkdir -p "${GLOBAL_INSTANCES_PATH}"
@@ -183,22 +183,22 @@ function doil_system_create_folder() {
 }
 
 function doil_system_copy_doil() {
-  cp setup/doil.sh /usr/local/bin/doil
-  cp -r setup/templates/mail /usr/local/lib/doil/server/
-  cp -r setup/templates/proxy /usr/local/lib/doil/server/
-  cp -r setup/templates/salt /usr/local/lib/doil/server/
-  cp -r setup/templates/php /usr/local/lib/doil/server/
-  cp -r setup/templates/minion /usr/local/share/doil/templates
-  cp -r setup/templates/base /usr/local/share/doil/templates
-  cp -r app /usr/local/lib/doil
-  cp -r setup/stack /usr/local/share/doil
+  cp ${SCRIPT_DIR}/doil.sh /usr/local/bin/doil
+  cp -r ${SCRIPT_DIR}/templates/mail /usr/local/lib/doil/server/
+  cp -r ${SCRIPT_DIR}/templates/proxy /usr/local/lib/doil/server/
+  cp -r ${SCRIPT_DIR}/templates/salt /usr/local/lib/doil/server/
+  cp -r ${SCRIPT_DIR}/templates/php /usr/local/lib/doil/server/
+  cp -r ${SCRIPT_DIR}/templates/minion /usr/local/share/doil/templates
+  cp -r ${SCRIPT_DIR}/templates/base /usr/local/share/doil/templates
+  cp -r ${SCRIPT_DIR}/../app /usr/local/lib/doil
+  cp -r ${SCRIPT_DIR}/stack /usr/local/share/doil
 
   return 0
 }
 
 function doil_system_setup_config() {
 
-  cp setup/conf/doil.conf /etc/doil/doil.conf
+  cp ${SCRIPT_DIR}/conf/doil.conf /etc/doil/doil.conf
 
   if [ ! -f /etc/doil/repositories.json ]
   then
@@ -230,7 +230,7 @@ function doil_system_setup_ip() {
 }
 
 function doil_system_setup_access() {
-  GLOBAL_INSTANCES_PATH=$(cat ./setup/conf/doil.conf | grep "global_instances_path" | cut -d '=' -f 2-)
+  GLOBAL_INSTANCES_PATH=$(cat ${SCRIPT_DIR}/conf/doil.conf | grep "global_instances_path" | cut -d '=' -f 2-)
 
   chown -R root:doil "${GLOBAL_INSTANCES_PATH}"
   chown -R root:doil /usr/local/lib/doil

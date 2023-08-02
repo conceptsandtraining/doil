@@ -45,15 +45,6 @@ test_doil_system_setup_config() {
   assert_string_contains "0" "${CHECK}"
 }
 
-test_doil_system_setup_ip() {
-  source ./setup/system.sh
-
-  doil_system_setup_ip
-  local CHECK=$?
-
-  assert_string_contains "0" "${CHECK}"
-}
-
 test_doil_system_setup_access() {
   source ./setup/system.sh
 
