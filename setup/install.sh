@@ -119,6 +119,10 @@ then
 fi
 doil_status_okay
 
+doil_status_send_message "Delete potential composer lock file"
+doil_system_delete_potential_composer_lock
+doil_status_okay
+
 if [[ -z ${GHRUN} ]]
 then
   # start salt server
