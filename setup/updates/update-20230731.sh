@@ -32,9 +32,13 @@ Message
   chmod g+w "${GLOBAL_INSTANCES_PATH}"
   chmod -R g+s "${GLOBAL_INSTANCES_PATH}"
 
-  find /usr/local/share/doil/instances -type l | xargs realpath | xargs -I '{}' mv '{}' "${GLOBAL_INSTANCES_PATH}" 2>/dev/null
-  rm /usr/local/share/doil/instances/*
-  ls "${GLOBAL_INSTANCES_PATH}" | xargs -I '{}' ln -s "${GLOBAL_INSTANCES_PATH}"/{} /usr/local/share/doil/instances/{}
+  if [ ! -z $(ls -A /usr/local/share/doil/instances) ]
+  then
+    find /usr/local/share/doil/instances -type l | xargs realpath | xargs -I '{}' mv '{}' "${GLOBAL_INSTANCES_PATH}" 2>/dev/null
+    rm /usr/local/share/doil/instances/*
+    ls "${GLOBAL_INSTANCES_PATH}" | xargs -I '{}' ln -s "${GLOBAL_INSTANCES_PATH}"/{} /usr/local/share/doil/instances/{}
+  fi
+
   update
   return $?
 }
