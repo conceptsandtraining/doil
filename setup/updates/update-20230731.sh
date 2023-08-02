@@ -1,14 +1,12 @@
 #!/usr/bin/env bash
 
-SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
-
-source ${SCRIPT_DIR}/update.sh
+source ${SCRIPT_DIR}/updates/update.sh
 
 doil_update_20230731() {
-  GLOBAL_INSTANCES_PATH=$(cat ./setup/conf/doil.conf | grep "global_instances_path" | cut -d '=' -f 2-)
+  GLOBAL_INSTANCES_PATH=$(cat ${SCRIPT_DIR}/conf/doil.conf | grep "global_instances_path" | cut -d '=' -f 2-)
 
 cat <<Message
-Before running this update, you should make sure to customize the ${SCRIPT_DIR}/setup/conf/doil.conf file according to
+Before running this update, you should make sure to customize the ${SCRIPT_DIR}/conf/doil.conf file according to
 your needs. For more information, please read the README (https://github.com/conceptsandtraining/doil/blob/master/README.md).
 In addition, global instances are always stored in the same place with this update. This place can also be set in the Doil Config.
 By default, they are stored under /srv/instances. Current global instances are automatically moved to the directory specified

@@ -13,11 +13,6 @@
 # /ᐠ｡‸｡ᐟ\
 # Thanks to Concepts and Training for supporting doil
 
-# get additional helper
-SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
-source ${SCRIPT_DIR}/helper.sh
-
-
 function doil_check_doil_artifacts() {
   if [[ -d /etc/doil || -d /usr/local/lib/doil || -d /usr/local/share/doil || -d /home/$SUDO_USER/.doil || -f /usr/local/bin/doil || -d /var/log/doil ]]
   then

@@ -13,9 +13,6 @@
 # /ᐠ｡‸｡ᐟ\
 # Thanks to Concepts and Training for supporting doil
 
-SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
-source ${SCRIPT_DIR}/colors.sh
-
 doil_status_send_message() {
   exec >>/dev/tty 2>&1
   echo -n "${1} ..."

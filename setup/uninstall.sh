@@ -19,7 +19,11 @@ SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 source ${SCRIPT_DIR}/checks.sh
 source ${SCRIPT_DIR}/log.sh
 source ${SCRIPT_DIR}/system.sh
+source ${SCRIPT_DIR}/check_requirements.sh
+source ${SCRIPT_DIR}/updates/update.sh
 source ${SCRIPT_DIR}/helper.sh
+source ${SCRIPT_DIR}/env.sh
+source ${SCRIPT_DIR}/colors.sh
 
 function delete() {
   ALL=$1

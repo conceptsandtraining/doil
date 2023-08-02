@@ -13,10 +13,6 @@
 # /ᐠ｡‸｡ᐟ\
 # Thanks to Concepts and Training for supporting doil
 
-# get the environment
-SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
-source ${SCRIPT_DIR}/env.sh
-
 doil_get_conf() {
   CONFIG=${1}
   VALUE=""
@@ -101,7 +97,7 @@ function doil_perform_update() {
     exit
   fi
 
-  for UPDATE_FILE in $(find ./setup/updates/ -type f -name "update-*")
+  for UPDATE_FILE in $(find ${SCRIPT_DIR}/updates/ -type f -name "update-*")
   do
     source ${UPDATE_FILE}
     for UPDATE in $(set | grep  -E '^doil_update.* \(\)' | sed -e 's: .*::')

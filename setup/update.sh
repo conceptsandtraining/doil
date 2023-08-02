@@ -20,6 +20,10 @@ source ${SCRIPT_DIR}/checks.sh
 source ${SCRIPT_DIR}/log.sh
 source ${SCRIPT_DIR}/system.sh
 source ${SCRIPT_DIR}/check_requirements.sh
+source ${SCRIPT_DIR}/updates/update.sh
+source ${SCRIPT_DIR}/helper.sh
+source ${SCRIPT_DIR}/env.sh
+source ${SCRIPT_DIR}/colors.sh
 
 echo "This update will stop all running doil instances. Please ensure to save relevant files."
 read -r -p "Do you want to continue update? [y/N] " RESPONSE

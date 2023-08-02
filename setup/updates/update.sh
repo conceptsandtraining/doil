@@ -1,10 +1,5 @@
 #!/usr/bin/env bash
 
-SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
-
-source ${SCRIPT_DIR}/../system.sh
-source ${SCRIPT_DIR}/../log.sh
-
 update() {
   doil_status_send_message_nl "Stopping all services"
   doil_system_stop_instances
