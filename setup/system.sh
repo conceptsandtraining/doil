@@ -104,7 +104,10 @@ function doil_system_remove_doil_system_images() {
 }
 
 function doil_system_remove_instances_on_disk() {
-  (find /home -type l | grep .doil | xargs realpath | xargs rm -rf) 2>&1 > /dev/null
+  if [ ! -z "$(find /home -type l | grep .doil)" ]
+  then
+    (find /home -type l | grep .doil | xargs realpath | xargs rm -rf) 2>&1 > /dev/null
+  fi
 }
 
 function doil_system_remove_networks() {

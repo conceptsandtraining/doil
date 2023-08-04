@@ -53,6 +53,7 @@ DOCKER_GRP_ID=$(cat /etc/group | grep "^docker:" | cut -d : -f3)
 DOIL_GRP_ID=$(cat /etc/group | grep "^doil:" | cut -d : -f3)
 
 docker run --rm -ti \
+  --name doil_php \
   -v /home:/home \
   -v $(pwd):$(pwd) \
   -v /var/run/docker.sock:/var/run/docker.sock \
