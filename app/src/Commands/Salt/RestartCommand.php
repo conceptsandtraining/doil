@@ -42,7 +42,7 @@ class RestartCommand extends Command
         sleep(3);
         $instances = array_filter($this->docker->getRunningInstanceNames());
         foreach ($instances as $instance) {
-            if ($instance == "doil_saltmain") {
+            if ($instance == "doil_saltmain" || $instance == "doil_php") {
                 continue;
             }
             $this->docker->executeDockerCommand(
