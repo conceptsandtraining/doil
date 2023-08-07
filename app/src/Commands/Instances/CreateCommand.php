@@ -257,9 +257,6 @@ class CreateCommand extends Command
         $group_id = (string) $this->posix->getGroupId();
         $this->docker->executeDockerCommand($instance_name, "usermod -u $usr_id www-data");
         $this->docker->executeDockerCommand($instance_name, "groupmod -g $group_id www-data");
-        $this->docker->executeDockerCommand($instance_name, "/etc/init.d/mariadb start");
-        sleep(5);
-        $this->docker->executeDockerCommand($instance_name, "/etc/init.d/mariadb stop");
 
         $this->docker->copy($instance_name, "/etc/apache2", $instance_path . "/volumes/etc/");
         $this->docker->copy($instance_name, "/etc/php", $instance_path . "/volumes/etc/");
@@ -272,8 +269,7 @@ class CreateCommand extends Command
         $this->docker->removeContainer($instance_name);
         sleep(5);
         $this->docker->startContainerByDockerCompose($instance_path);
-        $this->docker->executeCommand($instance_path, $options["name"], "/bin/bash", "-c", "chown -R mysql:mysql var/lib/mysql &>/dev/null");
-        $this->docker->executeCommand($instance_path, $options["name"], "/bin/bash", "-c", "/etc/init.d/mariadb start &>/dev/null");
+        $this->docker->executeCommand($instance_path, $options["name"], "/bin/bash", "-c", "chown -R mysql:mysql /var/lib/mysql /run/mysqld  &>/dev/null");
         $this->writer->endBlock();
 
         $this->writer->beginBlock($output, "Checking salt key");
