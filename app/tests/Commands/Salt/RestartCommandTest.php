@@ -59,14 +59,14 @@ class RestartCommandTest extends TestCase
         $docker
             ->expects($this->once())
             ->method("getRunningInstanceNames")
-            ->willReturn(["foo1", "foo2"])
+            ->willReturn(["foo1_local", "foo2_global"])
         ;
         $docker
             ->expects($this->exactly(2))
             ->method("executeDockerCommand")
             ->withConsecutive(
-                ["foo1", "supervisorctl start startup"],
-                ["foo2", "supervisorctl start startup"]
+                ["foo1_local", "supervisorctl start startup"],
+                ["foo2_global", "supervisorctl start startup"]
             )
         ;
 

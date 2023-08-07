@@ -1,12 +1,8 @@
 {% set doil_host_system = salt['grains.get']('doil_host_system', 'linux') %}
 
 /var/www/html/:
-  file.directory:
-    - user: www-data
-    - group: www-data
-    - recurse:
-      - user
-      - group
+  cmd.run:
+    - name: chown -R www-data:www-data /var/www/html
 
 /var/ilias/:
   file.directory:
