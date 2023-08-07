@@ -42,13 +42,19 @@ class UpCommand extends Command
         sleep(3);
         $instances = array_filter($this->docker->getRunningInstanceNames());
         foreach ($instances as $instance) {
-            if ($instance == "doil_saltmain" || $instance == "doil_php") {
+            if ($instance == "doil_saltmain") {
                 continue;
             }
-            $this->docker->executeDockerCommand(
-                $instance,
-                "supervisorctl start startup"
-            );
+            if (
+                strpos($instance, 'doil_') != false ||
+                strpos($instance, '_local') != false ||
+                strpos($instance, '_global') != false
+            ) {
+                $this->docker->executeDockerCommand(
+                    $instance,
+                    "supervisorctl start startup"
+                );
+            }
         }
         $this->writer->endBlock();
 
