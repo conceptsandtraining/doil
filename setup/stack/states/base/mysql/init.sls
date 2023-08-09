@@ -32,6 +32,13 @@
     - recurse:
       - user
       - group
+
+/etc/supervisor/conf.d/mysql_starter.sh:
+  file.managed:
+    - source: salt://mysql/mysql_starter.sh
+    - user: root
+    - group: root
+    - mode: 0774
 {% endif %}
 
 mysql_supervisor_signal:
