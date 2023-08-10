@@ -269,7 +269,7 @@ class CreateCommand extends Command
         $this->docker->removeContainer($instance_name);
         sleep(5);
         $this->docker->startContainerByDockerCompose($instance_path);
-        $this->docker->executeCommand($instance_path, $options["name"], "/bin/bash", "-c", "chown -R mysql:mysql /var/lib/mysql /run/mysqld  &>/dev/null");
+        sleep(5);
         $this->writer->endBlock();
 
         $this->writer->beginBlock($output, "Checking salt key");
