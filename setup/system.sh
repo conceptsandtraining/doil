@@ -33,13 +33,8 @@ function doil_system_remove_old_version() {
   return 0
 }
 
-function doil_system_remove_all() {
-  GLOBAL_INSTANCES_PATH=$(doil_get_conf global_instances_path)
-  HOST=$(doil_get_conf host)
-  if [ -d "${GLOBAL_INSTANCES_PATH}" ]
-  then
-    rm -rf "${GLOBAL_INSTANCES_PATH}"
-  fi
+function doil_system_remove() {
+  ALL=$1
 
   if [ -d /usr/local/share/doil ]
   then
@@ -62,15 +57,30 @@ function doil_system_remove_all() {
   fi
 
   doil_system_stop_instances
-  doil_system_remove_instances
-  doil_system_remove_all_images
+  doil_system_rm_system_instances
+  doil_system_remove_doil_system_images
   doil_system_remove_networks
   doil_system_remove_volumes
-  doil_system_remove_instances_on_disk
   doil_system_remove_user_doil_folders
   doil_system_remove_hosts_entry
 
   delgroup doil
+
+  if [ ! -z ${ALL} ]
+  then
+    GLOBAL_INSTANCES_PATH=$(doil_get_conf global_instances_path)
+    HOST=$(doil_get_conf host)
+    if [ -d "${GLOBAL_INSTANCES_PATH}" ]
+    then
+      rm -rf "${GLOBAL_INSTANCES_PATH}"
+    fi
+
+    doil_system_remove_instances
+    doil_system_remove_all_images
+    doil_system_remove_instances_on_disk
+
+  fi
+
 }
 
 function doil_system_stop_instances() {

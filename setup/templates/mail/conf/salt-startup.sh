@@ -14,3 +14,6 @@ then
   killall -9 salt-minion &>/dev/null
 fi
 /etc/init.d/salt-minion restart
+
+chown -R mysql:mysql /run/mysqld
+chown -R mysql:mysql /var/lib/mysql
