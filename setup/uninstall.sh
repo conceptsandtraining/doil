@@ -28,12 +28,12 @@ source ${SCRIPT_DIR}/colors.sh
 function delete() {
   ALL=$1
 
-  if [ ! -z $ALL ]
+  if [ ! -z ${ALL} ]
   then
-    doil_system_remove_all
+    doil_system_remove all
   fi
 
-  doil_system_remove_old_version
+  doil_system_remove
 }
 
 # sudo user check
@@ -48,6 +48,7 @@ fi
 if [ -z $1 ]
 then
   echo "This will delete all doil related files on your system."
+  echo "If you keep instances, you have to relink them after a new doil installation."
   read -r -p "Do you also want to delete all instances and images? [y/N] " RESPONSE
   case "$RESPONSE" in
       [yY][eE][sS]|[yY])
