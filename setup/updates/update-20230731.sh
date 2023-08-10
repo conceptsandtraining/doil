@@ -39,6 +39,24 @@ Message
     ls "${GLOBAL_INSTANCES_PATH}" | xargs -I '{}' ln -s "${GLOBAL_INSTANCES_PATH}"/{} /usr/local/share/doil/instances/{}
   fi
 
-  update
-  return $?
+  RESULT=$(update)
+
+  if [ $(docker ps -a --filter "name=_local" --filter "name=_global" --format "{{.Names}}" | wc -l) -gt 0 ]
+  doil_status_send_message "Prepare existing instances to work with new doil"
+  then
+    for INSTANCE in $(docker ps -a --filter "name=_local" --filter "name=_global" --format "{{.Names}}")
+    do
+        NAME=$(echo ${INSTANCE%_*})
+        SUFFIX=$(echo ${INSTANCE##*_})
+
+        docker start ${INSTANCE} &> /dev/null
+        sleep 5
+        docker exec -it doil_saltmain /bin/bash -c "salt \"${NAME}.${SUFFIX}\" state.highstate saltenv=base" &> /dev/null
+        docker commit ${INSTANCE} doil/${INSTANCE}:stable &> /dev/null
+        docker stop ${INSTANCE} &> /dev/null
+    done
+  doil_status_okay
+  fi
+
+  return ${RESULT}
 }
