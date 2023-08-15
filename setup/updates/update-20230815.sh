@@ -2,7 +2,7 @@
 
 source ${SCRIPT_DIR}/updates/update.sh
 
-doil_update_20230731() {
+doil_update_20230815() {
   GLOBAL_INSTANCES_PATH=$(cat ${SCRIPT_DIR}/conf/doil.conf | grep "global_instances_path" | cut -d '=' -f 2-)
 
 cat <<Message
