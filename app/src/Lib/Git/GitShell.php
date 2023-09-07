@@ -39,7 +39,8 @@ class GitShell implements Git
             "git",
             "-C",
             $path,
-            "fetch"
+            "fetch",
+            "-p"
         ];
 
         $this->logger->info("Fetch to path '$path'");
