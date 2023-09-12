@@ -51,9 +51,6 @@ services:
       - type: bind
         source: ./conf/salt-minion.conf
         target: /etc/supervisor/conf.d/salt-minion.conf
-      - type: bind
-        source: ~/.config/composer/
-        target: /root/.config/composer
     environment:
       - ILIAS_INI_PATH=/var/www/html/ilias.ini.php
       - TZ=Europe/Berlin
