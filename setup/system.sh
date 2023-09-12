@@ -36,6 +36,11 @@ function doil_system_remove_old_version() {
 function doil_system_remove() {
   ALL=$1
 
+  if [ -d /usr/local/lib/doil ]
+  then
+    rm -rf /usr/local/lib/doil
+  fi
+
   if [ -d /usr/local/share/doil ]
   then
     rm -rf /usr/local/share/doil
@@ -136,6 +141,11 @@ function doil_system_remove_hosts_entry() {
   sed -i "/172.24.0.254 ${HOST}/d" /etc/hosts
 }
 
+function doil_system_add_safe_git_dir() {
+  git config --global --add safe.directory /usr/local/share/doil/repositories/*
+  return 0
+}
+
 function doil_system_add_group() {
   CHECK_GROUP=$(grep doil /etc/group)
   if [[ -z ${CHECK_GROUP} ]]
@@ -188,9 +198,9 @@ function doil_system_create_folder() {
   fi
 
   if [ ! -d /usr/local/share/doil/templates ]
-    then
-      mkdir /usr/local/share/doil/templates
-    fi
+  then
+    mkdir /usr/local/share/doil/templates
+  fi
 
   return 0
 }
