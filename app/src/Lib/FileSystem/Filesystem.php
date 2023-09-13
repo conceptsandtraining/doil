@@ -19,7 +19,8 @@ interface Filesystem
     public function copy(string $from, string $to) : void;
     public function copyDirectory(string $from, string $to) : void;
     public function chownRecursive(string $path, string $owner, string $group) : void;
-    public function chmod(string $path, int $mode) : void;
+    public function chmod(string $path, int $mode, bool $recursive) : void;
+    public function chmodDirsOnly(string $path, int $mode) : void;
     public function symlink(string $from, string $to) : void;
     public function readLink(string $path) : string;
     public function zip(string $name) : void;

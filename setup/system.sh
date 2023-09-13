@@ -46,11 +46,6 @@ function doil_system_remove() {
     rm -rf /usr/local/share/doil
   fi
 
-  if [ -d /etc/doil ]
-  then
-    rm -rf /etc/doil
-  fi
-
   if [ -d /var/log/doil ]
   then
     rm -rf /var/log/doil
@@ -84,6 +79,11 @@ function doil_system_remove() {
     doil_system_remove_all_images
     doil_system_remove_instances_on_disk
 
+  fi
+
+  if [ -d /etc/doil ]
+  then
+    rm -rf /etc/doil
   fi
 
 }
@@ -268,6 +268,7 @@ function doil_system_setup_access() {
   chmod g+w /etc/doil/user.json
   chmod -R g+w /etc/doil
   chmod -R g+s /etc/doil
+  chmod -R g+w /usr/local/share/doil/templates
   chmod -R g+w /usr/local/share/doil/instances
   chmod -R g+s /usr/local/share/doil/instances
   chmod -R g+w /usr/local/share/doil/repositories
