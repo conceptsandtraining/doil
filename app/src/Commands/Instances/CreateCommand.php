@@ -172,7 +172,8 @@ class CreateCommand extends Command
                 $user_name,
                 "doil"
             );
-            $this->filesystem->chmod($instance_path, 02775);
+            $this->filesystem->chmod($instance_path, 0775, true);
+            $this->filesystem->chmodDirsOnly($instance_path, 02775);
         } else {
             $this->filesystem->chownRecursive(
                 $instance_path,
@@ -258,11 +259,7 @@ class CreateCommand extends Command
         $this->docker->executeDockerCommand($instance_name, "usermod -u $usr_id www-data");
         $this->docker->executeDockerCommand($instance_name, "groupmod -g $group_id www-data");
 
-        $this->docker->copy($instance_name, "/etc/apache2", $instance_path . "/volumes/etc/");
-        $this->docker->copy($instance_name, "/etc/php", $instance_path . "/volumes/etc/");
         $this->docker->copy($instance_name, "/var/log/apache2/", $instance_path . "/volumes/logs/");
-        $this->docker->copy($instance_name, "/etc/mysql/", $instance_path . "/volumes/etc/");
-        $this->docker->copy($instance_name, "/var/lib/mysql/", $instance_path . "/volumes/");
 
         $this->docker->commit($instance_name);
         $this->docker->stop($instance_name);
@@ -394,6 +391,25 @@ class CreateCommand extends Command
             $this->filesystem->replaceStringInFile($readme_path, "%GRAIN_CRON_PASSWORD%", $cron_password);
             $this->writer->endBlock();
         }
+
+        // set folder permissions
+        $this->writer->beginBlock($output, "Set folder permissions");
+        if ($options["global"]) {
+            $this->filesystem->chownRecursive(
+                $instance_path,
+                $user_name,
+                "doil"
+            );
+            $this->filesystem->chmod($instance_path, 0775, true);
+            $this->filesystem->chmodDirsOnly($instance_path, 02775);
+        } else {
+            $this->filesystem->chownRecursive(
+                $instance_path,
+                $user_name,
+                $user_name
+            );
+        }
+        $this->writer->endBlock();
 
         $this->writer->endBlock();
 

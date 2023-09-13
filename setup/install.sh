@@ -119,7 +119,7 @@ then
 fi
 doil_status_okay
 
-doil_status_send_message "Add safe git dir for root"
+doil_status_send_message "Add safe git dir for user"
 doil_system_add_safe_git_dir
 if [[ $? -ne 0 ]]
 then
