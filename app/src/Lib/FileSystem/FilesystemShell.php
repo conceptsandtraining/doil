@@ -81,9 +81,23 @@ class FilesystemShell implements Filesystem
         $this->symfony_file_system->chgrp($path, $group, true);
     }
 
-    public function chmod(string $path, int $mode) : void
+    public function chmod(string $path, int $mode, bool $recursive = false) : void
     {
-        $this->symfony_file_system->chmod($path, $mode);
+        $this->symfony_file_system->chmod($path, $mode, 0000, $recursive);
+    }
+
+    public function chmodDirsOnly(string $path, int $mode) : void
+    {
+        $iterator = new RecursiveIteratorIterator(
+            new RecursiveDirectoryIterator($path, RecursiveDirectoryIterator::SKIP_DOTS),
+            RecursiveIteratorIterator::SELF_FIRST
+        );
+        foreach ($iterator as $file)
+        {
+            if ($file->isDir()) {
+                $this->symfony_file_system->chmod($file->getRealpath(), $mode);
+            }
+        }
     }
 
     public function symlink(string $from, string $to) : void

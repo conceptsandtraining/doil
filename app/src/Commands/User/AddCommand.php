@@ -87,7 +87,7 @@ class AddCommand extends Command
         $this->writer->beginBlock($output, "Add user {$user->getName()} to doil");
         $this->user_manager->addUser($user);
         $this->user_manager->createFileInfrastructure($home_dir, $user->getName());
-        $this->user_manager->ensureGlobalReposAreGitSafe($home_dir);
+        $this->user_manager->ensureGlobalReposAreGitSafe($home_dir, $user);
         $this->linux->initComposer($user->getName());
         $this->linux->addUserToGroup($user->getName(), "doil");
         $this->writer->endBlock();

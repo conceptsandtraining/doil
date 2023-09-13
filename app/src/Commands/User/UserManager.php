@@ -82,9 +82,10 @@ class UserManager
     /**
      * @param array<Repo>  $repos
      */
-    public function ensureGlobalReposAreGitSafe(string $home_dir) : void
+    public function ensureGlobalReposAreGitSafe(string $home_dir, User $user) : void
     {
         $this->filesystem->addToGitConfig($home_dir, "safe", "directory = /usr/local/share/doil/repositories/*");
+        $this->filesystem->chownRecursive($home_dir . "/.gitconfig", $user->getName(), $user->getName());
     }
 
     /**
