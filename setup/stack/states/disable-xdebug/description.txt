@@ -1,0 +1,1 @@
+description = Uninstalls xdebug and adjusts the configuration accordingly
