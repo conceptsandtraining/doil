@@ -1,0 +1,1 @@
+description = Enables whoops for detailed error output

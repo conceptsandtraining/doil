@@ -1,0 +1,1 @@
+description = Installs xdebug and adjusts the configuration accordingly

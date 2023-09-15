@@ -113,16 +113,34 @@ class ApplyCommand extends Command
                return true;
             }));
 
+            $selection = [];
+            foreach ($states as $s) {
+                $desc_path = self::PATH_STATES . "/" . $s . "/description.txt";
+                if ($this->filesystem->exists($desc_path)) {
+                    $line = $this->filesystem->getLineInFile($desc_path, "description");
+                    $line = trim(substr($line, strpos($line, '=') + 1));
+                    $state_len = strlen($s);
+                    $line_len = strlen($line);
+                    $selection[] = $s . str_pad(" - " . $line, 40 - $state_len + $line_len, " ", STR_PAD_LEFT);
+                } else {
+                    $selection[] = $s;
+                }
+            }
+
             $helper = $this->getHelper("question");
             $question = new ChoiceQuestion(
                 "Please select a state and enter its number:",
-                $states,
+                $selection,
                 0
             );
 
             $question->setErrorMessage("State %s is invalid!");
 
             $state = $helper->ask($input, $output, $question);
+            $pos = strpos($state, ' ');
+            if ($pos) {
+                $state = trim(substr($state, 0, $pos));
+            }
         }
 
         $state_path = self::PATH_STATES . "/$state";

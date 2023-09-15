@@ -1,0 +1,1 @@
+description = Compiles ilias skins if available
