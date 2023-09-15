@@ -700,6 +700,8 @@ file_roots:
     - /srv/salt/states/apache
   reset-ilias-root-password:
     - /srv/salt/states/reset-ilias-root-password
+  enable-https:
+    - /srv/salt/states/enable-https
 
 
 # The master_roots setting configures a master-only copy of the file_roots dictionary,
