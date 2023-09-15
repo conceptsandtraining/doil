@@ -1,0 +1,1 @@
+description = Runs composer install in the ILIAS root directory

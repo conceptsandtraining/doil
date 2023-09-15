@@ -1,0 +1,1 @@
+description = Enables php version 8.0. Disables other php versions.

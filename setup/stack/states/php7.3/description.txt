@@ -1,0 +1,1 @@
+description = Enables php version 7.3. Disables other php versions.
