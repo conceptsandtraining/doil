@@ -39,6 +39,7 @@ class CreateCommand extends Command
         "/volumes/logs/error",
         "/volumes/logs/apache",
         "/volumes/etc/apache2",
+        "/volumes/logs/xdebug",
         "/volumes/etc/php",
         "/volumes/etc/mysql",
     ];
