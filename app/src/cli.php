@@ -41,6 +41,7 @@ function buildContainerForApp() : Container
             $c["command.instances.list"],
             $c["command.instances.login"],
             $c["command.instances.path"],
+            $c["command.instances.restart"],
             $c["command.instances.status"],
             $c["command.instances.up"],
             $c["command.mail.change.password"],
@@ -198,6 +199,15 @@ function buildContainerForApp() : Container
 
     $c["command.instances.path"] = function($c) {
         return new Instances\PathCommand(
+            $c["docker.shell"],
+            $c["posix.shell"],
+            $c["filesystem.shell"],
+            $c["command.writer"]
+        );
+    };
+
+    $c["command.instances.restart"] = function($c) {
+        return new Instances\RestartCommand(
             $c["docker.shell"],
             $c["posix.shell"],
             $c["filesystem.shell"],
