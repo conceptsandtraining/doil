@@ -325,6 +325,11 @@ function doil_system_setup_log() {
     mkdir /var/log/doil/
   fi
 
+  if [[ ! -d /var/log/doil/xdebug ]]
+  then
+    mkdir /var/log/doil/xdebug
+  fi
+
   if [[ ! -f /var/log/doil/stream.log ]]
   then
     touch /var/log/doil/stream.log

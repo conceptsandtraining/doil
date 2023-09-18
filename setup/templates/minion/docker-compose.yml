@@ -28,6 +28,9 @@ services:
         source: ./volumes/logs/apache2
         target: /var/log/apache2
       - type: bind
+        source: ./volumes/logs/xdebug
+        target: /var/log/doil/xdebug
+      - type: bind
         source: ./conf/minion.cnf
         target: /etc/salt/minion
       - type: bind
