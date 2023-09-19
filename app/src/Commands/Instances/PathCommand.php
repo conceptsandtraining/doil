@@ -40,6 +40,7 @@ class PathCommand extends Command
             ->setAliases(["path"])
             ->addArgument("instance", InputArgument::OPTIONAL, "name of the instance to start")
             ->addOption("global", "g", InputOption::VALUE_NONE, "determines if an instance is global or not")
+            ->addOption("pure", "p", InputOption::VALUE_NONE, "output is not formatted")
         ;
     }
 
@@ -63,7 +64,11 @@ class PathCommand extends Command
         }
 
         if ($this->filesystem->exists($path)) {
-            $output->writeln("<fg=gray>" . $this->filesystem->readLink($path) . "</>");
+            if (! $input->getOption("pure")) {
+                $output->writeln("<fg=gray>" . $this->filesystem->readLink($path) . "</>");
+            } else {
+                $output->write($this->filesystem->readLink($path));
+            }
             return Command::SUCCESS;
         }
 

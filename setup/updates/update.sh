@@ -44,6 +44,15 @@ update() {
   doil_system_copy_doil
   doil_status_okay
 
+  doil_status_send_message "Add safe git dir for user"
+  doil_system_add_safe_git_dir
+  if [[ $? -ne 0 ]]
+  then
+    doil_status_failed
+    exit
+  fi
+  doil_status_okay
+
   doil_status_send_message "Delete potential composer lock file"
   doil_system_delete_potential_composer_lock
   doil_status_okay
