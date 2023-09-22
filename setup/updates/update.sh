@@ -18,6 +18,15 @@ update() {
   doil_system_copy_doil
   doil_status_okay
 
+  doil_status_send_message "Creating log file"
+  doil_system_setup_log
+  if [[ $? -ne 0 ]]
+  then
+    doil_status_failed
+    exit
+  fi
+  doil_status_okay
+
   doil_status_send_message "Setting up access rights"
   doil_system_setup_access
   if [[ $? -ne 0 ]]
@@ -27,11 +36,11 @@ update() {
   fi
   doil_status_okay
 
-  doil_status_send_message "Stop all doil instances"
+  doil_status_send_message "Stopping all doil instances"
   doil_system_stop_instances
   doil_status_okay
 
-  doil_status_send_message "Remove doil system instances"
+  doil_status_send_message "Removing doil system instances"
   doil_system_rm_system_instances
   doil_status_okay
 
@@ -44,7 +53,7 @@ update() {
   doil_system_copy_doil
   doil_status_okay
 
-  doil_status_send_message "Add safe git dir for user"
+  doil_status_send_message "Adding safe git dir for user"
   doil_system_add_safe_git_dir
   if [[ $? -ne 0 ]]
   then
@@ -53,7 +62,7 @@ update() {
   fi
   doil_status_okay
 
-  doil_status_send_message "Delete potential composer lock file"
+  doil_status_send_message "Deleting potential composer lock file"
   doil_system_delete_potential_composer_lock
   doil_status_okay
 
