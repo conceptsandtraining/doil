@@ -91,46 +91,46 @@ function doil_system_remove() {
 function doil_system_stop_instances() {
   if [ $(docker ps -q --filter "name=_local" --filter "name=_global" --filter "name=doil_" | wc -l) -gt 0 ]
   then
-    (docker kill $(docker ps -q --filter "name=_local" --filter "name=_global" --filter "name=doil_")) 2>&1 > /dev/null
+    (docker kill $(docker ps -q --filter "name=_local" --filter "name=_global" --filter "name=doil_")) >/dev/null 2>&1
   fi
 }
 
 function doil_system_remove_instances() {
   if [ $(docker ps -a -q --filter "name=_local" --filter "name=_global" --filter "name=doil_" | wc -l) -gt 0 ]
   then
-    (docker rm $(docker ps -a -q --filter "name=_local" --filter "name=_global" --filter "name=doil_")) 2>&1 > /dev/null
+    (docker rm $(docker ps -a -q --filter "name=_local" --filter "name=_global" --filter "name=doil_")) >/dev/null 2>&1
   fi
 }
 
 function doil_system_rm_system_instances() {
   if [ $(docker ps -a -q --filter "name=doil_" | wc -l) -gt 0 ]
   then
-    (docker rm $(docker ps -a -q --filter "name=doil_")) 2>&1 > /dev/null
+    (docker rm $(docker ps -a -q --filter "name=doil_")) >/dev/null 2>&1
   fi
 }
 
 function doil_system_remove_all_images() {
-  docker rmi -f $(docker images -q --filter reference=doil[/,_]*) 2>&1 > /dev/null
+  docker rmi -f $(docker images -q --filter reference=doil[/,_]*) >/dev/null 2>&1
 }
 
 function doil_system_remove_doil_system_images() {
-  docker rmi -f $(docker images -q --filter reference=doil_*) 2>&1 > /dev/null
-  docker image prune -f 2>&1 > /dev/null
+  docker rmi -f $(docker images -q --filter reference=doil_*) >/dev/null 2>&1
+  docker image prune -f >/dev/null 2>&1
 }
 
 function doil_system_remove_instances_on_disk() {
   if [ ! -z "$(find /home -type l | grep .doil)" ]
   then
-    (find /home -type l | grep .doil | xargs realpath | xargs rm -rf) 2>&1 > /dev/null
+    (find /home -type l | grep .doil | xargs realpath | xargs rm -rf) >/dev/null 2>&1
   fi
 }
 
 function doil_system_remove_networks() {
-  docker network prune -f 2>&1 > /dev/null
+  docker network prune -f >/dev/null 2>&1
 }
 
 function doil_system_remove_volumes() {
-  docker volume prune -f 2>&1 > /dev/null
+  docker volume prune -f >/dev/null 2>&1
 }
 
 function doil_system_remove_user_doil_folders() {
