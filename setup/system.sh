@@ -142,7 +142,7 @@ function doil_system_remove_hosts_entry() {
 }
 
 function doil_system_add_safe_git_dir() {
-  git config --global --add safe.directory /usr/local/share/doil/repositories/*
+  git config --global --add safe.directory '/usr/local/share/doil/repositories/*'
   return 0
 }
 
