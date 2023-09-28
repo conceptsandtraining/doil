@@ -1,0 +1,1 @@
+description = Enables ILIAS https autodetection. Only works if https has been activated on the proxy.

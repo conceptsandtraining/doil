@@ -92,7 +92,7 @@ update() {
   doil_system_install_proxyserver
   doil_status_okay
 
-  doil_status_send_message "Installing mail service"
+  doil_status_send_message "Reinstalling mail service"
   doil_system_install_mailserver
   doil_status_okay
 
