@@ -6,7 +6,7 @@ apt_add_jq_tool:
 rewrite_ilias_config:
   cmd.wait:
     - name: >
-        jq -S '.http |= . + {"https_autodetection" : {"header_name" : "X-Forwarded-Proto","header_value" : "https"}}' ilias-config.json > new.json && mv new.json ilias-config.json
+        jq -S '.http |= del(.https_autodetection)' ilias-config.json > new.json && mv new.json ilias-config.json
     - cwd: /var/ilias/data
     - watch:
       - pkg: apt_add_jq_tool

@@ -1,3 +1,3 @@
-enable-https:
+disable-https:
   '*':
     - https
