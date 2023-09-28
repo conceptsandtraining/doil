@@ -1,0 +1,1 @@
+description = Deactivates the ILIAS https autodetection.

@@ -313,12 +313,12 @@ users, so make sure to understand what you are doing.
 See `doil proxy:<command> --help` for more information
 
 #### Https
-There is the state 'enable-https' to make the proxy accessible via https.
+There is the state 'proxy-enable-https' to make the proxy accessible via https.
 This is done by certbot.
 In order for this state to run successfully, it is important that the proxy is already accessible from the Internet and the DNS entries are set.  
 To execute the state you have to log in to the salt master using `doil salt:login`. The following command is then executed there:
 ```bash
- salt 'doil.proxy' state.highstate saltenv=enable-https pillar='{"email": "<your_email>"}'
+ salt 'doil.proxy' state.highstate saltenv=proxy-enable-https pillar='{"email": "<your_email>"}'
 ```
 If the state has run successfully, the current status of the proxy still needs to be committed. To do this, leave the
 salt master again with `ctrl-d` and execute the following command:
@@ -327,7 +327,7 @@ docker commit doil_proxy doil_proxy:stable
 ```
 The state also sets up a cron job that regularly renews the certificates.  
 
-After that please ensure to run `php setup/setup.php update /var/ilias/data/ilias-config.json` on each doil ILIAS instance,
+After that please ensure to run `doil apply <instance_name> enable-https` on each doil ILIAS instance,
 so https take effect in ILIAS.
 ### Mail Server
 
