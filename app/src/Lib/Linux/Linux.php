@@ -10,5 +10,4 @@ interface Linux
     public function removeUserFromGroup(string $user, string $group) : void;
     public function deleteGroup(string $name) : void;
     public function isWSL() : bool;
-    public function initComposer(string $user) : void;
 }

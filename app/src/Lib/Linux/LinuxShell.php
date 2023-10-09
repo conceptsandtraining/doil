@@ -67,17 +67,4 @@ class LinuxShell implements Linux
         $wsl = $this->run($cmd, $this->logger);
         return (bool) stristr($wsl, "microsoft");
     }
-
-    public function initComposer(string $user) : void
-    {
-        $cmd = [
-            "su",
-            $user,
-            "-c",
-            "/usr/bin/php7.4 -c /srv/php/php.ini $(which composer)"
-        ];
-
-        $this->logger->info("Init composer for user '$user'.");
-        $this->run($cmd, $this->logger);
-    }
 }
