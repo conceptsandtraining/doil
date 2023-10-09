@@ -203,11 +203,6 @@ class AddCommandTest extends TestCase
 
         $linux
             ->expects($this->once())
-            ->method("initComposer")
-            ->with("doil")
-        ;
-        $linux
-            ->expects($this->once())
             ->method("addUserToGroup")
             ->with("doil", "doil")
         ;
