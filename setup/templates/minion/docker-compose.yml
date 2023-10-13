@@ -10,6 +10,12 @@ services:
     domainname: %TPL_PROJECT_DOMAINNAME%
     volumes:
       - type: bind
+        source: ./volumes/mysql
+        target: /var/lib/mysql
+      - type: bind
+        source: ./volumes/etc/mysql
+        target: /etc/mysql
+      - type: bind
         source: ./volumes/ilias
         target: /var/www/html
       - type: bind
