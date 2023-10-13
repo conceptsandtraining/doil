@@ -259,14 +259,21 @@ class CreateCommand extends Command
         $group_id = (string) $this->posix->getGroupId();
         $this->docker->executeDockerCommand($instance_name, "usermod -u $usr_id www-data");
         $this->docker->executeDockerCommand($instance_name, "groupmod -g $group_id www-data");
+        $this->docker->executeDockerCommand($instance_name, "/etc/init.d/mariadb start");
+        sleep(5);
+        $this->docker->executeDockerCommand($instance_name, "/etc/init.d/mariadb stop");
 
         $this->docker->copy($instance_name, "/var/log/apache2/", $instance_path . "/volumes/logs/");
+        $this->docker->copy($instance_name, "/etc/mysql/", $instance_path . "/volumes/etc/");
+        $this->docker->copy($instance_name, "/var/lib/mysql/", $instance_path . "/volumes/");
 
         $this->docker->commit($instance_name);
         $this->docker->stop($instance_name);
         $this->docker->removeContainer($instance_name);
         sleep(5);
         $this->docker->startContainerByDockerCompose($instance_path);
+        $this->docker->executeCommand($instance_path, $options["name"], "/bin/bash", "-c", "chown -R mysql:mysql var/lib/mysql &>/dev/null");
+        $this->docker->executeCommand($instance_path, $options["name"], "/bin/bash", "-c", "/etc/init.d/mariadb start &>/dev/null");
         sleep(5);
         $this->writer->endBlock();
 
@@ -375,6 +382,11 @@ class CreateCommand extends Command
         $this->docker->applyState($instance_salt_name, "compile-skins");
         $this->writer->endBlock();
 
+        // apply access state
+        $this->writer->beginBlock($output, "Apply access state");
+        $this->docker->applyState($instance_salt_name, "access");
+        $this->writer->endBlock();
+
         // finalizing docker image
         $this->writer->beginBlock($output, "Finalizing docker image");
         $this->docker->commit($instance_name);
@@ -394,21 +406,50 @@ class CreateCommand extends Command
         }
 
         // set folder permissions
+        $permission_dirs = [
+            "conf",
+            "volumes/data",
+            "volumes/db",
+            "volumes/ilias",
+            "volumes/etc/apache2",
+            "volumes/etc/php",
+            "volumes/index",
+            "volumes/logs"
+        ];
+
+        $permission_files = [
+            "docker-compose.yml",
+            "README.md",
+        ];
+
         $this->writer->beginBlock($output, "Set folder permissions");
         if ($options["global"]) {
-            $this->filesystem->chownRecursive(
-                $instance_path,
-                $user_name,
-                "doil"
-            );
-            $this->filesystem->chmod($instance_path, 0775, true);
-            $this->filesystem->chmodDirsOnly($instance_path, 02775);
+            foreach ($permission_dirs as $permission_dir) {
+                $this->filesystem->chownRecursive(
+                    $instance_path . "/" . $permission_dir,
+                    $user_name,
+                    "doil"
+                );
+                $this->filesystem->chmodDirsOnly($instance_path . "/" . $permission_dir, 02775);
+            }
+            foreach ($permission_files as $permission_file) {
+                $this->filesystem->chmod($instance_path . "/" . $permission_file, 0775, true);
+            }
         } else {
-            $this->filesystem->chownRecursive(
-                $instance_path,
-                $user_name,
-                $user_name
-            );
+            foreach ($permission_dirs as $permission_dir) {
+                $this->filesystem->chownRecursive(
+                    $instance_path . "/" . $permission_dir,
+                    $user_name,
+                    $user_name
+                );
+            }
+            foreach ($permission_files as $permission_file) {
+                $this->filesystem->chownRecursive(
+                    $instance_path . "/" . $permission_file,
+                    $user_name,
+                    $user_name
+                );
+            }
         }
         $this->writer->endBlock();
 

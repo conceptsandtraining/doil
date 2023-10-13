@@ -191,7 +191,7 @@ class ImportCommand extends Command
         $this->writer->beginBlock($output, "Importing database");
         if (! $this->docker->isInstanceUp($path)) {
             $this->docker->startContainerByDockerCompose($path);
-            sleep(15);
+            sleep(30);
         }
 
         if ($this->filesystem->exists($path . "/README.md")) {

@@ -153,6 +153,25 @@ class DockerShell implements Docker
         $this->runTTY($cmd, $logger);
     }
 
+    public function executeNoTTYCommand(string $path, string $name, ...$command) : void
+    {
+        $cmd = [
+            "docker-compose",
+            "-f",
+            $path . "/docker-compose.yml",
+            "exec",
+            "-T",
+            $name
+        ];
+
+        $cmd = array_merge($cmd, $command);
+
+        $logger = $this->logger->getDoilLogger($name);
+        $logger->info("Execute command", $cmd);
+
+        $this->runNoTTYNoReturn($cmd, $logger);
+    }
+
     public function executeBashCommandInsideContainer(string $name, ?string $working_dir, string ...$command) : void
     {
         $wd = "/";

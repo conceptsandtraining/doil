@@ -44,6 +44,7 @@ class ExportCommand extends Command
         $this
             ->addArgument("instance", InputArgument::REQUIRED, "Name of the instance to export")
             ->addOption("global", "g", InputOption::VALUE_NONE, "Determines if the instance is global")
+            ->addOption("cron", "c", InputOption::VALUE_NONE, "Must be used for triggering export by cron")
         ;
     }
 
@@ -86,13 +87,24 @@ class ExportCommand extends Command
 
         $this->writer->beginBlock($output, "Exporting database");
 
-        $this->docker->executeCommand(
-            $path,
-            $instance,
-            "bash",
-            "-c",
-            "mysqldump ilias > /var/ilias/data/ilias.sql"
-        );
+        if ($input->getOption("cron")) {
+            $this->docker->executeNoTTYCommand(
+                $path,
+                $instance,
+                "bash",
+                "-c",
+                "mysqldump ilias > /var/ilias/data/ilias.sql"
+            );
+        } else {
+            $this->docker->executeCommand(
+                $path,
+                $instance,
+                "bash",
+                "-c",
+                "mysqldump ilias > /var/ilias/data/ilias.sql"
+            );
+        }
+
         $this->writer->endBlock();
 
         $this->writer->beginBlock($output, "Exporting data");
