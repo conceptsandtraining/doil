@@ -38,4 +38,17 @@ trait SymfonyShell
             throw new ProcessFailedException($process);
         }
     }
+
+    protected function runNoTTYNoReturn(array $commands, LoggerInterface $logger) : void
+    {
+        $process = new Process($commands);
+        $process->setTimeout(36000);
+        $process->run();
+
+        // executes after the command finishes
+        if (! $process->isSuccessful() && ! $process->isTerminated()) {
+            $logger->error($process->getErrorOutput() ?: $process->getCommandLine());
+            throw new ProcessFailedException($process);
+        }
+    }
 }

@@ -19,12 +19,23 @@ doil_get_conf() {
   echo ${VALUE}
 }
 
+# If -T or --no-term is selected, the docker command runs without
+# a terminal. Useful for starting doil by cron.
+if [[ $1 == "-T" || $1 == "--no-term" ]]
+then
+  TERMINAL="-i"
+  shift;
+else
+  TERMINAL="-ti"
+fi
+
+
 MAP_USER=""
 if [[ "$EUID" -ne 0 ]]
 then
-  id -nG "$USER" | grep -qw "docker"
+  id -nG "$EUID" | grep -qw "docker"
   DOCKER_GROUP=$?
-  id -nG "$USER" | grep -qw "doil"
+  id -nG "$EUID" | grep -qw "doil"
   DOIL_GROUP=$?
 
   if [ ${DOCKER_GROUP} = 1 ]
@@ -52,7 +63,7 @@ fi
 DOCKER_GRP_ID=$(cat /etc/group | grep "^docker:" | cut -d : -f3)
 DOIL_GRP_ID=$(cat /etc/group | grep "^doil:" | cut -d : -f3)
 
-docker run --rm -ti \
+docker run --rm "${TERMINAL}" \
   -v /home:/home \
   -v $(pwd):$(pwd) \
   -v /var/run/docker.sock:/var/run/docker.sock \

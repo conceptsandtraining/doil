@@ -30,11 +30,7 @@
         "default_language" : "{{ language }}"
     },
     "http" : {
-        "path" : "{{ http_path }}",
-        "https_autodetection" : {
-            "header_name" : "X-Forwarded-Proto",
-            "header_value" : "https"
-        }
+        "path" : "{{ http_path }}"
     },
     "logging" : {
         "enable" : true,

@@ -199,6 +199,17 @@ build with doil (instances from version >=1.1) are able to be exported.
 
 See `doil pack:<command> --help` for more information
 
+To start `doil:pack export` via cronjob you need two additional parameters. 
+The first parameter (-T or --no-term) is attached to the **doil** commando. 
+It ensures that docker can run without a terminal.
+The second parameter (-c or --cron) is required for the `pack:export` command. 
+It ensures that the console command does not open an additional terminal. 
+The complete call then looks like this:
+
+```bash
+doil -T pack:export -c <instance_name> [-g]
+```
+
 ### Quietmode and Logs
 
 Most of the commands come with a `--quiet` flag to omit the log messages.
