@@ -2,7 +2,7 @@
 
 source "${SCRIPT_DIR}"/updates/update.sh
 
-doil_update_20230919() {
+doil_update_20231024() {
   echo ""
   echo "This update disables Xdebug on all instances. In order to continue using xdebug,"
   echo "you must run 'doil apply <instance_name> enable-xdebug' for the desired instances after the update."
