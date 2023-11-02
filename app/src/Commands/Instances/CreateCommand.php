@@ -733,7 +733,7 @@ class CreateCommand extends Command
             "ILIAS_VERSION_NUMERIC"
         );
 
-        preg_match("/\d.\d/", $ilias_version, $version);
+        preg_match("/\d+.\d/", $ilias_version, $version);
 
         return $version[0];
     }
