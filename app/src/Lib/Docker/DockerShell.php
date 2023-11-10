@@ -60,6 +60,14 @@ class DockerShell implements Docker
             "rm -f /run/apache2/apache2.pid &>/dev/null"
         );
 
+        $this->executeCommand(
+            $path,
+            basename($path),
+            "/bin/bash",
+            "-c",
+            "killall salt-minion &>/dev/null && /etc/init.d/salt-minion start &>/dev/null"
+        );
+
        $this->cleanupMasterKey($path);
     }
 

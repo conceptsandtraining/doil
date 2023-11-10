@@ -13,6 +13,31 @@ use Symfony\Component\Console\Tester\CommandTester;
 
 class DeleteCommandTest extends TestCase
 {
+    public function test_execute_with_non_root_user() : void
+    {
+        $docker = $this->createMock(Docker::class);
+        $posix = $this->createMock(Posix::class);
+        $filesystem = $this->createMock(Filesystem::class);
+        $writer = new CommandWriter();
+        $instance = "master";
+
+        $command = new DeleteCommand($docker, $posix, $filesystem, $writer);
+        $tester = new CommandTester($command);
+
+        $posix
+            ->expects($this->once())
+            ->method("isSudo")
+            ->willReturn(false)
+        ;
+
+        $execute_result = $tester->execute(["instance" => $instance, "--global" => false]);
+        $output = $tester->getDisplay(true);
+
+        $result = "Error:\n\tPlease execute this script as sudo user!\n\t\n";
+        $this->assertEquals($result, $output);
+        $this->assertEquals(1, $execute_result);
+    }
+
     public function test_execute_with_non_existing_local_dir() : void
     {
         $docker = $this->createMock(Docker::class);
@@ -24,6 +49,11 @@ class DeleteCommandTest extends TestCase
         $command = new DeleteCommand($docker, $posix, $filesystem, $writer);
         $tester = new CommandTester($command);
 
+        $posix
+            ->expects($this->once())
+            ->method("isSudo")
+            ->willReturn(true)
+        ;
         $posix
             ->expects($this->once())
             ->method("getUserId")
@@ -62,6 +92,11 @@ class DeleteCommandTest extends TestCase
         $command = new DeleteCommand($docker, $posix, $filesystem, $writer);
         $tester = new CommandTester($command);
 
+        $posix
+            ->expects($this->once())
+            ->method("isSudo")
+            ->willReturn(true)
+        ;
         $filesystem
             ->expects($this->once())
             ->method("exists")
@@ -90,6 +125,11 @@ class DeleteCommandTest extends TestCase
         $app = new Application("doil");
         $command->setApplication($app);
 
+        $posix
+            ->expects($this->once())
+            ->method("isSudo")
+            ->willReturn(true)
+        ;
         $filesystem
             ->expects($this->once())
             ->method("exists")
@@ -126,6 +166,11 @@ class DeleteCommandTest extends TestCase
             ->willReturn(true)
         ;
 
+        $posix
+            ->expects($this->once())
+            ->method("isSudo")
+            ->willReturn(true)
+        ;
         $posix
             ->expects($this->once())
             ->method("getUserId")
