@@ -24,7 +24,7 @@ class DeleteCommand extends Command
 
     protected static $defaultName = "instances:delete";
     protected static $defaultDescription =
-        "This command deletes one or all instances. It will remove everything belonging " .
+        "<fg=red>!NEEDS SUDO PRIVILEGES!</> This command deletes one or all instances. It will remove everything belonging " .
         "to the given instance including all its files, configuration and misc data."
     ;
 
@@ -55,6 +55,14 @@ class DeleteCommand extends Command
 
     public function execute(InputInterface $input, OutputInterface $output) : int
     {
+        if (! $this->posix->isSudo()) {
+            $this->writer->error(
+                $output,
+                "Please execute this script as sudo user!"
+            );
+            return Command::FAILURE;
+        }
+
         $instance = $input->getArgument("instance");
         $all = $input->getOption("all");
 

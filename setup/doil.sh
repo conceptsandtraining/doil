@@ -74,6 +74,7 @@ docker run --rm "${TERMINAL}" \
   -v /etc:/etc \
   -v /var/log:/var/log \
   -e  PHP_INI_SCAN_DIR=/srv/php/mods-available \
+  -e  SUDO_UID="$SUDO_UID" \
   $GLOBAL_INSTANCES_PATH \
   -w $(pwd) \
   $MAP_USER \
