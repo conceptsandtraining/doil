@@ -1,6 +1,7 @@
 {% set mysql_password = salt['grains.get']('mysql_password', 'ilias') %}
 {% set doil_domain = salt['grains.get']('doil_domain', 'http://ilias.local') %}
 {% set doil_host_system = salt['grains.get']('doil_host_system', 'linux') %}
+{% set ilias_version = salt['grains.get']('ilias_version', '9') %}
 
 /var/ilias/data/ilias-config.json:
   file.managed:
@@ -23,9 +24,15 @@
       log_dir: /var/ilias/logs
       http_path: '{{ doil_domain }}'
 
-ilias-setup:
+{% if ilias_version | int < 10 %}
+ilias_setup_lt_10:
   cmd.run:
     - name: php /var/www/html/setup/setup.php install -y /var/ilias/data/ilias-config.json
+{% else %}
+ilias_setup_ge_10:
+  cmd.run:
+    - name: php /var/www/html/cli/setup.php install -y /var/ilias/data/ilias-config.json
+{% endif %}
 
 {% if salt['grains.get'] == 'linux' %}
   /var/www/html/:

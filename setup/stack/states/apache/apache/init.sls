@@ -1,7 +1,6 @@
-{% set apache_conf = salt['pillar.get']('web:apache_conf', 'salt://apache/default') %}
-{% set apache_docroot = salt['pillar.get']('web:docroot', '/var/www/html/') %}
 {% set doil_domain = salt['grains.get']('doil_domain', 'http://ilias.local') %}
 {% set doil_project_name = salt['grains.get']('doil_project_name', 'ilias') %}
+{% set ilias_version = salt['grains.get']('ilias_version', '9') %}
 
 apache_packages:
   pkg.installed:
@@ -9,12 +8,23 @@ apache_packages:
       - apache2
       - supervisor
 
-/etc/apache2/sites-available/000-default.conf:
+{% if ilias_version | int < 10 %}
+sites_available_lt_10:
   file.managed:
-    - source: {{ apache_conf }}
+    - name: /etc/apache2/sites-available/000-default.conf
+    - source: salt://apache/default
     - template: jinja
     - context:
       doil_project_name: {{ doil_project_name }}
+{% else %}
+sites_available_ge_10:
+  file.managed:
+    - name: /etc/apache2/sites-available/000-default.conf
+    - source: salt://apache/default_ilias10
+    - template: jinja
+    - context:
+      doil_project_name: {{ doil_project_name }}
+{% endif %}
 
 /etc/apache2/sites-enabled/000-default.conf:
   file.symlink:

@@ -1,3 +1,5 @@
+{% set ilias_version = salt['grains.get']('ilias_version', '9') %}
+
 get_npm_by_curl:
   cmd.run:
     - name: curl -sL https://deb.nodesource.com/setup_16.x | bash -
@@ -14,8 +16,16 @@ update_npm:
     - watch:
       - install_node_js
 
-install_ilias_npm_packages:
+{% if ilias_version | int < 10 %}
+install_ilias_npm_packages_lt_10:
   cmd.run:
-    - name: cd /var/www/html && npm install --ignore-scripts
+    - name: cd /var/www/html && npm clean-install --ignore-scripts
     - watch:
       - update_npm
+{% else %}
+install_ilias_npm_packages_ge_10:
+  cmd.run:
+    - name: cd /var/www/html/public && npm clean-install --ignore-scripts
+    - watch:
+      - update_npm
+{% endif %}

@@ -131,18 +131,6 @@ class DeleteCommand extends Command
         string $suffix
     ) : int {
         $this->writer->beginBlock($output, "Delete instance $instance");
-        if (! $this->docker->isInstanceUp($path)) {
-            $this->docker->startContainerByDockerCompose($path);
-        }
-
-        $user_id = $this->posix->getUserId();
-        $group_id = $this->posix->getGroupId();
-
-        $this->docker->executeCommand($path, $instance, "chown", "-R", "$user_id:$group_id", "/var/lib/mysql");
-        $this->docker->executeCommand($path, $instance, "chown", "-R", "$user_id:$group_id", "/etc/mysql");
-        $this->docker->executeCommand($path, $instance, "chown", "-R", "$user_id:$group_id", "/etc/php");
-
-        $this->docker->stopContainerByDockerCompose($path);
 
         $instance_dir = $this->filesystem->readLink($path);
         $this->filesystem->remove($path);

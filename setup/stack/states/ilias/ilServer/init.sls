@@ -1,3 +1,5 @@
+{% set ilias_version = salt['grains.get']('ilias_version', '9') %}
+
 ilServer_packages:
   pkg.installed:
     - pkgs:
@@ -8,6 +10,7 @@ javaport_grain:
     - name: javaport
     - value: 11111
 
+{% if ilias_version | int < 10 %}
 /var/www/html/Services/WebServices/RPC/lib/ilServer.ini:
   file:
     - managed
@@ -17,10 +20,19 @@ javaport_grain:
     - mode: 644
     - template: jinja
     - context:
-      port: 11111
-      path: /var/www/html
-      clientid: ilias
-      ip: salt['grains.get']('ip_interfaces')['eth0'][0]
+      path: /var/www/html/ilias.ini.php
+{% else %}
+/var/www/html/components/ILIAS/WebServices/RPC/lib/ilServer.ini:
+  file:
+    - managed
+    - source: salt://ilServer/ilServer.ini
+    - user: www-data
+    - group: www-data
+    - mode: 644
+    - template: jinja
+    - context:
+      path: /var/www/html/scripts/ilias.ini.php
+{% endif %}
       
 /etc/supervisor/conf.d/ilServer.conf:
   file:

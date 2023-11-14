@@ -1,0 +1,12 @@
+<VirtualHost *:80>
+  ServerAdmin root@concepts-and-training.de
+  DocumentRoot /var/www/html/
+
+  Alias /{{ doil_project_name }}/adminer /var/www/adminer
+  Alias /{{ doil_project_name }} /var/www/html/public
+
+  <Directory /var/www/html/public/>
+    AllowOverride All
+    Require all granted
+  </Directory>
+</VirtualHost>

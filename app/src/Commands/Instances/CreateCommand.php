@@ -308,6 +308,8 @@ class CreateCommand extends Command
         $this->docker->setGrain($instance_salt_name, "doil_project_name", $options["name"]);
         sleep(1);
         $this->docker->setGrain($instance_salt_name, "doil_host_system", "linux");
+        sleep(1);
+        $this->docker->setGrain($instance_salt_name, "ilias_version", $ilias_version);
         if ($this->linux->isWSL()) {
             $this->docker->setGrain($instance_salt_name, "doil_host_system", "windows");
         }
@@ -728,8 +730,16 @@ class CreateCommand extends Command
 
     protected function getIliasVersion(string $path) : string
     {
+        if ($this->filesystem->exists($path . "/volumes/ilias/include/inc.ilias_version.php")) {
+            $ilias_version_path = $path . "/volumes/ilias/include/inc.ilias_version.php";
+        } else if ($this->filesystem->exists($path . "/volumes/ilias/ilias_version.php")) {
+            $ilias_version_path = $path . "/volumes/ilias/ilias_version.php";
+        } else {
+            throw new RuntimeException("Can't detect ilias version!");
+        }
+
         $ilias_version = $this->filesystem->getLineInFile(
-            $path . "/volumes/ilias/include/inc.ilias_version.php",
+            $ilias_version_path,
             "ILIAS_VERSION_NUMERIC"
         );
 
