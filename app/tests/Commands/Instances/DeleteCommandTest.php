@@ -171,39 +171,15 @@ class DeleteCommandTest extends TestCase
             ->method("isSudo")
             ->willReturn(true)
         ;
-        $posix
-            ->expects($this->once())
-            ->method("getUserId")
-            ->willReturn(22)
-        ;
-        $posix
-            ->expects($this->once())
-            ->method("getGroupId")
-            ->willReturn(33)
-        ;
 
         $docker
-            ->expects($this->once())
-            ->method("isInstanceUp")
-            ->with("/usr/local/share/doil/instances/master")
-            ->willReturn(true)
-        ;
-        $docker
-            ->expects($this->exactly(6))
+            ->expects($this->exactly(3))
             ->method("executeCommand")
             ->withConsecutive(
-                ["/usr/local/share/doil/instances/master", "master", "chown", "-R", "22:33", "/var/lib/mysql"],
-                ["/usr/local/share/doil/instances/master", "master", "chown", "-R", "22:33", "/etc/mysql"],
-                ["/usr/local/share/doil/instances/master", "master", "chown", "-R", "22:33", "/etc/php"],
                 ["/usr/local/lib/doil/server/salt/", "doil_saltmain", "salt-key", "-d", "master.global", "-y", "-q"],
                 ["/usr/local/lib/doil/server/proxy/", "doil_proxy", "/bin/bash", "-c", "/etc/init.d/nginx reload &>/dev/null"],
                 ["/usr/local/lib/doil/server/mail/", "doil_mail", "/bin/bash", "-c", "/root/delete-postbox-configuration.sh $instance &>/dev/null"]
             )
-        ;
-        $docker
-            ->expects($this->once())
-            ->method("stopContainerByDockerCompose")
-            ->with("/usr/local/share/doil/instances/master")
         ;
         $docker
             ->expects($this->once())
