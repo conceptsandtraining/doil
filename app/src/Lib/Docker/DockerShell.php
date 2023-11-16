@@ -434,6 +434,7 @@ class DockerShell implements Docker
         $cmd = [
             "docker",
             "rm",
+            "-f",
             $name
         ];
 
