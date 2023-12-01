@@ -329,7 +329,7 @@ This is done by certbot.
 In order for this state to run successfully, it is important that the proxy is already accessible from the Internet and the DNS entries are set.  
 To execute the state you have to log in to the salt master using `doil salt:login`. The following command is then executed there:
 ```bash
- salt 'doil.proxy' state.highstate saltenv=proxy-enable-https pillar='{"email": "<your_email>"}'
+ salt 'doil.proxy' state.highstate saltenv=proxy-enable-https pillar='{"email": "<your_email>", "domain": "<your_domain>"}'
 ```
 If the state has run successfully, the current status of the proxy still needs to be committed. To do this, leave the
 salt master again with `ctrl-d` and execute the following command:
