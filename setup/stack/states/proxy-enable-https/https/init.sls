@@ -3,7 +3,7 @@
 # This state must be executed on the salt master. The following command is used for this.
 # Please note that you must provide your email address.
 #
-# salt 'doil.proxy' state.highstate saltenv=proxy-enable-https pillar='{"email": "<your_email>"}'
+# salt 'doil.proxy' state.highstate saltenv=proxy-enable-https pillar='{"email": "<your_email>", "domain" = "<your_domain>"}'
 #
 # After applying the state, it is important that you commit the new proxy status to the docker image on the docker host.
 # To do this, run the following command on the Docker host.
@@ -14,6 +14,7 @@
 # so https take effect in ILIAS.
 
 {% set email = salt['pillar.get']('email', '') %}
+{% set domain = salt['pillar.get']('domain', '') %}
 
 {% if email != "" %}
 https_packages:
@@ -25,7 +26,7 @@ https_packages:
 
 install_cert:
   cmd.run:
-    - name: certbot -n --nginx --agree-tos --email {{ email }}
+    - name: certbot -n --nginx --agree-tos --email {{ email }} --domains {{ domain }}
     - runas: root
 
 cert_renew_by_cron:
@@ -36,6 +37,6 @@ cert_renew_by_cron:
 {% else %}
 custom_raise:
   test.fail_without_changes:
-    - msg: "Missing email! Please use this command: salt 'doil.proxy' state.highstate saltenv=proxy-enable-https pillar='{\"email\": \"<your_email>\"}'"
+    - msg: "Missing email! Please use this command: salt 'doil.proxy' state.highstate saltenv=proxy-enable-https pillar='{\"email\": \"<your_email>\", \"domain\": \"<your_domain>\"}'"
     - failhard: True
 {% endif %}
