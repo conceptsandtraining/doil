@@ -270,7 +270,10 @@ function buildContainerForApp() : Container
             $c["docker.shell"],
             $c["posix.shell"],
             $c["filesystem.shell"],
-            $c["command.writer"]
+            $c["command.writer"],
+            $c["project.config"],
+            $c["git.shell"],
+            $c["repo.manager"]
         );
     };
 

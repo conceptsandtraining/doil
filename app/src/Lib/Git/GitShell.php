@@ -33,6 +33,19 @@ class GitShell implements Git
         return array_filter(explode("\n", $this->run($cmd, $this->logger)));
     }
 
+    public function getCurrentBranch(string $path) : string
+    {
+        $cmd = [
+            "git",
+            "-C",
+            $path,
+            "rev-parse",
+            "--abbrev-ref",
+            "HEAD"
+        ];
+        return trim($this->run($cmd, $this->logger));
+    }
+
     public function fetchBare(string $path) : void
     {
         $cmd = [
@@ -89,5 +102,47 @@ class GitShell implements Git
 
         $this->logger->info("Check out remote branch '$branch' for path '$path'");
         $this->run($cmd, $this->logger);
+    }
+
+    public function getRemotes(string $path) : array
+    {
+        $cmd = [
+            "git",
+            "-C",
+            $path,
+            "remote",
+            "-v"
+        ];
+
+        $this->logger->info("Get remote repos for $path");
+        $result = $this->run($cmd, $this->logger);
+        $result = explode("\n", $result);
+        array_pop($result);
+
+        foreach ($result as $r) {
+            $r = preg_split('/\s+/', $r);
+            $arr[$r[0]] = $r[1];
+        }
+
+        return $arr;
+    }
+
+    public function isBranchInRepo(string $path, string $url, string $branch) : bool
+    {
+        $cmd = [
+            "git",
+            "ls-remote",
+            "--heads",
+            $url,
+            "refs/heads/$branch"
+        ];
+
+        $this->logger->info("Get remote repos for $path");
+        $result = $this->run($cmd, $this->logger);
+
+        if ($result == "") {
+            return false;
+        }
+        return true;
     }
 }

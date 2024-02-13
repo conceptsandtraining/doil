@@ -6,10 +6,14 @@ namespace CaT\Doil\Commands\Pack;
 
 use Closure;
 use RuntimeException;
+use CaT\Doil\Lib\Git\Git;
 use CaT\Doil\Lib\Posix\Posix;
 use CaT\Doil\Lib\Docker\Docker;
+use CaT\Doil\Lib\ProjectConfig;
+use CaT\Doil\Commands\Repo\Repo;
 use CaT\Doil\Lib\ConsoleOutput\Writer;
 use CaT\Doil\Lib\FileSystem\Filesystem;
+use CaT\Doil\Commands\Repo\RepoManager;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Input\InputArgument;
@@ -28,15 +32,28 @@ class ExportCommand extends Command
     protected Posix $posix;
     protected Filesystem $filesystem;
     protected Writer $writer;
+    protected ProjectConfig $project_config;
+    protected Git $git;
+    protected RepoManager $repo_manager;
 
-    public function __construct(Docker $docker, Posix $posix, Filesystem $filesystem, Writer $writer)
-    {
+    public function __construct(
+        Docker $docker,
+        Posix $posix,
+        Filesystem $filesystem,
+        Writer $writer,
+        ProjectConfig $project_config,
+        Git $git,
+        RepoManager $repo_manager
+    ) {
         parent::__construct();
 
         $this->docker = $docker;
         $this->posix = $posix;
         $this->filesystem = $filesystem;
         $this->writer = $writer;
+        $this->project_config = $project_config;
+        $this->git = $git;
+        $this->repo_manager = $repo_manager;
     }
 
     public function configure() : void
@@ -75,8 +92,6 @@ class ExportCommand extends Command
             return Command::FAILURE;
         }
 
-        $this->writer->beginBlock($output, "Building zip file for " . $instance . "_" . $suffix);
-
         if (! $this->docker->isInstanceUp($path)) {
             $this->writer->beginBlock($output, "Starting instance $instance");
             $this->docker->startContainerByDockerCompose($path);
@@ -84,6 +99,10 @@ class ExportCommand extends Command
             sleep(5);
             $this->writer->endBlock();
         }
+
+        $this->writer->beginBlock($output, "Update project config for " . $instance . "_" . $suffix);
+        $this->updateProjectConfig($path, $instance . "_" . $suffix);
+        $this->writer->beginBlock($output, "Building zip file for " . $instance . "_" . $suffix);
 
         $this->writer->beginBlock($output, "Exporting database");
 
@@ -185,5 +204,55 @@ class ExportCommand extends Command
         $output->writeln("\tSupported filenames: docker-compose.yml");
 
         return false;
+    }
+
+    protected function updateProjectConfig(string $path, string $instance) : void
+    {
+        $project_config = $this->filesystem->readFromJsonFile($path . "/conf/project_config.json");
+        $project_config = array_shift($project_config);
+
+        $branch = $this->git->getCurrentBranch($path . "/volumes/ilias");
+
+        $cmd = "php -v | head -n 1 | cut -d ' ' -f2 | cut -d . -f1,2";
+        $php_version = trim($this->docker->executeDockerCommandWithReturn($instance, $cmd));
+
+        $repos = $this->git->getRemotes($path . "/volumes/ilias");
+
+        $repo_name = array_key_first($repos);
+        $repo_url = $repos[$repo_name];
+
+        if (count($repos) > 1) {
+            $repos = array_filter($repos, function ($url) use ($branch, $path) {
+                return $this->git->isBranchInRepo($path . "/volumes/ilias", $url, $branch);
+            });
+            foreach ($repos as $name => $url) {
+                $repo = new Repo($name, $url);
+
+                if ($this->repo_manager->repoUrlExists($repo)) {
+                    $repo_name = $name;
+                    $repo_url = $url;
+                    break;
+                }
+
+                $repo = $repo->withIsGlobal(true);
+                if ($this->repo_manager->repoUrlExists($repo)) {
+                    $repo_name = $name;
+                    $repo_url = $url;
+                    break;
+                }
+
+                $repo_name = $name;
+                $repo_url = $url;
+            }
+        }
+
+        $project_config = $project_config
+            ->withRepositoryBranch($branch)
+            ->withPhpVersion($php_version)
+            ->withRepositoryName($repo_name)
+            ->withRepositoryUrl($repo_url)
+        ;
+        $this->filesystem->saveToJsonFile($path . "/conf/project_config.json", [$project_config]);
+        $this->writer->endBlock();
     }
 }

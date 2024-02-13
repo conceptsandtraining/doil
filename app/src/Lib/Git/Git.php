@@ -7,8 +7,11 @@ namespace CaT\Doil\Lib\Git;
 interface Git
 {
     public function getBranches(string $path) : array;
+    public function getCurrentBranch(string $path) : string;
     public function fetchBare(string $path) : void;
     public function cloneBare(string $url, string $path) : void;
     public function setLocalConfig(string $path, ...$commands) : void;
     public function checkoutRemote(string $path, string $branch) : void;
+    public function getRemotes(string $path) : array;
+    public function isBranchInRepo(string $path, string $url, string $branch) : bool;
 }
