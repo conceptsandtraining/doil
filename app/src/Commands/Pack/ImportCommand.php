@@ -67,6 +67,7 @@ class ImportCommand extends Command
         $instance = $input->getArgument("instance");
         $package = $input->getArgument("package");
         $create = false;
+        $repo_added = false;
 
         $check = $this->checkName();
         $check($instance);
@@ -147,6 +148,7 @@ class ImportCommand extends Command
                 }
 
                 $this->repo_manager->addRepo($repo);
+                $repo_added = true;
             }
 
             $create_command = $this->getApplication()->find('instances:create');
@@ -245,9 +247,6 @@ class ImportCommand extends Command
         $this->writer->endBlock();
 
         $this->writer->beginBlock($output, "Setting permissions");
-        $this->docker->stopContainerByDockerCompose($path);
-        $this->docker->startContainerByDockerCompose($path);
-        sleep(15);
         $this->docker->applyState($instance . "." . $suffix, "access");
         $this->writer->endBlock();
 
@@ -264,6 +263,9 @@ class ImportCommand extends Command
             "-c",
             "rm /var/ilias/data/ilias.sql"
         );
+        if ($repo_added) {
+            $this->repo_manager->deleteRepo($repo);
+        }
         $this->docker->stopContainerByDockerCompose($path);
         $this->writer->endBlock();
 

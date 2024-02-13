@@ -3,10 +3,13 @@
 namespace CaT\Doil\Commands\Pack;
 
 use RuntimeException;
+use CaT\Doil\Lib\Git\Git;
 use CaT\Doil\Lib\Posix\Posix;
 use PHPUnit\Framework\TestCase;
 use CaT\Doil\Lib\Docker\Docker;
+use CaT\Doil\Lib\ProjectConfig;
 use CaT\Doil\Lib\FileSystem\Filesystem;
+use CaT\Doil\Commands\Repo\RepoManager;
 use CaT\Doil\Lib\ConsoleOutput\CommandWriter;
 use Symfony\Component\Console\Tester\CommandTester;
 
@@ -17,9 +20,12 @@ class ExportCommandTest extends TestCase
         $docker = $this->createMock(Docker::class);
         $posix = $this->createMock(Posix::class);
         $filesystem = $this->createMock(Filesystem::class);
+        $project_config = $this->createMock(ProjectConfig::class);
+        $git = $this->createMock(Git::class);
+        $repo_manager = $this->createMock(RepoManager::class);
         $writer = new CommandWriter();
 
-        $command = new ExportCommand($docker, $posix, $filesystem, $writer);
+        $command = new ExportCommand($docker, $posix, $filesystem, $writer, $project_config, $git, $repo_manager);
         $tester = new CommandTester($command);
 
         $this->expectException(RuntimeException::class);
@@ -32,9 +38,12 @@ class ExportCommandTest extends TestCase
         $docker = $this->createMock(Docker::class);
         $posix = $this->createMock(Posix::class);
         $filesystem = $this->createMock(Filesystem::class);
+        $project_config = $this->createMock(ProjectConfig::class);
+        $git = $this->createMock(Git::class);
+        $repo_manager = $this->createMock(RepoManager::class);
         $writer = new CommandWriter();
 
-        $command = new ExportCommand($docker, $posix, $filesystem, $writer);
+        $command = new ExportCommand($docker, $posix, $filesystem, $writer, $project_config, $git, $repo_manager);
         $tester = new CommandTester($command);
 
         $this->expectException(RuntimeException::class);
@@ -47,9 +56,12 @@ class ExportCommandTest extends TestCase
         $docker = $this->createMock(Docker::class);
         $posix = $this->createMock(Posix::class);
         $filesystem = $this->createMock(Filesystem::class);
+        $project_config = $this->createMock(ProjectConfig::class);
+        $git = $this->createMock(Git::class);
+        $repo_manager = $this->createMock(RepoManager::class);
         $writer = new CommandWriter();
 
-        $command = new ExportCommand($docker, $posix, $filesystem, $writer);
+        $command = new ExportCommand($docker, $posix, $filesystem, $writer, $project_config, $git, $repo_manager);
         $tester = new CommandTester($command);
 
         $this->expectException(RuntimeException::class);
@@ -62,9 +74,12 @@ class ExportCommandTest extends TestCase
         $docker = $this->createMock(Docker::class);
         $posix = $this->createMock(Posix::class);
         $filesystem = $this->createMock(Filesystem::class);
+        $project_config = $this->createMock(ProjectConfig::class);
+        $git = $this->createMock(Git::class);
+        $repo_manager = $this->createMock(RepoManager::class);
         $writer = new CommandWriter();
 
-        $command = new ExportCommand($docker, $posix, $filesystem, $writer);
+        $command = new ExportCommand($docker, $posix, $filesystem, $writer, $project_config, $git, $repo_manager);
         $tester = new CommandTester($command);
 
         $posix

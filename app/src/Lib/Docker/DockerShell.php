@@ -460,6 +460,23 @@ class DockerShell implements Docker
         $this->run($cmd, $logger);
     }
 
+    public function executeDockerCommandWithReturn(string $name, string $cmd) : string
+    {
+        $cmd = [
+            "docker",
+            "exec",
+            "-i",
+            $name,
+            "bash",
+            "-c",
+            $cmd
+        ];
+
+        $logger = $this->logger->getDoilLogger($name);
+        $logger->info("Execute docker command", $cmd);
+        return $this->run($cmd, $logger);
+    }
+
     public function setGrain(string $name, string $key, string $value) : void
     {
         $cmd = [
