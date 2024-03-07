@@ -37,7 +37,8 @@ class DockerShell implements Docker
         }
 
         $cmd = [
-            "docker-compose",
+            "docker",
+            "compose",
             "-f",
             $path . "/docker-compose.yml",
             "up",
@@ -74,7 +75,8 @@ class DockerShell implements Docker
     public function stopContainerByDockerCompose(string $path) : void
     {
         $cmd = [
-            "docker-compose",
+            "docker",
+            "compose",
             "-f",
             $path . "/docker-compose.yml",
             "stop"
@@ -115,7 +117,8 @@ class DockerShell implements Docker
     public function loginIntoContainer(string $path, string $name) : void
     {
         $cmd = [
-            "docker-compose",
+            "docker",
+            "compose",
             "-f",
             $path . "/docker-compose.yml",
             "exec",
@@ -133,7 +136,8 @@ class DockerShell implements Docker
     public function isInstanceUp(string $path) : bool
     {
         $cmd = [
-           "docker-compose",
+           "docker",
+           "compose",
            "-f",
            $path . "/docker-compose.yml",
            "top"
@@ -146,7 +150,8 @@ class DockerShell implements Docker
     public function executeCommand(string $path, string $name, ...$command) : void
     {
         $cmd = [
-            "docker-compose",
+            "docker",
+            "compose",
             "-f",
             $path . "/docker-compose.yml",
             "exec",
@@ -164,7 +169,8 @@ class DockerShell implements Docker
     public function executeNoTTYCommand(string $path, string $name, ...$command) : void
     {
         $cmd = [
-            "docker-compose",
+            "docker",
+            "compose",
             "-f",
             $path . "/docker-compose.yml",
             "exec",
@@ -389,6 +395,7 @@ class DockerShell implements Docker
     {
         $cmd = [
             "docker",
+            "buildx",
             "build",
             "-t",
             "doil/" . $name . ":stable",
@@ -572,7 +579,8 @@ class DockerShell implements Docker
     protected function startContainerByDockerComposeWithForceRecreate(string $path) : void
     {
         $cmd = [
-            "docker-compose",
+            "docker",
+            "compose",
             "-f",
             $path . "/docker-compose.yml",
             "up",

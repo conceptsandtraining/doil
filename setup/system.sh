@@ -344,13 +344,13 @@ function doil_system_delete_potential_composer_lock() {
 }
 
 function doil_system_build_php_image() {
-  (docker build -q -t doil_php:stable /usr/local/lib/doil/server/php) 2>&1 > /var/log/doil/stream.log
+  (docker buildx build -q -t doil_php:stable /usr/local/lib/doil/server/php) 2>&1 > /var/log/doil/stream.log
   docker run --rm -ti -v /home:/home -v /usr/local/lib/doil:/usr/local/lib/doil -e PHP_INI_SCAN_DIR=/srv/php/mods-available -w /usr/local/lib/doil/app --user $(id -u):$(id -g) doil_php:stable /usr/local/bin/composer -q -n install
 }
 
 function doil_system_install_saltserver() {
   cd /usr/local/lib/doil/server/salt
-  BUILD=$(docker-compose up -d 2>&1 > /var/log/doil/stream.log) 2>&1 > /var/log/doil/stream.log
+  BUILD=$(docker compose up -d 2>&1 > /var/log/doil/stream.log) 2>&1 > /var/log/doil/stream.log
   docker commit doil_saltmain doil_saltmain:stable 2>&1 > /var/log/doil/stream.log
 }
 
@@ -358,7 +358,7 @@ function doil_system_install_proxyserver() {
   cd /usr/local/lib/doil/server/proxy
   NAME=$(cat /etc/doil/doil.conf | grep "host" | cut -d '=' -f 2-)
   sed -i "s/%TPL_SERVER_NAME%/${NAME}/g" "/usr/local/lib/doil/server/proxy/conf/nginx/local.conf"
-  BUILD=$(docker-compose up -d 2>&1 > /var/log/doil/stream.log) 2>&1 > /var/log/doil/stream.log
+  BUILD=$(docker compose up -d 2>&1 > /var/log/doil/stream.log) 2>&1 > /var/log/doil/stream.log
   sleep 10
   docker exec -i doil_saltmain bash -c "salt 'doil.proxy' state.highstate saltenv=proxyservices" 2>&1 > /var/log/doil/stream.log
   docker commit doil_proxy doil_proxy:stable 2>&1 > /var/log/doil/stream.log
@@ -366,7 +366,7 @@ function doil_system_install_proxyserver() {
 
 function doil_system_install_mailserver() {
   cd /usr/local/lib/doil/server/mail
-  BUILD=$(docker-compose up -d 2>&1 > /var/log/doil/stream.log) 2>&1 > /var/log/doil/stream.log
+  BUILD=$(docker compose up -d 2>&1 > /var/log/doil/stream.log) 2>&1 > /var/log/doil/stream.log
   sleep 10
   docker exec -i doil_saltmain bash -c "salt 'doil.mail' state.highstate saltenv=mailservices" 2>&1 > /var/log/doil/stream.log
   PASSWORD=$(doil_get_conf mail_password)
