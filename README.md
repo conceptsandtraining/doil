@@ -52,8 +52,7 @@ will move all global instances to the set path.
 **doil** tries to use as little 3rd party software on the host system as possible,
 however **doil** needs [Docker](https://www.docker.com/) in order to work:
 
-* docker version >= 19.03
-* docker-compose version >= 1.25.0 (ensure that root has access too)
+* docker (follow [this](https://docs.docker.com/engine/install/) instructions depending on your os to install docker), if you have installed docker by your package manager ensure that **docker-buildx-plugin** and **docker-compose-plugin** are available and installed and also executable by your user.
 * git
 * .ssh folder in your home directory. **doil** will mount it into the container. **doil** needs this to have access to any private git repositories that may be used. 
 
