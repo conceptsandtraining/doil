@@ -51,6 +51,7 @@ function buildContainerForApp() : Container
             $c["command.mail.up"],
             $c["command.pack.export"],
             $c["command.pack.import"],
+            $c["command.pack.create"],
             $c["command.proxy.login"],
             $c["command.proxy.prune"],
             $c["command.proxy.reload"],
@@ -283,6 +284,19 @@ function buildContainerForApp() : Container
             $c["posix.shell"],
             $c["filesystem.shell"],
             $c["repo.manager"],
+            $c["command.writer"]
+        );
+    };
+
+    $c["command.pack.create"] = function($c) {
+        return new Pack\PackCreateCommand(
+            $c["docker.shell"],
+            $c["repo.manager"],
+            $c["git.shell"],
+            $c["posix.shell"],
+            $c["filesystem.shell"],
+            $c["linux.shell"],
+            $c["project.config"],
             $c["command.writer"]
         );
     };

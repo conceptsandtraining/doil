@@ -101,11 +101,12 @@ class ExportCommand extends Command
         }
 
         $this->writer->beginBlock($output, "Update project config for " . $instance . "_" . $suffix);
-        $this->updateProjectConfig($path, $instance . "_" . $suffix);
+        $this->updateProjectConfig($output, $path, $instance . "_" . $suffix);
+        $this->writer->endBlock();
+
         $this->writer->beginBlock($output, "Building zip file for " . $instance . "_" . $suffix);
 
         $this->writer->beginBlock($output, "Exporting database");
-
         if ($input->getOption("cron")) {
             $this->docker->executeNoTTYCommand(
                 $path,
@@ -123,17 +124,18 @@ class ExportCommand extends Command
                 "mysqldump ilias > /var/ilias/data/ilias.sql"
             );
         }
-
         $this->writer->endBlock();
 
         $this->writer->beginBlock($output, "Exporting data");
-
         $this->filesystem->remove($name);
-        $this->filesystem->makeDirectoryRecursive($name . "/var/www/html");
+        $this->filesystem->makeDirectoryRecursive($name . "/var/www/html/Customizing/global");
+        $this->filesystem->makeDirectoryRecursive($name . "/var/www/html/.git");
         $this->filesystem->makeDirectoryRecursive($name . "/conf");
 
         $this->docker->copy($instance . "_" . $suffix, "/var/ilias", $name . "/var/");
+        $this->docker->copy($instance . "_" . $suffix, "/var/www/html/.git/config", $name . "/var/www/html/.git/config");
         $this->docker->copy($instance . "_" . $suffix, "/var/www/html/data", $name . "/var/www/html");
+        $this->docker->copy($instance . "_" . $suffix, "/var/www/html/Customizing/global/skin", $name . "/var/www/html/Customizing/global");
         $this->docker->copy($instance . "_" . $suffix, "/var/www/html/ilias.ini.php", $name . "/var/www/html/");
         $this->writer->endBlock();
 
@@ -198,15 +200,16 @@ class ExportCommand extends Command
             return true;
         }
 
-        $output->writeln("<fg=red>Error:</>");
-        $output->writeln("\tCan't find a suitable docker-compose file in this directory '$path'.");
-        $output->writeln("\tIs this the right directory?");
-        $output->writeln("\tSupported filenames: docker-compose.yml");
+        $this->writer->error(
+            $output,
+            "Can't find a suitable docker-compose file in this directory '$path'.",
+            "Is this the right directory?\n\tSupported filenames: docker-compose.yml"
+        );
 
         return false;
     }
 
-    protected function updateProjectConfig(string $path, string $instance) : void
+    protected function updateProjectConfig(OutputInterface $output, string $path, string $instance) : int
     {
         $project_config = $this->filesystem->readFromJsonFile($path . "/conf/project_config.json");
         $project_config = array_shift($project_config);
@@ -216,43 +219,97 @@ class ExportCommand extends Command
         $cmd = "php -v | head -n 1 | cut -d ' ' -f2 | cut -d . -f1,2";
         $php_version = trim($this->docker->executeDockerCommandWithReturn($instance, $cmd));
 
-        $repos = $this->git->getRemotes($path . "/volumes/ilias");
+        $remotes = $this->git->getRemotes($path . "/volumes/ilias");
 
-        $repo_name = array_key_first($repos);
-        $repo_url = $repos[$repo_name];
+        if (count($remotes) == 0) {
+            $this->writer->error(
+                $output,
+                "Can't find a suitable remote inside directory '$path/volumes/ilias'."
+            );
+            return self::FAILURE;
+        }
 
-        if (count($repos) > 1) {
-            $repos = array_filter($repos, function ($url) use ($branch, $path) {
+        $repo = false;
+        if (count($remotes) == 1) {
+            $repo = new Repo(array_key_first($remotes), $remotes[0]);
+        }
+
+        if (count($remotes) > 1) {
+            $remotes = array_filter($remotes, function ($url) use ($branch, $path) {
                 return $this->git->isBranchInRepo($path . "/volumes/ilias", $url, $branch);
             });
-            foreach ($repos as $name => $url) {
-                $repo = new Repo($name, $url);
 
-                if ($this->repo_manager->repoUrlExists($repo)) {
-                    $repo_name = $name;
-                    $repo_url = $url;
-                    break;
-                }
+            if (count($remotes) == 0) {
+                $this->writer->error(
+                    $output,
+                    "Can't find branch '$branch' inside the available remotes inside directory '$path/volumes/ilias'."
+                );
+                return self::FAILURE;
+            }
 
+            $repos = [];
+            foreach ($remotes as $name => $url) {
+                $repos[] = new Repo($name, $url);
+            }
+
+            $local_repos = array_filter($repos, function(Repo $repo) {
+                return $this->repo_manager->repoUrlExists($repo);
+            });
+
+            $global_repos = array_filter($repos, function(Repo $repo) {
                 $repo = $repo->withIsGlobal(true);
-                if ($this->repo_manager->repoUrlExists($repo)) {
-                    $repo_name = $name;
-                    $repo_url = $url;
-                    break;
-                }
+                return $this->repo_manager->repoUrlExists($repo);
+            });
 
-                $repo_name = $name;
-                $repo_url = $url;
+            if (count($local_repos) == 0 && count($global_repos) == 0) {
+                $this->writer->error(
+                    $output,
+                    "Can't find branch '$branch' inside the available remotes inside directory '$path/volumes/ilias'."
+                );
+                return self::FAILURE;
+            }
+
+            if (count($local_repos) > 0) {
+                $local_cat_ilias_repos = array_filter($local_repos, function(Repo $local_repo) {
+                    return strstr($local_repo->getUrl(), "conceptsandtraining") || strstr($local_repo->getUrl(), "ILIAS-eLearning");
+                });
+            }
+
+            if (count($global_repos) > 0) {
+                $global_cat_ilias_repos = array_filter($global_repos, function(Repo $local_repo) {
+                    return strstr($local_repo->getUrl(), "conceptsandtraining") || strstr($local_repo->getUrl(), "ILIAS-eLearning");
+                });
+            }
+
+            $found = false;
+            if (count($local_cat_ilias_repos) > 0) {
+                $repo = array_shift($local_cat_ilias_repos);
+                $found = true;
+            }
+
+            if (!$found && count($global_cat_ilias_repos) > 0) {
+                $repo = array_shift($global_cat_ilias_repos);
+                $found = true;
+            }
+
+            if (!$found && count($local_repos)) {
+                $repo = array_shift($local_repos);
+                $found = true;
+            }
+
+            if (!$found && count($global_repos)) {
+                $repo = array_shift($global_repos);
             }
         }
 
         $project_config = $project_config
             ->withRepositoryBranch($branch)
             ->withPhpVersion($php_version)
-            ->withRepositoryName($repo_name)
-            ->withRepositoryUrl($repo_url)
+            ->withRepositoryName($repo->getName())
+            ->withRepositoryUrl($repo->getUrl())
         ;
         $this->filesystem->saveToJsonFile($path . "/conf/project_config.json", [$project_config]);
-        $this->writer->endBlock();
+
+        return self::SUCCESS;
     }
 }

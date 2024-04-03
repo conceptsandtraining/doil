@@ -76,11 +76,11 @@
 
 # The number of seconds to wait when the client is requesting information
 # about running jobs.
-#gather_job_timeout: 10
+gather_job_timeout: 100
 
 # Set the default timeout for the salt command and api. The default is 5
 # seconds.
-#timeout: 5
+timeout: 60
 
 # The loop_interval option controls the seconds for the master's maintenance
 # process check cycle. This process updates file server backends, cleans the

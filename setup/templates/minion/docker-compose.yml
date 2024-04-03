@@ -1,4 +1,3 @@
-version: "3.5"
 services:
   %TPL_PROJECT_NAME%:
     build:
