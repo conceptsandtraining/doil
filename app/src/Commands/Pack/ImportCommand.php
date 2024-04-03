@@ -151,7 +151,7 @@ class ImportCommand extends Command
                 $repo_added = true;
             }
 
-            $create_command = $this->getApplication()->find('instances:create');
+            $create_command = $this->getApplication()->find('pack:create');
             $args = [
                 '-n' => true,
                 '--name' => $instance,
@@ -175,16 +175,42 @@ class ImportCommand extends Command
 
         $this->writer->beginBlock($output, "Copying necessary files");
 
+        $this->filesystem->copy(
+            $unpacked . "/var/www/html/.git/config",
+            $path . "/volumes/ilias/.git/config"
+        );
         if ($create) {
-            $this->filesystem->copy($unpacked . "/var/www/html/ilias.ini.php", $path . "/volumes/ilias/ilias.ini.php");
+            $this->filesystem->copy(
+                $unpacked . "/var/www/html/ilias.ini.php",
+                $path . "/volumes/ilias/ilias.ini.php"
+            );
+            $this->filesystem->copyDirectory(
+                $unpacked . "/var/www/html/Customizing/global/skin",
+                $path . "/volumes/ilias/Customizing/global/skin"
+            );
         } else {
-            $this->filesystem->copy($path . "/volumes/data/ilias-config.json", "/tmp/ilias-config.json");
+            $this->filesystem->copy(
+                $path . "/volumes/data/ilias-config.json",
+                "/tmp/ilias-config.json"
+            );
         }
-        $this->filesystem->copyDirectory($unpacked . "/var/www/html/data", $path . "/volumes/ilias/data");
-        $this->filesystem->copyDirectory($unpacked . "/var/ilias/data", $path . "/volumes/data");
-        if (! $create) {
-            $this->filesystem->copy("/tmp/ilias-config.json", $path . "/volumes/data/ilias-config.json");
+
+        $this->filesystem->copyDirectory(
+            $unpacked . "/var/www/html/data",
+            $path . "/volumes/ilias/data")
+        ;
+        $this->filesystem->copyDirectory(
+            $unpacked . "/var/ilias/data",
+            $path . "/volumes/data")
+        ;
+
+        if (!$create) {
+            $this->filesystem->copy(
+                "/tmp/ilias-config.json",
+                $path . "/volumes/data/ilias-config.json"
+            );
         }
+
         if ($sql_dump != "") {
             $this->filesystem->copy($sql_dump, $path . "/volumes/data/ilias.sql");
         }
@@ -234,6 +260,14 @@ class ImportCommand extends Command
         }
 
         $this->filesystem->replaceLineInFile($location, "/^pass =.*/", "pass = \"" . $mysql_password . "\"");
+        if ($create) {
+            $this->filesystem->replaceLineInFile(
+                $path . "/volumes/data/ilias-config.json",
+                "/\"password\" :.*/",
+                "\"password\" : \"" . $mysql_password . "\""
+            );
+        }
+
         $this->writer->endBlock();
 
         $this->writer->beginBlock($output, "Apply ilias config");

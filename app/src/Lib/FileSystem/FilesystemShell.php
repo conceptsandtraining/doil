@@ -123,14 +123,20 @@ class FilesystemShell implements Filesystem
             RecursiveIteratorIterator::LEAVES_ONLY
         );
 
-        foreach ($files as $file)
-        {
-            if (!$file->isDir())
-            {
-                $filePath = $file->getRealPath();
-                $relativePath = substr($filePath, strlen($rootPath) + 1);
+        foreach ($files as $file) {
+            $filePath = $file->getRealPath();
+            $relativePath = substr($filePath, strlen($rootPath) + 1);
 
+            if (!$relativePath) {
+                continue;
+            }
+
+            if (!$file->isDir()) {
                 $zip->addFile($filePath, $relativePath);
+            }
+
+            if ($file->isDir()) {
+                $zip->addEmptyDir($relativePath);
             }
         }
 
