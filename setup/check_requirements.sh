@@ -60,12 +60,21 @@ function check_requirements() {
     exit
   fi
 
-  # sudo user in docker group
+  # sudo has docker compose access
   doil_check_root_has_docker_compose
   if [[ $? -ne 0 ]]
   then
     doil_status_failed
-    doil_status_send_error "REQUIREMENT ERROR" "Please ensure that root has access to docker-compose!"
+    doil_status_send_error "REQUIREMENT ERROR" "Please ensure that root has access to docker compose!"
+    exit
+  fi
+
+  # sudo has docker buildx access
+  doil_check_root_has_docker_buildx
+  if [[ $? -ne 0 ]]
+  then
+    doil_status_failed
+    doil_status_send_error "REQUIREMENT ERROR" "Please ensure that root has access to docker buildx!"
     exit
   fi
 
