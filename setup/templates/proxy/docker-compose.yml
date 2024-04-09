@@ -23,6 +23,9 @@ services:
         source: ./conf/startup.conf
         target: /etc/supervisor/conf.d/startup.conf
       - type: bind
+        source: ./conf/cron.conf
+        target: /etc/supervisor/conf.d/cron.conf
+      - type: bind
         source: ./conf/localcerts/
         target: /etc/ssl/localcerts/
       - type: bind
@@ -34,6 +37,9 @@ services:
       - type: bind
         source: ./conf/nginx/
         target: /etc/nginx/conf.d/
+      - type: bind
+        source: ./conf/generate_index_html.sh
+        target: /root/generate_index_html.sh
 networks:
   salt_saltnet:
     external: true
