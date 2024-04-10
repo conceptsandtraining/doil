@@ -1,5 +1,177 @@
 # Changelog
 
+## 20240307 
+## What's Changed
+* master compose/buildx: adjust docker calls to the new docker api by @daniwe4 in https://github.com/conceptsandtraining/doil/pull/415
+
+Danger!!!
+Please ensure that Docker is installed as described in this link. https://docs.docker.com/engine/install/ubuntu/
+Adapt the link accordingly for a different OS.
+
+**Full Changelog**: https://github.com/conceptsandtraining/doil/compare/20240214...20240307
+
+
+## 20240214
+## What's Changed
+* master proxy-enable-https: 409 add domain as param by @daniwe4 in https://github.com/conceptsandtraining/doil/pull/410
+* master Import/Export:411 ensure to export current branch, php version, repository name and url by @daniwe4 in https://github.com/conceptsandtraining/doil/pull/412
+* master composer: install composer programmatically by @daniwe4 in https://github.com/conceptsandtraining/doil/pull/414
+
+**Full Changelog**: https://github.com/conceptsandtraining/doil/compare/20231116...20240214
+
+
+## 20231116 Hotfix: Delete Command
+## What's Changed
+* master delete: 407 fix error while deleting running container by @daniwe4 in https://github.com/conceptsandtraining/doil/pull/408
+
+**Full Changelog**: https://github.com/conceptsandtraining/doil/compare/20231115...20231116
+
+
+## 20231115 Enable Ilias10 Installation
+## What's Changed
+* master trunk: apply changes to install ilias10 by @daniwe4 in https://github.com/conceptsandtraining/doil/pull/406
+
+**Full Changelog**: https://github.com/conceptsandtraining/doil/compare/20231114...20231115
+
+
+## 20231114 Delete only with sudo
+## What's Changed
+* master Delete: 403 delete command now requires root privileges by @daniwe4 in https://github.com/conceptsandtraining/doil/pull/404
+
+**Full Changelog**: https://github.com/conceptsandtraining/doil/compare/20231102...20231114
+
+
+## 20231102 Enable Ilias10 Support
+Fixed a bug that prevented ILIAS10 (trunk) from being installed.
+Make update routine more robust.
+
+
+## 20231024
+## What's Changed
+
+- local branches are now kept up to date
+- root also has git save dirs
+- states now have a description
+- xdebug now logs to a writable location
+- doil instances received a restart command
+- new states enable/disable https
+- export can be triggered by cron
+- and other little things for better multi user support
+
+
+## 20230815 Doil over PHP container
+## What's Changed
+* Doil into container by @daniwe4 in https://github.com/conceptsandtraining/doil/pull/347
+* master states:295 add a new state 'reset-ilias-root-password' by @daniwe4 in https://github.com/conceptsandtraining/doil/pull/348
+* master cron: rm unecessary if statement by @daniwe4 in https://github.com/conceptsandtraining/doil/pull/351
+* master README: 350 remove typo by @daniwe4 in https://github.com/conceptsandtraining/doil/pull/352
+* master README: 349 extend the removal tips by @daniwe4 in https://github.com/conceptsandtraining/doil/pull/353
+* master setup: fix source handling by @daniwe4 in https://github.com/conceptsandtraining/doil/pull/354
+* master setup: fix composer lock file handling by @daniwe4 in https://github.com/conceptsandtraining/doil/pull/355
+* master setup: only use realpath if something exists by @daniwe4 in https://github.com/conceptsandtraining/doil/pull/356
+* Master fix realpath by @daniwe4 in https://github.com/conceptsandtraining/doil/pull/357
+* master fix mariadb first start by @daniwe4 in https://github.com/conceptsandtraining/doil/pull/358
+* master fix mariadb start by @daniwe4 in https://github.com/conceptsandtraining/doil/pull/361
+* master mysql: fix mysql on update for existing instances by @daniwe4 in https://github.com/conceptsandtraining/doil/pull/362
+* master uninstall: also remove all doil artifacts with param --not-all by @daniwe4 in https://github.com/conceptsandtraining/doil/pull/363
+* master version: update version for update by @daniwe4 in https://github.com/conceptsandtraining/doil/pull/364
+
+**Full Changelog**: https://github.com/conceptsandtraining/doil/compare/20230616...20230815
+
+
+## 20230616
+## What's Changed
+* master hotfix:338 skip apt repo check by @daniwe4 in https://github.com/conceptsandtraining/doil/pull/339
+* master hotfix:update by @daniwe4 in https://github.com/conceptsandtraining/doil/pull/340
+
+**Full Changelog**: https://github.com/conceptsandtraining/doil/compare/20230615...20230616
+
+
+## 20230615
+## What's Changed
+* master hotfix:336 change context for build command by @daniwe4 in https://github.com/conceptsandtraining/doil/pull/337
+
+**Full Changelog**: https://github.com/conceptsandtraining/doil/compare/20230531...20230615
+
+
+## 20230615_2
+## What's Changed
+* master hotfix:338 skip apt repo check by @daniwe4 in https://github.com/conceptsandtraining/doil/pull/339
+
+**Full Changelog**: https://github.com/conceptsandtraining/doil/compare/20230615...20230615_2
+
+
+## 20230531 Performance, Multiuser
+Bugfix for https://github.com/conceptsandtraining/doil/releases/tag/20230524
+
+
+## 20230524
+## What's Changed
+* master performance: 264 build new instances from a base image; improve multi user usage by @daniwe4 in https://github.com/conceptsandtraining/doil/pull/329
+
+**Full Changelog**: https://github.com/conceptsandtraining/doil/compare/20230329...20230524
+
+
+## 20230329
+## What's Changed
+* frh Dockerfiles:321 fix apt calls by @daniwe4 in https://github.com/conceptsandtraining/doil/pull/322
+* frh states:323 fix a potentiel empty salt state by @daniwe4 in https://github.com/conceptsandtraining/doil/pull/324
+
+**Full Changelog**: https://github.com/conceptsandtraining/doil/compare/20230324...20230329
+
+## 20230324
+## What's Changed
+* frh states:319 remove artifact from base state by @daniwe4 in https://github.com/conceptsandtraining/doil/pull/320
+
+**Full Changelog**: https://github.com/conceptsandtraining/doil/compare/20230323...20230324
+
+## 20230323 -  Feature Release Hotfix 3
+## What's Changed
+* Feature release hotfixes by @daniwe4 in https://github.com/conceptsandtraining/doil/pull/318
+
+
+**Full Changelog**: https://github.com/conceptsandtraining/doil/compare/20230308...20230323
+
+## 20230308 Feature Release Hotfix 2
+Fixes a bug that caused no new branches to be displayed after a repo update.
+
+## 20230223 Feature Release Hotfix 1
+Sometimes there are issues at the Dockerfile if 'apt-get update' runs as one liner. Move it before 'apt-get install'.
+Fix composer call for composer version lower then 2.2.
+
+
+## 20230207 Feature Release
+### This release will implement most feature requests from users.
+
+The following features have been implemented:
+
+- xDebug can be switched on/off
+- Roundcube password freely selectable (during installation and via a state)
+- Roundcube settings persist across restarts
+- max_execution_time is now set to 3600 seconds by default
+- the update script has been implemented again
+- doil create log files again (/var/log/doil/)
+- nano Editor in all newly created instances
+- php*.*-apcu is now installed by default
+- various doil commands got a --prune parameter
+- various doil commands got a --all parameter
+- CLI commands can be routed directly to the instance via doil
+- PHP 8.1 is supported
+- PHP 7.0 and PHP 7.1 have been removed
+- start and stop all instances with one command
+- improved salt key handling
+
+## 20221110 PHP-Release Hotfixes 1
+### Add requirement checks:
+- free ports 80/443
+- ssh folder exists
+- is user in doil group
+### Allow composer to run as root.
+### Readme file adjustments.
+### Adjust php states.
+### Fix composer issue.
+### Fix error on salt:restart.
+
 ## 20221110
 
 * reorganize folder structure
