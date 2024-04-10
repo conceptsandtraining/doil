@@ -9,5 +9,4 @@ interface Linux
     public function addUserToGroup(string $user, string $group) : void;
     public function removeUserFromGroup(string $user, string $group) : void;
     public function deleteGroup(string $name) : void;
-    public function isWSL() : bool;
 }

@@ -311,9 +311,6 @@ class PackCreateCommand extends Command
         $this->docker->setGrain($instance_salt_name, "doil_host_system", "linux");
         sleep(1);
         $this->docker->setGrain($instance_salt_name, "ilias_version", $ilias_version);
-        if ($this->linux->isWSL()) {
-            $this->docker->setGrain($instance_salt_name, "doil_host_system", "windows");
-        }
         $this->docker->executeDockerCommand("doil_saltmain", "salt \"" . $instance_salt_name . "\" saltutil.refresh_grains");
         sleep(30);
         $this->writer->endBlock();

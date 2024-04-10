@@ -55,16 +55,4 @@ class LinuxShell implements Linux
         $this->logger->info("Delete group '$name'");
         $this->run($cmd, $this->logger);
     }
-
-    public function isWSL() : bool
-    {
-        $cmd = [
-            "cat",
-            "/proc/version"
-        ];
-
-        $this->logger->info("Check if running on Windows-WSL");
-        $wsl = $this->run($cmd, $this->logger);
-        return (bool) stristr($wsl, "microsoft");
-    }
 }
