@@ -94,6 +94,10 @@ Be aware, there is no check wich php version matches on which ILIAS version.
 After this job is finished you can start your instance with `doil up ilias7` and head
 to `http://doil/ilias7/` to see your fresh ILIAS installation.
 
+You can also get a quick overview on running **doil** instances by navigating with your
+browser to 'http://doil'. If you have changed the host variable in the doil.conf file you
+have to call 'http://<host_value>'.
+
 ### Help
 
 Each command for doil comes with its own help. If you struggle to use a command,
