@@ -225,11 +225,10 @@ want to add a rotation to this logfile.
 * due to network restrictions on MacOS **doil** can only operate run one instance
   at once. Though it's possible to create as many environments as you want
 
-### doil on Windows (currently not available)
+### doil on Windows (no longer supported)
 
-* **doil** works on Windows with the WSL2 and Ubuntu 20.10 enabled. Due to network restrictions you
-  need to change the host to `localhost` via the doil proxy settings:
-  `doil proxy:host localhost`
+* We only use **doil** on Linux systems in our company. If you want to run **doil** under Windows, please
+  send an email to daniel.weise@concepts-and-training.de and we will decide as a team whether to resume support.
 
 ## Known Problems
 
