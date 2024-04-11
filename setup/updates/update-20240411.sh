@@ -2,7 +2,7 @@
 
 source ${SCRIPT_DIR}/updates/update.sh
 
-doil_update_20240405() {
+doil_update_20240411() {
   update
 
   doil_status_send_message "Removing obsolete 'version: ...' line from docker-compose.yml files"
