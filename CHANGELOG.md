@@ -1,5 +1,12 @@
 # Changelog
 
+## 20240411
+## What's Changed
+* improve performance of import/export
+* check for buildx/docker compose during install/update
+* add a status web page that list all active doil instances
+
+
 ## 20240307 
 ## What's Changed
 * master compose/buildx: adjust docker calls to the new docker api by @daniwe4 in https://github.com/conceptsandtraining/doil/pull/415
