@@ -9,6 +9,8 @@ do
         RESULT=${RESULT}"<li><a href=\"http://${SERVER_NAME}/${NAME}/\" target=\"_blank\">${SERVER_NAME}/${NAME}</a></li>"
 done
 
+MAIL="<li><a href=\"http://${SERVER_NAME}/mails/\" target=\"_blank\">${SERVER_NAME}/mails</a></li>"
+
 cat << EOF > /tmp/index.html
 <!doctype html>
 <html lang="en">
@@ -24,6 +26,11 @@ cat << EOF > /tmp/index.html
     </style>
   </head>
   <body>
+  <h2 id="instances">Mail Instance</h2>
+        <p>&nbsp;</p>
+        <ul class="index">
+        $(echo "${MAIL}")
+        </ul>
   <h2 id="instances">Doil Instances</h2>
       <p>&nbsp;</p>
       <ul class="index">
