@@ -1,6 +1,7 @@
 {% set doil_domain = salt['grains.get']('doil_domain', 'http://ilias.local') %}
 {% set doil_project_name = salt['grains.get']('doil_project_name', 'ilias') %}
 {% set ilias_version = salt['grains.get']('ilias_version', '9') %}
+{% set csp = salt['grains.get']('csp', "default-src 'self'; connect-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' blob:; style-src 'self' 'unsafe-inline' data:; img-src 'self' 'unsafe-inline' data:; font-src 'self' 'unsafe-inline' data:; media-src 'self' 'unsafe-inline' data:") %}
 
 apache_packages:
   pkg.installed:
@@ -16,6 +17,7 @@ sites_available_lt_10:
     - template: jinja
     - context:
       doil_project_name: {{ doil_project_name }}
+      csp: "{{ csp }}"
 {% else %}
 sites_available_ge_10:
   file.managed:
@@ -24,6 +26,7 @@ sites_available_ge_10:
     - template: jinja
     - context:
       doil_project_name: {{ doil_project_name }}
+      csp: "{{ csp }}"
 {% endif %}
 
 /etc/apache2/sites-enabled/000-default.conf:
@@ -33,6 +36,10 @@ sites_available_ge_10:
 /etc/apache2/mods-enabled/rewrite.load:
   file.symlink:
     - target: /etc/apache2/mods-available/rewrite.load
+
+/etc/apache2/mods-enabled/headers.load:
+  file.symlink:
+    - target: /etc/apache2/mods-available/headers.load
 
 /etc/supervisor/conf.d/apache2.conf:
   file.managed:
