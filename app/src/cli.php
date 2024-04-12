@@ -35,6 +35,7 @@ function buildContainerForApp() : Container
         return new App(
             $c["command.instances.apply"],
             $c["command.instances.create"],
+            $c["command.instances.csp"],
             $c["command.instances.delete"],
             $c["command.instances.down"],
             $c["command.instances.exec"],
@@ -151,6 +152,15 @@ function buildContainerForApp() : Container
             $c["filesystem.shell"],
             $c["linux.shell"],
             $c["project.config"],
+            $c["command.writer"]
+        );
+    };
+
+    $c["command.instances.csp"] = function($c) {
+        return new Instances\CSPCommand(
+            $c["docker.shell"],
+            $c["posix.shell"],
+            $c["filesystem.shell"],
             $c["command.writer"]
         );
     };
