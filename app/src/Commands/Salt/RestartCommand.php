@@ -50,10 +50,13 @@ class RestartCommand extends Command
                 strpos($instance, '_local') != false ||
                 strpos($instance, '_global') != false
             ) {
-                $this->docker->executeDockerCommand(
-                    $instance,
-                    "supervisorctl start startup"
-                );
+                try {
+                    $this->docker->executeDockerCommand(
+                        $instance,
+                        "supervisorctl start startup 2>&1 >/dev/null"
+                    );
+                } catch (\Exception $e) {
+                }
             }
         }
         $this->writer->endBlock();

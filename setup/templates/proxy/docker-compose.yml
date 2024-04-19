@@ -22,9 +22,6 @@ services:
         source: ./conf/startup.conf
         target: /etc/supervisor/conf.d/startup.conf
       - type: bind
-        source: ./conf/cron.conf
-        target: /etc/supervisor/conf.d/cron.conf
-      - type: bind
         source: ./conf/localcerts/
         target: /etc/ssl/localcerts/
       - type: bind

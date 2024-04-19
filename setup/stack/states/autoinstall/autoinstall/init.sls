@@ -27,11 +27,11 @@
 {% if ilias_version | int < 10 %}
 ilias_setup_lt_10:
   cmd.run:
-    - name: php /var/www/html/setup/setup.php install -y /var/ilias/data/ilias-config.json
+    - name: cd /var/www/html && php setup/setup.php install -y /var/ilias/data/ilias-config.json
 {% else %}
 ilias_setup_ge_10:
   cmd.run:
-    - name: php /var/www/html/cli/setup.php install -y /var/ilias/data/ilias-config.json
+    - name: cd /var/www/html && php cli/setup.php install -y /var/ilias/data/ilias-config.json
 {% endif %}
 
 {% if salt['grains.get'] == 'linux' %}
