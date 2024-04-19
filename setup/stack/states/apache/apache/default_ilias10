@@ -13,5 +13,5 @@
   <IfModule mod_headers.c>
     Header set Content-Security-Police "{{ csp }}"
     Header set X-Content-Security-Police "{{ csp }}"
-  </IfModules>
+  </IfModule>
 </VirtualHost>

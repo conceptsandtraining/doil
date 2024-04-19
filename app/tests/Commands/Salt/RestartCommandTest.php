@@ -65,8 +65,8 @@ class RestartCommandTest extends TestCase
             ->expects($this->exactly(2))
             ->method("executeDockerCommand")
             ->withConsecutive(
-                ["foo1_local", "supervisorctl start startup"],
-                ["foo2_global", "supervisorctl start startup"]
+                ["foo1_local", "supervisorctl start startup 2>&1 >/dev/null"],
+                ["foo2_global", "supervisorctl start startup 2>&1 >/dev/null"]
             )
         ;
 

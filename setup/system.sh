@@ -359,7 +359,11 @@ function doil_system_install_proxyserver() {
   NAME=$(cat /etc/doil/doil.conf | grep "host" | cut -d '=' -f 2-)
   sed -i "s/%TPL_SERVER_NAME%/${NAME}/g" "/usr/local/lib/doil/server/proxy/conf/nginx/local.conf"
   BUILD=$(docker compose up -d 2>&1 > /var/log/doil/stream.log) 2>&1 > /var/log/doil/stream.log
-  sleep 10
+  sleep 5
+  docker exec -i doil_proxy bash -c "killall -9 salt-minion" 2>&1 > /var/log/doil/stream.log
+  sleep 5
+  docker exec -i doil_proxy bash -c "/etc/init.d/salt-minion start" 2>&1 > /var/log/doil/stream.log
+  sleep 5
   docker exec -i doil_saltmain bash -c "salt 'doil.proxy' state.highstate saltenv=proxyservices" 2>&1 > /var/log/doil/stream.log
   docker commit doil_proxy doil_proxy:stable 2>&1 > /var/log/doil/stream.log
 }

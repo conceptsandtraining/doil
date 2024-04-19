@@ -28,6 +28,6 @@ doil_update_20240411() {
       fi
     done
   doil_status_okay
-  exit
+
   return $?
 }

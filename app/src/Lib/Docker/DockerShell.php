@@ -32,6 +32,10 @@ class DockerShell implements Docker
     {
         $this->startDoilSystemsIfNeeded();
 
+        if ($path == self::PROXY) {
+            $this->populateProxy();
+        }
+
         if (in_array($path, $this->systems)) {
             return;
         }
@@ -62,6 +66,7 @@ class DockerShell implements Docker
         );
 
        $this->cleanupMasterKey($path);
+       $this->populateProxy();
     }
 
     public function stopContainerByDockerCompose(string $path) : void
@@ -77,6 +82,10 @@ class DockerShell implements Docker
         $logger = $this->logger->getDoilLogger(pathinfo($path, PATHINFO_FILENAME));
         $logger->info("Stop instance");
         $this->run($cmd, $logger);
+
+        if (!in_array($path, $this->systems)) {
+            $this->cleanupProxy($path);
+        }
     }
 
     public function ps() : array
@@ -608,6 +617,52 @@ class DockerShell implements Docker
             "/bin/bash",
             "-c",
             "/etc/init.d/salt-minion start &>/dev/null"
+        );
+    }
+
+    protected function populateProxy() : void
+    {
+        $this->executeDockerCommand(
+            "doil_proxy",
+            "rm -f /etc/nginx/conf.d/sites/*"
+        );
+
+        $running_instances = $this->getRunningInstanceNames();
+        $running_instances = array_filter($running_instances, function ($instance) {
+            if (strstr($instance, "_local") || strstr($instance, "_global")) {
+                return true;
+            }
+            return false;
+        });
+        foreach ($running_instances as $instance) {
+            $ip = $this->getSaltIpByName($instance);
+            $instance = explode("_", $instance)[0];
+            $this->executeDockerCommand(
+                "doil_proxy",
+                "/root/add-configuration.sh $ip $instance"
+            );
+        }
+
+        $this->executeDockerCommand(
+            "doil_proxy",
+            "/root/generate_index_html.sh"
+        );
+    }
+
+    protected function getSaltIpByName(string $name) : string
+    {
+        return trim($this->executeDockerCommandWithReturn(
+            $name,
+            "ip a | grep \"172.20.*\" | cut -d / -f1 | cut -d \" \" -f6"
+        ));
+    }
+
+    protected function cleanupProxy(string $path) : void
+    {
+        $name = basename($path);
+        $this->executeDockerCommand(
+            "doil_proxy",
+            "rm -f /etc/nginx/conf.d/sites/$name.conf &&  /root/generate_index_html.sh"
         );
     }
 }
