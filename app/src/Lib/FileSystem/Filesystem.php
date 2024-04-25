@@ -27,6 +27,7 @@ interface Filesystem
     public function unzip(string $from, string $to) : void;
     public function searchForFileRecursive(string $path, string $pattern) : ?string;
     public function replaceStringInFile(string $path, string $needle, string $substitute) : void;
+    public function replaceStringInJsonFile(string $path, array $keys, string $substitute) : void;
     public function replaceLineInFile(string $path, string $needle, string $substitute) : void;
     public function getLineInFile(string $path, string $needle) : ?string;
     public function saveToJsonFile(string $path, array $objects) : void;

@@ -139,7 +139,10 @@ class DeleteCommand extends Command
         $this->docker->removeContainer($instance . "_" . $suffix);
 
         $this->docker->executeCommand(self::SALT_MAIN, "doil_saltmain", "salt-key", "-d", "$instance.$suffix", "-y", "-q");
-        $this->docker->executeCommand(self::PROXY_PATH, "doil_proxy", "/bin/bash", "-c", "/etc/init.d/nginx reload &>/dev/null");
+        $this->docker->executeDockerCommand(
+            "doil_proxy",
+            "rm -f /etc/nginx/conf.d/sites/$instance.conf &&  /root/generate_index_html.sh"
+        );
 
         if ($this->docker->hasVolume($instance)) {
             $this->docker->removeVolume($instance);

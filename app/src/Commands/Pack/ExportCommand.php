@@ -135,7 +135,9 @@ class ExportCommand extends Command
         $this->docker->copy($instance . "_" . $suffix, "/var/ilias", $name . "/var/");
         $this->docker->copy($instance . "_" . $suffix, "/var/www/html/.git/config", $name . "/var/www/html/.git/config");
         $this->docker->copy($instance . "_" . $suffix, "/var/www/html/data", $name . "/var/www/html");
-        $this->docker->copy($instance . "_" . $suffix, "/var/www/html/Customizing/global/skin", $name . "/var/www/html/Customizing/global");
+        if ($this->filesystem->exists($path . "/volumes/ilias/Customizing/global/skin")) {
+            $this->docker->copy($instance . "_" . $suffix, "/var/www/html/Customizing/global/skin", $name . "/var/www/html/Customizing/global");
+        }
         $this->docker->copy($instance . "_" . $suffix, "/var/www/html/ilias.ini.php", $name . "/var/www/html/");
         $this->writer->endBlock();
 
