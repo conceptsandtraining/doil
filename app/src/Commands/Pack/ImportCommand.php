@@ -184,10 +184,12 @@ class ImportCommand extends Command
                 $unpacked . "/var/www/html/ilias.ini.php",
                 $path . "/volumes/ilias/ilias.ini.php"
             );
-            $this->filesystem->copyDirectory(
-                $unpacked . "/var/www/html/Customizing/global/skin",
-                $path . "/volumes/ilias/Customizing/global/skin"
-            );
+            if ($this->filesystem->exists($unpacked . "/var/www/html/Customizing/global/skin")) {
+                $this->filesystem->copyDirectory(
+                    $unpacked . "/var/www/html/Customizing/global/skin",
+                    $path . "/volumes/ilias/Customizing/global/skin"
+                );
+            }
         } else {
             $this->filesystem->copy(
                 $path . "/volumes/data/ilias-config.json",
@@ -261,10 +263,10 @@ class ImportCommand extends Command
 
         $this->filesystem->replaceLineInFile($location, "/^pass =.*/", "pass = \"" . $mysql_password . "\"");
         if ($create) {
-            $this->filesystem->replaceLineInFile(
+            $this->filesystem->replaceStringInJsonFile(
                 $path . "/volumes/data/ilias-config.json",
-                "/\"password\" :.*/",
-                "\"password\" : \"" . $mysql_password . "\""
+                ["database", "password"],
+                $mysql_password
             );
         }
 
@@ -279,6 +281,13 @@ class ImportCommand extends Command
             "php /var/www/html/setup/setup.php update /var/ilias/data/ilias-config.json -y"
         );
         $this->writer->endBlock();
+
+        if ($this->docker->isInstanceUp($path)) {
+            $this->docker->commit($instance . "_" . $suffix);
+            $this->docker->stopContainerByDockerCompose($path);
+            $this->docker->startContainerByDockerCompose($path);
+            sleep(5);
+        }
 
         $this->writer->beginBlock($output, "Setting permissions");
         $this->docker->applyState($instance . "." . $suffix, "access");

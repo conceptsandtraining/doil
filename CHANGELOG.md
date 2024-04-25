@@ -1,5 +1,13 @@
 # Changelog
 
+## 20240422
+## What's Changed
+* fix typo in apache 000-default
+* fix import/export bug if no skin folder exists
+* fix password substitution for ilias-config.json in import command
+* up/down <instance> immediately update proxy status page
+
+
 ## 20240411
 ## What's Changed
 * improve performance of import/export

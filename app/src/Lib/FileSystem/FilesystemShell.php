@@ -185,6 +185,17 @@ class FilesystemShell implements Filesystem
         }
     }
 
+    public function replaceStringInJsonFile(string $file_path, array $key_path, string $substitute) : void
+    {
+        $arr = json_decode(file_get_contents($file_path), true);
+        $v = &$arr;
+        foreach ($key_path as $key) {
+            $v = &$v[$key];
+        }
+        $v = $substitute;
+        file_put_contents($file_path, json_encode($arr, JSON_PRETTY_PRINT));
+    }
+
     public function getLineInFile(string $path, string $needle) : ?string
     {
         $data = file($path);
