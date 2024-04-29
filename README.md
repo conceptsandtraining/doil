@@ -236,6 +236,12 @@ want to add a rotation to this logfile.
 
 ## Known Problems
 
+### Doil on Mac Ubuntu 22.01 Server (VMWare Fusion)
+There may be a problem with the ~/.docker directory. It may happen that after a reboot the file permissions and the owner of the folder have to be adjusted again. If this is the case for you, you can also consider creating a startup script that automatically adjusts this folder every time the system starts.
+
+### Proxy Server (Minions did not return) during install/update
+If the proxy server reports 'Minion did not return' during the install/update process, please abort the process and start it again.
+
 ### 404 after doil up
 
 Sometimes it is possible that the proxy server doesn't accept the configuration. This results
