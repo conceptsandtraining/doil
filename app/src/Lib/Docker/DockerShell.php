@@ -636,7 +636,13 @@ class DockerShell implements Docker
         });
         foreach ($running_instances as $instance) {
             $ip = $this->getSaltIpByName($instance);
-            $instance = explode("_", $instance)[0];
+            $parts = explode("_", $instance);
+            $trailer = array_pop($parts);
+            if ($trailer == "global") {
+                $instance = preg_replace("/_global$/", "", $instance);
+            } else {
+                $instance = preg_replace("/_local$/", "", $instance);
+            }
             $this->executeDockerCommand(
                 "doil_proxy",
                 "/root/add-configuration.sh $ip $instance"
