@@ -100,10 +100,6 @@ class ExportCommand extends Command
             $this->writer->endBlock();
         }
 
-        $this->writer->beginBlock($output, "Update project config for " . $instance . "_" . $suffix);
-        $this->updateProjectConfig($output, $path, $instance . "_" . $suffix);
-        $this->writer->endBlock();
-
         $this->writer->beginBlock($output, "Building zip file for " . $instance . "_" . $suffix);
 
         $this->writer->beginBlock($output, "Exporting database");
@@ -142,7 +138,7 @@ class ExportCommand extends Command
         $this->writer->endBlock();
 
         $this->writer->beginBlock($output, "Exporting config");
-        $this->filesystem->copy($path . "/conf/project_config.json", $name . "/conf/project_config.json");
+        $this->exportProjectConfig($output, $path, $name . "/conf/project_config.json", $instance . "_" . $suffix);
         $this->writer->endBlock();
 
         $this->writer->beginBlock($output, "Create zip file");
@@ -211,7 +207,7 @@ class ExportCommand extends Command
         return false;
     }
 
-    protected function updateProjectConfig(OutputInterface $output, string $path, string $instance) : int
+    protected function exportProjectConfig(OutputInterface $output, string $path, string $target_path, string $instance) : int
     {
         $project_config = $this->filesystem->readFromJsonFile($path . "/conf/project_config.json");
         $project_config = array_shift($project_config);
@@ -233,7 +229,8 @@ class ExportCommand extends Command
 
         $repo = false;
         if (count($remotes) == 1) {
-            $repo = new Repo(array_key_first($remotes), $remotes[0]);
+            $key = array_key_first($remotes);
+            $repo = new Repo($key, $remotes[$key]);
         }
 
         if (count($remotes) > 1) {
@@ -310,7 +307,8 @@ class ExportCommand extends Command
             ->withRepositoryName($repo->getName())
             ->withRepositoryUrl($repo->getUrl())
         ;
-        $this->filesystem->saveToJsonFile($path . "/conf/project_config.json", [$project_config]);
+
+        $this->filesystem->saveToJsonFile($target_path, [$project_config]);
 
         return self::SUCCESS;
     }
