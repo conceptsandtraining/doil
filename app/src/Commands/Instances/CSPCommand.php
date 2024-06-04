@@ -147,6 +147,7 @@ class CSPCommand extends Command
     {
         $this->writer->beginBlock($output, "Apply csp rules to $salt_key");
         $this->docker->setGrain($salt_key, "csp", $rules);
+        $this->docker->refreshGrains($salt_key);
         $this->docker->applyState($salt_key, "apache");
         $this->writer->endBlock();
     }

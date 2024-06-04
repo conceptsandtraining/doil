@@ -11,7 +11,15 @@
   </Directory>
 
   <IfModule mod_headers.c>
-    Header set Content-Security-Police "{{ csp }}"
-    Header set X-Content-Security-Police "{{ csp }}"
+    {% if csp != "" %}
+          <If "%{THE_REQUEST} =~ m#^.*/lm_data.*#">
+            Header set Content-Security-Policy "default-src * 'unsafe-inline' 'unsafe-eval' data: blob:; worker-src 'self' blob:;"
+            Header set X-Content-Security-Policy "default-src * 'unsafe-inline' 'unsafe-eval' data: blob:; worker-src 'self' blob:;"
+          </If>
+          <Else>
+            Header set Content-Security-Policy "{{ csp }}"
+            Header set X-Content-Security-Policy "{{ csp }}"
+          </Else>
+        {% endif %}
   </IfModule>
 </VirtualHost>

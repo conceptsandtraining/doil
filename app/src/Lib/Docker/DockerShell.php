@@ -502,6 +502,23 @@ class DockerShell implements Docker
         $this->runTTY($cmd, $logger);
     }
 
+    public function refreshGrains(string $name) : void
+    {
+        $cmd = [
+            "docker",
+            "exec",
+            "-d",
+            "doil_saltmain",
+            "bash",
+            "-c",
+            "salt \"$name\" saltutil.refresh_grains"
+        ];
+
+        $logger = $this->logger->getSaltLogger($name);
+        $logger->info("Refresh grains for '$name'");
+        $this->runTTY($cmd, $logger);
+    }
+
     public function deleteInstances(array $instances) : void
     {
         foreach ($instances as $instance) {

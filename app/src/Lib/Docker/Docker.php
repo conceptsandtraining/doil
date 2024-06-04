@@ -36,6 +36,7 @@ interface Docker
     public function executeDockerCommand(string $name, string $cmd) : void;
     public function executeDockerCommandWithReturn(string $name, string $cmd) : string;
     public function setGrain(string $name, string $key, string $value) : void;
+    public function refreshGrains(string $name) : void;
     public function deleteInstances(array $instances) : void;
     public function pruneNetworks() : void;
 }
