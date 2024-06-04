@@ -1,7 +1,7 @@
 {% set doil_domain = salt['grains.get']('doil_domain', 'http://ilias.local') %}
 {% set doil_project_name = salt['grains.get']('doil_project_name', 'ilias') %}
 {% set ilias_version = salt['grains.get']('ilias_version', '9') %}
-{% set csp = salt['grains.get']('csp', "default-src 'self'; connect-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' blob:; style-src 'self' 'unsafe-inline' data:; img-src 'self' 'unsafe-inline' data:; font-src 'self' 'unsafe-inline' data:; media-src 'self' 'unsafe-inline' data:") %}
+{% set csp = salt['grains.get']('csp', "") %}
 
 apache_packages:
   pkg.installed:
