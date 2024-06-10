@@ -45,6 +45,7 @@ function buildContainerForApp() : Container
             $c["command.instances.login"],
             $c["command.instances.path"],
             $c["command.instances.restart"],
+            $c["command.instances.set.update.token"],
             $c["command.instances.status"],
             $c["command.instances.up"],
             $c["command.keycloak.down"],
@@ -233,6 +234,15 @@ function buildContainerForApp() : Container
 
     $c["command.instances.restart"] = function($c) {
         return new Instances\RestartCommand(
+            $c["docker.shell"],
+            $c["posix.shell"],
+            $c["filesystem.shell"],
+            $c["command.writer"]
+        );
+    };
+
+    $c["command.instances.set.update.token"] = function($c) {
+        return new Instances\SetUpdateTokenCommand(
             $c["docker.shell"],
             $c["posix.shell"],
             $c["filesystem.shell"],

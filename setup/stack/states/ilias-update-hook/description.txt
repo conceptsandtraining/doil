@@ -1,0 +1,1 @@
+description = Inject an update hook file into docroot

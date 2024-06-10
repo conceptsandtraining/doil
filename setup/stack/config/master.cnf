@@ -680,6 +680,8 @@ file_roots:
     - /srv/salt/states/ilias
   keycloak:
     - /srv/salt/states/keycloak
+  ilias-update-hook:
+    - /srv/salt/states/ilias-update-hook
   compile-skins:
     - /srv/salt/states/compile-skins
   composer:
@@ -720,6 +722,8 @@ file_roots:
     - /srv/salt/states/disable-saml
   prevent-super-global-replacement:
     - /srv/salt/states/prevent-super-global-replacement
+  set-update-token:
+      - /srv/salt/states/set-update-token
 
 
 # The master_roots setting configures a master-only copy of the file_roots dictionary,

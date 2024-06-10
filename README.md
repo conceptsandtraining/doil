@@ -121,6 +121,7 @@ The following commands are available:
 * `doil delete <instance_name>` deletes an instance you do not need anymore
 * `doil status` lists the current running doil instances
 * `doil exec <instance_name> <cmd>` executes a bash command inside the instance
+* `doil sut` (alias for `doil instances:set-update-token`) Sets an update token as an environment variable. More Info [here](#update-token-handling) 
 
 See `doil instances:<command> --help` for more information
 
@@ -180,6 +181,8 @@ Following commands come with the `--global` flag:
 * `doil instances:path`
 * `doil instances:login`
 * `doil instances:exec`
+* `doil instances:csp`
+* `doil instances:set-update-token`
 
 **`doil repo`**
 * `doil repo:add`
@@ -516,3 +519,22 @@ client.ini.php. **doil** offers a state for this.
 doil apply <instance_name> prevent-super-global-replacement
 ```
 As of **doil** version 20241113, **doil** applies this state independently to newly created instances.
+
+### Update Token Handling
+Doil instances can be updated via token. There is an entry for this in setup/doil.conf. By default, this entry
+is set to 'false' and thus prevents the feature from being activated. To activate the feature once, the value 
+must be adjusted and then a doil update must be run.  
+Once the feature has been activated, the token can be updated subsequently using the following command:
+```bash
+doil sut -t <token>
+```
+If the feature is active and the token is set up, an update command can be sent via the URL
+```bash
+http://doil/<instance>/.update_hook.php?base_ref=<target_branch>
+```
+If the currently checked out branch equals to target_branch the branch is updated. A 'composer install' and a
+'php setup update' are then carried out. It is important that the Http header contains the field 'Authorization:<token>'
+and the url has a parameter 'base_ref'. 'base_ref' in this case is the target branch. A curl command might look like this.
+```bash
+curl -H "Authorization:MyToken" http://doil/<instance>/.update_hook.php?base_ref=master
+```
