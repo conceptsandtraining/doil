@@ -1,0 +1,1 @@
+description = Set an update token for all instances
