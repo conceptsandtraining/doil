@@ -121,6 +121,7 @@ The following commands are available:
 * `doil delete <instance_name>` deletes an instance you do not need anymore
 * `doil status` lists the current running doil instances
 * `doil exec <instance_name> <cmd>` executes a bash command inside the instance
+* `doil sut` (alias for `doil instances:set-update-token`) Sets an update token as an environment variable. This is cross-checked during instance updates via the browser
 
 See `doil instances:<command> --help` for more information
 
@@ -180,6 +181,8 @@ Following commands come with the `--global` flag:
 * `doil instances:path`
 * `doil instances:login`
 * `doil instances:exec`
+* `doil instances:csp`
+* `doil instance:set-update-token`
 
 **`doil repo`**
 * `doil repo:add`
