@@ -1,0 +1,69 @@
+<?php declare(strict_types=1);
+
+/* Copyright (c) 2024 - Daniel Weise <daniel.weise@concepts-and-training.de> - Extended GPL, see LICENSE */
+
+$request_headers = apache_request_headers();
+if (is_null($request_headers) || !array_key_exists("Authorization", $request_headers)) {
+    http_response_code(401);
+    throw new Exception("Missing Authorization header");
+}
+$request_token = $request_headers["Authorization"];
+
+$environment_token = getenv("UPDATE_TOKEN");
+if (is_null($environment_token)) {
+    http_response_code(401);
+    throw new Exception("Missing Environment Token");
+}
+
+if ($environment_token !== $request_token) {
+    http_response_code(401);
+    throw new Exception("Invalid Token");
+}
+
+// Pull current checked out branch from origin
+$pull_output = [];
+$result_code = 0;
+$branch = exec("git branch --show-current");
+exec("git pull origin " . $branch . " 2>&1", $pull_output, $result_code);
+if ($result_code !== 0) {
+    http_response_code(500);
+    throw new Exception("Failed to run update hook");
+}
+
+// Run composer install
+$composer_output = [];
+$result_code = 0;
+exec("COMPOSER_HOME=/usr/local/bin/composer composer install 2>&1", $composer_output, $result_code);
+if ($result_code !== 0) {
+    http_response_code(500);
+    throw new Exception("Failed to run update hook");
+}
+
+// Run ilias update
+$update_output = [];
+$result_code = 0;
+{% if ilias_version | int < 10 %}
+exec("php " . __DIR__ . "/setup/setup.php update -y 2>&1", $update_output, $result_code);
+{% else %}
+exec("php " . __DIR__ . "/cli/setup.php update -y 2>&1", $update_output, $result_code);
+{% endif %}
+if ($result_code !== 0) {
+    http_response_code(500);
+    throw new Exception("Failed to run update hook");
+}
+
+$output = "";
+foreach ($pull_output as $line) {
+    $output .= $line . "</br>";
+}
+
+foreach ($composer_output as $line) {
+    $output .= $line . "</br>";
+}
+
+foreach ($update_output as $line) {
+    $output .= $line . "</br>";
+}
+
+echo $output;
+
