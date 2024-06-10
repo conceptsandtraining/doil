@@ -299,7 +299,11 @@ class CreateCommand extends Command
             $cron_password = $this->generatePassword(16);
         }
         $host = explode("=", $this->filesystem->getLineInFile("/etc/doil/doil.conf", "host"));
+        $update_token = explode("=", $this->filesystem->getLineInFile("/etc/doil/doil.conf", "update_token"));
+
         $this->docker->setGrain($instance_salt_name, "mysql_password", "$mysql_password");
+        sleep(1);
+        $this->docker->setGrain($instance_salt_name, "update_token", "${update_token[1]}");
         sleep(1);
         $this->docker->setGrain($instance_salt_name, "cron_password", "$cron_password");
         sleep(1);
@@ -365,6 +369,16 @@ class CreateCommand extends Command
             $this->docker->applyState($instance_salt_name, "enable-xdebug");
             $this->writer->endBlock();
         }
+
+        // apply set-update-token state
+        $this->writer->beginBlock($output, "Apply set-update-token state");
+        $this->docker->applyState($instance_salt_name, "set-update-token");
+        $this->writer->endBlock();
+
+        // apply ilias-update-hook state
+        $this->writer->beginBlock($output, "Apply ilias-update-hook state");
+        $this->docker->applyState($instance_salt_name, "ilias-update-hook");
+        $this->writer->endBlock();
 
         // apply access state
         $this->writer->beginBlock($output, "Apply access state");

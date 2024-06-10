@@ -676,6 +676,8 @@ file_roots:
     - /srv/salt/states/php8.2
   ilias:
     - /srv/salt/states/ilias
+  ilias-update-hook:
+    - srv/salt/states/ilias-update-hook
   compile-skins:
     - /srv/salt/states/compile-skins
   composer:
@@ -706,6 +708,8 @@ file_roots:
     - /srv/salt/states/enable-https
   disable-https:
     - /srv/salt/states/disable-https
+  set-update-token:
+      - /srv/salt/states/set-update-token
 
 
 # The master_roots setting configures a master-only copy of the file_roots dictionary,
