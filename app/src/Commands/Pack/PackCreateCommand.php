@@ -106,7 +106,7 @@ class PackCreateCommand extends Command
     {
         $options = $this->gatherOptionData($input, $output);
 
-        $host = explode("=", $this->filesystem->getLineInFile("/etc/doil/doil.conf", "host"))[1];
+        $host = explode("=", $this->filesystem->getLineInFile("/etc/doil/doil.conf", "host="))[1];
         $https_proxy = explode("=", $this->filesystem->getLineInFile("/etc/doil/doil.conf", "https_proxy="))[1];
         $http_scheme = "http://";
         if ($https_proxy === "true") {
@@ -140,6 +140,7 @@ class PackCreateCommand extends Command
         if ($this->filesystem->exists(self::KEYCLOAK_PATH)) {
             $keycloak = true;
         }
+        $update_token = explode("=", $this->filesystem->getLineInFile("/etc/doil/doil.conf", "update_token="))[1];
 
         $this->writer->beginBlock($output, "Creating instance " . $options['name']);
 
@@ -319,9 +320,15 @@ class PackCreateCommand extends Command
         }
 
         $this->docker->setGrain($instance_salt_name, "mpass", "${mysql_password}");
+        $host = explode("=", $this->filesystem->getLineInFile("/etc/doil/doil.conf", "host="));
+
         sleep(1);
-        $this->docker->setGrain($instance_salt_name, "cpass", "${cron_password}");
+        $this->docker->setGrain($instance_salt_name, "cpass", "$cron_password");
         sleep(1);
+        if ($update_token != "false") {
+            $this->docker->setGrain($instance_salt_name, "update_token", "${update_token}");
+            sleep(1);
+        }
         $doil_domain = $http_scheme . $host . "/" . $options["name"];
         $this->docker->setGrain($instance_salt_name, "doil_domain", "${doil_domain}");
         sleep(1);
@@ -367,10 +374,22 @@ class PackCreateCommand extends Command
             $this->writer->endBlock();
         }
 
+
         // apply composer state
         $this->writer->beginBlock($output, "Apply composer state");
         $this->docker->applyState($instance_salt_name, $this->getComposerVersion($ilias_version));
-        $this->writer->endBlock();
+
+        if ($update_token != "false") {
+            // apply set-update-token state
+            $this->writer->beginBlock($output, "Apply set-update-token state");
+            $this->docker->applyState($instance_salt_name, "set-update-token");
+            $this->writer->endBlock();
+
+            // apply ilias-update-hook state
+            $this->writer->beginBlock($output, "Apply ilias-update-hook state");
+            $this->docker->applyState($instance_salt_name, "ilias-update-hook");
+            $this->writer->endBlock();
+        }
 
         // apply enable-captainhook state
         $this->writer->beginBlock($output, "Apply enable-captainhook state");
@@ -585,7 +604,7 @@ class PackCreateCommand extends Command
         $options["global"] = $global;
 
         if ($global) {
-            $target = explode("=", $this->filesystem->getLineInFile("/etc/doil/doil.conf", "global_instances_path") ?? "")[1];
+            $target = explode("=", $this->filesystem->getLineInFile("/etc/doil/doil.conf", "global_instances_path=") ?? "")[1];
             if (! $target) {
                 $target = "";
             }

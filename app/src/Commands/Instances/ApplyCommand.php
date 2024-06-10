@@ -34,7 +34,9 @@ class ApplyCommand extends Command
         "change-roundcube-password",
         "nodejs",
         "proxy-enable-https",
-        "keycloak"
+        "keycloak",
+        "ilias-update-hook",
+        "set-update-token"
     ];
 
     protected static $defaultName = "instances:apply";
