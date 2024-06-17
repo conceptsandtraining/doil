@@ -1,5 +1,13 @@
 # Changelog
 
+## 20240617
+## What's Changes
+* update of an instance can now be triggered by url
+
+## 20240604
+## What's Changed
+* CSP Rules per instance
+
 ## 20240422
 ## What's Changed
 * fix typo in apache 000-default
