@@ -1,5 +1,11 @@
 # Changelog
 
+## 20240628
+## What's Changed
+* use Salt Repos for salt-master and salt-minion
+* better salt key handling
+* !! Attention: doil needs to be reinstalled !!
+
 ## 20240422
 ## What's Changed
 * fix typo in apache 000-default

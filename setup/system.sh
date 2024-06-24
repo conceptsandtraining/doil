@@ -360,10 +360,6 @@ function doil_system_install_proxyserver() {
   sed -i "s/%TPL_SERVER_NAME%/${NAME}/g" "/usr/local/lib/doil/server/proxy/conf/nginx/local.conf"
   BUILD=$(docker compose up -d 2>&1 > /var/log/doil/stream.log) 2>&1 > /var/log/doil/stream.log
   sleep 5
-  docker exec -i doil_proxy bash -c "killall -9 salt-minion" 2>&1 > /var/log/doil/stream.log
-  sleep 5
-  docker exec -i doil_proxy bash -c "/etc/init.d/salt-minion start" 2>&1 > /var/log/doil/stream.log
-  sleep 5
   docker exec -i doil_saltmain bash -c "salt 'doil.proxy' state.highstate saltenv=proxyservices" 2>&1 > /var/log/doil/stream.log
   docker commit doil_proxy doil_proxy:stable 2>&1 > /var/log/doil/stream.log
 }
@@ -371,7 +367,7 @@ function doil_system_install_proxyserver() {
 function doil_system_install_mailserver() {
   cd /usr/local/lib/doil/server/mail
   BUILD=$(docker compose up -d 2>&1 > /var/log/doil/stream.log) 2>&1 > /var/log/doil/stream.log
-  sleep 10
+  sleep 5
   docker exec -i doil_saltmain bash -c "salt 'doil.mail' state.highstate saltenv=mailservices" 2>&1 > /var/log/doil/stream.log
   PASSWORD=$(doil_get_conf mail_password)
   if [[ "${PASSWORD}" != "ilias" ]]
@@ -381,4 +377,16 @@ function doil_system_install_mailserver() {
     docker exec -i doil_saltmain bash -c "salt \"doil.mail\" state.highstate saltenv=change-roundcube-password" 2>&1 > /var/log/doil/stream.log
   fi
   docker commit doil_mail doil_mail:stable 2>&1 > /var/log/doil/stream.log
+}
+
+function doil_system_chown_dot_docker() {
+  HOME=$(eval echo "~${SUDO_USER}")
+
+  if [[ -d "${HOME}/.docker" ]]
+  then
+    chown -R ${SUDO_USER}:${SODU_USER} "${HOME}/.docker"
+    return 0
+  fi
+
+  return 255
 }

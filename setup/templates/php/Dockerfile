@@ -1,6 +1,6 @@
-FROM debian:11
+FROM debian:12
 
-RUN apt-get update && apt-get install -y vim ca-certificates curl zip unzip git php7.4-cli php7.4-zip php7.4-dom php7.4-mbstring php7.4-json
+RUN apt-get update && apt-get install -y vim ca-certificates curl zip unzip git php8.2-cli php8.2-zip php8.2-dom php8.2-mbstring php-json
 RUN install -m 0755 -d /etc/apt/keyrings
 RUN curl -fsSL https://download.docker.com/linux/debian/gpg -o /etc/apt/keyrings/docker.asc
 RUN chmod a+r /etc/apt/keyrings/docker.asc
@@ -17,5 +17,5 @@ RUN php -r "unlink('composer-setup.php');"
 RUN mv composer.phar /usr/local/bin/composer
 
 RUN mkdir /srv/php
-RUN mv /etc/php/7.4/cli/php.ini /srv/php
-RUN mv /etc/php/7.4/mods-available /srv/php
+RUN mv /etc/php/8.2/cli/php.ini /srv/php
+RUN mv /etc/php/8.2/mods-available /srv/php

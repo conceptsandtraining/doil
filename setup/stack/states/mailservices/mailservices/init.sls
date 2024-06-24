@@ -15,20 +15,20 @@ mailservice_packages:
       - dovecot-managesieved
       - roundcube
       - roundcube-plugins
-      - libapache2-mod-php7.4
-      - php7.4-curl
-      - php7.4-gd
-      - php7.4-json
-      - php7.4-mysql
-      - php7.4-readline
-      - php7.4-xsl
-      - php7.4-cli
-      - php7.4-zip
-      - php7.4-mbstring
-      - php7.4-soap
-      - php7.4-bcmath
-      - php7.4-imap
-      - php7.4-xmlrpc
+      - libapache2-mod-php8.2
+      - php8.2-curl
+      - php8.2-gd
+      - php-json
+      - php8.2-mysql
+      - php8.2-readline
+      - php8.2-xsl
+      - php8.2-cli
+      - php8.2-zip
+      - php8.2-mbstring
+      - php8.2-soap
+      - php8.2-bcmath
+      - php8.2-imap
+      - php8.2-xmlrpc
 
 stop_dovecot:
   cmd.run:
@@ -86,7 +86,7 @@ stop_dovecot:
 a2_enable_php:
   module.run:
     - name: apache.a2enmod
-    - mod: php7.4
+    - mod: php8.2
 
 /etc/mailname:
   file.managed:
