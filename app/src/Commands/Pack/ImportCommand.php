@@ -175,10 +175,13 @@ class ImportCommand extends Command
 
         $this->writer->beginBlock($output, "Copying necessary files");
 
-        $this->filesystem->copy(
-            $unpacked . "/var/www/html/.git/config",
-            $path . "/volumes/ilias/.git/config"
-        );
+        if ($this->filesystem->exists($unpacked . "/var/www/html/.git/config")) {
+            $this->filesystem->copy(
+                $unpacked . "/var/www/html/.git/config",
+                $path . "/volumes/ilias/.git/config"
+            );
+        }
+
         if ($create) {
             $this->filesystem->copy(
                 $unpacked . "/var/www/html/ilias.ini.php",

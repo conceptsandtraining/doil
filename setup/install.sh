@@ -155,6 +155,16 @@ then
   doil_status_okay
 fi
 
+doil_status_send_message "Ensure ~/.docker is owned by sudo user"
+doil_system_chown_dot_docker
+if [[ $? -ne 0 ]]
+then
+  doil_status_failed
+  exit
+fi
+doil_status_okay
+
+
 #################
 # Everything done
 NOW=$(date +'%d.%m.%Y %I:%M:%S')

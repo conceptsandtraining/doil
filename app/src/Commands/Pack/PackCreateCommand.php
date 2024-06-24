@@ -278,18 +278,6 @@ class PackCreateCommand extends Command
         sleep(5);
         $this->writer->endBlock();
 
-        $this->writer->beginBlock($output, "Checking salt key");
-        $salt_keys = [];
-        while (! in_array($instance_salt_name, $salt_keys)) {
-            $this->docker->executeDockerCommand($instance_name, "killall -9 salt-minion");
-            $this->docker->executeDockerCommand($instance_name, "rm -rf /var/lib/salt/pki/minion/*");
-            $this->docker->executeDockerCommand("doil_saltmain", "salt-key -d " . $instance_salt_name . " -y");
-            $this->docker->executeDockerCommand($instance_name, "salt-minion -d");
-            sleep(5);
-            $salt_keys = $this->docker->getSaltAcceptedKeys();
-        }
-        $this->writer->endBlock();
-
         $ilias_version = $this->getIliasVersion($instance_path);
 
         // set grains

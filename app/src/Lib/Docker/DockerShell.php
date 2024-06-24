@@ -65,7 +65,6 @@ class DockerShell implements Docker
             "rm -f /run/apache2/apache2.pid &>/dev/null"
         );
 
-       $this->cleanupMasterKey($path);
        $this->populateProxy();
     }
 
@@ -578,11 +577,6 @@ class DockerShell implements Docker
         }
         if (! $this->isInstanceUp(self::PROXY)) {
             $this->startContainerByDockerComposeWithForceRecreate(self::PROXY);
-            sleep(5);
-            $this->executeDockerCommand(
-                "doil_proxy",
-                "supervisorctl start startup"
-            );
         }
         if (! $this->isInstanceUp(self::MAIL)) {
             $this->startContainerByDockerComposeWithForceRecreate(self::MAIL);
@@ -609,32 +603,6 @@ class DockerShell implements Docker
         $logger = $this->logger->getDoilLogger(pathinfo($path, PATHINFO_FILENAME));
         $logger->info("Start instance");
         $this->run($cmd, $logger);
-    }
-
-    protected function cleanupMasterKey(string $path) : void
-    {
-        $name = basename($path);
-        $this->executeCommand(
-            $path,
-            $name,
-            "/bin/bash",
-            "-c",
-            "rm -f /var/lib/salt/pki/minion/minion_master.pub &>/dev/null"
-        );
-        $this->executeCommand(
-            $path,
-            $name,
-            "/bin/bash",
-            "-c",
-            "killall -9 salt-minion &>/dev/null"
-        );
-        $this->executeCommand(
-            $path,
-            $name,
-            "/bin/bash",
-            "-c",
-            "/etc/init.d/salt-minion start &>/dev/null"
-        );
     }
 
     protected function populateProxy() : void

@@ -81,4 +81,4 @@ docker run --rm "${TERMINAL}" \
   --group-add ${DOCKER_GRP_ID} \
   --group-add ${DOIL_GRP_ID} \
   doil_php:stable \
-  /usr/bin/php7.4 -c /srv/php/php.ini /usr/local/lib/doil/app/src/cli.php "$@"
+  /usr/bin/php8.2 -c /srv/php/php.ini /usr/local/lib/doil/app/src/cli.php "$@"
