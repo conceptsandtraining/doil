@@ -39,11 +39,6 @@ class RestartCommand extends Command
         $this->writer->beginBlock($output, "Restart mail server");
         $this->docker->stopContainerByDockerCompose(self::MAIL_PATH);
         $this->docker->startContainerByDockerCompose(self::MAIL_PATH);
-        sleep(3);
-        $this->docker->executeDockerCommand(
-            "doil_mail",
-            "supervisorctl start startup"
-        );
         $this->writer->endBlock();
 
         return Command::SUCCESS;
