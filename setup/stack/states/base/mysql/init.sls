@@ -1,6 +1,6 @@
 {% set cpu = salt['grains.get']('num_cpus', '4') %}
 {% set ram = salt['grains.get']('mem_total', '4096') %}
-{% set mysql_password = salt['grains.get']('mysql_password', 'ilias') %}
+{% set mysql_password = salt['grains.get']('mpass', 'ilias') %}
 {% set doil_host_system = salt['grains.get']('doil_host_system', 'linux') %}
 
 /etc/mysql/mariadb.conf.d/50-server.cnf:

@@ -288,19 +288,20 @@ class PackCreateCommand extends Command
             $cron_password = $this->generatePassword(16);
         }
         $host = explode("=", $this->filesystem->getLineInFile("/etc/doil/doil.conf", "host"));
-        $this->docker->setGrain($instance_salt_name, "mysql_password", $mysql_password);
+        $this->docker->setGrain($instance_salt_name, "mpass", "${mysql_password}");
         sleep(1);
-        $this->docker->setGrain($instance_salt_name, "cron_password", $cron_password);
+        $this->docker->setGrain($instance_salt_name, "cpass", "${cron_password}");
         sleep(1);
-        $this->docker->setGrain($instance_salt_name, "doil_domain", "http://" . $host[1] . "/" . $options["name"]);
+        $doil_domain = "http://" . $host[1] . "/" . $options["name"];
+        $this->docker->setGrain($instance_salt_name, "doil_domain", "${doil_domain}");
         sleep(1);
-        $this->docker->setGrain($instance_salt_name, "doil_project_name", $options["name"]);
+        $this->docker->setGrain($instance_salt_name, "doil_project_name", "${options['name']}");
         sleep(1);
         $this->docker->setGrain($instance_salt_name, "doil_host_system", "linux");
         sleep(1);
-        $this->docker->setGrain($instance_salt_name, "ilias_version", $ilias_version);
+        $this->docker->setGrain($instance_salt_name, "ilias_version", "${ilias_version}");
+        $this->docker->commit($instance_name);
         $this->docker->executeDockerCommand("doil_saltmain", "salt \"" . $instance_salt_name . "\" saltutil.refresh_grains");
-        sleep(30);
         $this->writer->endBlock();
 
         $this->docker->executeDockerCommand($instance_name, "git config --global --add safe.directory \"*\"");

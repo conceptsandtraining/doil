@@ -287,9 +287,9 @@ class CreateCommand extends Command
             $cron_password = $this->generatePassword(16);
         }
         $host = explode("=", $this->filesystem->getLineInFile("/etc/doil/doil.conf", "host"));
-        $this->docker->setGrain($instance_salt_name, "mysql_password", "$mysql_password");
+        $this->docker->setGrain($instance_salt_name, "mpass", "$mysql_password");
         sleep(1);
-        $this->docker->setGrain($instance_salt_name, "cron_password", "$cron_password");
+        $this->docker->setGrain($instance_salt_name, "cpass", "$cron_password");
         sleep(1);
         $this->docker->setGrain($instance_salt_name, "doil_domain", "http://" . $host[1] . "/" . $options["name"]);
         sleep(1);
