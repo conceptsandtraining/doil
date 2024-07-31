@@ -1,4 +1,4 @@
-{% set mysql_password = salt['grains.get']('mysql_password', 'ilias') %}
+{% set mysql_password = salt['grains.get']('mpass', 'ilias') %}
 {% set doil_domain = salt['grains.get']('doil_domain', 'http://ilias.local') %}
 {% set doil_host_system = salt['grains.get']('doil_host_system', 'linux') %}
 {% set ilias_version = salt['grains.get']('ilias_version', '9') %}

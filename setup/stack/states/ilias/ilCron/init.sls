@@ -1,4 +1,4 @@
-{% set cron_password = salt['grains.get']('cron_password', 'ilias') %}
+{% set cron_password = salt['grains.get']('cpass', 'ilias') %}
 
 ilCron_packages:
   pkg.installed:
