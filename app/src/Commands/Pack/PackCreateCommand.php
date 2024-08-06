@@ -330,17 +330,17 @@ class PackCreateCommand extends Command
         $this->docker->applyState($instance_salt_name, "ilias");
         $this->writer->endBlock();
 
-        // apply composer state
-        $this->writer->beginBlock($output, "Apply composer state");
-        $this->docker->applyState($instance_salt_name, $this->getComposerVersion($ilias_version));
-        $this->writer->endBlock();
-
         // apply npm-update state
         if ($ilias_version >= 9.0) {
             $this->writer->beginBlock($output, "Apply nodejs state");
             $this->docker->applyState($instance_salt_name, "nodejs");
             $this->writer->endBlock();
         }
+
+        // apply composer state
+        $this->writer->beginBlock($output, "Apply composer state");
+        $this->docker->applyState($instance_salt_name, $this->getComposerVersion($ilias_version));
+        $this->writer->endBlock();
 
         // apply access state
         $this->writer->beginBlock($output, "Apply access state");

@@ -328,6 +328,13 @@ class CreateCommand extends Command
         $this->docker->applyState($instance_salt_name, "ilias");
         $this->writer->endBlock();
 
+        // apply npm-update state
+        if ($ilias_version >= 9.0) {
+            $this->writer->beginBlock($output, "Apply nodejs state");
+            $this->docker->applyState($instance_salt_name, "nodejs");
+            $this->writer->endBlock();
+        }
+
         // apply composer state
         $this->writer->beginBlock($output, "Apply composer state");
         $this->docker->applyState($instance_salt_name, $this->getComposerVersion($ilias_version));
@@ -337,13 +344,6 @@ class CreateCommand extends Command
         if ($ilias_version > 6.99) {
             $this->writer->beginBlock($output, "Trying auto installer");
             $this->docker->applyState($instance_salt_name, "autoinstall");
-            $this->writer->endBlock();
-        }
-
-        // apply npm-update state
-        if ($ilias_version >= 9.0) {
-            $this->writer->beginBlock($output, "Apply nodejs state");
-            $this->docker->applyState($instance_salt_name, "nodejs");
             $this->writer->endBlock();
         }
 
