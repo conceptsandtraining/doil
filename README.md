@@ -265,7 +265,7 @@ continues then there might be a problem with the public key of the salt main ser
 following steps:
 
 * `doil login <instance_name>`
-* `rm /var/lib/salt/pki/minion/minion_master.pub`
+* `rm /etc/salt/pki/minion/minion_master.pub`
 * `exit`
 * `doil down <instance_name>`
 * `doil up <instance_name>`
