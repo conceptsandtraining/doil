@@ -7,6 +7,3 @@ if [ -f "/etc/salt/pki/minion/minion_master.pub" ]
 then
   rm /etc/salt/pki/minion/minion_master.pub
 fi
-
-chown -R mysql:mysql /run/mysqld
-chown -R mysql:mysql /var/lib/mysql
