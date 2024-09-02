@@ -87,8 +87,8 @@ class ImportCommand extends Command
 
         $output->writeln("Importing instance $instance");
 
-        if (! $this->filesystem->exists($path)) {
-            if (! $this->confirmCreateNewInstance($input, $output, $instance)) {
+        if (!$this->filesystem->exists($path)) {
+            if (!$this->confirmCreateNewInstance($input, $output, $instance)) {
                 $output->writeln("Import aborted!");
                 return Command::FAILURE;
             }
@@ -107,22 +107,25 @@ class ImportCommand extends Command
             if ($this->filesystem->exists($unpacked . "/conf/project_config.json")) {
                 $project_config = $this->filesystem->readFromJsonFile($unpacked . "/conf/project_config.json");
                 $project_config = array_shift($project_config);
-            } else if ($this->filesystem->exists("$unpacked/$target/conf/doil.conf")) {
-                $unpacked = $unpacked . DIRECTORY_SEPARATOR . $target;
-                $project_config = $this->readOldProjectConfig("$unpacked/conf/doil.conf");
-                $sql_dump = $unpacked . DIRECTORY_SEPARATOR . "var/ilias/ilias.sql";
-            } else if ($this->filesystem->exists("$unpacked/conf/doil.conf")) {
-                $project_config = $this->readOldProjectConfig("$unpacked/conf/doil.conf");
-                $sql_dump = $unpacked . DIRECTORY_SEPARATOR . "var/ilias/ilias.sql";
             } else {
-                throw new FileNotFoundException("Can not found doil config file in package.");
+                if ($this->filesystem->exists("$unpacked/$target/conf/doil.conf")) {
+                    $unpacked = $unpacked . DIRECTORY_SEPARATOR . $target;
+                    $project_config = $this->readOldProjectConfig("$unpacked/conf/doil.conf");
+                    $sql_dump = $unpacked . DIRECTORY_SEPARATOR . "var/ilias/ilias.sql";
+                } else {
+                    if ($this->filesystem->exists("$unpacked/conf/doil.conf")) {
+                        $project_config = $this->readOldProjectConfig("$unpacked/conf/doil.conf");
+                        $sql_dump = $unpacked . DIRECTORY_SEPARATOR . "var/ilias/ilias.sql";
+                    } else {
+                        throw new FileNotFoundException("Can not found doil config file in package.");
+                    }
+                }
             }
 
             $repo = $this->repo_manager->getEmptyRepo();
             $repo = $repo
                 ->withName($instance . "_import")
-                ->withUrl($project_config->getRepositoryUrl())
-            ;
+                ->withUrl($project_config->getRepositoryUrl());
 
             $existing_repo = null;
             if ($this->repo_manager->repoUrlExists($repo)) {
@@ -134,7 +137,7 @@ class ImportCommand extends Command
                 }
             }
 
-            if (! is_null($existing_repo)) {
+            if (!is_null($existing_repo)) {
                 $repo = $existing_repo;
             } else {
                 if ($this->repo_manager->repoNameExists($repo)) {
@@ -200,10 +203,18 @@ class ImportCommand extends Command
             );
         }
 
-        $this->filesystem->copyDirectory(
-            $unpacked . "/var/www/html/data",
-            $path . "/volumes/ilias/data")
-        ;
+        if ($this->filesystem->exists($unpacked . "/var/www/html/data")) {
+            $this->filesystem->copyDirectory(
+                $unpacked . "/var/www/html/data",
+                $path . "/volumes/ilias/data");
+        } else if ($this->filesystem->exists($unpacked . "/var/www/html/public/data")) {
+            $this->filesystem->copyDirectory(
+                $unpacked . "/var/www/html/public/data",
+                $path . "/volumes/ilias/public/data");
+        } else {
+            throw new RuntimeException("Can not found unpacked data folder in package.");
+        }
+
         $this->filesystem->copyDirectory(
             $unpacked . "/var/ilias/data",
             $path . "/volumes/data")
@@ -254,7 +265,7 @@ class ImportCommand extends Command
             "mysql ilias < /var/ilias/data/ilias.sql"
         );
 
-        $location = $this->filesystem->searchForFileRecursive($path . "/volumes/ilias/data", "/client\.ini\.php/");
+        $location = $this->filesystem->searchForFileRecursive($path . "/volumes/ilias", "/client\.ini\.php/");
 
         if (is_null($location)) {
             $this->writer->error(
@@ -276,13 +287,26 @@ class ImportCommand extends Command
         $this->writer->endBlock();
 
         $this->writer->beginBlock($output, "Apply ilias config");
-        $this->docker->executeCommand(
-            $path,
-            $instance,
-            "bash",
-            "-c",
-            "php /var/www/html/setup/setup.php update /var/ilias/data/ilias-config.json -y"
-        );
+        if ($this->filesystem->exists($path . "/var/www/html/setup/setup.php")) {
+            $this->docker->executeCommand(
+                $path,
+                $instance,
+                "bash",
+                "-c",
+                "php /var/www/html/setup/setup.php update /var/ilias/data/ilias-config.json -y"
+            );
+        } else if ($path . "/var/www/html/cli/setup.php") {
+            $this->docker->executeCommand(
+                $path,
+                $instance,
+                "bash",
+                "-c",
+                "php /var/www/html/cli/setup.php update /var/ilias/data/ilias-config.json -y"
+            );
+        } else {
+            throw new RuntimeException("Can not found setup.php.");
+        }
+
         $this->writer->endBlock();
 
         if ($this->docker->isInstanceUp($path)) {

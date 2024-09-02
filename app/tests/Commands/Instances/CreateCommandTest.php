@@ -10,6 +10,7 @@ use CaT\Doil\Lib\Linux\Linux;
 use CaT\Doil\Lib\Docker\Docker;
 use PHPUnit\Framework\TestCase;
 use CaT\Doil\Lib\ProjectConfig;
+use CaT\Doil\Lib\ILIAS\IliasInfo;
 use CaT\Doil\Lib\ConsoleOutput\Writer;
 use CaT\Doil\Lib\FileSystem\Filesystem;
 use CaT\Doil\Commands\Repo\RepoManager;
@@ -60,6 +61,7 @@ class CreateCommandTest extends TestCase
         $linux = $this->createMock(Linux::class);
         $project_config = $this->createMock(ProjectConfig::class);
         $writer = new CommandWriter();
+        $ilias_info = $this->createMock(IliasInfo::class);
 
         $command = new CreateCommandWrapper(
             $docker,
@@ -69,7 +71,8 @@ class CreateCommandTest extends TestCase
             $filesystem,
             $linux,
             $project_config,
-            $writer
+            $writer,
+            $ilias_info
         );
         $tester = new CommandTester($command);
         $app = new Application("doil");
@@ -90,6 +93,7 @@ class CreateCommandTest extends TestCase
         $linux = $this->createMock(Linux::class);
         $project_config = $this->createMock(ProjectConfig::class);
         $writer = new CommandWriter();
+        $ilias_info = $this->createMock(IliasInfo::class);
 
         $command = new CreateCommand(
             $docker,
@@ -99,7 +103,8 @@ class CreateCommandTest extends TestCase
             $filesystem,
             $linux,
             $project_config,
-            $writer
+            $writer,
+            $ilias_info
         );
         $tester = new CommandTester($command);
         $app = new Application("doil");
@@ -120,6 +125,7 @@ class CreateCommandTest extends TestCase
         $linux = $this->createMock(Linux::class);
         $project_config = $this->createMock(ProjectConfig::class);
         $writer = new CommandWriter();
+        $ilias_info = $this->createMock(IliasInfo::class);
 
         $command = new CreateCommand(
             $docker,
@@ -129,7 +135,8 @@ class CreateCommandTest extends TestCase
             $filesystem,
             $linux,
             $project_config,
-            $writer
+            $writer,
+            $ilias_info
         );
         $tester = new CommandTester($command);
         $app = new Application("doil");
@@ -156,6 +163,7 @@ class CreateCommandTest extends TestCase
         $linux = $this->createMock(Linux::class);
         $project_config = $this->createMock(ProjectConfig::class);
         $writer = new CommandWriter();
+        $ilias_info = $this->createMock(IliasInfo::class);
 
         $command = new CreateCommand(
             $docker,
@@ -165,7 +173,8 @@ class CreateCommandTest extends TestCase
             $filesystem,
             $linux,
             $project_config,
-            $writer
+            $writer,
+            $ilias_info
         );
         $tester = new CommandTester($command);
         $app = new Application("doil");
@@ -199,6 +208,7 @@ class CreateCommandTest extends TestCase
         $linux = $this->createMock(Linux::class);
         $project_config = $this->createMock(ProjectConfig::class);
         $writer = new CommandWriter();
+        $ilias_info = $this->createMock(IliasInfo::class);
 
         $command = new CreateCommand(
             $docker,
@@ -208,7 +218,8 @@ class CreateCommandTest extends TestCase
             $filesystem,
             $linux,
             $project_config,
-            $writer
+            $writer,
+            $ilias_info
         );
         $tester = new CommandTester($command);
         $app = new Application("doil");
@@ -249,6 +260,7 @@ class CreateCommandTest extends TestCase
         $linux = $this->createMock(Linux::class);
         $project_config = $this->createMock(ProjectConfig::class);
         $writer = new CommandWriter();
+        $ilias_info = $this->createMock(IliasInfo::class);
 
         $command = new CreateCommandWrapper(
             $docker,
@@ -258,7 +270,8 @@ class CreateCommandTest extends TestCase
             $filesystem,
             $linux,
             $project_config,
-            $writer
+            $writer,
+            $ilias_info
         );
         $tester = new CommandTester($command);
         $app = new Application("doil");
@@ -293,6 +306,7 @@ class CreateCommandTest extends TestCase
         $linux = $this->createMock(Linux::class);
         $project_config = $this->createMock(ProjectConfig::class);
         $writer = $this->createMock(Writer::class);
+        $ilias_info = $this->createMock(IliasInfo::class);
 
         $command = new CreateCommandWrapper(
             $docker,
@@ -302,7 +316,8 @@ class CreateCommandTest extends TestCase
             $filesystem,
             $linux,
             $project_config,
-            $writer
+            $writer,
+            $ilias_info
         );
         $tester = new CommandTester($command);
         $app = new Application("doil");

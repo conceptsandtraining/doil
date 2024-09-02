@@ -13,6 +13,7 @@ use CaT\Doil\Commands\Proxy;
 use CaT\Doil\Lib\Git\GitShell;
 use CaT\Doil\Lib\ProjectConfig;
 use CaT\Doil\Commands\Instances;
+use CaT\Doil\Lib\ILIAS\IliasInfo;
 use CaT\Doil\Lib\Posix\PosixShell;
 use CaT\Doil\Lib\Linux\LinuxShell;
 use CaT\Doil\Lib\Docker\DockerShell;
@@ -86,6 +87,12 @@ function buildContainerForApp() : Container
         );
     };
 
+    $c["ilias.info"] = function($c) {
+        return new IliasInfo(
+            $c["filesystem.shell"]
+        );
+    };
+
     $c["git.shell"] = function($c) {
         return new GitShell(
             $c["logger"]
@@ -152,7 +159,8 @@ function buildContainerForApp() : Container
             $c["filesystem.shell"],
             $c["linux.shell"],
             $c["project.config"],
-            $c["command.writer"]
+            $c["command.writer"],
+            $c["ilias.info"]
         );
     };
 
@@ -284,7 +292,8 @@ function buildContainerForApp() : Container
             $c["command.writer"],
             $c["project.config"],
             $c["git.shell"],
-            $c["repo.manager"]
+            $c["repo.manager"],
+            $c["ilias.info"]
         );
     };
 
@@ -307,7 +316,8 @@ function buildContainerForApp() : Container
             $c["filesystem.shell"],
             $c["linux.shell"],
             $c["project.config"],
-            $c["command.writer"]
+            $c["command.writer"],
+            $c["ilias.info"]
         );
     };
 

@@ -1,4 +1,4 @@
 #!/bin/bash
 
 npm update -g npm
-npm install -g less
+npm install -g sass

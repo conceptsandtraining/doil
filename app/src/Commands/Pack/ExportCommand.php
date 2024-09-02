@@ -11,6 +11,7 @@ use CaT\Doil\Lib\Posix\Posix;
 use CaT\Doil\Lib\Docker\Docker;
 use CaT\Doil\Lib\ProjectConfig;
 use CaT\Doil\Commands\Repo\Repo;
+use CaT\Doil\Lib\ILIAS\IliasInfo;
 use CaT\Doil\Lib\ConsoleOutput\Writer;
 use CaT\Doil\Lib\FileSystem\Filesystem;
 use CaT\Doil\Commands\Repo\RepoManager;
@@ -35,6 +36,7 @@ class ExportCommand extends Command
     protected ProjectConfig $project_config;
     protected Git $git;
     protected RepoManager $repo_manager;
+    protected IliasInfo $ilias_info;
 
     public function __construct(
         Docker $docker,
@@ -43,7 +45,8 @@ class ExportCommand extends Command
         Writer $writer,
         ProjectConfig $project_config,
         Git $git,
-        RepoManager $repo_manager
+        RepoManager $repo_manager,
+        IliasInfo $ilias_info
     ) {
         parent::__construct();
 
@@ -54,6 +57,7 @@ class ExportCommand extends Command
         $this->project_config = $project_config;
         $this->git = $git;
         $this->repo_manager = $repo_manager;
+        $this->ilias_info = $ilias_info;
     }
 
     public function configure() : void
@@ -130,7 +134,13 @@ class ExportCommand extends Command
 
         $this->docker->copy($instance . "_" . $suffix, "/var/ilias", $name . "/var/");
         $this->docker->copy($instance . "_" . $suffix, "/var/www/html/.git/config", $name . "/var/www/html/.git/config");
-        $this->docker->copy($instance . "_" . $suffix, "/var/www/html/data", $name . "/var/www/html");
+        if ($this->ilias_info->getIliasVersion($path) >= 10) {
+            $this->filesystem->makeDirectoryRecursive($name . "/var/www/html/public");
+            $this->docker->copy($instance . "_" . $suffix, "/var/www/html/public/data", $name . "/var/www/html/public");
+        } else {
+            $this->docker->copy($instance . "_" . $suffix, "/var/www/html/data", $name . "/var/www/html");
+        }
+
         if ($this->filesystem->exists($path . "/volumes/ilias/Customizing/global/skin")) {
             $this->docker->copy($instance . "_" . $suffix, "/var/www/html/Customizing/global/skin", $name . "/var/www/html/Customizing/global");
         }
@@ -268,12 +278,14 @@ class ExportCommand extends Command
                 return self::FAILURE;
             }
 
+            $local_cat_ilias_repos = [];
             if (count($local_repos) > 0) {
                 $local_cat_ilias_repos = array_filter($local_repos, function(Repo $local_repo) {
                     return strstr($local_repo->getUrl(), "conceptsandtraining") || strstr($local_repo->getUrl(), "ILIAS-eLearning");
                 });
             }
 
+            $global_cat_ilias_repos = [];
             if (count($global_repos) > 0) {
                 $global_cat_ilias_repos = array_filter($global_repos, function(Repo $local_repo) {
                     return strstr($local_repo->getUrl(), "conceptsandtraining") || strstr($local_repo->getUrl(), "ILIAS-eLearning");

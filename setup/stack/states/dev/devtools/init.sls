@@ -1,3 +1,10 @@
+{% set ilias_version = salt['grains.get']('ilias_version', '9') %}
+{% if ilias_version | int < 9 %}
+{% set skin_compiler = 'lessc' %}
+{% else %}
+{% set skin_compiler = 'sass' %}
+{% endif %}
+
 ### Standard dev packages
 devtools_packages:
   pkg.installed:
@@ -8,18 +15,18 @@ devtools_packages:
       - ghostscript
       - npm
 
-# Install lessc
-/root/install-lessc.sh:
+# Install lessc/sass
+/root/install-{{ skin_compiler }}.sh:
   file.managed:
-    - source: salt://devtools/install-lessc.sh
+    - source: salt://devtools/install-{{ skin_compiler }}.sh
     - user: root
     - group: root
     - mode: 740
 
-install-lessc:
+install-{{ skin_compiler }}:
   cmd.run:
     - cwd: /root/
-    - name: ./install-lessc.sh
+    - name: ./install-{{ skin_compiler }}.sh
 
 # Install githook
 /var/www/html/.git/hooks/post-merge:

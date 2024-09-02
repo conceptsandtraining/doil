@@ -8,6 +8,7 @@ use CaT\Doil\Lib\Posix\Posix;
 use PHPUnit\Framework\TestCase;
 use CaT\Doil\Lib\Docker\Docker;
 use CaT\Doil\Lib\ProjectConfig;
+use CaT\Doil\Lib\ILIAS\IliasInfo;
 use CaT\Doil\Lib\FileSystem\Filesystem;
 use CaT\Doil\Commands\Repo\RepoManager;
 use CaT\Doil\Lib\ConsoleOutput\CommandWriter;
@@ -24,8 +25,18 @@ class ExportCommandTest extends TestCase
         $git = $this->createMock(Git::class);
         $repo_manager = $this->createMock(RepoManager::class);
         $writer = new CommandWriter();
+        $ilias_info = $this->createMock(IliasInfo::class);
 
-        $command = new ExportCommand($docker, $posix, $filesystem, $writer, $project_config, $git, $repo_manager);
+        $command = new ExportCommand(
+            $docker,
+            $posix,
+            $filesystem,
+            $writer,
+            $project_config,
+            $git,
+            $repo_manager,
+            $ilias_info
+        );
         $tester = new CommandTester($command);
 
         $this->expectException(RuntimeException::class);
@@ -42,8 +53,18 @@ class ExportCommandTest extends TestCase
         $git = $this->createMock(Git::class);
         $repo_manager = $this->createMock(RepoManager::class);
         $writer = new CommandWriter();
+        $ilias_info = $this->createMock(IliasInfo::class);
 
-        $command = new ExportCommand($docker, $posix, $filesystem, $writer, $project_config, $git, $repo_manager);
+        $command = new ExportCommand(
+            $docker,
+            $posix,
+            $filesystem,
+            $writer,
+            $project_config,
+            $git,
+            $repo_manager,
+            $ilias_info
+        );
         $tester = new CommandTester($command);
 
         $this->expectException(RuntimeException::class);
@@ -60,8 +81,18 @@ class ExportCommandTest extends TestCase
         $git = $this->createMock(Git::class);
         $repo_manager = $this->createMock(RepoManager::class);
         $writer = new CommandWriter();
+        $ilias_info = $this->createMock(IliasInfo::class);
 
-        $command = new ExportCommand($docker, $posix, $filesystem, $writer, $project_config, $git, $repo_manager);
+        $command = new ExportCommand(
+            $docker,
+            $posix,
+            $filesystem,
+            $writer,
+            $project_config,
+            $git,
+            $repo_manager,
+            $ilias_info
+        );
         $tester = new CommandTester($command);
 
         $this->expectException(RuntimeException::class);
@@ -78,8 +109,18 @@ class ExportCommandTest extends TestCase
         $git = $this->createMock(Git::class);
         $repo_manager = $this->createMock(RepoManager::class);
         $writer = new CommandWriter();
+        $ilias_info = $this->createMock(IliasInfo::class);
 
-        $command = new ExportCommand($docker, $posix, $filesystem, $writer, $project_config, $git, $repo_manager);
+        $command = new ExportCommand(
+            $docker,
+            $posix,
+            $filesystem,
+            $writer,
+            $project_config,
+            $git,
+            $repo_manager,
+            $ilias_info
+        );
         $tester = new CommandTester($command);
 
         $posix
