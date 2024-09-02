@@ -1,0 +1,16 @@
+<?php
+$idpentityid  = isset($_GET['idpentityid']) ? $_GET['idpentityid'] : NULL;
+$config = array(
+    'admin' => array(
+        'core:AdminPassword',
+    ),
+    'default-sp' => array(
+        'RelayState' => '{{ ilias_http_path }}/saml.php',
+        'saml:SP',
+        'privatekey'  => 'saml.pem',
+        'certificate' => 'saml.crt',
+        'entityID' => '{{ ilias_http_path }}/module.php/saml/sp/metadata.php/default-sp',
+        'idp' => $idpentityid,
+        'discoURL' => NULL,
+    ),
+);

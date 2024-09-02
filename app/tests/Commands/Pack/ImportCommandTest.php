@@ -6,6 +6,7 @@ use RuntimeException;
 use CaT\Doil\Lib\Posix\Posix;
 use PHPUnit\Framework\TestCase;
 use CaT\Doil\Lib\Docker\Docker;
+use CaT\Doil\Lib\ILIAS\IliasInfo;
 use CaT\Doil\Lib\FileSystem\Filesystem;
 use CaT\Doil\Commands\Repo\RepoManager;
 use CaT\Doil\Lib\ConsoleOutput\CommandWriter;
@@ -20,8 +21,9 @@ class ImportCommandTest extends TestCase
         $filesystem = $this->createMock(Filesystem::class);
         $repo_manager = $this->createMock(RepoManager::class);
         $writer = new CommandWriter();
+        $ilias_info = $this->createMock(IliasInfo::class);
 
-        $command = new ImportCommand($docker, $posix, $filesystem, $repo_manager, $writer);
+        $command = new ImportCommand($docker, $posix, $filesystem, $repo_manager, $writer, $ilias_info);
         $tester = new CommandTester($command);
 
         $this->expectException(RuntimeException::class);
@@ -36,8 +38,9 @@ class ImportCommandTest extends TestCase
         $filesystem = $this->createMock(Filesystem::class);
         $repo_manager = $this->createMock(RepoManager::class);
         $writer = new CommandWriter();
+        $ilias_info = $this->createMock(IliasInfo::class);
 
-        $command = new ImportCommand($docker, $posix, $filesystem, $repo_manager, $writer);
+        $command = new ImportCommand($docker, $posix, $filesystem, $repo_manager, $writer, $ilias_info);
         $tester = new CommandTester($command);
 
         $this->expectException(RuntimeException::class);
@@ -52,8 +55,9 @@ class ImportCommandTest extends TestCase
         $filesystem = $this->createMock(Filesystem::class);
         $repo_manager = $this->createMock(RepoManager::class);
         $writer = new CommandWriter();
+        $ilias_info = $this->createMock(IliasInfo::class);
 
-        $command = new ImportCommand($docker, $posix, $filesystem, $repo_manager, $writer);
+        $command = new ImportCommand($docker, $posix, $filesystem, $repo_manager, $writer, $ilias_info);
         $tester = new CommandTester($command);
 
         $this->expectException(RuntimeException::class);
@@ -68,8 +72,9 @@ class ImportCommandTest extends TestCase
         $filesystem = $this->createMock(Filesystem::class);
         $repo_manager = $this->createMock(RepoManager::class);
         $writer = new CommandWriter();
+        $ilias_info = $this->createMock(IliasInfo::class);
 
-        $command = new ImportCommand($docker, $posix, $filesystem, $repo_manager, $writer);
+        $command = new ImportCommand($docker, $posix, $filesystem, $repo_manager, $writer, $ilias_info);
         $tester = new CommandTester($command);
 
         $filesystem
@@ -91,8 +96,9 @@ class ImportCommandTest extends TestCase
         $filesystem = $this->createMock(Filesystem::class);
         $repo_manager = $this->createMock(RepoManager::class);
         $writer = new CommandWriter();
+        $ilias_info = $this->createMock(IliasInfo::class);
 
-        $command = new ImportCommand($docker, $posix, $filesystem, $repo_manager, $writer);
+        $command = new ImportCommand($docker, $posix, $filesystem, $repo_manager, $writer, $ilias_info);
         $tester = new CommandTester($command);
 
         $this->expectException(RuntimeException::class);
@@ -107,8 +113,9 @@ class ImportCommandTest extends TestCase
         $filesystem = $this->createMock(Filesystem::class);
         $repo_manager = $this->createMock(RepoManager::class);
         $writer = new CommandWriter();
+        $ilias_info = $this->createMock(IliasInfo::class);
 
-        $command = new ImportCommand($docker, $posix, $filesystem, $repo_manager, $writer);
+        $command = new ImportCommand($docker, $posix, $filesystem, $repo_manager, $writer, $ilias_info);
         $tester = new CommandTester($command);
 
         $this->expectException(RuntimeException::class);

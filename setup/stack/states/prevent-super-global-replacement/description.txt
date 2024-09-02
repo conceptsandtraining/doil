@@ -1,0 +1,1 @@
+description = Add 'prevent_super_global_replacement = "1"' to the ILIAS client.ini.php. Only applicable to ILIAS version >= 8.

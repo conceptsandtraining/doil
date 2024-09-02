@@ -1,5 +1,48 @@
 # Changelog
 
+## 20241113
+## What's Changed
+* add keycloak server
+* add keycloak commands (down/login/restart/up)
+* add saml states (enable-saml/disable-saml)
+* add new state 'prevent-super-global-replacement'
+
+## 20241104
+## What's Changed
+* update salt urls
+
+## 20241010
+## What's Changed
+* execute proxy command only if instance is up
+* add 'Options -Indexes' to default site
+
+## 20240930
+## What's Changed
+* add captainhook states
+* longer sleep between 'docker commit' and 'settinsg premissions'
+* use correct pathes during import command
+
+## 20240926
+## What's Changed
+* php: add version 8.3
+
+## 20240902
+## What's Changed
+* add support for ilias 10 exports
+* also export branches with no matching doil repo
+
+## 20240807
+## What's Changed
+* change path for minion_master.pub
+
+## 20240806
+## What's Changed
+* move nodejs step before composer step and change execution dir in nodejs state
+
+## 20240801
+## What's Changed
+* fix problems with the ILIAS database password
+
 ## 20240628
 ## What's Changed
 * use Salt Repos for salt-master and salt-minion

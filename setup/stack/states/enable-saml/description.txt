@@ -1,0 +1,1 @@
+description = ATTENTION: This will overwrite potentially existing SAML configurations. Enables saml login in ILIAS and adds the instance to keycloak.

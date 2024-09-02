@@ -7,25 +7,29 @@ namespace CaT\Doil\Lib\Docker;
 use CaT\Doil\Lib\Posix\Posix;
 use CaT\Doil\Lib\SymfonyShell;
 use CaT\Doil\Lib\Logger\LoggerFactory;
+use CaT\Doil\Lib\FileSystem\Filesystem;
 
 class DockerShell implements Docker
 {
     use SymfonyShell;
 
     protected const SALT = "/usr/local/lib/doil/server/salt";
+    protected const KEYCLOAK = "/usr/local/lib/doil/server/keycloak";
     protected const PROXY = "/usr/local/lib/doil/server/proxy";
     protected const MAIL = "/usr/local/lib/doil/server/mail";
 
-    public function __construct(LoggerFactory $logger, Posix $posix)
+    public function __construct(LoggerFactory $logger, Posix $posix, Filesystem $filesystem)
     {
         $this->logger = $logger;
         $this->posix = $posix;
+        $this->filesystem = $filesystem;
     }
 
     protected array $systems = [
         self::SALT,
         self::PROXY,
-        self::MAIL
+        self::MAIL,
+        self::KEYCLOAK
     ];
 
     public function startContainerByDockerCompose(string $path) : void
@@ -574,6 +578,9 @@ class DockerShell implements Docker
     {
         if (! $this->isInstanceUp(self::SALT)) {
             $this->startContainerByDockerComposeWithForceRecreate(self::SALT);
+        }
+        if ($this->filesystem->exists(self::KEYCLOAK . "/docker-compose.yml") && ! $this->isInstanceUp(self::KEYCLOAK)) {
+            $this->startContainerByDockerComposeWithForceRecreate(self::KEYCLOAK);
         }
         if (! $this->isInstanceUp(self::PROXY)) {
             $this->startContainerByDockerComposeWithForceRecreate(self::PROXY);

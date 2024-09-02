@@ -1,6 +1,8 @@
 #!/usr/bin/env bash
 
 update() {
+  ENABLE_KEYCLOAK=$(doil_get_conf enable_keycloak)
+
   doil_status_send_message_nl "Stopping all services"
   doil_system_stop_instances
 
@@ -15,7 +17,7 @@ update() {
 
   doil_status_send_message "Copying new doil system"
   doil_system_create_folder
-  doil_system_copy_doil
+  doil_system_copy_doil "$ENABLE_KEYCLOAK"
   doil_status_okay
 
   doil_status_send_message "Creating log file"
@@ -50,7 +52,7 @@ update() {
 
   doil_status_send_message "Copying new doil system"
   doil_system_create_folder
-  doil_system_copy_doil
+  doil_system_copy_doil "$ENABLE_KEYCLOAK"
   doil_status_okay
 
   doil_status_send_message "Adding safe git dir for user"
@@ -87,6 +89,14 @@ update() {
   doil_status_send_message "Reinstalling salt service"
   doil_system_install_saltserver
   doil_status_okay
+
+  # start keycloak server
+  if [[ "$ENABLE_KEYCLOAK" == true ]]
+  then
+    doil_status_send_message "Reinstalling keycloak server"
+    doil_system_install_keycloakserver
+    doil_status_okay
+  fi
 
   doil_status_send_message "Reinstalling proxy service"
   doil_system_install_proxyserver

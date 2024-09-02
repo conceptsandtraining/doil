@@ -15,6 +15,13 @@
     - mode: 755
     - makedirs: True
 
+/var/ilias/cert:
+  file.directory:
+    - user: www-data
+    - group: www-data
+    - mode: 755
+    - makedirs: True
+
 /var/ilias/logs:
   file.directory:
     - user: www-data

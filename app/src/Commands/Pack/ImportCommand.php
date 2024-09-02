@@ -9,6 +9,7 @@ use RuntimeException;
 use CaT\Doil\Lib\Posix\Posix;
 use CaT\Doil\Lib\Docker\Docker;
 use CaT\Doil\Lib\ProjectConfig;
+use CaT\Doil\Lib\ILIAS\IliasInfo;
 use CaT\Doil\Lib\ConsoleOutput\Writer;
 use CaT\Doil\Commands\Repo\RepoManager;
 use CaT\Doil\Lib\FileSystem\Filesystem;
@@ -24,6 +25,7 @@ use Symfony\Component\Filesystem\Exception\FileNotFoundException;
 
 class ImportCommand extends Command
 {
+    protected const KEYCLOAK_PATH = "/usr/local/lib/doil/server/keycloak";
     protected static $defaultName = "pack:import";
     protected static $defaultDescription =
         "With this command doil is able to import an archive of doilpack into an ILIAS installation. " .
@@ -36,13 +38,15 @@ class ImportCommand extends Command
     protected Filesystem $filesystem;
     protected RepoManager $repo_manager;
     protected Writer $writer;
+    protected IliasInfo $ilias_info;
 
     public function __construct(
         Docker $docker,
         Posix $posix,
         Filesystem $filesystem,
         RepoManager $repo_manager,
-        Writer $writer
+        Writer $writer,
+        IliasInfo $ilias_info
     ) {
         parent::__construct();
 
@@ -51,6 +55,7 @@ class ImportCommand extends Command
         $this->filesystem = $filesystem;
         $this->repo_manager = $repo_manager;
         $this->writer = $writer;
+        $this->ilias_info = $ilias_info;
     }
 
     public function configure() : void
@@ -317,6 +322,21 @@ class ImportCommand extends Command
         }
 
         sleep(10);
+
+        $ilias_version = $this->ilias_info->getIliasVersion($path);
+        if ($ilias_version >= 8.0) {
+            // apply prevent_super_global_replacement state
+            $this->writer->beginBlock($output, "Apply prevent_super_global_replacement state");
+            $this->docker->applyState($instance . "." . $suffix, "prevent-super-global-replacement");
+            $this->writer->endBlock();
+        }
+
+        if ($this->filesystem->exists(self::KEYCLOAK_PATH)) {
+            // apply enable-saml state
+            $this->writer->beginBlock($output, "Apply enable-saml state");
+            $this->docker->applyState($instance . "." . $suffix, "enable-saml");
+            $this->writer->endBlock();
+        }
 
         $this->writer->beginBlock($output, "Setting permissions");
         $this->docker->applyState($instance . "." . $suffix, "access");

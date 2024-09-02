@@ -9,6 +9,7 @@ do
         RESULT=${RESULT}"<li><a href=\"http://${SERVER_NAME}/${NAME}/\" target=\"_blank\">${SERVER_NAME}/${NAME}</a></li>"
 done
 
+KEYCLOAK="<li><a href=\"http://${SERVER_NAME}/keycloak/\" target=\"_blank\">${SERVER_NAME}/keycloak</a></li>"
 MAIL="<li><a href=\"http://${SERVER_NAME}/mails/\" target=\"_blank\">${SERVER_NAME}/mails</a></li>"
 
 cat << EOF > /tmp/index.html
@@ -26,11 +27,16 @@ cat << EOF > /tmp/index.html
     </style>
   </head>
   <body>
+  <h2 id="instances">Keycloak Instance</h2>
+      <p>&nbsp;</p>
+      <ul class="index">
+      $(echo "${KEYCLOAK}")
+      </ul>
   <h2 id="instances">Mail Instance</h2>
-        <p>&nbsp;</p>
-        <ul class="index">
-        $(echo "${MAIL}")
-        </ul>
+      <p>&nbsp;</p>
+      <ul class="index">
+      $(echo "${MAIL}")
+      </ul>
   <h2 id="instances">Doil Instances</h2>
       <p>&nbsp;</p>
       <ul class="index">

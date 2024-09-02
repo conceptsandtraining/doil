@@ -308,8 +308,8 @@ users, so make sure to understand what you are doing.
 
 * `doil salt:login` logs the user into the main salt server
 * `doil salt:prune` prunes the main salt server
-* `doil salt:start` starts the salt main server
-* `doil salt:stop` stops the salt main server
+* `doil salt:up` starts the salt main server
+* `doil salt:down` stops the salt main server
 * `doil salt:restart` restarts the salt main server
 * `doil salt:states` to list the available states
 
@@ -324,8 +324,8 @@ users, so make sure to understand what you are doing.
 
 * `doil proxy:login` logs the user into the proxy server
 * `doil proxy:prune` removes the configuration of the proxy server
-* `doil proxy:start` starts the proxy server
-* `doil proxy:stop` stops the proxy server
+* `doil proxy:up` starts the proxy server
+* `doil proxy:down` stops the proxy server
 * `doil proxy:restart` restarts the proxy server
 * `doil proxy:reload` reloads the configuration
 
@@ -348,6 +348,7 @@ The state also sets up a cron job that regularly renews the certificates.
 
 After that please ensure to run `doil apply <instance_name> enable-https` on each doil ILIAS instance,
 so https take effect in ILIAS.
+
 ### Mail Server
 
 The mailserver is available at `http://doil/mails` with following
@@ -372,9 +373,62 @@ users, so make sure to understand what you are doing.
 
 * `doil mail:change-password` changes the default password for roundcube
 * `doil mail:login` logs the user into the mail server
-* `doil mail:start` starts the mail server
-* `doil mail:stop` stops the mail server
+* `doil mail:up` starts the mail server
+* `doil mail:down` stops the mail server
 * `doil mail:restart` restarts the mail server
+
+### Keycloak Server
+
+The Keycloak server is an identity provider that allows you to log in to all 
+ILIAS instances managed by **doil** with one password.  
+This requires some settings in the doil.conf file. 'doil.conf' can be found 
+under setup/conf/doil.conf. The adjustments must be made before an update/install.
+
+The following settings are available:
+
+* `enable_keycloak=[true/false]`  decides whether keycloak is installed during 
+an update/install [default:false]
+* `keycloak_hostname=http://doil/keycloak` keycloak url, please pay attention to https/http
+* `keycloak_new_admin_password=12345` admin password
+* `keycloak_old_admin_password=admin` If the password is changed during an update, the old 
+password must be entered here. Please make sure to adjust it after the update. For the first
+installation this has to be 'admin'.
+* `keycloak_db_username=admin` database user name
+* `keycloak_db_password=admin` database user password
+
+If you use keycloak, the salt state enable-saml must be called for existing ILIAS instances.
+This is done using the 'doil apply <instance_name>' command.  
+Newly created instances check whether keycloak is enabled and set up the instance directly.
+
+In order to use SAML for an Ilias instance, it must be ensured that a user is created in the
+ILIAS interface and a user in the Keycloak interface.
+
+#### Create a user in Keycloak
+* select tab 'users' from left menu
+* click 'Add user'
+* enter a Username
+* enter an Email
+* click 'Create'
+
+#### Cretae a user in ILIAS
+* select tab 'Administration' from left menu
+* select 'Users and Roles'
+* select 'User Management'
+* click 'Add User'
+* fill in the required fields (username must be the same as in keycloak)
+* set 'External Account' to the same email as in keycloak
+
+To be able to dive deeper into the inner workings of **doil** or customize it
+to fit your workflow or requirements, **doil** provides commands to tamper with
+the keycloak in the background. These commands will not be required by ordinary
+users, so make sure to understand what you are doing.
+
+* `doil keycloak:login` logs the user into the keycloak server
+* `doil keycloak:up` starts the keycloak server
+* `doil keycloak:down` stops the keycloak server
+* `doil keycloak:restart` restarts the keycloak server
+
+See `doil keycloak:<command> --help` for more information
 
 ### xdedug
 
@@ -451,3 +505,11 @@ If doil saved your precious time and brain power, please consider supporting
 * Reach out to [Richard](richard.klees@concepts-and-training.de) if you need
   more support than we can offer for free or want to get involved with **doil**
   in other ways.
+
+### Prevent Super Globals Replacement
+Since ILIAS version 8 it is necessary to set the setting 'prevent_super_global_replacement = 1' in the
+client.ini.php. **doil** offers a state for this.
+```bash
+doil apply <instance_name> prevent-super-global-replacement
+```
+As of **doil** version 20241113, **doil** applies this state independently to newly created instances.

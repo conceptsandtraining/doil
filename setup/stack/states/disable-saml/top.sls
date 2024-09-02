@@ -1,0 +1,3 @@
+disable-saml:
+  '*':
+    - saml

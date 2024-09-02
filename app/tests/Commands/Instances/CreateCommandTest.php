@@ -330,9 +330,9 @@ class CreateCommandTest extends TestCase
         ;
 
         $filesystem
-            ->expects($this->exactly(3))
+            ->expects($this->exactly(4))
             ->method("exists")
-            ->willReturn(false, true, true)
+            ->willReturn(false, true, false, true)
         ;
         $filesystem
             ->expects($this->once())

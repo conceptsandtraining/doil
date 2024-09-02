@@ -7,6 +7,8 @@ services:
     container_name: %TPL_PROJECT_NAME%_%TPL_PROJECT_DOMAINNAME%
     hostname: %TPL_PROJECT_NAME%
     domainname: %TPL_PROJECT_DOMAINNAME%
+    extra_hosts:
+      - "%TPL_HOST_DOMAIN%:172.24.0.254"
     volumes:
       - type: bind
         source: ./volumes/mysql
@@ -20,6 +22,9 @@ services:
       - type: bind
         source: ./volumes/data
         target: /var/ilias/data
+      - type: bind
+        source: ./volumes/cert
+        target: /var/ilias/cert
       - type: bind
         source: ./volumes/index
         target: /var/ilias/index
