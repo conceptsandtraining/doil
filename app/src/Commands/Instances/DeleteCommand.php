@@ -20,7 +20,7 @@ class DeleteCommand extends Command
 {
     protected const SALT_MAIN = "/usr/local/lib/doil/server/salt/";
     protected const POSTFIX = "/usr/local/lib/doil/server/mail/";
-    protected const PROXY_PATH = "/usr/local/lib/doil/server/proxy/";
+    protected const KEYCLOAK_PATH = "/usr/local/lib/doil/server/keycloak";
 
     protected static $defaultName = "instances:delete";
     protected static $defaultDescription =
@@ -132,6 +132,7 @@ class DeleteCommand extends Command
     ) : int {
         $this->writer->beginBlock($output, "Delete instance $instance");
 
+        $is_up = $this->docker->isInstanceUp($path);
         $instance_dir = $this->filesystem->readLink($path);
         $this->filesystem->remove($path);
         $this->filesystem->remove($instance_dir);
@@ -139,10 +140,17 @@ class DeleteCommand extends Command
         $this->docker->removeContainer($instance . "_" . $suffix);
 
         $this->docker->executeCommand(self::SALT_MAIN, "doil_saltmain", "salt-key", "-d", "$instance.$suffix", "-y", "-q");
-        if ($this->docker->isInstanceUp($path)) {
+        if ($is_up) {
             $this->docker->executeDockerCommand(
                 "doil_proxy",
                 "rm -f /etc/nginx/conf.d/sites/$instance.conf &&  /root/generate_index_html.sh"
+            );
+        }
+
+        if ($this->filesystem->exists(self::KEYCLOAK_PATH)) {
+            $this->docker->executeDockerCommand(
+                "doil_keycloak",
+                "/root/delete_keycloak_client.sh $instance"
             );
         }
 

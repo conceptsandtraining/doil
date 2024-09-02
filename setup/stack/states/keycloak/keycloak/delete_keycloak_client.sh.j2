@@ -1,0 +1,9 @@
+#!/usr/bin/env bash
+
+/opt/keycloak/bin/kcadm.sh config credentials --server http://localhost:8080 --realm master --user admin --password {{ new_admin_password }}
+KEYCLOAK_CLIENT_ID=$(/opt/keycloak/bin/kcadm.sh get clients | jq ".[] | select(.clientId|test(\".*/doil/${1}/.*\")).id" | tr -d '"')
+if [ "${KEYCLOAK_CLIENT_ID}" == "" ]
+then
+  exit 0
+fi
+/opt/keycloak/bin/kcadm.sh delete clients/"${KEYCLOAK_CLIENT_ID}"

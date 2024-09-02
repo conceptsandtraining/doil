@@ -33,7 +33,8 @@ class ApplyCommand extends Command
         "reactor",
         "change-roundcube-password",
         "nodejs",
-        "proxy-enable-https"
+        "proxy-enable-https",
+        "keycloak"
     ];
 
     protected static $defaultName = "instances:apply";

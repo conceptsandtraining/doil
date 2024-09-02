@@ -1,0 +1,44 @@
+<?php
+
+$KC_HOST = "{{ server_host_name }}";
+$SP_HOST= "{{ doil_domain }}/";
+
+$ch = curl_init();
+
+// get the token for the keycloak rest api
+$token_url = $KC_HOST . "/realms/master/protocol/openid-connect/token";
+$auth_data = "client_id=admin-cli&username=admin&password={{ admin_password }}&grant_type=password";
+curl_setopt($ch, CURLOPT_URL, $token_url);
+curl_setopt($ch, CURLOPT_POSTFIELDS, $auth_data);
+curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+$response = curl_exec($ch);
+$access_token = json_decode($response, true)["access_token"];
+$header = [
+    "Authorization: bearer " . $access_token,
+    "content-type: application/json"
+];
+
+curl_reset($ch);
+
+// delete potentially existing client
+$clients_url = $KC_HOST . "/admin/realms/master/clients";
+curl_setopt($ch, CURLOPT_URL, $clients_url);
+curl_setopt($ch, CURLOPT_HTTPHEADER, $header);
+curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+$response = curl_exec($ch);
+$clients = json_decode($response, true);
+$client = array_filter($clients, function($a) use ($SP_HOST) {
+    if (strpos($a["clientId"], $SP_HOST) !== false) {
+        return true;
+    }
+    return false;
+});
+if (count($client) > 0) {
+    curl_reset($ch);
+    $id = array_pop($client)["id"];
+    $delete_url = $KC_HOST . "/admin/realms/master/clients/" . $id;
+    curl_setopt($ch, CURLOPT_URL, $delete_url);
+    curl_setopt($ch, CURLOPT_HTTPHEADER, $header);
+    curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "DELETE");
+    curl_exec($ch);
+}

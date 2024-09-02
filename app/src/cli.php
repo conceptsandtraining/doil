@@ -12,6 +12,7 @@ use CaT\Doil\Commands\User;
 use CaT\Doil\Commands\Proxy;
 use CaT\Doil\Lib\Git\GitShell;
 use CaT\Doil\Lib\ProjectConfig;
+use CaT\Doil\Commands\Keycloak;
 use CaT\Doil\Commands\Instances;
 use CaT\Doil\Lib\ILIAS\IliasInfo;
 use CaT\Doil\Lib\Posix\PosixShell;
@@ -46,6 +47,10 @@ function buildContainerForApp() : Container
             $c["command.instances.restart"],
             $c["command.instances.status"],
             $c["command.instances.up"],
+            $c["command.keycloak.down"],
+            $c["command.keycloak.login"],
+            $c["command.keycloak.restart"],
+            $c["command.keycloak.up"],
             $c["command.mail.change.password"],
             $c["command.mail.down"],
             $c["command.mail.login"],
@@ -83,7 +88,8 @@ function buildContainerForApp() : Container
     $c["docker.shell"] = function($c) {
         return new DockerShell(
             $c["logger"],
-            $c["posix.shell"]
+            $c["posix.shell"],
+            $c["filesystem.shell"]
         );
     };
 
@@ -249,6 +255,37 @@ function buildContainerForApp() : Container
         );
     };
 
+    $c["command.keycloak.down"] = function($c) {
+        return new Keycloak\DownCommand(
+            $c["docker.shell"],
+            $c["command.writer"],
+            $c["filesystem.shell"]
+        );
+    };
+
+    $c["command.keycloak.login"] = function($c) {
+        return new Keycloak\LoginCommand(
+            $c["docker.shell"],
+            $c["filesystem.shell"]
+        );
+    };
+
+    $c["command.keycloak.restart"] = function($c) {
+        return new Keycloak\RestartCommand(
+            $c["docker.shell"],
+            $c["command.writer"],
+            $c["filesystem.shell"]
+        );
+    };
+
+    $c["command.keycloak.up"] = function($c) {
+        return new Keycloak\UpCommand(
+            $c["docker.shell"],
+            $c["command.writer"],
+            $c["filesystem.shell"]
+        );
+    };
+
     $c["command.mail.change.password"] = function($c) {
         return new Mail\ChangePasswordCommand(
             $c["docker.shell"],
@@ -303,7 +340,8 @@ function buildContainerForApp() : Container
             $c["posix.shell"],
             $c["filesystem.shell"],
             $c["repo.manager"],
-            $c["command.writer"]
+            $c["command.writer"],
+            $c["ilias.info"]
         );
     };
 

@@ -13,6 +13,12 @@ rewrite_ilias_config:
     - watch:
       - pkg: apt_add_jq_tool
 
+{%- if salt['file.file_exists']('/var/ilias/data/ilias/auth/saml/config/config.php') %}
+rewrite_saml_config:
+  cmd.run:
+    - name: sed -i -e "s/'https:/'http:/g" /var/ilias/data/ilias/auth/saml/config/config.php
+{%- endif %}
+
 {% if ilias_version | int < 10 %}
 update_ilias_lt_10:
   cmd.wait:

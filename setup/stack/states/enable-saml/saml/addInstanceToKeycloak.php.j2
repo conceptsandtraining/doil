@@ -1,0 +1,120 @@
+<?php
+
+function setProtectMetaData(bool $value) : void
+{
+    $replacement = "\t'admin.protectmetadata' => false,\n";
+    if ($value) {
+        $replacement = "\t'admin.protectmetadata' => true,\n";
+    }
+    $data = file("/var/ilias/data/ilias/auth/saml/config/config.php");
+    $data = array_map(function($d) use ($replacement) {
+        return strpos($d, "admin.protectmetadata") ? $replacement : $d;
+    }, $data);
+
+    file_put_contents("/var/ilias/data/ilias/auth/saml/config/config.php", $data);
+}
+
+$KC_HOST = "{{ server_host_name }}";
+
+$ch = curl_init();
+
+// get the token for the keycloak rest api
+$token_url = $KC_HOST . "/realms/master/protocol/openid-connect/token";
+$auth_data = "client_id=admin-cli&username=admin&password={{ admin_password }}&grant_type=password";
+curl_setopt($ch, CURLOPT_URL, $token_url);
+curl_setopt($ch, CURLOPT_POSTFIELDS, $auth_data);
+curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+$response = curl_exec($ch);
+$access_token = json_decode($response, true)["access_token"];
+$header = [
+    "Authorization: bearer " . $access_token,
+    "content-type: application/json"
+];
+
+curl_reset($ch);
+
+// add a client-scope to keycloak if not already exists
+$client_scope_url = $KC_HOST . "/admin/realms/master/client-scopes";
+curl_setopt($ch, CURLOPT_URL, $client_scope_url);
+curl_setopt($ch, CURLOPT_HTTPHEADER, $header);
+curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+$response = json_decode(curl_exec($ch), true);
+$scope_exists = array_filter($response, function($a) {
+    if ($a["name"] == "MapEmail") {
+        return true;
+    }
+    return false;
+});
+if (count($scope_exists) == 0) {
+    curl_reset($ch);
+    $scope_json = '{"name":"MapEmail","description":"","protocol":"saml","attributes":{"include.in.token.scope":"false","display.on.consent.screen":"true","gui.order":"","consent.screen.text":""},"protocolMappers":[{"name":"X500 email","protocol":"saml","protocolMapper":"saml-user-property-mapper","consentRequired":false,"config":{"attribute.nameformat":"Basic","user.attribute":"email","friendly.name":"email","attribute.name":"email"}}]}';
+
+    curl_setopt($ch, CURLOPT_URL, $client_scope_url);
+    curl_setopt($ch, CURLOPT_POST, 1);
+    curl_setopt($ch, CURLOPT_HTTPHEADER, $header);
+    curl_setopt($ch, CURLOPT_POSTFIELDS, $scope_json);
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+    curl_exec($ch);
+}
+
+curl_reset($ch);
+
+// get the saml metadata for the instance that should be added
+$meta_url = "{{ meta_url }}";
+$converter_url = $KC_HOST . "/admin/realms/master/client-description-converter";
+curl_setopt($ch, CURLOPT_URL, $meta_url);
+curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+setProtectMetaData(false);
+$xml = curl_exec($ch);
+setProtectMetaData(true);
+
+curl_reset($ch);
+
+// convert the saml metadata to json, so keycloak can work with
+curl_setopt($ch, CURLOPT_URL, $converter_url);
+curl_setopt($ch, CURLOPT_HTTPHEADER, $header);
+curl_setopt($ch, CURLOPT_POSTFIELDS, $xml);
+curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+$json = curl_exec($ch);
+
+// add the field "defaultClientScopes" to the metadata
+$meta_json = json_decode($json, true);
+$client_id = $meta_json["clientId"];
+$meta_json["defaultClientScopes"] = ["MapEmail"];
+$meta_json = json_encode($meta_json);
+
+curl_reset($ch);
+
+// delete potentially existing client
+$clients_url = $KC_HOST . "/admin/realms/master/clients";
+curl_setopt($ch, CURLOPT_URL, $clients_url);
+curl_setopt($ch, CURLOPT_HTTPHEADER, $header);
+curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+$response = curl_exec($ch);
+$clients = json_decode($response, true);
+$client = array_filter($clients, function($a) use ($client_id) {
+    if ($a["clientId"] == $client_id) {
+        return true;
+    }
+    return false;
+});
+if (count($client) > 0) {
+    curl_reset($ch);
+    $id = array_pop($client)["id"];
+    $delete_url = $KC_HOST . "/admin/realms/master/clients/" . $id;
+    curl_setopt($ch, CURLOPT_URL, $delete_url);
+    curl_setopt($ch, CURLOPT_HTTPHEADER, $header);
+    curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "DELETE");
+    curl_exec($ch);
+}
+
+curl_reset($ch);
+
+// add the client to keycloak
+curl_setopt($ch, CURLOPT_URL, $clients_url);
+curl_setopt($ch, CURLOPT_HTTPHEADER, $header);
+curl_setopt($ch, CURLOPT_POSTFIELDS, $meta_json);
+curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+curl_exec($ch);
+
+curl_close($ch);

@@ -21,9 +21,11 @@ do
 	TMPFILE="${FILE}.tmp"
 	touch $TMPFILE
 
-    echo "---" > ${TMPFILE}
+  echo "---" > ${TMPFILE}
 	sed 's/{%.*%}//' ${FILE} >> ${TMPFILE}
-    sed 's/{{.*}}/bar/' ${TMPFILE} > ${TMPFILE}.tmp
+  sed '/%[A-Z].*%/d' ${TMPFILE} >> ${TMPFILE}.1
+  sed 's/{{.*}}/bar/' ${TMPFILE}.1 > ${TMPFILE}.tmp
+  rm ${TMPFILE}.1
 	mv ${TMPFILE}.tmp ${TMPFILE}
 
 	TEST=$(yamllint -c ./CI/sls-lint-rules.yml ${FILE}.tmp)

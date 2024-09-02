@@ -160,10 +160,9 @@ class DeleteCommandTest extends TestCase
         $command->setApplication($app);
 
         $filesystem
-            ->expects($this->exactly(1))
+            ->expects($this->exactly(2))
             ->method("exists")
-            ->with("/usr/local/share/doil/instances/master")
-            ->willReturn(true)
+            ->willReturn(true, false)
         ;
 
         $posix

@@ -678,6 +678,8 @@ file_roots:
     - /srv/salt/states/php8.3
   ilias:
     - /srv/salt/states/ilias
+  keycloak:
+    - /srv/salt/states/keycloak
   compile-skins:
     - /srv/salt/states/compile-skins
   composer:
@@ -712,6 +714,12 @@ file_roots:
     - /srv/salt/states/enable-captainhook
   disable-captainhook:
     - /srv/salt/states/disable-captainhook
+  enable-saml:
+    - /srv/salt/states/enable-saml
+  disable-saml:
+    - /srv/salt/states/disable-saml
+  prevent-super-global-replacement:
+    - /srv/salt/states/prevent-super-global-replacement
 
 
 # The master_roots setting configures a master-only copy of the file_roots dictionary,

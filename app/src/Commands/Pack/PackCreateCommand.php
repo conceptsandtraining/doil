@@ -31,12 +31,14 @@ class PackCreateCommand extends Command
     protected const GLOBAL_REPO_PATH = "/usr/local/share/doil/repositories";
     protected const LOCAL_INSTANCES_PATH = "/.doil/instances";
     protected const GLOBAL_INSTANCES_PATH = "/usr/local/share/doil/instances";
+    protected const KEYCLOAK_PATH = "/usr/local/lib/doil/server/keycloak";
     protected const BASIC_FOLDERS = [
         "/conf",
         "/conf/salt",
         "/volumes/db",
         "/volumes/index",
         "/volumes/data",
+        "/volumes/cert",
         "/volumes/logs/error",
         "/volumes/logs/apache",
         "/volumes/etc/apache2",
@@ -104,12 +106,14 @@ class PackCreateCommand extends Command
     {
         $options = $this->gatherOptionData($input, $output);
 
+        $host = explode("=", $this->filesystem->getLineInFile("/etc/doil/doil.conf", "host"))[1];
         $instance_path = $options["target"] . "/" . $options["name"];
         $suffix = $options["global"] ? "global" : "local";
         $instance_name = $options["name"] . "_" . $suffix;
         $instance_salt_name = $options["name"] . "." . $suffix;
         $user_name = $this->posix->getCurrentUserName();
         $home_dir = $this->posix->getHomeDirectory($this->posix->getUserId());
+        $keycloak = false;
 
         if ($this->filesystem->exists($instance_path)) {
             $this->writer->error(
@@ -126,6 +130,10 @@ class PackCreateCommand extends Command
                 "Folder $home_dir/.ssh not found."
             );
             return Command::FAILURE;
+        }
+
+        if ($this->filesystem->exists(self::KEYCLOAK_PATH)) {
+            $keycloak = true;
         }
 
         $this->writer->beginBlock($output, "Creating instance " . $options['name']);
@@ -255,6 +263,11 @@ class PackCreateCommand extends Command
             "%TPL_PROJECT_DOMAINNAME%",
             $suffix
         );
+        $this->filesystem->replaceStringInFile(
+            $instance_path . "/docker-compose.yml",
+            "%TPL_HOST_DOMAIN%",
+            $host
+        );
         $this->writer->endBlock();
 
         // building minion image
@@ -291,12 +304,20 @@ class PackCreateCommand extends Command
         if ($ilias_version < 9) {
             $cron_password = $this->generatePassword(16);
         }
-        $host = explode("=", $this->filesystem->getLineInFile("/etc/doil/doil.conf", "host"));
+
+        if ($keycloak) {
+            $samlpass = $this->generatePassword(33);
+            $samlsalt = $this->generatePassword(33);
+            $this->docker->setGrain($instance_salt_name, "samlpass", "$samlpass");
+            $this->docker->setGrain($instance_salt_name, "samlsalt", "$samlsalt");
+            sleep(1);
+        }
+
         $this->docker->setGrain($instance_salt_name, "mpass", "${mysql_password}");
         sleep(1);
         $this->docker->setGrain($instance_salt_name, "cpass", "${cron_password}");
         sleep(1);
-        $doil_domain = "http://" . $host[1] . "/" . $options["name"];
+        $doil_domain = "http://" . $host . "/" . $options["name"];
         $this->docker->setGrain($instance_salt_name, "doil_domain", "${doil_domain}");
         sleep(1);
         $this->docker->setGrain($instance_salt_name, "doil_project_name", "${options['name']}");

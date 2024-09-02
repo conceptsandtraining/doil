@@ -69,7 +69,6 @@ function doil_system_remove() {
   if [ ! -z ${ALL} ]
   then
     GLOBAL_INSTANCES_PATH=$(doil_get_conf global_instances_path)
-    HOST=$(doil_get_conf host)
     if [ -d "${GLOBAL_INSTANCES_PATH}" ]
     then
       rm -rf "${GLOBAL_INSTANCES_PATH}"
@@ -130,7 +129,7 @@ function doil_system_remove_networks() {
 }
 
 function doil_system_remove_volumes() {
-  docker volume prune -f >/dev/null 2>&1
+  docker volume prune -af >/dev/null 2>&1
 }
 
 function doil_system_remove_user_doil_folders() {
@@ -138,6 +137,7 @@ function doil_system_remove_user_doil_folders() {
 }
 
 function doil_system_remove_hosts_entry() {
+  HOST=$(doil_get_conf "host=")
   sed -i "/172.24.0.254 ${HOST}/d" /etc/hosts
 }
 
@@ -206,6 +206,17 @@ function doil_system_create_folder() {
 }
 
 function doil_system_copy_doil() {
+  enable_keycloak="$1"
+  if [[ "$enable_keycloak" == true ]]
+  then
+    cp -r ${SCRIPT_DIR}/templates/keycloak /usr/local/lib/doil/server/
+  else
+    if [ -d /usr/local/lib/doil/server/keycloak ]
+    then
+      rm -rf /usr/local/lib/doil/server/keycloak
+    fi
+  fi
+
   cp ${SCRIPT_DIR}/doil.sh /usr/local/bin/doil
   cp -r ${SCRIPT_DIR}/templates/mail /usr/local/lib/doil/server/
   cp -r ${SCRIPT_DIR}/templates/proxy /usr/local/lib/doil/server/
@@ -246,7 +257,7 @@ function doil_system_setup_ip() {
   IPEXIST=$(grep "172.24.0.254" /etc/hosts)
   if [[ -z ${IPEXIST} ]]
   then
-    HOST=$(doil_get_conf host)
+    HOST=$(doil_get_conf "host=")
     printf "172.24.0.254 ${HOST}" >> "/etc/hosts"
   fi
   return 0
@@ -354,12 +365,47 @@ function doil_system_install_saltserver() {
   docker commit doil_saltmain doil_saltmain:stable 2>&1 > /var/log/doil/stream.log
 }
 
+function doil_system_install_keycloakserver() {
+  cd /usr/local/lib/doil/server/keycloak
+
+  KEYCLOAK_HOSTNAME=$(printf '%s\n' "$(doil_get_conf keycloak_hostname)" | sed -e 's/[\/&]/\\&/g')
+  KEYCLOAK_NEW_ADMIN_PASSWORD=$(doil_get_conf keycloak_new_admin_password)
+  KEYCLOAK_OLD_ADMIN_PASSWORD=$(doil_get_conf keycloak_old_admin_password)
+  # Please leave this in as an example for default user creation
+  # KEYCLOAK_USR_PASSWORD=$(doil_get_conf keycloak_usr_password)
+  KEYCLOAK_DB_USERNAME=$(doil_get_conf keycloak_db_username)
+  KEYCLOAK_DB_PASSWORD=$(doil_get_conf keycloak_db_password)
+
+  sed -i "s/%TPL_SERVER_HOSTNAME%/${KEYCLOAK_HOSTNAME}/g" "/usr/local/lib/doil/server/keycloak/conf/keycloak-startup.conf"
+  sed -i "s/%TPL_DB_USERNAME%/${KEYCLOAK_DB_USERNAME}/g" "/usr/local/lib/doil/server/keycloak/conf/keycloak-startup.conf"
+  sed -i "s/%TPL_DB_PASSWORD%/${KEYCLOAK_DB_PASSWORD}/g" "/usr/local/lib/doil/server/keycloak/conf/keycloak-startup.conf"
+
+  sed -i "s/%TPL_DB_USERNAME%/${KEYCLOAK_DB_USERNAME}/g" "/usr/local/lib/doil/server/keycloak/conf/init.sql"
+  sed -i "s/%TPL_DB_PASSWORD%/${KEYCLOAK_DB_PASSWORD}/g" "/usr/local/lib/doil/server/keycloak/conf/init.sql"
+
+  sed -i "s/%TPL_NEW_ADMIN_PASSWORD%/${KEYCLOAK_NEW_ADMIN_PASSWORD}/g" "/usr/local/share/doil/stack/states/keycloak/keycloak/init.sls"
+  sed -i "s/%TPL_OLD_ADMIN_PASSWORD%/${KEYCLOAK_OLD_ADMIN_PASSWORD}/g" "/usr/local/share/doil/stack/states/keycloak/keycloak/init.sls"
+  # Please leave this in as an example for default user creation
+  # sed -i "s/%TPL_USR_PASSWORD%/${KEYCLOAK_USR_PASSWORD}/g" "/usr/local/share/doil/stack/states/keycloak/keycloak/init.sls"
+
+  BUILD=$(docker compose up -d 2>&1 > /var/log/doil/stream.log) 2>&1 > /var/log/doil/stream.log
+  sleep 120
+  docker exec -i doil_saltmain bash -c "salt 'doil.keycloak' state.highstate saltenv=keycloak" 2>&1 > /var/log/doil/stream.log
+  docker commit doil_keycloak doil_keycloak:stable 2>&1 > /var/log/doil/stream.log
+  IDP_META=$(docker exec -i doil_saltmain bash -c "salt 'doil.keycloak' http.query http://localhost:8080/realms/master/protocol/saml/descriptor --out=raw | cut -d \"'\" -f6")
+  sed -i "s|%TPL_IDP_META%|${IDP_META}|g" "/usr/local/share/doil/stack/states/enable-saml/saml/init.sls"
+  sed -i "s|%TPL_KEYCLOAK_HOSTNAME%|${KEYCLOAK_HOSTNAME}|g" "/usr/local/share/doil/stack/states/enable-saml/saml/init.sls"
+  sed -i "s/%TPL_ADMIN_PASSWORD%/${KEYCLOAK_NEW_ADMIN_PASSWORD}/g" "/usr/local/share/doil/stack/states/enable-saml/saml/init.sls"
+  sed -i "s|%TPL_KEYCLOAK_HOSTNAME%|${KEYCLOAK_HOSTNAME}|g" "/usr/local/share/doil/stack/states/disable-saml/saml/init.sls"
+  sed -i "s/%TPL_ADMIN_PASSWORD%/${KEYCLOAK_NEW_ADMIN_PASSWORD}/g" "/usr/local/share/doil/stack/states/disable-saml/saml/init.sls"
+}
+
 function doil_system_install_proxyserver() {
   cd /usr/local/lib/doil/server/proxy
-  NAME=$(cat /etc/doil/doil.conf | grep "host" | cut -d '=' -f 2-)
+  NAME=$(printf '%s\n' $(doil_get_conf host=) | sed -e 's/[\/&]/\\&/g')
   sed -i "s/%TPL_SERVER_NAME%/${NAME}/g" "/usr/local/lib/doil/server/proxy/conf/nginx/local.conf"
   BUILD=$(docker compose up -d 2>&1 > /var/log/doil/stream.log) 2>&1 > /var/log/doil/stream.log
-  sleep 10
+  sleep 20
   docker exec -i doil_saltmain bash -c "salt 'doil.proxy' state.highstate saltenv=proxyservices" 2>&1 > /var/log/doil/stream.log
   docker commit doil_proxy doil_proxy:stable 2>&1 > /var/log/doil/stream.log
 }
@@ -367,7 +413,7 @@ function doil_system_install_proxyserver() {
 function doil_system_install_mailserver() {
   cd /usr/local/lib/doil/server/mail
   BUILD=$(docker compose up -d 2>&1 > /var/log/doil/stream.log) 2>&1 > /var/log/doil/stream.log
-  sleep 10
+  sleep 20
   docker exec -i doil_saltmain bash -c "salt 'doil.mail' state.highstate saltenv=mailservices" 2>&1 > /var/log/doil/stream.log
   PASSWORD=$(doil_get_conf mail_password)
   if [[ "${PASSWORD}" != "ilias" ]]

@@ -1,0 +1,1 @@
+description = ATTENTION: This will delete existing SAML configurations. Disables saml login in ILIAS and removes the instance from keycloak.
