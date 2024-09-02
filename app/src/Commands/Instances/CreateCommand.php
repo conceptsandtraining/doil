@@ -12,6 +12,7 @@ use CaT\Doil\Lib\Posix\Posix;
 use CaT\Doil\Lib\Linux\Linux;
 use CaT\Doil\Lib\ProjectConfig;
 use CaT\Doil\Lib\Docker\Docker;
+use CaT\Doil\Lib\ILIAS\IliasInfo;
 use CaT\Doil\Commands\Repo\RepoManager;
 use CaT\Doil\Lib\ConsoleOutput\Writer;
 use CaT\Doil\Lib\FileSystem\Filesystem;
@@ -56,6 +57,7 @@ class CreateCommand extends Command
     protected Linux $linux;
     protected ProjectConfig $project_config;
     protected Writer $writer;
+    protected IliasInfo $ilias_info;
 
     public function __construct(
         Docker $docker,
@@ -65,7 +67,8 @@ class CreateCommand extends Command
         Filesystem $filesystem,
         Linux $linux,
         ProjectConfig $project_config,
-        Writer $writer
+        Writer $writer,
+        IliasInfo $ilias_info
     ) {
         parent::__construct();
 
@@ -77,6 +80,7 @@ class CreateCommand extends Command
         $this->linux = $linux;
         $this->project_config = $project_config;
         $this->writer = $writer;
+        $this->ilias_info = $ilias_info;
     }
 
     public function configure() : void
@@ -277,7 +281,7 @@ class CreateCommand extends Command
         sleep(5);
         $this->writer->endBlock();
 
-        $ilias_version = $this->getIliasVersion($instance_path);
+        $ilias_version = $this->ilias_info->getIliasVersion($instance_path);
 
         // set grains
         $this->writer->beginBlock($output, "Setting up instance configuration");
@@ -711,26 +715,6 @@ class CreateCommand extends Command
         $branches = $this->git->getBranches($path);
         $this->writer->endBlock();
         return $branches;
-    }
-
-    protected function getIliasVersion(string $path) : string
-    {
-        if ($this->filesystem->exists($path . "/volumes/ilias/include/inc.ilias_version.php")) {
-            $ilias_version_path = $path . "/volumes/ilias/include/inc.ilias_version.php";
-        } else if ($this->filesystem->exists($path . "/volumes/ilias/ilias_version.php")) {
-            $ilias_version_path = $path . "/volumes/ilias/ilias_version.php";
-        } else {
-            throw new RuntimeException("Can't detect ilias version!");
-        }
-
-        $ilias_version = $this->filesystem->getLineInFile(
-            $ilias_version_path,
-            "ILIAS_VERSION_NUMERIC"
-        );
-
-        preg_match("/\d+.\d/", $ilias_version, $version);
-
-        return $version[0];
     }
 
     protected function getComposerVersion(string $ilias_version) : string
