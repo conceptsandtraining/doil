@@ -270,14 +270,6 @@ class ExportCommand extends Command
                 return $this->repo_manager->repoUrlExists($repo);
             });
 
-            if (count($local_repos) == 0 && count($global_repos) == 0) {
-                $this->writer->error(
-                    $output,
-                    "Can't find branch '$branch' inside the available remotes inside directory '$path/volumes/ilias'."
-                );
-                return self::FAILURE;
-            }
-
             $local_cat_ilias_repos = [];
             if (count($local_repos) > 0) {
                 $local_cat_ilias_repos = array_filter($local_repos, function(Repo $local_repo) {
@@ -310,6 +302,11 @@ class ExportCommand extends Command
 
             if (!$found && count($global_repos)) {
                 $repo = array_shift($global_repos);
+                $found = true;
+            }
+
+            if (!$found && count($repos) > 0) {
+                $repo = array_shift($repos);
             }
         }
 
