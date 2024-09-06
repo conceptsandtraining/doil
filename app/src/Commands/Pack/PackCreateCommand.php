@@ -292,9 +292,13 @@ class PackCreateCommand extends Command
             $cron_password = $this->generatePassword(16);
         }
         $host = explode("=", $this->filesystem->getLineInFile("/etc/doil/doil.conf", "host"));
-        $this->docker->setGrain($instance_salt_name, "mpass", "${mysql_password}");
+
+        $this->docker->setGrain($instance_salt_name, "mpass", "$mysql_password");
         sleep(1);
-        $this->docker->setGrain($instance_salt_name, "cpass", "${cron_password}");
+        $this->docker->setGrain($instance_salt_name, "cpass", "$cron_password");
+        sleep(1);
+        $update_token = explode("=", $this->filesystem->getLineInFile("/etc/doil/doil.conf", "update_token"));
+        $this->docker->setGrain($instance_salt_name, "update_token", "${update_token[1]}");
         sleep(1);
         $doil_domain = "http://" . $host[1] . "/" . $options["name"];
         $this->docker->setGrain($instance_salt_name, "doil_domain", "${doil_domain}");
@@ -341,9 +345,19 @@ class PackCreateCommand extends Command
             $this->writer->endBlock();
         }
 
+
         // apply composer state
         $this->writer->beginBlock($output, "Apply composer state");
         $this->docker->applyState($instance_salt_name, $this->getComposerVersion($ilias_version));
+
+        // apply set-update-token state
+        $this->writer->beginBlock($output, "Apply set-update-token state");
+        $this->docker->applyState($instance_salt_name, "set-update-token");
+        $this->writer->endBlock();
+
+        // apply ilias-update-hook state
+        $this->writer->beginBlock($output, "Apply ilias-update-hook state");
+        $this->docker->applyState($instance_salt_name, "ilias-update-hook");
         $this->writer->endBlock();
 
         // apply access state
