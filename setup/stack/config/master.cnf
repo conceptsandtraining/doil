@@ -674,6 +674,8 @@ file_roots:
     - /srv/salt/states/php8.1
   php8.2:
     - /srv/salt/states/php8.2
+  php8.3:
+    - /srv/salt/states/php8.3
   ilias:
     - /srv/salt/states/ilias
   compile-skins:
