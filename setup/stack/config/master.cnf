@@ -708,6 +708,10 @@ file_roots:
     - /srv/salt/states/enable-https
   disable-https:
     - /srv/salt/states/disable-https
+  enable-captainhook:
+    - /srv/salt/states/enable-captainhook
+  disable-captainhook:
+    - /srv/salt/states/disable-captainhook
 
 
 # The master_roots setting configures a master-only copy of the file_roots dictionary,

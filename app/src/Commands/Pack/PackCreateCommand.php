@@ -346,6 +346,11 @@ class PackCreateCommand extends Command
         $this->docker->applyState($instance_salt_name, $this->getComposerVersion($ilias_version));
         $this->writer->endBlock();
 
+        // apply enable-captainhook state
+        $this->writer->beginBlock($output, "Apply enable-captainhook state");
+        $this->docker->applyState($instance_salt_name, "enable-captainhook");
+        $this->writer->endBlock();
+
         // apply access state
         $this->writer->beginBlock($output, "Apply access state");
         $this->docker->applyState($instance_salt_name, "access");
