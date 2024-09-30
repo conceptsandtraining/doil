@@ -316,6 +316,8 @@ class ImportCommand extends Command
             sleep(5);
         }
 
+        sleep(10);
+
         $this->writer->beginBlock($output, "Setting permissions");
         $this->docker->applyState($instance . "." . $suffix, "access");
         $this->writer->endBlock();
