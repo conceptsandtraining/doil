@@ -287,7 +287,7 @@ class ImportCommand extends Command
         $this->writer->endBlock();
 
         $this->writer->beginBlock($output, "Apply ilias config");
-        if ($this->filesystem->exists($path . "/var/www/html/setup/setup.php")) {
+        if ($this->filesystem->exists($path . "/volumes/ilias/setup/setup.php")) {
             $this->docker->executeCommand(
                 $path,
                 $instance,
@@ -295,7 +295,7 @@ class ImportCommand extends Command
                 "-c",
                 "php /var/www/html/setup/setup.php update /var/ilias/data/ilias-config.json -y"
             );
-        } else if ($path . "/var/www/html/cli/setup.php") {
+        } else if ($path . "/volumes/ilias/cli/setup.php") {
             $this->docker->executeCommand(
                 $path,
                 $instance,
