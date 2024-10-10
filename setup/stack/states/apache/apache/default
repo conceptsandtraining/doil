@@ -7,6 +7,7 @@
 
   <Directory /var/www/html/>
     AllowOverride All
+    Options -Indexes
     Require all granted
   </Directory>
 
