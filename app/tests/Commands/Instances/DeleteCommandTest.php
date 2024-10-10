@@ -182,6 +182,12 @@ class DeleteCommandTest extends TestCase
         ;
         $docker
             ->expects($this->once())
+            ->method("isInstanceUp")
+            ->with("/usr/local/share/doil/instances/master")
+            ->willReturn(true)
+        ;
+        $docker
+            ->expects($this->once())
             ->method("executeDockerCommand")
             ->with(
                 "doil_proxy",
