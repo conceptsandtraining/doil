@@ -335,10 +335,10 @@ class CreateCommandTest extends TestCase
             ->willReturn(false, true, false, true)
         ;
         $filesystem
-            ->expects($this->once())
+            ->expects($this->exactly(2))
             ->method("getLineInFile")
-            ->with("/etc/doil/doil.conf", "host")
-            ->willReturnOnConsecutiveCalls("foo=doil", "7.8")
+            ->withConsecutive(["/etc/doil/doil.conf", "host="], ["/etc/doil/doil.conf", "https_proxy="])
+            ->willReturnOnConsecutiveCalls("foo=doil", "foo=false")
         ;
         $filesystem
             ->expects($this->once())

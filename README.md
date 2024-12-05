@@ -349,6 +349,9 @@ The state also sets up a cron job that regularly renews the certificates.
 After that please ensure to run `doil apply <instance_name> enable-https` on each doil ILIAS instance,
 so https take effect in ILIAS.
 
+It is also important to set the value 'http_proxy' in setup/conf/doil.conf to true before each update.
+This ensures that newly created instances are always created with https.
+
 ### Mail Server
 
 The mailserver is available at `http://doil/mails` with following
