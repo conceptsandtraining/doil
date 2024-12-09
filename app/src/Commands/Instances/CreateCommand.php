@@ -140,6 +140,8 @@ class CreateCommand extends Command
             $keycloak = true;
         }
 
+        $update_token = $this->filesystem->getLineInFile("/etc/doil/doil.conf", "update_token");
+
         $this->writer->beginBlock($output, "Creating instance " . $options['name']);
 
         if (isset($options["repo_path"]) && ! $this->filesystem->exists($options["repo_path"])) {
@@ -324,6 +326,11 @@ class CreateCommand extends Command
         sleep(1);
         $this->docker->setGrain($instance_salt_name, "cpass", "$cron_password");
         sleep(1);
+        if (!is_null($update_token)) {
+            $token = explode("=", $update_token);
+            $this->docker->setGrain($instance_salt_name, "update_token", "${token[1]}");
+            sleep(1);
+        }
         $this->docker->setGrain($instance_salt_name, "doil_domain", $http_scheme . $host . "/" . $options["name"]);
         sleep(1);
         $this->docker->setGrain($instance_salt_name, "doil_project_name", $options["name"]);
@@ -387,6 +394,16 @@ class CreateCommand extends Command
             $this->docker->applyState($instance_salt_name, "enable-xdebug");
             $this->writer->endBlock();
         }
+
+        // apply set-update-token state
+        $this->writer->beginBlock($output, "Apply set-update-token state");
+        $this->docker->applyState($instance_salt_name, "set-update-token");
+        $this->writer->endBlock();
+
+        // apply ilias-update-hook state
+        $this->writer->beginBlock($output, "Apply ilias-update-hook state");
+        $this->docker->applyState($instance_salt_name, "ilias-update-hook");
+        $this->writer->endBlock();
 
         // apply access state
         $this->writer->beginBlock($output, "Apply access state");
