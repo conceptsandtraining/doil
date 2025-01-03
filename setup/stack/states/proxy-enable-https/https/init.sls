@@ -4,6 +4,8 @@
 # Please note that you must provide your email address.
 #
 # salt 'doil.proxy' state.highstate saltenv=proxy-enable-https pillar='{"email": "<your_email>", "domain" = "<your_domain>"}'
+# Example:
+# salt 'doil.proxy' state.highstate saltenv=proxy-enable-https pillar='{"email": "dweise@cfoobar.de", "domain": "test.foo.de"}'
 #
 # After applying the state, it is important that you commit the new proxy status to the docker image on the docker host.
 # To do this, run the following command on the Docker host.

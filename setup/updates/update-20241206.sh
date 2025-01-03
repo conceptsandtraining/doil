@@ -2,7 +2,7 @@
 
 source ${SCRIPT_DIR}/updates/update.sh
 
-doil_update_20241205() {
+doil_update_20241206() {
 
 cat <<Message
 Before running this update, you should make sure to customize the ${SCRIPT_DIR}/conf/doil.conf file according to
@@ -38,15 +38,16 @@ Message
           sleep 5
           docker exec -it ${INSTANCE} /bin/bash -c "sed -i 's%${NEEDLE}%${REPLACE}%g' /var/ilias/data/ilias-config.json" &> /dev/null
           docker exec -it ${INSTANCE} /bin/bash -c "cd /var/www/html && php setup/setup.php update -y /var/ilias/data/ilias-config.json" &> /dev/null
-          NAME=$(echo "${INSTANCE}" | cut -d "_" -f 1)
-          SUFFIX=$(echo "${INSTANCE}" | cut -d "_" -f 2)
+          NAME=$(echo "${INSTANCE%_*}")
+          SUFFIX=$(echo "${INSTANCE}" | rev | cut -d "_" -f 1 | rev)
           GLOBAL_PARAM="-g"
           if [ "${SUFFIX}" == "local" ]
           then
             GLOBAL_PARAM=""
           fi
-          doil apply "${NAME}" "${GLOBAL_PARAM}" enable_https
+          doil apply "${NAME}" "${GLOBAL_PARAM}" enable-https
           docker exec -it ${INSTANCE} /bin/bash -c "salt-call grains.set doil_domain ${REPLACE}/${NAME}"
+          doil apply "${NAME}" "${GLOBAL_PARAM}" access
           docker commit ${INSTANCE} doil/${INSTANCE}:stable &> /dev/null
           docker stop ${INSTANCE} &> /dev/null
       done
