@@ -109,7 +109,7 @@ class CreateCommand extends Command
         $https_proxy = explode("=", $this->filesystem->getLineInFile("/etc/doil/doil.conf", "https_proxy="))[1];
         $http_scheme = "http://";
         if ($https_proxy) {
-            $http_scheme .= "https://";
+            $http_scheme = "https://";
         }
         $instance_path = $options["target"] . "/" . $options["name"];
         $suffix = $options["global"] ? "global" : "local";
