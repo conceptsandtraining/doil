@@ -122,7 +122,7 @@ class ImportCommand extends Command
                         $project_config = $this->readOldProjectConfig("$unpacked/conf/doil.conf");
                         $sql_dump = $unpacked . DIRECTORY_SEPARATOR . "var/ilias/ilias.sql";
                     } else {
-                        throw new FileNotFoundException("Can not found doil config file in package.");
+                        throw new FileNotFoundException("Can not find doil config file in package.");
                     }
                 }
             }
