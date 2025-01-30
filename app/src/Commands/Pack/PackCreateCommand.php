@@ -109,7 +109,7 @@ class PackCreateCommand extends Command
         $host = explode("=", $this->filesystem->getLineInFile("/etc/doil/doil.conf", "host"))[1];
         $https_proxy = explode("=", $this->filesystem->getLineInFile("/etc/doil/doil.conf", "https_proxy="))[1];
         $http_scheme = "http://";
-        if ($https_proxy) {
+        if ($https_proxy === "true") {
             $http_scheme = "https://";
         }
         $instance_path = $options["target"] . "/" . $options["name"];
