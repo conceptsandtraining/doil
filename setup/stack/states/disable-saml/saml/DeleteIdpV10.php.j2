@@ -1,0 +1,30 @@
+<?php declare(strict_types=1);
+
+if (!file_exists(getcwd() . '/../ilias.ini.php')) {
+    exit();
+}
+
+define("ILIAS_HTTP_PATH", "{{ ilias_http_path }}");
+
+require_once("../libs/composer/vendor/autoload.php");
+ilContext::init(ilContext::CONTEXT_CRON);
+
+ilInitialisation::initILIAS();
+
+ilSamlSettings::getInstance()->setLoginFormStatus(false);
+
+$idps = ilSamlIdp::getAllIdps();
+
+if (count($idps) > 0) {
+  foreach ($idps as $idp) {
+    if ($idp->getEntityId() == "{{ keycloak_host_name }}/realms/master") {
+      $factory = new ilSamlAuthFactory();
+      $samlAuth = $factory->auth();
+      $idpDisco = $samlAuth->getIdpDiscovery();
+      $idpDisco->deleteIdpMetadata($idp->getIdpId());
+      $idp->delete();
+    }
+  }
+}
+
+

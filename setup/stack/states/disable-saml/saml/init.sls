@@ -32,9 +32,9 @@ delete_ilias_idp_lt10:
     - watch:
         - file: /var/www/html/DeleteIdp.php
 {% else %}
-/var/www/html/public/DeleteIdp.php:
+/var/www/html/public/DeleteIdpV10.php:
   file.managed:
-    - source: salt://saml/DeleteIdp.php.j2
+    - source: salt://saml/DeleteIdpV10.php.j2
     - template: jinja
     - context:
       ilias_http_path: {{ doil_domain }}
@@ -45,10 +45,10 @@ delete_ilias_idp_lt10:
 
 delete_ilias_idp:
   cmd.run:
-    - name: php DeleteIdp.php; rm DeleteIdp.php
+    - name: php DeleteIdpV10.php; rm DeleteIdpV10.php
     - cwd: /var/www/html/public
     - watch:
-        - file: /var/www/html/public/DeleteIdp.php
+        - file: /var/www/html/public/DeleteIdpV10.php
 {% endif %}
 
 

@@ -20,7 +20,7 @@ $idp->setUidClaim("email");
 $idp->setSynchronizationStatus(true);
 $idp->setLoginClaim("email");
 $idp->setDefaultRoleId(2);
-$idp->setAccountMigrationStatus(false)
+$idp->setAccountMigrationStatus(false);
 $idp->persist();
 $factory = new ilSamlAuthFactory();
 $samlAuth = $factory->auth();
