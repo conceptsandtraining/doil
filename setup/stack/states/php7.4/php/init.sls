@@ -36,7 +36,7 @@ php7.4:
       - php7.4-zip
       - php7.4-intl
 
-{% for version in ['7.0','7.1','7.2','7.3','8.0','8.1','8.2'] %}
+{% for version in ['7.0','7.1','7.2','7.3','8.0','8.1','8.2','8.3','8.4'] %}
 php{{ version }}:
   pkg.purged:
     - refresh: True
