@@ -36,7 +36,7 @@ php8.2:
       - php8.2-zip
       - php8.2-imagick
 
-{% for version in ['7.0','7.1','7.2','7.3','7.4','8.0','8.1'] %}
+{% for version in ['7.0','7.1','7.2','7.3','7.4','8.0','8.1','8.3','8.4'] %}
 php{{ version }}:
   pkg.purged:
     - refresh: True

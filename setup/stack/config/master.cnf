@@ -676,6 +676,8 @@ file_roots:
     - /srv/salt/states/php8.2
   php8.3:
     - /srv/salt/states/php8.3
+  php8.4:
+    - /srv/salt/states/php8.4
   ilias:
     - /srv/salt/states/ilias
   keycloak:

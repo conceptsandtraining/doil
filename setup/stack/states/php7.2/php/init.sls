@@ -35,7 +35,7 @@ php7.2:
       - php7.2-xsl
       - php7.2-zip
 
-{% for version in ['7.0','7.1','7.3','7.4','8.0','8.1','8.2'] %}
+{% for version in ['7.0','7.1','7.3','7.4','8.0','8.1','8.2','8.3','8.4'] %}
 php{{ version }}:
   pkg.purged:
     - refresh: True
