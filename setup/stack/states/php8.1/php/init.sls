@@ -34,6 +34,7 @@ php8.1:
       - php8.1-xsl
       - php8.1-zip
       - php8.1-imagick
+      - php8.1-intl
 
 {% for version in ['7.0','7.1','7.2','7.3','7.4','8.0','8.2'] %}
 php{{ version }}:
@@ -60,6 +61,7 @@ php{{ version }}:
           - php{{ version }}-xsl
           - php{{ version }}-zip
           - php{{ version }}-imagick
+          - php{{ version }}-intl
 {% endfor %}
 
 ini_filesize_apache2:
