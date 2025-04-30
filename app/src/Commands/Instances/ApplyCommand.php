@@ -15,8 +15,9 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Question\ChoiceQuestion;
 use Symfony\Component\Console\Exception\InvalidArgumentException;
+use Symfony\Component\Console\Command\SignalableCommandInterface;
 
-class ApplyCommand extends Command
+class ApplyCommand extends Command implements SignalableCommandInterface
 {
     protected const PATH_STATES = "/usr/local/share/doil/stack/states";
 
@@ -190,6 +191,19 @@ class ApplyCommand extends Command
             $suffix,
             $no_commit
         );
+    }
+
+    public function getSubscribedSignals(): array
+    {
+        return [SIGINT, SIGTERM];
+    }
+
+    public function handleSignal(int $signal) : void
+    {
+        if (SIGINT === $signal || SIGTERM === $signal) {
+            echo "Aborted by User!\n";
+            exit(0);
+        }
     }
 
     protected function applyState(
