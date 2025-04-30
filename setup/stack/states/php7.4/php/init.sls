@@ -34,6 +34,7 @@ php7.4:
       - php7.4-xmlrpc
       - php7.4-xsl
       - php7.4-zip
+      - php7.4-intl
 
 {% for version in ['7.0','7.1','7.2','7.3','8.0','8.1','8.2'] %}
 php{{ version }}:
@@ -59,6 +60,7 @@ php{{ version }}:
           - php{{ version }}-xsl
           - php{{ version }}-zip
           - php{{ version }}-imagick
+          - php{{ version }}-intl
 {% endfor %}
 
 ini_filesize_apache2:
