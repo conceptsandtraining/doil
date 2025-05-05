@@ -36,6 +36,9 @@ services:
       - type: bind
         source: ./conf/generate_index_html.sh
         target: /root/generate_index_html.sh
+      - type: bind
+        source: ./conf/robots.txt
+        target: /var/www/html/robots.txt
 networks:
   salt_saltnet:
     external: true
