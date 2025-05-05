@@ -1,5 +1,40 @@
 # Changelog
 
+## 20250505
+## What's Changed
+* add robots.txt to proxy
+* add robots meta tag for doil status site
+* strg-c now cancel doil apply
+* add php-intl to package list
+* add php8.4
+
+## 20250404
+## What's Changed
+* adjust proxy settings
+
+## 20250226
+## What's Changed
+* istribute update token, and enable doil to trigger instance updates via url
+
+## 20250217
+## What's Changed
+* fix the delete and set idp scripts
+
+## 20250130
+## What's Changed
+* add 20250130
+* doil: Fix typo
+* remove typo that results in wrong http url
+* explicit check for true
+
+## 20241206
+## What's Changed
+* fix name extraction
+
+## 20241205
+## What's Changed
+* keycloak: ensure instances work with https
+
 ## 20241113
 ## What's Changed
 * add keycloak server

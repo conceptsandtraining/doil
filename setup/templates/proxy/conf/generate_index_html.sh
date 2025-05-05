@@ -17,6 +17,7 @@ cat << EOF > /tmp/index.html
 <html lang="en">
   <head>
     <title>Doil-Server-Status</title>
+    <meta name='robots' content='noindex,follow' />
     <style>
       body { font-family: monospace; background: #002b36; color: #586e75; }
       a { color: #2aa198; }
