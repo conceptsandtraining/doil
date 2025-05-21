@@ -2,8 +2,19 @@
 
 /* Copyright (c) 2024 - Daniel Weise <daniel.weise@concepts-and-training.de> - Extended GPL, see LICENSE */
 
+function log_write(string $output) : void {
+    $date = new DateTimeImmutable("now", new DateTimeZone("Europe/Berlin"));
+    file_put_contents(
+        "/var/log/doil/instance-update.log",
+        $date->format('Y-m-d H:i:s') . "\n" . $output . "\n\n",
+        FILE_APPEND
+    );
+}
+
+
 $request_headers = apache_request_headers();
 if (is_null($request_headers) || !array_key_exists("Authorization", $request_headers)) {
+    log_write("No request headers found. Authorization required");
     http_response_code(401);
     throw new Exception("Authorization required");
 }
@@ -11,76 +22,77 @@ $request_token = $request_headers["Authorization"];
 
 $environment_token = getenv("UPDATE_TOKEN");
 if (is_null($environment_token)) {
+    log_write("No environment token found. Authorization required");
     http_response_code(401);
     throw new Exception("Authorization required");
 }
 
 if ($environment_token !== $request_token) {
+    log_write("No token match. Authorization required");
     http_response_code(401);
     throw new Exception("Authorization required");
 }
 
 $branch = exec("git branch --show-current");
 if (is_null($_GET) || !array_key_exists("base_ref", $_GET)) {
+    log_write("Missing get params");
     http_response_code(500);
     throw new Exception("Failed to run update hook");
 }
 
 if ($branch === $_GET["base_ref"]) {
-  // Pull current checked out branch from origin
-  $pull_output = [];
-  $result_code = 0;
-  $branch = exec("git branch --show-current");
-  exec("git pull origin " . $branch . " 2>&1", $pull_output, $result_code);
-  if ($result_code !== 0) {
-      http_response_code(500);
-      throw new Exception("Failed to run update hook");
-  }
-  if (in_array("Already up to date.", $pull_output)) {
-      http_response_code(200);
-      exit();
-  }
+    // Pull current checked out branch from origin
+    $pull_output = [];
+    $result_code = 0;
+    $branch = exec("git branch --show-current");
+    exec("git pull origin " . $branch . " 2>&1", $pull_output, $result_code);
+    if ($result_code !== 0) {
+        log_write("Error running 'git pull origin " . $branch);
+        http_response_code(500);
+        throw new Exception("Failed to run update hook");
+    }
+    if (in_array("Already up to date.", $pull_output)) {
+        http_response_code(200);
+        exit();
+    }
 
-  // Run composer install
-  $composer_output = [];
-  $result_code = 0;
-  exec("COMPOSER_HOME=/usr/local/bin/composer composer install 2>&1", $composer_output, $result_code);
-  if ($result_code !== 0) {
-      http_response_code(500);
-      throw new Exception("Failed to run update hook");
-  }
+    // Run composer install
+    $composer_output = [];
+    $result_code = 0;
+    exec("COMPOSER_HOME=/usr/local/bin/composer composer install 2>&1", $composer_output, $result_code);
+    if ($result_code !== 0) {
+        log_write("Error running 'composer install " . $branch);
+        http_response_code(500);
+        throw new Exception("Failed to run update hook");
+    }
 
-  // Run ilias update
-  $update_output = [];
-  $result_code = 0;
-  {% if ilias_version | int < 10 %}
-  exec("php setup/setup.php update -y 2>&1", $update_output, $result_code);
-  {% else %}
-  exec("php cli/setup.php update -y 2>&1", $update_output, $result_code);
-  {% endif %}
-  if ($result_code !== 0) {
-      http_response_code(500);
-      throw new Exception("Failed to run update hook");
-  }
+    // Run ilias update
+    $update_output = [];
+    $result_code = 0;
+    {% if ilias_version | int < 10 %}
+    exec("php setup/setup.php update -y 2>&1", $update_output, $result_code);
+    {% else %}
+    exec("php cli/setup.php update -y 2>&1", $update_output, $result_code);
+    {% endif %}
 
-  $output = "";
-  foreach ($pull_output as $line) {
-      $output .= $line . "\n";
-  }
+    if ($result_code !== 0) {
+        log_write("Error running 'php setup/setup.php update -y" . $branch);
+        http_response_code(500);
+        throw new Exception("Failed to run update hook");
+    }
 
-  foreach ($composer_output as $line) {
-      $output .= $line . "\n";
-  }
+    $output = "";
+    foreach ($pull_output as $line) {
+        $output .= $line . "\n";
+    }
 
-  foreach ($update_output as $line) {
-      $output .= $line . "\n";
-  }
+    foreach ($composer_output as $line) {
+        $output .= $line . "\n";
+    }
 
-  $date = new DateTimeImmutable("now", new DateTimeZone("Europe/Berlin"));
-  file_put_contents(
-    "/var/log/doil/instance-update.log",
-    $date->format('Y-m-d H:i:s') . "\n" . $output . "\n\n",
-    FILE_APPEND
-  );
+    foreach ($update_output as $line) {
+        $output .= $line . "\n";
+    }
+
+    log_write($output);
 }
-
