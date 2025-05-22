@@ -44,8 +44,14 @@ if ($branch === $_GET["base_ref"]) {
     // Pull current checked out branch from origin
     $pull_output = [];
     $result_code = 0;
+    // reset language files
+    exec("git checkout lang/ 2>&1");
+
     $branch = exec("git branch --show-current");
     exec("git pull origin " . $branch . " 2>&1", $pull_output, $result_code);
+
+    // Run language script
+    exec("./CI/tools/build-dev-custom-lang.sh 2>&1");
     if ($result_code !== 0) {
         log_write("Error running 'git pull origin " . $branch);
         http_response_code(500);
