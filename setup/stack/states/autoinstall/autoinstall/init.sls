@@ -1,5 +1,6 @@
 {% set mysql_password = salt['grains.get']('mpass', 'ilias') %}
 {% set doil_domain = salt['grains.get']('doil_domain', 'http://ilias.local') %}
+{% set doil_allowed_hosts = salt['grains.get']('doil_allowed_hosts', [""]) %}
 {% set doil_host_system = salt['grains.get']('doil_host_system', 'linux') %}
 {% set ilias_version = salt['grains.get']('ilias_version', '9') %}
 
@@ -23,6 +24,7 @@
       language: 'de'
       log_dir: /var/ilias/logs
       http_path: '{{ doil_domain }}'
+      allowed_hosts: {{ doil_allowed_hosts }}
 
 {% if ilias_version | int < 10 %}
 ilias_setup_lt_10:

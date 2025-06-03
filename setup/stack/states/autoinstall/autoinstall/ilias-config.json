@@ -30,7 +30,8 @@
         "default_language" : "{{ language }}"
     },
     "http" : {
-        "path" : "{{ http_path }}"
+        "path" : "{{ http_path }}",
+        "allowed_hosts": {{ allowed_hosts | replace("'", '"')  }}
     },
     "logging" : {
         "enable" : true,
