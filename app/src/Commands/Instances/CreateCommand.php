@@ -106,6 +106,10 @@ class CreateCommand extends Command
         $options = $this->gatherOptionData($input, $output);
 
         $host = explode("=", $this->filesystem->getLineInFile("/etc/doil/doil.conf", "host="))[1];
+        $allowed_hosts = explode("=", $this->filesystem->getLineInFile("/etc/doil/doil.conf", "allowed_hosts="))[1];
+        if ($allowed_hosts == "false") {
+            $allowed_hosts = "";
+        }
         $https_proxy = explode("=", $this->filesystem->getLineInFile("/etc/doil/doil.conf", "https_proxy="))[1];
         $http_scheme = "http://";
         if ($https_proxy === "true") {
@@ -331,6 +335,8 @@ class CreateCommand extends Command
             sleep(1);
         }
         $this->docker->setGrain($instance_salt_name, "doil_domain", $http_scheme . $host . "/" . $options["name"]);
+        sleep(1);
+        $this->docker->setGrain($instance_salt_name, "doil_allowed_hosts", $allowed_hosts);
         sleep(1);
         $this->docker->setGrain($instance_salt_name, "doil_project_name", $options["name"]);
         sleep(1);
