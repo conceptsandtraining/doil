@@ -172,11 +172,12 @@ class DeleteCommandTest extends TestCase
         ;
 
         $docker
-            ->expects($this->exactly(2))
+            ->expects($this->exactly(3))
             ->method("executeCommand")
             ->withConsecutive(
                 ["/usr/local/lib/doil/server/salt/", "doil_saltmain", "salt-key", "-d", "master.global", "-y", "-q"],
-                ["/usr/local/lib/doil/server/mail/", "doil_mail", "/bin/bash", "-c", "/root/delete-postbox-configuration.sh $instance &>/dev/null"]
+                ["/usr/local/lib/doil/server/mail/", "doil_mail", "/bin/bash", "-c", "/root/delete-postbox-configuration.sh $instance &>/dev/null"],
+                ["/usr/local/lib/doil/server/mail/", "doil_mail", "/bin/bash", "-c", "rm -rf /var/mail/www-data/.$instance &>/dev/null"]
             )
         ;
         $docker
