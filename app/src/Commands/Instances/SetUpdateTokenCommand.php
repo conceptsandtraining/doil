@@ -154,7 +154,6 @@ class SetUpdateTokenCommand extends Command
         $this->docker->refreshGrains($salt_key);
         $this->docker->applyState($salt_key, "set-update-token");
         $this->docker->applyState($salt_key, "ilias-update-hook");
-        $this->docker->commit($salt_key);
         $this->writer->endBlock();
     }
 }
