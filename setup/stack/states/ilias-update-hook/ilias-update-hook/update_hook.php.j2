@@ -2,16 +2,15 @@
 
 /* Copyright (c) 2024 - Daniel Weise <daniel.weise@concepts-and-training.de> - Extended GPL, see LICENSE */
 
-function log_write(string $output) : void {
+function log_write(string $output = "") : void {
     $date = new DateTimeImmutable("now", new DateTimeZone("Europe/Berlin"));
     file_put_contents(
         "/var/log/doil/instance-update.log",
-        $date->format('Y-m-d H:i:s') . "\n" . $output . "\n\n",
+        "\n" . $date->format('Y-m-d H:i:s') . " :: " . $output,
         FILE_APPEND
     );
 }
-
-
+/*
 $request_headers = apache_request_headers();
 if (is_null($request_headers) || !array_key_exists("Authorization", $request_headers)) {
     log_write("No request headers found. Authorization required");
@@ -33,48 +32,50 @@ if ($environment_token !== $request_token) {
     throw new Exception("Authorization required");
 }
 
+
 $branch = exec("git branch --show-current");
 if (is_null($_GET) || !array_key_exists("base_ref", $_GET)) {
     log_write("Missing get params");
     http_response_code(500);
     throw new Exception("Failed to run update hook");
 }
+ */
 
-if ($branch === $_GET["base_ref"]) {
+$branch = exec("git branch --show-current");
+if ($branch === "master") {
     // reset language files
-    exec("git checkout lang/ 2>&1");
+    exec("git checkout lang/");
 
     // Pull current checked out branch from origin
     $pull_output = [];
     $result_code = 0;
     $branch = exec("git branch --show-current");
-    exec("git pull origin " . $branch . " 2>&1", $pull_output, $result_code);
+    log_write("Pull current checked out branch from origin\n");
+    $pull_output = system("git pull origin " . $branch . " 2>&1 | tee -a /var/log/doil/instance-update.log", $result_code);
     if ($result_code !== 0) {
         log_write("Error running 'git pull origin " . $branch . "'");
         http_response_code(500);
         throw new Exception("Failed to run update hook");
     }
-    if (in_array("Already up to date.", $pull_output)) {
+    if (strstr($pull_output, "Already up to date.")) {
         log_write("Already up to date.");
         http_response_code(200);
         exit();
     }
 
-    {% if ilias_version | int >= 9 %}
     // Run language script
-    $lang_output = [];
-    exec("./CI/tools/build-dev-custom-lang.sh 2>&1", $lang_output, $result_code);
+    log_write("Run language script\n");
+    system("./CI/tools/build-dev-custom-lang.sh >> /var/log/doil/instance-update.log 2>&1", $result_code);
     if ($result_code !== 0) {
         log_write("Error running 'build-dev-custom-lang.sh'");
         http_response_code(500);
         throw new Exception("Failed to run update hook");
     }
-    {% endif %}
 
     // Run composer install
-    $composer_output = [];
     $result_code = 0;
-    exec("COMPOSER_HOME=/usr/local/bin/composer composer install 2>&1", $composer_output, $result_code);
+    log_write("Run composer install\n");
+    system("COMPOSER_HOME=/usr/local/bin/composer composer install >> /var/log/doil/instance-update.log 2>&1", $result_code);
     if ($result_code !== 0) {
         log_write("Error running 'composer install " . $branch);
         http_response_code(500);
@@ -82,38 +83,13 @@ if ($branch === $_GET["base_ref"]) {
     }
 
     // Run ilias update
-    $update_output = [];
     $result_code = 0;
-    {% if ilias_version | int < 10 %}
-    exec("php setup/setup.php update -y 2>&1", $update_output, $result_code);
-    {% else %}
-    exec("php cli/setup.php update -y 2>&1", $update_output, $result_code);
-    {% endif %}
+    log_write("Run ilias update\n");
+    system("php setup/setup.php update -y >> /var/log/doil/instance-update.log 2>&1", $result_code);
 
     if ($result_code !== 0) {
-        log_write("Error running 'php setup/setup.php update -y" . $branch);
+        log_write("Error running 'php setup/setup.php update -y " . $branch);
         http_response_code(500);
         throw new Exception("Failed to run update hook");
     }
-
-    $output = "";
-    foreach ($pull_output as $line) {
-        $output .= $line . "\n";
-    }
-
-    {% if ilias_version | int >= 9 %}
-    foreach ($lang_output as $line) {
-        $output .= $line . "\n";
-    }
-    {% endif %}
-
-    foreach ($composer_output as $line) {
-        $output .= $line . "\n";
-    }
-
-    foreach ($update_output as $line) {
-        $output .= $line . "\n";
-    }
-
-    log_write($output);
 }
