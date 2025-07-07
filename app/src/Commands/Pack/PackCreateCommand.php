@@ -324,7 +324,7 @@ class PackCreateCommand extends Command
         }
 
         $this->docker->setGrain($instance_salt_name, "mpass", "${mysql_password}");
-        $host = explode("=", $this->filesystem->getLineInFile("/etc/doil/doil.conf", "host="));
+        $host = explode("=", $this->filesystem->getLineInFile("/etc/doil/doil.conf", "host="))[1];
 
         sleep(1);
         $this->docker->setGrain($instance_salt_name, "cpass", "$cron_password");
