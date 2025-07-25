@@ -9,7 +9,7 @@ use Symfony\Component\Console\Command\Command;
 
 class App extends Application
 {
-    const NAME = "Doil Version 20250707 - build 2025-07-07";
+    const NAME = "Doil Version 20250725 - build 2025-07-25";
 
     public function __construct(Command ...$commands)
     {
