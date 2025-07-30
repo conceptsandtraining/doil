@@ -27,6 +27,7 @@
       http_path: '{{ doil_domain }}'
       allowed_hosts: {{ doil_allowed_hosts }}
 
+
 {% if ilias_version | int < 10 %}
 ilias_setup_lt_10:
   cmd.run:
