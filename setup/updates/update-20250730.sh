@@ -3,9 +3,10 @@
 doil_update_20250730() {
   cp -r ${SCRIPT_DIR}/../app/src/* /usr/local/lib/doil/app/src/
   cp -r ${SCRIPT_DIR}/../setup/stack/states/ilias/* /usr/local/share/doil/stack/states/ilias
+  cp -r ${SCRIPT_DIR}/../setup/stack/states/autoinstall/* /usr/local/share/doil/stack/states/autoinstall
 
   if [ $(docker ps -a --filter "name=_local" --filter "name=_global" --format "{{.Names}}" | wc -l) -gt 0 ]
-    doil_status_send_message "Prepare existing instances to work with new doil"
+    doil_status_send_message "Prepare existing instances to enable ilias preview"
     then
       for INSTANCE in $(docker ps -a --filter "name=_local" --filter "name=_global" --format "{{.Names}}")
       do

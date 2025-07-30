@@ -31,7 +31,11 @@
     },
     "http" : {
         "path" : "{{ http_path }}",
+        {% if allowed_hosts == "null" or allowed_hosts == None %}
+        "allowed_hosts" : null
+        {% else %}
         "allowed_hosts": {{ allowed_hosts | replace("'", '"')  }}
+        {% endif %}
     },
     "logging" : {
         "enable" : true,
