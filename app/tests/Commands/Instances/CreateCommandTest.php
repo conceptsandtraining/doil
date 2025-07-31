@@ -330,20 +330,22 @@ class CreateCommandTest extends TestCase
         ;
 
         $filesystem
-            ->expects($this->exactly(4))
+            ->expects($this->exactly(5))
             ->method("exists")
-            ->willReturn(false, true, false, true)
+            ->willReturn(true, true, false, true, false, true)
         ;
         $filesystem
-            ->expects($this->exactly(4))
-            ->method("getLineInFile")
-            ->withConsecutive(
-                ["/etc/doil/doil.conf", "host="],
-                ["/etc/doil/doil.conf", "allowed_hosts="],
-                ["/etc/doil/doil.conf", "https_proxy="],
-                ["/etc/doil/doil.conf", "update_token="]
-            )
-            ->willReturnOnConsecutiveCalls("allowed_hosts=false", "foo=doil", "foo=false", "update_token=false")
+            ->expects($this->exactly(1))
+            ->method("parseIniFile")
+            ->with("/etc/doil/doil.conf")
+            ->willReturn([
+                "allowed_hosts" => false,
+                "host" => "doil",
+                "https_proxy" => false,
+                "update_token" => false,
+                "git_private_ssh_key_path" => "/home/test",
+                "git_public_ssh_key_path" => "/home/test",
+            ])
         ;
         $filesystem
             ->expects($this->once())

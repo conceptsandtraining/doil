@@ -247,4 +247,14 @@ class FilesystemShell implements Filesystem
         $this->symfony_file_system->appendToFile($path, "[$section]\n");
         $this->symfony_file_system->appendToFile($path, "\t" . $line . "\n");
     }
+
+    public function parseIniFile(string $path) : array
+    {
+        return parse_ini_file($path, false, INI_SCANNER_TYPED);
+    }
+
+    public function getContent(string $path) : string
+    {
+        return file_get_contents($path);
+    }
 }
