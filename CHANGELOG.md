@@ -1,5 +1,35 @@
 # Changelog
 
+## 20250806
+## What's Changed
+* ssh:509 mv ssh owner to config file, avoid .ssh mounts
+* allowed_hosts: fix allowed_hosts problem
+* imagemagick:513 configure imagemagick for file preview
+
+## 20250725
+## What's Changed
+* config:514 handle allowed_hosts as array
+
+## 20250707
+## What's Changed
+* saml: correct array issue in PackCreateCommand and add 'AssertionConsumerServiceIndex' => 0
+
+## 20250701
+## What's Changed
+* update_hook: adjust logging
+* update_hook: remove comments
+* saml: add 'sign.logout' => true to authsources.php
+* DeleteCommand:491 also delete hidden roundcube folder for the instance that will be deleted
+
+## 20250624
+## What's Changed
+* update_hook: adjust language handling
+* update_hook: remove typo
+
+## 20250523
+## What's Changed
+* add logging to update_hook.php.j2
+
 ## 20250505
 ## What's Changed
 * add robots.txt to proxy

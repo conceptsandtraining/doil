@@ -34,4 +34,6 @@ interface Filesystem
     public function readFromJsonFile(string $path) : array;
     public function grepMysqlPasswordFromFile(string $path) : string;
     public function addToGitConfig(string $path, string $section, string $line) : void;
+    public function parseIniFile(string $path) : array;
+    public function getContent(string $path) : string;
 }

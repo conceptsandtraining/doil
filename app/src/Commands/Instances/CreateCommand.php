@@ -27,6 +27,7 @@ use Symfony\Component\Console\Question\ConfirmationQuestion;
 class CreateCommand extends Command
 {
     protected const DEBIAN_TAG = "11";
+    protected const DOIL_INI_PATH = "/etc/doil/doil.conf";
     protected const LOCAL_REPO_PATH = "/.doil/repositories";
     protected const GLOBAL_REPO_PATH = "/usr/local/share/doil/repositories";
     protected const LOCAL_INSTANCES_PATH = "/.doil/instances";
@@ -104,14 +105,35 @@ class CreateCommand extends Command
     public function execute(InputInterface $input, OutputInterface $output) : int
     {
         $options = $this->gatherOptionData($input, $output);
+        $doil_conf = $this->filesystem->parseIniFile(self::DOIL_INI_PATH);
 
-        $host = explode("=", $this->filesystem->getLineInFile("/etc/doil/doil.conf", "host="))[1];
-        $allowed_hosts = explode("=", $this->filesystem->getLineInFile("/etc/doil/doil.conf", "allowed_hosts="))[1];
-        $https_proxy = explode("=", $this->filesystem->getLineInFile("/etc/doil/doil.conf", "https_proxy="))[1];
+        $host = $doil_conf["host"];
+        $allowed_hosts = $doil_conf["allowed_hosts"];
+        $update_token = $doil_conf["update_token"];
+        $https_proxy = $doil_conf["https_proxy"];
+        $git_private_ssh_key_path = $doil_conf["git_private_ssh_key_path"];
+        $git_public_ssh_key_path = $doil_conf["git_public_ssh_key_path"];
+
+        if (!$git_private_ssh_key_path || !$git_public_ssh_key_path) {
+            $this->writer->error(
+                $output,
+                "Please ensure to set a valid value for git_private_ssh_key_path/git_public_ssh_key_path in your doil config!"
+            );
+            return Command::FAILURE;
+        }
+        if (!$this->filesystem->exists($git_private_ssh_key_path) || !$this->filesystem->exists($git_public_ssh_key_path)) {
+            $this->writer->error(
+                $output,
+                "Can't find git_private_ssh_key_path/git_public_ssh_key_path in your filesystem!"
+            );
+            return Command::FAILURE;
+        }
+
         $http_scheme = "http://";
-        if ($https_proxy === "true") {
+        if ($https_proxy) {
             $http_scheme = "https://";
         }
+
         $instance_path = $options["target"] . "/" . $options["name"];
         $suffix = $options["global"] ? "global" : "local";
         $instance_name = $options["name"] . "_" . $suffix;
@@ -129,19 +151,9 @@ class CreateCommand extends Command
             return Command::FAILURE;
         }
 
-        if (! $this->filesystem->exists($home_dir . "/.ssh")) {
-            $this->writer->error(
-                $output,
-                "Folder $home_dir/.ssh not found."
-            );
-            return Command::FAILURE;
-        }
-
         if ($this->filesystem->exists(self::KEYCLOAK_PATH)) {
             $keycloak = true;
         }
-
-        $update_token = explode("=", $this->filesystem->getLineInFile("/etc/doil/doil.conf", "update_token="))[1];
 
         $this->writer->beginBlock($output, "Creating instance " . $options['name']);
 
@@ -283,6 +295,21 @@ class CreateCommand extends Command
         $usr_id = (string) $this->posix->getUserId();
         $group_id = (string) $this->posix->getGroupId();
         $this->docker->executeDockerCommand($instance_name, "mkdir -p /var/ilias/cert");
+        $this->docker->executeDockerCommand($instance_name, "mkdir -p /var/www/.ssh");
+        $this->docker->executeDockerCommand($instance_name, "mkdir -p /root/.ssh");
+
+        $git_private_ssh_key = $this->filesystem->getContent($git_private_ssh_key_path);
+        $git_public_ssh_key = $this->filesystem->getContent($git_public_ssh_key_path);
+        $this->docker->executeDockerCommand($instance_name, "echo '$git_private_ssh_key' > /var/www/.ssh/doil_git");
+        $this->docker->executeDockerCommand($instance_name, "echo '$git_public_ssh_key' > /var/www/.ssh/doil_git.pub");
+        $this->docker->executeDockerCommand($instance_name, "ssh-keyscan github.com > /var/www/.ssh/known_hosts");
+        $this->docker->executeDockerCommand($instance_name, "echo \"Host *github*\n\tIdentityFile ~/.ssh/doil_git\n\tIdentitiesOnly yes\" > /var/www/.ssh/config");
+        $this->docker->executeDockerCommand($instance_name, "echo '$git_private_ssh_key' > /root/.ssh/doil_git");
+        $this->docker->executeDockerCommand($instance_name, "echo '$git_public_ssh_key' > /root/.ssh/doil_git.pub");
+        $this->docker->executeDockerCommand($instance_name, "ssh-keyscan github.com > /root/.ssh/known_hosts");
+        $this->docker->executeDockerCommand($instance_name, "echo \"Host *github*\n\tIdentityFile ~/.ssh/doil_git\n\tIdentitiesOnly yes\" > /root/.ssh/config");
+        $this->docker->executeDockerCommand($instance_name, "chmod 0600 /root/.ssh/doil_git /var/www/.ssh/doil_git");
+        $this->docker->executeDockerCommand($instance_name, "chown -R 1000:1000 /var/www/.ssh");
         $this->docker->executeDockerCommand($instance_name, "usermod -u $usr_id www-data");
         $this->docker->executeDockerCommand($instance_name, "groupmod -g $group_id www-data");
         $this->docker->executeDockerCommand($instance_name, "/etc/init.d/mariadb start");
@@ -327,13 +354,13 @@ class CreateCommand extends Command
         sleep(1);
         $this->docker->setGrain($instance_salt_name, "cpass", "$cron_password");
         sleep(1);
-        if ($update_token != "false") {
+        if ($update_token) {
             $this->docker->setGrain($instance_salt_name, "update_token", "${$update_token}");
             sleep(1);
         }
         $this->docker->setGrain($instance_salt_name, "doil_domain", $http_scheme . $host . "/" . $options["name"]);
         sleep(1);
-        if ($allowed_hosts != "false") {
+        if ($allowed_hosts) {
             $this->docker->setGrain($instance_salt_name, "doil_allowed_hosts", $allowed_hosts);
             sleep(1);
         }
@@ -399,7 +426,7 @@ class CreateCommand extends Command
             $this->writer->endBlock();
         }
 
-        if ($update_token != "false") {
+        if ($update_token) {
             // apply set-update-token state
             $this->writer->beginBlock($output, "Apply set-update-token state");
             $this->docker->applyState($instance_salt_name, "set-update-token");
