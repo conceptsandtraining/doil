@@ -302,11 +302,11 @@ class CreateCommand extends Command
         $git_public_ssh_key = $this->filesystem->getContent($git_public_ssh_key_path);
         $this->docker->executeDockerCommand($instance_name, "echo '$git_private_ssh_key' > /var/www/.ssh/doil_git");
         $this->docker->executeDockerCommand($instance_name, "echo '$git_public_ssh_key' > /var/www/.ssh/doil_git.pub");
-        $this->docker->executeDockerCommand($instance_name, "ssh-keyscan github.com > /var/www/.ssh/known_hosts");
+        $this->docker->executeDockerCommand($instance_name, "ssh-keyscan github.com > /var/www/.ssh/known_hosts || ssh-keyscan -p 443 ssh.github.com > /var/www/.ssh/known_hosts &>/dev/null");
         $this->docker->executeDockerCommand($instance_name, "echo \"Host *github*\n\tIdentityFile ~/.ssh/doil_git\n\tIdentitiesOnly yes\" > /var/www/.ssh/config");
         $this->docker->executeDockerCommand($instance_name, "echo '$git_private_ssh_key' > /root/.ssh/doil_git");
         $this->docker->executeDockerCommand($instance_name, "echo '$git_public_ssh_key' > /root/.ssh/doil_git.pub");
-        $this->docker->executeDockerCommand($instance_name, "ssh-keyscan github.com > /root/.ssh/known_hosts");
+        $this->docker->executeDockerCommand($instance_name, "ssh-keyscan github.com > /root/.ssh/known_hosts || ssh-keyscan -p 443 ssh.github.com > /root/.ssh/known_hosts &>/dev/null");
         $this->docker->executeDockerCommand($instance_name, "echo \"Host *github*\n\tIdentityFile ~/.ssh/doil_git\n\tIdentitiesOnly yes\" > /root/.ssh/config");
         $this->docker->executeDockerCommand($instance_name, "chmod 0600 /root/.ssh/doil_git /var/www/.ssh/doil_git");
         $this->docker->executeDockerCommand($instance_name, "chown -R 1000:1000 /var/www/.ssh");
