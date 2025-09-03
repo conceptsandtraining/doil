@@ -3,7 +3,7 @@
     - user: root
     - group: root
     - mode: 644
-    - source: salt://ilias/imagemagick/policy.xml
+    - source: salt://imagemagick/policy.xml
 
 restart_apache:
   cmd.wait:
