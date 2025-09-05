@@ -3,6 +3,12 @@
 # set vars
 HOSTNAME=${1}
 
+if [ -z "${HOSTNAME}" ]
+then
+  echo "Usage: $0 hostname"
+  exit 1
+fi
+
 # remove old configuration if present
 if [ -f "/etc/dovecot/conf.d/${HOSTNAME}.conf" ]
 then

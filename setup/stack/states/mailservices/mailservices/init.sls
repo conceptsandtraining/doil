@@ -221,7 +221,7 @@ roundcube-plugins:
 
 /root/delete-postbox-configuration.sh:
   file.managed:
-    - source: salt://mailservices/check-postbox-configuration.sh
+    - source: salt://mailservices/delete-postbox-configuration.sh
     - mode: 755
 
 /root/postfix_fg_starter.sh:

@@ -163,7 +163,6 @@ class DeleteCommand extends Command
         }
 
         $this->docker->executeCommand(self::POSTFIX, "doil_mail", "/bin/bash", "-c", "/root/delete-postbox-configuration.sh $instance &>/dev/null");
-        $this->docker->executeCommand(self::POSTFIX, "doil_mail", "/bin/bash", "-c", "rm -rf /var/mail/www-data/.$instance &>/dev/null");
 
         $this->writer->endBlock();
 
