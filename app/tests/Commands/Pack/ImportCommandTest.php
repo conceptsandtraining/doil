@@ -57,6 +57,13 @@ class ImportCommandTest extends TestCase
         $writer = new CommandWriter();
         $ilias_info = $this->createMock(IliasInfo::class);
 
+        $filesystem
+            ->expects($this->once())
+            ->method('parseIniFile')
+            ->with("/etc/doil/doil.conf")
+            ->willReturn(["host" => "doil", "https_proxy" => false])
+        ;
+
         $command = new ImportCommand($docker, $posix, $filesystem, $repo_manager, $writer, $ilias_info);
         $tester = new CommandTester($command);
 
@@ -73,6 +80,13 @@ class ImportCommandTest extends TestCase
         $repo_manager = $this->createMock(RepoManager::class);
         $writer = new CommandWriter();
         $ilias_info = $this->createMock(IliasInfo::class);
+
+        $filesystem
+            ->expects($this->once())
+            ->method('parseIniFile')
+            ->with("/etc/doil/doil.conf")
+            ->willReturn(["host" => "doil", "https_proxy" => false])
+        ;
 
         $command = new ImportCommand($docker, $posix, $filesystem, $repo_manager, $writer, $ilias_info);
         $tester = new CommandTester($command);
@@ -98,6 +112,13 @@ class ImportCommandTest extends TestCase
         $writer = new CommandWriter();
         $ilias_info = $this->createMock(IliasInfo::class);
 
+        $filesystem
+            ->expects($this->once())
+            ->method('parseIniFile')
+            ->with("/etc/doil/doil.conf")
+            ->willReturn(["host" => "doil", "https_proxy" => false])
+        ;
+
         $command = new ImportCommand($docker, $posix, $filesystem, $repo_manager, $writer, $ilias_info);
         $tester = new CommandTester($command);
 
@@ -114,6 +135,13 @@ class ImportCommandTest extends TestCase
         $repo_manager = $this->createMock(RepoManager::class);
         $writer = new CommandWriter();
         $ilias_info = $this->createMock(IliasInfo::class);
+
+        $filesystem
+            ->expects($this->once())
+            ->method('parseIniFile')
+            ->with("/etc/doil/doil.conf")
+            ->willReturn(["host" => "doil", "https_proxy" => false])
+        ;
 
         $command = new ImportCommand($docker, $posix, $filesystem, $repo_manager, $writer, $ilias_info);
         $tester = new CommandTester($command);

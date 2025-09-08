@@ -193,7 +193,7 @@ class FilesystemShell implements Filesystem
             $v = &$v[$key];
         }
         $v = $substitute;
-        file_put_contents($file_path, json_encode($arr, JSON_PRETTY_PRINT));
+        file_put_contents($file_path, json_encode($arr, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT));
     }
 
     public function getLineInFile(string $path, string $needle) : ?string

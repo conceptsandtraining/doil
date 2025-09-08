@@ -26,6 +26,7 @@ use Symfony\Component\Filesystem\Exception\FileNotFoundException;
 class ImportCommand extends Command
 {
     protected const KEYCLOAK_PATH = "/usr/local/lib/doil/server/keycloak";
+    protected const DOIL_INI_PATH = "/etc/doil/doil.conf";
     protected static $defaultName = "pack:import";
     protected static $defaultDescription =
         "With this command doil is able to import an archive of doilpack into an ILIAS installation. " .
@@ -73,6 +74,15 @@ class ImportCommand extends Command
         $package = $input->getArgument("package");
         $create = false;
         $repo_added = false;
+
+        $doil_conf = $this->filesystem->parseIniFile(self::DOIL_INI_PATH);
+
+        $host = $doil_conf["host"];
+        $https_proxy = $doil_conf["https_proxy"];
+        $http_scheme = "http://";
+        if ($https_proxy) {
+            $http_scheme = "https://";
+        }
 
         $check = $this->checkName();
         $check($instance);
@@ -286,6 +296,11 @@ class ImportCommand extends Command
                 $path . "/volumes/data/ilias-config.json",
                 ["database", "password"],
                 $mysql_password
+            );
+            $this->filesystem->replaceStringInJsonFile(
+                $path . "/volumes/data/ilias-config.json",
+                ["http", "path"],
+                $http_scheme . $host . "/" . $instance
             );
         }
 
