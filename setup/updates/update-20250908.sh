@@ -2,7 +2,8 @@
 
 doil_update_20250908() {
   cp -r ${SCRIPT_DIR}/../app/src/* /usr/local/lib/doil/app/src/
-  cp -r ${SCRIPT_DIR}/../setup/stack/states/mailservices/mailservices/*  /usr/local/share/doil/stack/states/mailservices/mailservices/
+  cp -r ${SCRIPT_DIR}/../setup/stack/states/mailservices/mailservices/* /usr/local/share/doil/stack/states/mailservices/mailservices/
+  cp -r ${SCRIPT_DIR}/../setup/stack/states/keycloak/keycloak/delete_keycloak_client.sh.j2 /usr/local/share/doil/stack/states/keycloak/keycloak/delete_keycloak_client.sh.j2
 
   return $?
 }
