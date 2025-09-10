@@ -374,6 +374,7 @@ class CreateCommand extends Command
         $this->writer->endBlock();
 
         $this->docker->executeDockerCommand($instance_name, "git config --global --add safe.directory \"*\"");
+        $this->docker->executeDockerCommand($instance_name, "git config --global pull.rebase true");
 
         // apply base state
         $this->writer->beginBlock($output, "Apply base state");
