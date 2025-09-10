@@ -218,6 +218,16 @@ class ImportCommand extends Command
             );
         }
 
+        $idea_paths = $this->filesystem->find_dirs($unpacked . "/conf", ".idea", 3);
+        if (count($idea_paths) > 0) {
+            $idea_path = $idea_paths[0];
+            $idea_base_path = substr($idea_path, strlen($unpacked . "/conf"));
+            $this->filesystem->copyDirectory(
+                $idea_path,
+                $path . $idea_base_path)
+            ;
+        }
+
         if ($this->filesystem->exists($unpacked . "/var/www/html/data")) {
             $this->filesystem->copyDirectory(
                 $unpacked . "/var/www/html/data",
