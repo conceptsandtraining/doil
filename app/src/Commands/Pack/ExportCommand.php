@@ -132,6 +132,14 @@ class ExportCommand extends Command
         $this->filesystem->makeDirectoryRecursive($name . "/var/www/html/.git");
         $this->filesystem->makeDirectoryRecursive($name . "/conf");
 
+        $idea_paths = $this->filesystem->find_dirs($path, ".idea", 3);
+        if (count($idea_paths) > 0) {
+            $idea_path = $idea_paths[0];
+            $idea_base_path = substr($idea_path, strlen($path));
+            $this->filesystem->makeDirectoryRecursive($name . "/conf" . $idea_base_path);
+            $this->filesystem->copyDirectory($idea_path, $name . "/conf" . $idea_base_path);
+        }
+
         $this->docker->copy($instance . "_" . $suffix, "/var/ilias", $name . "/var/");
         $this->docker->copy($instance . "_" . $suffix, "/var/www/html/.git/config", $name . "/var/www/html/.git/config");
         if ($this->ilias_info->getIliasVersion($path) >= 10) {

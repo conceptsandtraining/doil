@@ -36,4 +36,5 @@ interface Filesystem
     public function addToGitConfig(string $path, string $section, string $line) : void;
     public function parseIniFile(string $path) : array;
     public function getContent(string $path) : string;
+    public function find_dirs(string $path, string $name, int $depth = 0) : array;
 }

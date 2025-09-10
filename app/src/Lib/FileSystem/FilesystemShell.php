@@ -257,4 +257,12 @@ class FilesystemShell implements Filesystem
     {
         return file_get_contents($path);
     }
+
+    public function find_dirs(string $path, string $name, int $depth = 0) : array
+    {
+        $output = [];
+        exec("find -L $path -maxdepth $depth -iname $name -type d", $output);
+
+        return $output;
+    }
 }
