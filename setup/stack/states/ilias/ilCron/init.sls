@@ -13,18 +13,23 @@ ilCron_packages:
     - mode: '0750'
 
 ilias_logfile_cron:
-  cron:
+  cron.present:
     - name: find /var/ilias/logs/ -type f -mtime +1 -delete
-    - present
     - identifier: ILIAS_LOGFILE_CRON
     - user: root
     - hour: 4
     - minute: 0
 
+ilias_www_data_cron:
+  cron.present:
+    - name: /usr/bin/chown -R www-data:www-data /var/www/html
+    - identifier: ILIAS_OWNED_BY_WWW_DATA
+    - user: root
+    - minute: '*/2'
+
 ilias_cron:
-  cron:
+  cron.present:
     - name: /usr/local/bin/ilias_cron.sh > /dev/null 2>&1
-    - present
     - identifier: ILIAS_CRON
     - user: www-data
     - minute: '*/10'
