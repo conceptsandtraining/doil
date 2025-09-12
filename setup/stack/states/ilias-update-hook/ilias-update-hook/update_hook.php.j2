@@ -32,15 +32,15 @@ if ($environment_token !== $request_token) {
     throw new Exception("Authorization required");
 }
 
-$branch = exec("git branch --show-current");
 if (is_null($_GET) || !array_key_exists("base_ref", $_GET)) {
     log_write("Missing get params");
     http_response_code(500);
     throw new Exception("Failed to run update hook");
 }
 
+$base_ref = $_GET["base_ref"];
 $branch = exec("git branch --show-current");
-if ($branch === "master") {
+if ($branch === $base_ref) {
     // reset language files
     exec("git checkout lang/");
 
