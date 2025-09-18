@@ -23,8 +23,9 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Question\ChoiceQuestion;
 use Symfony\Component\Console\Question\ConfirmationQuestion;
+use Symfony\Component\Console\Command\SignalableCommandInterface;
 
-class CreateCommand extends Command
+class CreateCommand extends Command implements SignalableCommandInterface
 {
     protected const DEBIAN_TAG = "11";
     protected const DOIL_INI_PATH = "/etc/doil/doil.conf";
@@ -834,5 +835,18 @@ class CreateCommand extends Command
     {
         $bytes = openssl_random_pseudo_bytes($length);
         return bin2hex($bytes);
+    }
+
+    public function getSubscribedSignals(): array
+    {
+        return [SIGINT, SIGTERM];
+    }
+
+    public function handleSignal(int $signal) : void
+    {
+        if (SIGINT === $signal || SIGTERM === $signal) {
+            echo "Aborted by User!\n";
+            exit(0);
+        }
     }
 }
