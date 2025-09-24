@@ -252,8 +252,9 @@ class ExportCommand extends Command
         }
 
         if (count($remotes) > 1) {
-            $remotes = array_filter($remotes, function ($url) use ($branch, $path) {
-                return $this->git->isBranchInRepo($path . "/volumes/ilias", $url, $branch);
+            $remotes = array_filter($remotes, function ($url) use ($branch, $instance) {
+                $cmd = "git ls-remote --heads {$url} refs/heads/{$branch}";
+                return $this->docker->executeDockerCommandWithReturn($instance, $cmd);
             });
 
             if (count($remotes) == 0) {
