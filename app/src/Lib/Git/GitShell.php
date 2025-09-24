@@ -126,23 +126,4 @@ class GitShell implements Git
 
         return $arr;
     }
-
-    public function isBranchInRepo(string $path, string $url, string $branch) : bool
-    {
-        $cmd = [
-            "git",
-            "ls-remote",
-            "--heads",
-            $url,
-            "refs/heads/$branch"
-        ];
-
-        $this->logger->info("Get remote repos for $path");
-        $result = $this->run($cmd, $this->logger);
-
-        if ($result == "") {
-            return false;
-        }
-        return true;
-    }
 }
