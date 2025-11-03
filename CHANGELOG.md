@@ -1,5 +1,36 @@
 # Changelog
 
+## 20251103
+## What's Changed
+* update Captainhook Hooks while running update_hook script 
+
+## 20250924
+## What's Changed
+* execute git command inside container
+
+## 20250918
+## What's Changed
+* add option to kill create process by SIGINT or SIGTERM
+* install ilserever depending on ilias version
+
+## 20250908
+## What's Changed
+* fix that the wrong script is copied to doil_mail
+* jq select without hostname
+* create ilias-config.json with correct JSON flags and change the instance name
+* add merge strategy to gitconfig
+* also copy .idea directory
+* ensure all files in ilias-root owned by www-data
+* ensure openssl works with legacy algorithms
+
+## 20250903
+## What's Changed
+* use right path for source file
+
+## 20250901
+## What's Changed
+* also use port 443 for ssh-keyscan as an alternative
+
 ## 20250806
 ## What's Changed
 * ssh:509 mv ssh owner to config file, avoid .ssh mounts
