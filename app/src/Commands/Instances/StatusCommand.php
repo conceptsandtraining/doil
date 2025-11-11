@@ -6,26 +6,19 @@ namespace CaT\Doil\Commands\Instances;
 
 use CaT\Doil\Lib\Docker\Docker;
 use Symfony\Component\Console\Command\Command;
+use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
+#[AsCommand(
+    name: 'instances:status|status',
+    description: 'This command lists all running instances.'
+)]
 class StatusCommand extends Command
 {
-    protected static $defaultName = "instances:status";
-    protected static $defaultDescription = "This command lists all running instances.";
-
-    protected Docker $docker;
-
-    public function __construct(Docker $docker)
+    public function __construct(protected Docker $docker)
     {
         parent::__construct();
-
-        $this->docker = $docker;
-    }
-
-    public function configure() : void
-    {
-        $this->setAliases(["status"]);
     }
 
     public function execute(InputInterface $input, OutputInterface $output) : int
@@ -36,7 +29,7 @@ class StatusCommand extends Command
                 strstr($a, "CONTAINER ID") ||
                 strstr($a, "doil_mail") ||
                 strstr($a, "doil_proxy") ||
-                strstr($a, "doil_saltmain") ||
+                strstr($a, "doil_salt") ||
                 strstr($a, "doil_keycloak") ||
                 strstr($a, "_local") ||
                 strstr($a, "_global")

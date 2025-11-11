@@ -9,7 +9,9 @@ use CaT\Doil\Lib\ConsoleOutput\Writer;
 use CaT\Doil\Lib\FileSystem\Filesystem;
 use CaT\Doil\Lib\ConsoleOutput\CommandWriter;
 use Symfony\Component\Console\Tester\CommandTester;
+use PHPUnit\Framework\Attributes\AllowMockObjectsWithoutExpectations;
 
+#[AllowMockObjectsWithoutExpectations]
 class ApplyCommandTest extends TestCase
 {
     public function test_execute_with_non_existing_global_dir() : void
@@ -82,16 +84,20 @@ class ApplyCommandTest extends TestCase
         $posix = $this->createMock(Posix::class);
         $filesystem = $this->createMock(Filesystem::class);
         $writer = new CommandWriter();
-        $instance = "master";
 
         $command = new ApplyCommand($docker, $posix, $filesystem, $writer);
         $tester = new CommandTester($command);
 
+        $matcher = $this->exactly(2);
         $filesystem
-            ->expects($this->exactly(2))
+            ->expects($matcher)
             ->method("exists")
-            ->withConsecutive(["/home/doil/.doil/instances/$instance"], ["/usr/local/share/doil/stack/states/access"])
-            ->willReturnOnConsecutiveCalls(true, false)
+            ->willReturnCallback(function () use ($matcher) {
+                return match ($matcher->numberOfInvocations()) {
+                    1 => true,
+                    2 => false,
+                };
+            })
         ;
 
         $posix
@@ -121,16 +127,19 @@ class ApplyCommandTest extends TestCase
         $posix = $this->createMock(Posix::class);
         $filesystem = $this->createMock(Filesystem::class);
         $writer = $this->createMock(Writer::class);
-        $instance = "master";
 
         $command = new ApplyCommand($docker, $posix, $filesystem, $writer);
         $tester = new CommandTester($command);
 
+        $matcher = $this->exactly(2);
         $filesystem
-            ->expects($this->exactly(2))
+            ->expects($matcher)
             ->method("exists")
-            ->withConsecutive(["/home/doil/.doil/instances/$instance"], ["/usr/local/share/doil/stack/states/access"])
-            ->willReturnOnConsecutiveCalls(true, true)
+            ->willReturnCallback(function () use ($matcher) {
+                return match ($matcher->numberOfInvocations()) {
+                    1, 2 => true,
+                };
+            })
         ;
 
         $posix
@@ -173,16 +182,19 @@ class ApplyCommandTest extends TestCase
         $posix = $this->createMock(Posix::class);
         $filesystem = $this->createMock(Filesystem::class);
         $writer = $this->createMock(Writer::class);
-        $instance = "master";
 
         $command = new ApplyCommand($docker, $posix, $filesystem, $writer);
         $tester = new CommandTester($command);
 
+        $matcher = $this->exactly(2);
         $filesystem
-            ->expects($this->exactly(2))
+            ->expects($matcher)
             ->method("exists")
-            ->withConsecutive(["/home/doil/.doil/instances/$instance"], ["/usr/local/share/doil/stack/states/access"])
-            ->willReturnOnConsecutiveCalls(true, true)
+            ->willReturnCallback(function () use ($matcher) {
+                return match ($matcher->numberOfInvocations()) {
+                    1, 2 => true,
+                };
+            })
         ;
 
         $posix

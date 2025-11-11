@@ -3,7 +3,9 @@
 namespace CaT\Doil\Commands\Repo;
 
 use PHPUnit\Framework\TestCase;
+use PHPUnit\Framework\Attributes\AllowMockObjectsWithoutExpectations;
 
+#[AllowMockObjectsWithoutExpectations]
 class RepoTest extends TestCase
 {
     public function test_create() : void

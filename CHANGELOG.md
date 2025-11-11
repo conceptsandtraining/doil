@@ -1,5 +1,11 @@
 # Changelog
 
+## 20260122
+## What's Changed
+* a great part of the setup is handled by php now
+* updates are now triggered via 'sudo doil system:update'
+* base debian image is now 'Debian 13 - Trixie'
+
 ## 20251103
 ## What's Changed
 * update Captainhook Hooks while running update_hook script 

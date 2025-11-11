@@ -18,45 +18,32 @@ use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Question\Question;
 use Symfony\Component\Console\Input\InputArgument;
+use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Question\ConfirmationQuestion;
 use Symfony\Component\Filesystem\Exception\FileNotFoundException;
 
+#[AsCommand(
+    name: 'pack:import',
+    description: "With this command doil is able to import an archive of doilpack into an ILIAS installation. " .
+    "If the installation is not present, it will be created with the properties of the configuration " .
+    "inside of the pack. If the instance is present all existing data will be overwritten by the new data."
+)]
 class ImportCommand extends Command
 {
     protected const KEYCLOAK_PATH = "/usr/local/lib/doil/server/keycloak";
     protected const DOIL_INI_PATH = "/etc/doil/doil.conf";
-    protected static $defaultName = "pack:import";
-    protected static $defaultDescription =
-        "With this command doil is able to import an archive of doilpack into an ILIAS installation. " .
-        "If the installation is not present, it will be created with the properties of the configuration " .
-        "inside of the pack. If the instance is present all existing data will be overwritten by the new data."
-    ;
-
-    protected Docker $docker;
-    protected Posix $posix;
-    protected Filesystem $filesystem;
-    protected RepoManager $repo_manager;
-    protected Writer $writer;
-    protected IliasInfo $ilias_info;
 
     public function __construct(
-        Docker $docker,
-        Posix $posix,
-        Filesystem $filesystem,
-        RepoManager $repo_manager,
-        Writer $writer,
-        IliasInfo $ilias_info
+        protected Docker $docker,
+        protected Posix $posix,
+        protected Filesystem $filesystem,
+        protected RepoManager $repo_manager,
+        protected Writer $writer,
+        protected IliasInfo $ilias_info
     ) {
         parent::__construct();
-
-        $this->docker = $docker;
-        $this->posix = $posix;
-        $this->filesystem = $filesystem;
-        $this->repo_manager = $repo_manager;
-        $this->writer = $writer;
-        $this->ilias_info = $ilias_info;
     }
 
     public function configure() : void
@@ -323,7 +310,7 @@ class ImportCommand extends Command
                 $instance,
                 "bash",
                 "-c",
-                "php /var/www/html/setup/setup.php update /var/ilias/data/ilias-config.json -y"
+                "cd /var/www/html && php setup/setup.php update /var/ilias/data/ilias-config.json -y"
             );
         } else if ($path . "/volumes/ilias/cli/setup.php") {
             $this->docker->executeCommand(
@@ -331,7 +318,7 @@ class ImportCommand extends Command
                 $instance,
                 "bash",
                 "-c",
-                "php /var/www/html/cli/setup.php update /var/ilias/data/ilias-config.json -y"
+                "cd /var/www/html/cli && php setup.php update /var/ilias/data/ilias-config.json -y"
             );
         } else {
             throw new RuntimeException("Can not found setup.php.");

@@ -7,8 +7,10 @@ namespace CaT\Doil\Lib\FileSystem;
 use ZipArchive;
 use SplFileInfo;
 use RegexIterator;
+use FilesystemIterator;
 use RecursiveIteratorIterator;
 use RecursiveDirectoryIterator;
+use Symfony\Component\Filesystem\Exception\IOException;
 use Symfony\Component\Filesystem\Filesystem as SymfonyFileSystem;
 
 class FilesystemShell implements Filesystem
@@ -45,6 +47,9 @@ class FilesystemShell implements Filesystem
         return array_values(array_diff(scandir($path), ['.', '..']));
     }
 
+    /**
+     * @throws IOException
+     */
     public function remove(string $path) : void
     {
         if(file_exists($path)){
@@ -57,12 +62,12 @@ class FilesystemShell implements Filesystem
         return is_writable($path);
     }
 
-    public function makeDirectoryRecursive(string $path) : void
+    public function makeDirectoryRecursive(string $path) : bool
     {
         if ($this->exists($path)) {
-            return;
+            return true;
         }
-        mkdir($path, 0777, true);
+        return mkdir($path, 0775, true);
     }
 
     public function copy(string $from, string $to) : void
@@ -75,7 +80,10 @@ class FilesystemShell implements Filesystem
         $this->symfony_file_system->mirror($from, $to);
     }
 
-    public function chownRecursive(string $path, string $owner, string $group) : void
+    /**
+     * @throws IOException
+     */
+    public function chownRecursive(string $path, int|string $owner, int|string $group) : void
     {
         $this->symfony_file_system->chown($path, $owner, true);
         $this->symfony_file_system->chgrp($path, $group, true);
@@ -105,7 +113,7 @@ class FilesystemShell implements Filesystem
         $this->symfony_file_system->symlink($from, $to);
     }
 
-    public function readLink(string $path) : string
+    public function readLink(string $path) : bool|string
     {
         return readlink($path);
     }
@@ -167,6 +175,20 @@ class FilesystemShell implements Filesystem
         }
 
         return null;
+    }
+
+    public function searchForFilesRecursive(string $path, string $pattern) : array
+    {
+        $dir = new RecursiveDirectoryIterator($path, FilesystemIterator::SKIP_DOTS);
+        $ite = new RecursiveIteratorIterator($dir);
+        $files = new RegexIterator($ite, $pattern, RegexIterator::MATCH);
+
+        $result = [];
+        foreach ($files as $file) {
+            $result[] = $file->getPathname();
+        }
+
+        return $result;
     }
 
     public function replaceStringInFile(string $path, string $needle, string $substitute) : void
@@ -248,9 +270,9 @@ class FilesystemShell implements Filesystem
         $this->symfony_file_system->appendToFile($path, "\t" . $line . "\n");
     }
 
-    public function parseIniFile(string $path) : array
+    public function parseIniFile(string $path, int $scanner_type = INI_SCANNER_TYPED) : array
     {
-        return parse_ini_file($path, false, INI_SCANNER_TYPED);
+        return parse_ini_file($path, false, $scanner_type);
     }
 
     public function getContent(string $path) : string
@@ -264,5 +286,21 @@ class FilesystemShell implements Filesystem
         exec("find -L $path -maxdepth $depth -iname $name -type d", $output);
 
         return $output;
+    }
+
+    /**
+     * @throws IOException
+     */
+    public function touch(string $path) : void
+    {
+        $this->symfony_file_system->touch($path);
+    }
+
+    public function setContent(string $path, string $content, bool $append = false) : int|bool
+    {
+        if ($append) {
+            return file_put_contents($path, $content, FILE_APPEND);
+        }
+        return file_put_contents($path, $content);
     }
 }

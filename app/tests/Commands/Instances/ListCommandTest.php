@@ -8,7 +8,9 @@ use CaT\Doil\Lib\ConsoleOutput\Writer;
 use CaT\Doil\Lib\FileSystem\Filesystem;
 use CaT\Doil\Lib\ConsoleOutput\CommandWriter;
 use Symfony\Component\Console\Tester\CommandTester;
+use PHPUnit\Framework\Attributes\AllowMockObjectsWithoutExpectations;
 
+#[AllowMockObjectsWithoutExpectations]
 class ListCommandTest extends TestCase
 {
     public function test_execute_with_non_existing_local_dir() : void
@@ -69,11 +71,16 @@ class ListCommandTest extends TestCase
             ->willReturn("/home/doil")
         ;
 
+        $matcher = $this->exactly(2);
         $filesystem
-            ->expects($this->exactly(2))
+            ->expects($matcher)
             ->method("exists")
-            ->withConsecutive(["/home/doil/.doil/instances"], ["/usr/local/share/doil/instances"])
-            ->willReturnOnConsecutiveCalls(true, false)
+            ->willReturnCallback(function (string $value) use ($matcher) {
+                return match ($matcher->numberOfInvocations()) {
+                    1 => $value == "/home/doil/.doil/instances",
+                    2 => $value != "/usr/local/share/doil/instances",
+                };
+            })
         ;
         $filesystem
             ->expects($this->once())
@@ -115,17 +122,27 @@ class ListCommandTest extends TestCase
             ->willReturn("/home/doil")
         ;
 
+        $matcher = $this->exactly(2);
         $filesystem
-            ->expects($this->exactly(2))
+            ->expects($matcher)
             ->method("exists")
-            ->withConsecutive(["/home/doil/.doil/instances"], ["/usr/local/share/doil/instances"])
-            ->willReturnOnConsecutiveCalls(true, true)
+            ->willReturnCallback(function (string $value) use ($matcher) {
+                return match ($matcher->numberOfInvocations()) {
+                    1 => $value == "/home/doil/.doil/instances",
+                    2 => $value == "/usr/local/share/doil/instances",
+                };
+            })
         ;
+        $matcher = $this->exactly(2);
         $filesystem
-            ->expects($this->exactly(2))
+            ->expects($matcher)
             ->method("getFilesInPath")
-            ->withConsecutive(["/home/doil/.doil/instances"], ["/usr/local/share/doil/instances"])
-            ->willReturnOnConsecutiveCalls(["local1", "local2", "local3"], ["global1", "global2"])
+            ->willReturnCallback(function () use ($matcher) {
+                return match ($matcher->numberOfInvocations()) {
+                    1 => ["local1", "local2", "local3"],
+                    2 => ["global1", "global2"],
+                };
+            })
         ;
 
         $tester->execute([]);

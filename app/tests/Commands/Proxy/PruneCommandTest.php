@@ -6,7 +6,9 @@ use PHPUnit\Framework\TestCase;
 use CaT\Doil\Lib\Docker\Docker;
 use CaT\Doil\Lib\ConsoleOutput\Writer;
 use Symfony\Component\Console\Tester\CommandTester;
+use PHPUnit\Framework\Attributes\AllowMockObjectsWithoutExpectations;
 
+#[AllowMockObjectsWithoutExpectations]
 class PruneCommandTest extends TestCase
 {
     public function test_execute() : void
@@ -33,23 +35,26 @@ class PruneCommandTest extends TestCase
             ->with("doil_proxy", "/etc/nginx/conf.d/sites/")
             ->willReturn(["foo1", "foo2"])
         ;
+        $matcher = $this->exactly(2);
         $docker
-            ->expects($this->exactly(2))
+            ->expects($matcher)
             ->method("executeCommand")
-            ->withConsecutive(
-                [
-                    "/usr/local/lib/doil/server/proxy",
-                    "doil_proxy",
-                    "rm",
-                    "/etc/nginx/conf.d/sites/foo1"
-                ],
-                [
-                    "/usr/local/lib/doil/server/proxy",
-                    "doil_proxy",
-                    "rm",
-                    "/etc/nginx/conf.d/sites/foo2"
-                ],
-            )
+            ->willReturnCallback(function (... $values) use ($matcher) {
+                match ($matcher->numberOfInvocations()) {
+                    1 => $values == [
+                            "/usr/local/lib/doil/server/proxy",
+                            "doil_proxy",
+                            "rm",
+                            "/etc/nginx/conf.d/sites/foo1"
+                        ],
+                    2 => $values == [
+                            "/usr/local/lib/doil/server/proxy",
+                            "doil_proxy",
+                            "rm",
+                            "/etc/nginx/conf.d/sites/foo2"
+                        ],
+                };
+            })
         ;
 
         $execute_result = $tester->execute([]);

@@ -6,23 +6,22 @@ namespace CaT\Doil\Commands\Proxy;
 
 use CaT\Doil\Lib\Docker\Docker;
 use Symfony\Component\Console\Command\Command;
+use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
+#[AsCommand(
+    name: 'proxy:login',
+    description: "Login into the proxy server."
+)]
 class LoginCommand extends Command
 {
     protected const PROXY_PATH = "/usr/local/lib/doil/server/proxy";
 
-    protected static $defaultName = "proxy:login";
-    protected static $defaultDescription = "Login into the proxy server";
-
-    protected Docker $docker;
-
-    public function __construct(Docker $docker)
-    {
+    public function __construct(
+        protected Docker $docker
+    ) {
         parent::__construct();
-
-        $this->docker = $docker;
     }
 
 

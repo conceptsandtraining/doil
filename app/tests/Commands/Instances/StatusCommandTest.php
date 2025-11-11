@@ -5,7 +5,9 @@ namespace CaT\Doil\Commands\Instances;
 use CaT\Doil\Lib\Docker\Docker;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Console\Tester\CommandTester;
+use PHPUnit\Framework\Attributes\AllowMockObjectsWithoutExpectations;
 
+#[AllowMockObjectsWithoutExpectations]
 class StatusCommandTest extends TestCase
 {
     public function testExecute() : void

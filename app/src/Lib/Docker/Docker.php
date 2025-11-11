@@ -10,6 +10,7 @@ interface Docker
     public function stopContainerByDockerCompose(string $path) : void;
     public function ps() : array;
     public function getRunningInstanceNames() : array;
+    public function getAllInstanceNames() : array;
     public function loginIntoContainer(string $path, string $name) : void;
     public function isInstanceUp(string $path) : bool;
     public function executeCommand(string $path, string $name, ...$command) : void;
@@ -17,6 +18,7 @@ interface Docker
     public function hasVolume(string $name) : bool;
     public function removeVolume(string $name) : void;
     public function getImageIdsByName(string $name) : array;
+    public function getDoilRelatedImageIdsByPattern(string $pattern) : array;
     public function removeImage(string $id) : void;
 
     /**
@@ -32,11 +34,13 @@ interface Docker
     public function build(string $path, string $name) : void;
     public function runContainer(string $name) : void;
     public function stop(string $name) : void;
+    public function kill(string $name) : void;
     public function removeContainer(string $name) : void;
     public function executeDockerCommand(string $name, string $cmd) : void;
     public function executeDockerCommandWithReturn(string $name, string $cmd) : string;
     public function setGrain(string $name, string $key, string $value) : void;
     public function refreshGrains(string $name) : void;
     public function deleteInstances(array $instances) : void;
-    public function pruneNetworks() : void;
+    public function getNetworksByPattern(string $pattern) : array;
+    public function removeNetwork(string $id) : void;
 }

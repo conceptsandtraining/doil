@@ -10,37 +10,30 @@ use CaT\Doil\Lib\ConsoleOutput\Writer;
 use CaT\Doil\Lib\FileSystem\Filesystem;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputOption;
+use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Question\ConfirmationQuestion;
 use Symfony\Component\Console\Exception\InvalidArgumentException;
 
+#[AsCommand(
+    name: 'instances:set-update-token|sut',
+    description: '<fg=red>!NEEDS SUDO PRIVILEGES!</> This command sets an update token for all instances'
+)]
 class SetUpdateTokenCommand extends Command
 {
-    protected static $defaultName = "instances:set-update-token";
-    protected static $defaultDescription =
-        "<fg=red>!NEEDS SUDO PRIVILEGES!</> This command sets an update token for all instances"
-    ;
-
-    protected Docker $docker;
-    protected Posix $posix;
-    protected Filesystem $filesystem;
-    protected Writer $writer;
-
-    public function __construct(Docker $docker, Posix $posix, Filesystem $filesystem, Writer $writer)
-    {
+    public function __construct(
+        protected Docker $docker,
+        protected Posix $posix,
+        protected Filesystem $filesystem,
+        protected Writer $writer
+    ) {
         parent::__construct();
-
-        $this->docker = $docker;
-        $this->posix = $posix;
-        $this->filesystem = $filesystem;
-        $this->writer = $writer;
     }
 
     public function configure() : void
     {
         $this
-            ->setAliases(["sut"])
             ->addOption("token", "t", InputOption::VALUE_REQUIRED, "Update token as string")
             ->addOption("global", "g", InputOption::VALUE_NONE, "Determines if an instance is global or not")
             ->addOption("autoyes", "a", InputOption::VALUE_NONE, "Auto answer questions with yes")

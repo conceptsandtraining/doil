@@ -19,12 +19,17 @@ use CaT\Doil\Lib\FileSystem\Filesystem;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Question\Question;
 use Symfony\Component\Console\Input\InputOption;
+use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Question\ChoiceQuestion;
 use Symfony\Component\Console\Question\ConfirmationQuestion;
 use Symfony\Component\Console\Command\SignalableCommandInterface;
 
+#[AsCommand(
+    name: 'pack:create|pack-create',
+    description: "This command creates an instance depending on the given parameters. If you do not specify any parameter you will be prompted with a wizard."
+)]
 class PackCreateCommand extends Command implements SignalableCommandInterface
 {
     protected const DEBIAN_TAG = "11";
@@ -33,6 +38,7 @@ class PackCreateCommand extends Command implements SignalableCommandInterface
     protected const GLOBAL_REPO_PATH = "/usr/local/share/doil/repositories";
     protected const LOCAL_INSTANCES_PATH = "/.doil/instances";
     protected const GLOBAL_INSTANCES_PATH = "/usr/local/share/doil/instances";
+    protected const USER_GLOBAL_INSTANCES_PATH = "/srv/instances";
     protected const KEYCLOAK_PATH = "/usr/local/lib/doil/server/keycloak";
     protected const BASIC_FOLDERS = [
         "/conf",
@@ -49,48 +55,23 @@ class PackCreateCommand extends Command implements SignalableCommandInterface
         "/volumes/etc/mysql",
     ];
 
-    protected static $defaultName = "pack:create";
-    protected static $defaultDescription =
-        "This command creates an instance depending on the given parameters. If you do not specify any parameter you will be prompted with a wizard.";
-
-    protected Docker $docker;
-    protected RepoManager $repo_manager;
-    protected Git $git;
-    protected Posix $posix;
-    protected Filesystem $filesystem;
-    protected Linux $linux;
-    protected ProjectConfig $project_config;
-    protected Writer $writer;
-    protected IliasInfo $ilias_info;
-
     public function __construct(
-        Docker $docker,
-        RepoManager $repo_manager,
-        Git $git,
-        Posix $posix,
-        Filesystem $filesystem,
-        Linux $linux,
-        ProjectConfig $project_config,
-        Writer $writer,
-        IliasInfo $ilias_info
+        protected Docker $docker,
+        protected RepoManager $repo_manager,
+        protected Git $git,
+        protected Posix $posix,
+        protected Filesystem $filesystem,
+        protected Linux $linux,
+        protected ProjectConfig $project_config,
+        protected Writer $writer,
+        protected IliasInfo $ilias_info
     ) {
         parent::__construct();
-
-        $this->docker = $docker;
-        $this->repo_manager = $repo_manager;
-        $this->git = $git;
-        $this->posix = $posix;
-        $this->filesystem = $filesystem;
-        $this->linux = $linux;
-        $this->project_config = $project_config;
-        $this->writer = $writer;
-        $this->ilias_info = $ilias_info;
     }
 
     public function configure() : void
     {
         $this
-            ->setAliases(["pack-create"])
             ->addOption("name", "e", InputOption::VALUE_OPTIONAL, "Sets the name of the instance")
             ->addOption("repo", "r", InputOption::VALUE_OPTIONAL, "Sets the repository to use")
             ->addOption("use-global-repo", "u", InputOption::VALUE_NONE, "Determines if the repo is global one or not")
@@ -100,7 +81,7 @@ class PackCreateCommand extends Command implements SignalableCommandInterface
             ->addOption("xdebug", "x", InputOption::VALUE_NONE, "Determines if xdebug should be installed or not")
             ->addOption("global", "g", InputOption::VALUE_NONE, "Determines if an instance is global or not")
             ->addOption("skip-readme", "s", InputOption::VALUE_NONE, "Doesn't create the README.md file")
-            ->setHidden(true)
+            ->setHidden()
         ;
     }
 
@@ -324,10 +305,6 @@ class PackCreateCommand extends Command implements SignalableCommandInterface
         sleep(5);
         $this->docker->executeDockerCommand($instance_name, "/etc/init.d/mariadb stop");
 
-        $this->docker->executeDockerCommand($instance_name, "rm -rf /etc/apt/sources.list.de/salt.list");
-        $this->docker->executeDockerCommand($instance_name, "curl -fsSL https://packages.broadcom.com/artifactory/api/security/keypair/SaltProjectKey/public | tee /etc/apt/keyrings/salt-archive-keyring.pgp");
-        $this->docker->executeDockerCommand($instance_name, "curl -fsSL https://github.com/saltstack/salt-install-guide/releases/latest/download/salt.sources | tee /etc/apt/sources.list.d/salt.sources");
-
         $this->docker->copy($instance_name, "/var/log/apache2/", $instance_path . "/volumes/logs/");
         $this->docker->copy($instance_name, "/etc/mysql/", $instance_path . "/volumes/etc/");
         $this->docker->copy($instance_name, "/var/lib/mysql/", $instance_path . "/volumes/");
@@ -382,7 +359,7 @@ class PackCreateCommand extends Command implements SignalableCommandInterface
         sleep(1);
         $this->docker->setGrain($instance_salt_name, "ilias_version", "${ilias_version}");
         $this->docker->commit($instance_name);
-        $this->docker->executeDockerCommand("doil_saltmain", "salt \"" . $instance_salt_name . "\" saltutil.refresh_grains");
+        $this->docker->executeDockerCommand("doil_salt", "salt \"" . $instance_salt_name . "\" saltutil.refresh_grains");
         $this->writer->endBlock();
 
         $this->docker->executeDockerCommand($instance_name, "git config --global --add safe.directory \"*\"");
@@ -649,11 +626,7 @@ class PackCreateCommand extends Command implements SignalableCommandInterface
         $options["global"] = $global;
 
         if ($global) {
-            $target = explode("=", $this->filesystem->getLineInFile("/etc/doil/doil.conf", "global_instances_path=") ?? "")[1];
-            if (! $target) {
-                $target = "";
-            }
-            call_user_func($this->checkGlobalTarget(), $target);
+            $target = self::USER_GLOBAL_INSTANCES_PATH;
         }
 
         $options["skip_readme"] = false;
@@ -730,17 +703,6 @@ class PackCreateCommand extends Command implements SignalableCommandInterface
             return $t;
         };
     }
-    protected function checkGlobalTarget() : Closure
-    {
-        return function(string $t) {
-            if (is_null($t) || $t == "") {
-                throw new RuntimeException("Missing config entry 'global_instances_path'. Please add this entry to /etc/doil/doil.conf to create global instances.");
-            }
-            if (stristr($t, "/home/") !== false) {
-                throw new RuntimeException("Global instances must not be created below /home directory. Please change the entry in /etc/doil/doil.conf.");
-            }
-        };
-    }
 
     protected function getBranches(OutputInterface $output, string $path, string $url) : array
     {
@@ -780,11 +742,12 @@ class PackCreateCommand extends Command implements SignalableCommandInterface
         return [SIGINT, SIGTERM];
     }
 
-    public function handleSignal(int $signal) : void
+    public function handleSignal(int $signal, int|false $previousExitCode = 0): int|false
     {
         if (SIGINT === $signal || SIGTERM === $signal) {
             echo "Aborted by User!\n";
             exit(0);
         }
+        return false;
     }
 }

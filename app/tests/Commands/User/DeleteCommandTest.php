@@ -13,7 +13,9 @@ use Symfony\Component\Console\Tester\CommandTester;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Exception\InvalidArgumentException;
+use PHPUnit\Framework\Attributes\AllowMockObjectsWithoutExpectations;
 
+#[AllowMockObjectsWithoutExpectations]
 class DeleteCommandDummy extends DeleteCommand
 {
     protected function confirmAcknowledgement(InputInterface $input, OutputInterface $output) : bool
@@ -22,6 +24,7 @@ class DeleteCommandDummy extends DeleteCommand
     }
 }
 
+#[AllowMockObjectsWithoutExpectations]
 class DeleteCommandTest extends TestCase
 {
     public function test_execute_without_name_and_all() : void

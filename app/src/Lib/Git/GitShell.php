@@ -60,6 +60,32 @@ class GitShell implements Git
         $this->run($cmd, $this->logger);
     }
 
+    public function clone(string $url, string $path) : void
+    {
+        $cmd = [
+            "git",
+            "clone",
+            $url,
+            $path
+        ];
+
+        $this->logger->info("Clone from url '$url' to path '$path'");
+        $this->run($cmd, $this->logger);
+    }
+
+    public function status(string $path) : string
+    {
+        $cmd = [
+            "git",
+            "-C",
+            $path,
+            "status"
+        ];
+
+        $this->logger->info("Git status from path '$path'");
+        return $this->run($cmd, $this->logger);
+    }
+
     public function cloneBare(string $url, string $path) : void
     {
         $cmd = [
@@ -125,5 +151,48 @@ class GitShell implements Git
         }
 
         return $arr;
+    }
+
+    public function getTagsFromGithubUrl(string $url) : array
+    {
+        $cmd = [
+            "git",
+            "ls-remote",
+            "--tags",
+            $url
+        ];
+
+        $this->logger->info("Get tags by url '$url'");
+        $temp = $this->run($cmd, $this->logger);
+        $temp = explode("\n", $temp);
+        array_pop($temp);
+
+        $result = [];
+        foreach ($temp as $t) {
+            $t = explode("/", $t);
+            $t = array_pop($t);
+            if (str_contains($t, ".")) {
+                continue;
+            }
+            $result[] = $t;
+        }
+
+        natsort($result);
+        return $result;
+    }
+
+    public function setGlobalSafeDirectory(string $path) : void
+    {
+        $cmd = [
+            "git",
+            "config",
+            "--global",
+            "--add",
+            "safe.directory",
+            $path
+        ];
+
+        $this->logger->info("Add global safe directory for path '$path'");
+        $this->run($cmd, $this->logger);
     }
 }

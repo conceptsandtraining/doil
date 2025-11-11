@@ -8,43 +8,43 @@ all mails from your instances, so you can test the ILIAS emailing.
 
 ## Installation
 
-1. download and unpack the [latest release](https://github.com/conceptsandtraining/doil/releases)
-1. cd into the unpacked directory
-1. if you run doil on a remote host ensure to change the host name in `setup/conf/doil.conf` to your host name
-1. adjust your mail password in `setup/conf/doil.conf`
-1. if you run global instances make sure to adjust 'global_instances_path' in `setup/conf/doil.conf` to specify
-   where to place them, default is '/srv/instances'. Attention, paths with 'home' are not allowed here.
-1. execute `sudo ./setup/install.sh` in order to install **doil**
-1. you can remove the downloaded folder afterwards
-1. check `doil help` for available commands and further instructions
+1. download and unpack the [latest release](https://github.com/conceptsandtraining/doil/releases)  
+   Alternatively, you can simply clone the repo via Git.  
+   ```bash
+   git clone https://github.com/conceptsandtraining/doil.git <target dir>
+   ```
+1. cd into the directory
+1. run the setup install script
+   ```bash
+   sudo setup/install
+   ```
+1. doil will automatically pause and ask you to configure the doil config file at /etc/doil/doil.conf
+   Please adjust it to your needs. At least update the paths for the ssh files.
+1. continue with 'y'
+1. check `doil` for available commands and further instructions
+1. you can safely delete the downloaded/cloned folder doil
 
 ## Update
  
-If you use a **doil** version older than 20221110, we recommend completely removing an already installed
-**doil** from the system. This includes already installed instances. After that, you can proceed to the
-Installation section.
+If you use a **doil** version from before the year 2026, we recommend completely removing an already installed
+**doil** from the system. After that, you can proceed to the Installation section.
 
 Removal Tips:
 
-* `docker ps -a` shows all containers
-* `docker rm <container_id>` removes container by id (ensure to delete all doil instances)
-* `docker images` shows all images
-* `docker rmi <image_id>` remove image by id (ensure to delete all doil images)
-* `docker volume ls` shows all volumes
-* `docker volume rm <volume_name>` remove volume by name (ensure to delete mail, proxy and salt)
-* `docker network prune` removes all networks without dependencies
-* `sudo rm -rf /etc/doil /usr/local/lib/doil /usr/local/share/doil /usr/local/bin/doil ~/.doil /var/log/doil`
-* remove the instances folders or if you placed all instances in one folder remove the whole folder
+1. download and unpack the [latest release](https://github.com/conceptsandtraining/doil/releases)  
+   Alternatively, you can simply clone the repo via Git.
+   ```bash
+   git clone https://github.com/conceptsandtraining/doil.git <target dir>
+   ```
+1. cd into the directory
+1. run the uninstall script
+   ```bash
+   sudo setup/uninstall
+   ```
 
-Otherwise, use the update script.
+Otherwise, use the update command with sudo.
 
-1. checkout the newest master branch or copy and extract the zip
-2. cd into the unpacked directory
-3. if you run global instances make sure to adjust 'global_instances_path' in `setup/conf/doil.conf` to specify 
-where to place them, default is '/srv/instances'. Attention, paths with 'home' are not allowed here. The update
-will move all global instances to the set path.
-4. execute sudo ./setup/update.sh in order to update **doil**
-5. you can remove the downloaded folder afterward
+* sudo doil system:update
 
 
 ## Dependencies
@@ -54,9 +54,8 @@ however **doil** needs [Docker](https://www.docker.com/) in order to work:
 
 * docker (follow [this](https://docs.docker.com/engine/install/) instructions depending on your os to install docker), if you have installed docker by your package manager ensure that **docker-buildx-plugin** and **docker-compose-plugin** are available and installed and also executable by your user.
 * git
-* .ssh folder in your home directory. **doil** will mount it into the container. **doil** needs this to have access to any private git repositories that may be used. 
 
-Additional dependencies, but these are installed automatically during setup.
+Additional dependencies, but these are installed automatically inside the containers during setup.
 
 * php version => 7.4
 * php*.*-zip
@@ -296,7 +295,7 @@ the folder easily clone it again from [doil](https://github.com/conceptsandtrain
 
 Cd into the cloned folder and execute the script.
 
-`sudo ./setup/uninstall.sh`
+`sudo ./setup/uninstall`
 
 The script will ask you if you want to remove **doil** completely from your system or if you
 want to keep your instances, images ...

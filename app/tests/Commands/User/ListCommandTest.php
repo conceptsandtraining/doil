@@ -6,7 +6,9 @@ namespace CaT\Doil\Commands\User;
 
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Console\Tester\CommandTester;
+use PHPUnit\Framework\Attributes\AllowMockObjectsWithoutExpectations;
 
+#[AllowMockObjectsWithoutExpectations]
 class ListCommandTest extends TestCase
 {
     public function test_execute() : void

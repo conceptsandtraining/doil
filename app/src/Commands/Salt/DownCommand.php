@@ -7,25 +7,23 @@ namespace CaT\Doil\Commands\Salt;
 use CaT\Doil\Lib\Docker\Docker;
 use CaT\Doil\Lib\ConsoleOutput\Writer;
 use Symfony\Component\Console\Command\Command;
+use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
+#[AsCommand(
+    name: 'salt:down',
+    description: "Deletes a repository."
+)]
 class DownCommand extends Command
 {
     protected const SALT_PATH = "/usr/local/lib/doil/server/salt";
 
-    protected static $defaultName = "salt:down";
-    protected static $defaultDescription = "Stops the salt main server";
-
-    protected Docker $docker;
-    protected Writer $writer;
-
-    public function __construct(Docker $docker, Writer $writer)
-    {
+    public function __construct(
+        protected Docker $docker,
+        protected Writer $writer
+    ) {
         parent::__construct();
-
-        $this->docker = $docker;
-        $this->writer = $writer;
     }
 
 

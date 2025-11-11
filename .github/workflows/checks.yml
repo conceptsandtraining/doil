@@ -8,8 +8,9 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        php: [ 7.4, 8.0 ]
+        php: [ 8.4 ]
     steps:
+
       - name: Checkout code
         uses: actions/checkout@v2
 
@@ -34,17 +35,10 @@ jobs:
         run: pip install yamllint
 
       - name: Install doil
-        run: sudo ./setup/install.sh
-        env:
-          GHRUN: yes
+        run: sudo ./setup/install yes
 
       - name: PHP Unit Test
         run: CI/PHPUnit/run_tests.sh
-        env:
-          GHRUN: "yes"
-
-      - name: Setup Unit Tests
-        run: ./setup/tests/tstfy.sh setup/tests/tests
 
       - name: SLS Tests
-        run: ./CI/validate-sls-files.sh setup/stack/states
+        run: ./CI/validate-sls-files.sh app/src/Setup/stack/states
