@@ -9,14 +9,14 @@ use Symfony\Component\Console\Command\Command;
 
 class App extends Application
 {
-    const NAME = "Doil Version 20251125 - build 2025-11-25";
+    const NAME = "Doil Version 20260122 - build 2026-01-22";
 
     public function __construct(Command ...$commands)
     {
         parent::__construct(self::NAME);
 
         foreach ($commands as $command) {
-            $this->add($command);
+            $this->addCommand($command);
         }
     }
 }

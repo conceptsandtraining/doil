@@ -6,23 +6,21 @@ namespace CaT\Doil\Commands\Salt;
 
 use CaT\Doil\Lib\FileSystem\Filesystem;
 use Symfony\Component\Console\Command\Command;
+use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
+#[AsCommand(
+    name: 'salt:states',
+    description: "List all currently available states to apply."
+)]
 class StatesCommand extends Command
 {
     protected const PATH_STATES = "/usr/local/share/doil/stack/states";
 
-    protected static $defaultName = "salt:states";
-    protected static $defaultDescription = "List all currently available states to apply";
-
-    protected Filesystem $filesystem;
-
-    public function __construct(Filesystem $filesystem)
+    public function __construct(protected Filesystem $filesystem)
     {
         parent::__construct();
-
-        $this->filesystem = $filesystem;
     }
 
 

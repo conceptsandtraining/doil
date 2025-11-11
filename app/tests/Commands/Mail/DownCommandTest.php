@@ -6,7 +6,9 @@ use PHPUnit\Framework\TestCase;
 use CaT\Doil\Lib\Docker\Docker;
 use CaT\Doil\Lib\ConsoleOutput\Writer;
 use Symfony\Component\Console\Tester\CommandTester;
+use PHPUnit\Framework\Attributes\AllowMockObjectsWithoutExpectations;
 
+#[AllowMockObjectsWithoutExpectations]
 class DownCommandTest extends TestCase
 {
     public function test_execute_mail_already_down() : void

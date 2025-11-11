@@ -11,36 +11,29 @@ use CaT\Doil\Lib\FileSystem\Filesystem;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Input\InputArgument;
+use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
+#[AsCommand(
+    name: 'instances:down|down',
+    description: "This command stops an instance. If [instance] not given doil will try to stop the instance" .
+    " from the current active directory if doil can find a suitable configuration."
+)]
 class DownCommand extends Command
 {
-    protected static $defaultName = "instances:down";
-    protected static $defaultDescription =
-        "This command stops an instance. If [instance] not given doil will try to stop the instance" .
-        " from the current active directory if doil can find a suitable configuration."
-    ;
-
-    protected Docker $docker;
-    protected Posix $posix;
-    protected Filesystem $filesystem;
-    protected Writer $writer;
-
-    public function __construct(Docker $docker, Posix $posix, Filesystem $filesystem, Writer $writer)
-    {
+    public function __construct(
+        protected Docker $docker,
+        protected Posix $posix,
+        protected Filesystem $filesystem,
+        protected Writer $writer
+    ) {
         parent::__construct();
-
-        $this->docker = $docker;
-        $this->posix = $posix;
-        $this->filesystem = $filesystem;
-        $this->writer = $writer;
     }
 
     public function configure() : void
     {
         $this
-            ->setAliases(["down"])
             ->addArgument("instance", InputArgument::OPTIONAL, "name of the instance to stop")
             ->addOption("global", "g", InputOption::VALUE_NONE, "determines if an instance is global or not")
             ->addOption("all", "a", InputOption::VALUE_NONE, "If is set stop all instances")

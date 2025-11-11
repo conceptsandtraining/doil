@@ -8,7 +8,9 @@ use PHPUnit\Framework\TestCase;
 use CaT\Doil\Lib\FileSystem\Filesystem;
 use Symfony\Component\Console\Tester\CommandTester;
 use Symfony\Component\Console\Output\OutputInterface;
+use PHPUnit\Framework\Attributes\AllowMockObjectsWithoutExpectations;
 
+#[AllowMockObjectsWithoutExpectations]
 class LoginCommandWrapper extends LoginCommand
 {
     public function hasDockerComposeFile(string $path, OutputInterface $output) : bool
@@ -17,6 +19,7 @@ class LoginCommandWrapper extends LoginCommand
     }
 }
 
+#[AllowMockObjectsWithoutExpectations]
 class LoginCommandTest extends TestCase
 {
     public function test_execute_with_no_instance_name() : void

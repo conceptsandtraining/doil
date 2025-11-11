@@ -11,36 +11,29 @@ use CaT\Doil\Lib\FileSystem\Filesystem;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Input\InputArgument;
+use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Exception\InvalidArgumentException;
 
+#[AsCommand(
+    name: 'instances:csp|csp',
+    description: 'This command sets CSP rules for the given instance or all instances.'
+)]
 class CSPCommand extends Command
 {
-    protected static $defaultName = "instances:csp";
-    protected static $defaultDescription =
-        "This command sets CSP rules for the given instance or all instances"
-    ;
-
-    protected Docker $docker;
-    protected Posix $posix;
-    protected Filesystem $filesystem;
-    protected Writer $writer;
-
-    public function __construct(Docker $docker, Posix $posix, Filesystem $filesystem, Writer $writer)
-    {
+    public function __construct(
+        protected Docker $docker,
+        protected Posix $posix,
+        protected Filesystem $filesystem,
+        protected Writer $writer
+    ) {
         parent::__construct();
-
-        $this->docker = $docker;
-        $this->posix = $posix;
-        $this->filesystem = $filesystem;
-        $this->writer = $writer;
     }
 
     public function configure() : void
     {
         $this
-            ->setAliases(["csp"])
             ->addArgument("instance", InputArgument::OPTIONAL, "Name of the instance to set csp for")
             ->addOption("rules", "r", InputOption::VALUE_REQUIRED, "CSP rules as string")
             ->addOption("global", "g", InputOption::VALUE_NONE, "Determines if an instance is global or not")

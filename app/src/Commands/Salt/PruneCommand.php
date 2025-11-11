@@ -7,25 +7,23 @@ namespace CaT\Doil\Commands\Salt;
 use CaT\Doil\Lib\Docker\Docker;
 use CaT\Doil\Lib\ConsoleOutput\Writer;
 use Symfony\Component\Console\Command\Command;
+use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
+#[AsCommand(
+    name: 'salt:prune',
+    description: "Delete all registered minion keys. This could be helpful for debugging purposes. A restart of salt forces the keys to be regenerated."
+)]
 class PruneCommand extends Command
 {
     protected const SALT_PATH = "/usr/local/lib/doil/server/salt";
 
-    protected static $defaultName = "salt:prune";
-    protected static $defaultDescription = "Delete all registered minion keys. This could be helpful for debugging purposes. A restart of salt forces the keys to be regenerated.";
-
-    protected Docker $docker;
-    protected Writer $writer;
-
-    public function __construct(Docker $docker, Writer $writer)
-    {
+    public function __construct(
+        protected Docker $docker,
+        protected Writer $writer
+    ) {
         parent::__construct();
-
-        $this->docker = $docker;
-        $this->writer = $writer;
     }
 
 
@@ -36,7 +34,7 @@ class PruneCommand extends Command
         }
 
         $this->writer->beginBlock($output, "Prune salt main");
-        $this->docker->executeCommand(self::SALT_PATH, "doil_saltmain", "salt-key", "-y", "-D");
+        $this->docker->executeCommand(self::SALT_PATH, "doil_salt", "salt-key", "-y", "-D");
         $this->writer->endBlock();
 
         return Command::SUCCESS;

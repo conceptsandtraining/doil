@@ -5,7 +5,9 @@
 namespace CaT\Doil\Commands\User;
 
 use PHPUnit\Framework\TestCase;
+use PHPUnit\Framework\Attributes\AllowMockObjectsWithoutExpectations;
 
+#[AllowMockObjectsWithoutExpectations]
 class UserTest extends TestCase
 {
     public function test_create() : void

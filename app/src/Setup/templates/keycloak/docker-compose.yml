@@ -1,0 +1,24 @@
+services:
+  doil_keycloak:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: doil_keycloak:stable
+    container_name: doil_keycloak
+    hostname: doil
+    domainname: keycloak
+    networks:
+      doil_proxy:
+        ipv4_address: 172.24.0.250
+      doil_saltnet:
+    volumes:
+      - keycloak_1:/var/lib/mysql
+      - admin:/root/.keycloak
+networks:
+  doil_proxy:
+    external: true
+  doil_saltnet:
+    external: true
+volumes:
+  keycloak_1:
+  admin:

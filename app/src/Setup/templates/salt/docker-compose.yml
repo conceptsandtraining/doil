@@ -1,0 +1,24 @@
+services:
+  doil_salt:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: doil_salt:stable
+    container_name: doil_salt
+    hostname: doil
+    domainname: salt
+    volumes:
+      - /usr/local/share/doil/stack/states:/srv/salt/states
+      - /usr/local/share/doil/stack/config/master.cnf:/etc/salt/master
+    networks:
+      doil_saltnet:
+        ipv4_address: 172.20.0.254
+networks:
+  doil_saltnet:
+    name: doil_saltnet
+    ipam:
+      driver: default
+      config:
+        - subnet: 172.20.0.0/16
+volumes:
+    persistent:

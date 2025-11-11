@@ -1,0 +1,38 @@
+services:
+  doil_mail:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: doil_mail:stable
+    container_name: doil_mail
+    hostname: doil
+    domainname: mail
+    networks:
+      doil_proxy:
+        ipv4_address: 172.24.0.253
+      doil_saltnet:
+    volumes:
+      - type: bind
+        source: ./conf/salt-startup.sh
+        target: /root/salt-startup.sh
+      - type: bind
+        source: ./conf/startup.conf
+        target: /etc/supervisor/conf.d/startup.conf
+      - type: bind
+        source: ./conf/salt-minion.conf
+        target: /etc/supervisor/conf.d/salt-minion.conf
+      - type: bind
+        source: ./conf/minion.cnf
+        target: /etc/salt/minion
+      - doil_sieve:/var/www/sieve
+      - doil_mail:/var/mail
+networks:
+  doil_proxy:
+    external: true
+  doil_saltnet:
+    external: true
+volumes:
+    doil_sieve:
+      name: doil_sieve
+    doil_mail:
+      name: doil_mail

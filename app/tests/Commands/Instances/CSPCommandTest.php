@@ -11,7 +11,9 @@ use CaT\Doil\Lib\FileSystem\Filesystem;
 use CaT\Doil\Lib\ConsoleOutput\CommandWriter;
 use Symfony\Component\Console\Tester\CommandTester;
 use Symfony\Component\Console\Output\OutputInterface;
+use PHPUnit\Framework\Attributes\AllowMockObjectsWithoutExpectations;
 
+#[AllowMockObjectsWithoutExpectations]
 class CommandWriterWrapper extends CommandWriter
 {
     public function beginBlock(OutputInterface $output, string $txt) : void
@@ -27,6 +29,7 @@ class CommandWriterWrapper extends CommandWriter
     }
 }
 
+#[AllowMockObjectsWithoutExpectations]
 class CSPCommandWrapper extends CSPCommand
 {
     public function hasDockerComposeFile(string $path, OutputInterface $output) : bool
@@ -35,6 +38,7 @@ class CSPCommandWrapper extends CSPCommand
     }
 }
 
+#[AllowMockObjectsWithoutExpectations]
 class CSPCommandTest extends TestCase
 {
     public function test_execute_with_no_instance_no_all() : void

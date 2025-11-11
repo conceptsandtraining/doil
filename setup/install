@@ -1,0 +1,86 @@
+#!/bin/bash
+
+if [[ ! -z $1 && $1 == "yes" ]]
+then
+  GHRUN="yes"
+fi
+
+SCRIPT_DIR=$(realpath "$0" | sed 's|\(.*\)/.*|\1|')
+
+source ${SCRIPT_DIR}/scripts/checks.sh
+source ${SCRIPT_DIR}/scripts/log.sh
+source ${SCRIPT_DIR}/scripts/check_requirements.sh
+
+check_requirements
+
+doil_status_send_message "Adding group 'doil'"
+CHECK_GROUP=$(grep doil /etc/group)
+if [[ -z ${CHECK_GROUP} ]]
+then
+  groupadd doil
+fi
+doil_status_okay
+
+doil_status_send_message "Adding user to group 'doil'"
+id -nG $SUDO_USER | grep -qw 'doil'
+if [[ $? -ne 0 ]]
+then
+  usermod -a -G doil ${SUDO_USER}
+fi
+doil_status_okay
+
+doil_status_send_message "Checking if user is in 'doil' group"
+doil_check_user_in_doil_group
+if [[ $? -ne 0 ]]
+then
+  doil_status_failed
+  doil_status_send_error "INFO" "Please log out and log in to the host system again to ensure\n\tthat your user belongs to the doil group and start install again."
+  exit
+fi
+doil_status_okay
+
+# build base doil php image
+doil_status_send_message "Building doil base image"
+docker buildx build -q -t doil_php:stable "${SCRIPT_DIR}" &> /dev/null
+docker run --rm -ti \
+    -v /home:/home \
+    -v $(pwd):$(pwd) \
+    -e PHP_INI_SCAN_DIR=/srv/php/mods-available \
+    -w "${SCRIPT_DIR}"/../app \
+    --user $(id -u $(logname)):$(id -g $(logname)) \
+    doil_php:stable /usr/local/bin/composer -q install --no-dev
+doil_status_okay
+
+if [[ ! -v GHRUN ]]
+then
+  USER_HOME=$(getent passwd $SUDO_USER | cut -d: -f6)
+  USER_NAME=$(echo $SUDO_USER)
+
+  DOCKER_GRP_ID=$(cat /etc/group | grep "^docker:" | cut -d : -f3)
+  DOIL_GRP_ID=$(cat /etc/group | grep "^doil:" | cut -d : -f3)
+
+  # start the setup process
+  docker run --rm -ti \
+      -v "${USER_HOME}":"${USER_HOME}" \
+      -v $(pwd):$(pwd) \
+      -v /var/run/docker.sock:/var/run/docker.sock \
+      -v /usr/local:/usr/local \
+      -v /etc:/etc \
+      -v /etc/hosts:/etc/hosts \
+      -v /var/log:/var/log \
+      -v /srv:/srv \
+      -e PHP_INI_SCAN_DIR=/srv/php/mods-available \
+      -w "${SCRIPT_DIR}"/../app \
+      -e SUDO_UID=$(id -u $(logname)) \
+      --group-add ${DOCKER_GRP_ID} \
+      --group-add ${DOIL_GRP_ID} \
+      doil_php:stable \
+      /usr/bin/php8.4 -c /srv/php/php.ini src/cli.php install "${SCRIPT_DIR}" "${USER_HOME}" "${USER_NAME}"
+
+  doil_status_send_message "Cleanup"
+  rm -rf "${SCRIPT_DIR}"/../app/vendor
+  rm -rf "${SCRIPT_DIR}"/../app/composer.lock
+  doil_status_okay
+fi
+
+echo "Thanks for using doil, you rock!"

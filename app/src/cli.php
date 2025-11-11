@@ -8,30 +8,171 @@ use CaT\Doil\Commands\Mail;
 use CaT\Doil\Commands\Repo;
 use CaT\Doil\Commands\Pack;
 use CaT\Doil\Commands\Salt;
+use CaT\Doil\Commands\System;
 use CaT\Doil\Commands\User;
+use CaT\Doil\Setup\Install;
 use CaT\Doil\Commands\Proxy;
 use CaT\Doil\Lib\Git\GitShell;
 use CaT\Doil\Lib\ProjectConfig;
 use CaT\Doil\Commands\Keycloak;
+use CaT\Doil\Lib\System\Update;
 use CaT\Doil\Commands\Instances;
 use CaT\Doil\Lib\ILIAS\IliasInfo;
 use CaT\Doil\Lib\Posix\PosixShell;
 use CaT\Doil\Lib\Linux\LinuxShell;
 use CaT\Doil\Lib\Docker\DockerShell;
+use CaT\Doil\Lib\Config\ConfigReader;
 use CaT\Doil\Lib\Logger\LoggerFactory;
+use CaT\Doil\Lib\Config\ConfigChecker;
 use CaT\Doil\Commands\Repo\RepoManager;
+use CaT\Doil\Setup\Server\StartServers;
+use CaT\Doil\Lib\ConsoleOutput\SetupWriter;
 use CaT\Doil\Lib\FileSystem\FilesystemShell;
 use CaT\Doil\Lib\ConsoleOutput\CommandWriter;
+use Symfony\Component\Console\Input\ArgvInput;
+use Symfony\Component\Console\Output\ConsoleOutput;
+use Symfony\Component\Console\Helper\QuestionHelper;
 
 require_once __DIR__ . "/../vendor/autoload.php";
 
-$c = buildContainerForApp();
-$app = $c["app"];
-$app->run();
+$command = $argv[1] ?? "";
+$script_dir = $argv[2] ?? "";
+$home_dir = $argv[3] ?? "";
+$user_name = $argv[4] ?? "";
 
-function buildContainerForApp() : Container
+unset($_SERVER['argv'][1]);
+unset($_SERVER['argv'][2]);
+unset($_SERVER['argv'][3]);
+unset($_SERVER['argv'][4]);
+unset($_SERVER['argv'][5]);
+
+$_SERVER['argv'] = array_values($_SERVER['argv']);
+
+$c = buildContainerForApp($script_dir, $home_dir, $user_name);
+
+switch ($command) {
+    case "install":
+        $install = $c["install"];
+        $install->run();
+        break;
+    default:
+        $app = $c["app"];
+        $app->run();
+}
+
+function buildContainerForApp(string $script_dir = "", string $home_dir = "", string $user_name = "") : Container
 {
     $c = new Container();
+
+    $c["install"] = function($c) use ($script_dir) {
+        return new Install(
+            $c["logger"],
+            $c["setup.question_helper"],
+            $c["setup.output"],
+            $c["setup.input"],
+            $c["setup.writer"],
+            $c["setup.base_directories"],
+            $c["setup.base_files"],
+            $c["setup.copy"],
+            $c["setup.ip"],
+            $c["setup.config_reader"],
+            $c["setup.config_checker"],
+            $c["filesystem.shell"],
+            $c["setup.server.start"],
+            $script_dir
+        );
+    };
+
+    $c["setup.server.start"] = function($c) {
+        return new StartServers(
+            $c["setup.salt"],
+            $c["setup.proxy"],
+            $c["setup.mail"],
+            $c["setup.keycloak"],
+        );
+    };
+
+    $c["setup.question_helper"] = function($c) {
+        return new QuestionHelper();
+    };
+
+    $c["setup.output"] = function($c) {
+        return new ConsoleOutput();
+    };
+
+    $c["setup.input"] = function($c) {
+        return new ArgvInput();
+    };
+
+    $c["setup.writer"] = function($c) {
+        return new SetupWriter();
+    };
+
+    $c["setup.base_directories"] = function($c) use ($home_dir, $user_name) {
+        return new CaT\Doil\Setup\FileStructure\BaseDirectories(
+            $c["filesystem.shell"],
+            $home_dir,
+            $user_name
+        );
+    };
+
+    $c["setup.base_files"] = function($c) use ($home_dir, $user_name) {
+        return new CaT\Doil\Setup\FileStructure\BaseFiles(
+            $c["filesystem.shell"],
+            $home_dir,
+            $user_name
+        );
+    };
+
+    $c["setup.copy"] = function($c) {
+        return new CaT\Doil\Setup\CopyFiles\Copy(
+            $c["filesystem.shell"]
+        );
+    };
+
+    $c["setup.ip"] = function($c) {
+        return new CaT\Doil\Setup\IP\IP(
+            $c["filesystem.shell"],
+        );
+    };
+
+    $c["setup.config_reader"] = function($c) {
+        return new ConfigReader(
+            $c["setup.config"],
+            $c["filesystem.shell"],
+        );
+    };
+
+    $c["setup.config_checker"] = function($c) {
+        return new ConfigChecker(
+            $c["filesystem.shell"]
+        );
+    };
+
+    $c["setup.config"] = function($c) {
+        return new CaT\Doil\Lib\Config\Config();
+    };
+
+    $c["setup.salt"] = function($c) {
+        return new CaT\Doil\Setup\Server\Salt();
+    };
+
+    $c["setup.proxy"] = function($c) {
+        return new CaT\Doil\Setup\Server\Proxy(
+            $c["filesystem.shell"]
+        );
+    };
+
+    $c["setup.mail"] = function($c) {
+        return new CaT\Doil\Setup\Server\Mail();
+    };
+
+    $c["setup.keycloak"] = function($c) {
+        return new CaT\Doil\Setup\Server\Keycloak(
+            $c["filesystem.shell"]
+        );
+    };
+
 
     $c["app"] = function($c) {
         return new App(
@@ -76,6 +217,7 @@ function buildContainerForApp() : Container
             $c["command.salt.up"],
             $c["command.salt.states"],
             $c["command.salt.down"],
+            $c["command.system.update"],
             $c["command.user.add"],
             $c["command.user.delete"],
             $c["command.user.list"]
@@ -137,6 +279,27 @@ function buildContainerForApp() : Container
     $c["linux.shell"] = function($c) {
         return new LinuxShell(
             $c["logger"]
+        );
+    };
+
+    $c["system.update"] = function($c) {
+        return new Update(
+            $c["logger"],
+            $c["setup.output"],
+            $c["setup.input"],
+            $c["command.writer"],
+            $c["git.shell"],
+            $c["filesystem.shell"],
+            $c["setup.config_reader"],
+            $c["setup.config_checker"],
+            $c["setup.copy"],
+            $c["docker.shell"],
+            $c["posix.shell"],
+            $c["setup.salt"],
+            $c["setup.proxy"],
+            $c["setup.mail"],
+            $c["setup.keycloak"],
+            $c["setup.server.start"],
         );
     };
 
@@ -473,6 +636,16 @@ function buildContainerForApp() : Container
     $c["command.salt.up"] = function($c) {
         return new Salt\UpCommand(
             $c["docker.shell"],
+            $c["command.writer"]
+        );
+    };
+
+    $c["command.system.update"] = function($c) {
+        return new System\UpdateCommand(
+            $c["posix.shell"],
+            $c["filesystem.shell"],
+            $c["git.shell"],
+            $c["system.update"],
             $c["command.writer"]
         );
     };

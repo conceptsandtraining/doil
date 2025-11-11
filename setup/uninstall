@@ -1,0 +1,56 @@
+#!/bin/bash
+
+SCRIPT_DIR=$(realpath "$0" | sed 's|\(.*\)/.*|\1|')
+
+source ${SCRIPT_DIR}/scripts/checks.sh
+source ${SCRIPT_DIR}/scripts/log.sh
+source ${SCRIPT_DIR}/scripts/helper.sh
+source ${SCRIPT_DIR}/scripts/uninstall.sh
+
+function delete() {
+  ALL=$1
+
+  if [ ! -z ${ALL} ]
+  then
+    doil_system_remove all
+  fi
+
+  doil_system_remove
+
+  echo "Doil is now removed from your system."
+  echo "Thank you for using doil!"
+}
+
+
+# sudo user check
+doil_check_sudo
+if [[ $? -ne 0 ]]
+then
+  doil_status_failed
+  doil_status_send_error "REQUIREMENT ERROR" "Please execute this script as sudo user!"
+  exit
+fi
+
+if [ -z $1 ]
+then
+  echo "This will delete all doil related files on your system."
+  echo "If you keep instances, you have to relink them after a new doil installation."
+  read -r -p "Do you also want to delete all instances and images? [y/N] " RESPONSE
+  case "$RESPONSE" in
+      [yY][eE][sS]|[yY])
+          delete all
+          ;;
+      *)
+          delete
+          ;;
+  esac
+elif [[ $1 == "-a" || $1 == "--all" ]]
+then
+  delete all
+elif [[ $1 == "-n" || $1 == "--not-all" ]]
+then
+  delete
+else
+  echo "Usage: $0 [-a|--all] | [-n|--not-all]"
+  echo "Please use the parameters carefully. There is no further security query."
+fi

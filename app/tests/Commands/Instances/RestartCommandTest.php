@@ -10,7 +10,9 @@ use CaT\Doil\Lib\FileSystem\Filesystem;
 use CaT\Doil\Lib\ConsoleOutput\CommandWriter;
 use Symfony\Component\Console\Tester\CommandTester;
 use Symfony\Component\Console\Output\OutputInterface;
+use PHPUnit\Framework\Attributes\AllowMockObjectsWithoutExpectations;
 
+#[AllowMockObjectsWithoutExpectations]
 class RestartCommandWrapper extends RestartCommand
 {
     public function hasDockerComposeFile(string $path, OutputInterface $output) : bool
@@ -19,6 +21,7 @@ class RestartCommandWrapper extends RestartCommand
     }
 }
 
+#[AllowMockObjectsWithoutExpectations]
 class RestartCommandTest extends TestCase
 {
     public function test_execute_with_no_instance_no_docker_compose_file() : void
