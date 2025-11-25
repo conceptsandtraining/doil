@@ -317,6 +317,10 @@ class CreateCommand extends Command implements SignalableCommandInterface
         sleep(5);
         $this->docker->executeDockerCommand($instance_name, "/etc/init.d/mariadb stop");
 
+        $this->docker->executeDockerCommand($instance_name, "rm -rf /etc/apt/sources.list.de/salt.list");
+        $this->docker->executeDockerCommand($instance_name, "curl -fsSL https://packages.broadcom.com/artifactory/api/security/keypair/SaltProjectKey/public | tee /etc/apt/keyrings/salt-archive-keyring.pgp");
+        $this->docker->executeDockerCommand($instance_name, "curl -fsSL https://github.com/saltstack/salt-install-guide/releases/latest/download/salt.sources | tee /etc/apt/sources.list.d/salt.sources");
+
         $this->docker->copy($instance_name, "/var/log/apache2/", $instance_path . "/volumes/logs/");
         $this->docker->copy($instance_name, "/etc/mysql/", $instance_path . "/volumes/etc/");
         $this->docker->copy($instance_name, "/var/lib/mysql/", $instance_path . "/volumes/");
