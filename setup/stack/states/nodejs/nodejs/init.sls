@@ -1,7 +1,15 @@
+{% set ilias_version = salt['grains.get']('ilias_version', '9') %}
+{% if ilias_version | int < 10 %}
+  {% set node = 'https://deb.nodesource.com/setup_16.x' %}
+  {% set npm = 'npm@9.6.2' %}
+{% else %}
+  {% set node = 'https://deb.nodesource.com/setup_22.x' %}
+  {% set npm = 'npm@10.9.3' %}
+{% endif %}
 
 get_npm_by_curl:
   cmd.run:
-    - name: curl -sL https://deb.nodesource.com/setup_16.x | bash -
+    - name: curl -sL {{ node }} | bash -
 
 install_node_js:
   cmd.run:
@@ -11,7 +19,7 @@ install_node_js:
 
 update_npm:
   cmd.run:
-    - name: npm install -g npm@9.6.2
+    - name: npm install -g {{ npm }}
     - watch:
       - install_node_js
 
