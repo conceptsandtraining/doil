@@ -9,7 +9,9 @@ use CaT\Doil\Lib\Git\Git;
 use CaT\Doil\Lib\Posix\Posix;
 use PHPUnit\Framework\TestCase;
 use CaT\Doil\Lib\FileSystem\Filesystem;
+use PHPUnit\Framework\Attributes\AllowMockObjectsWithoutExpectations;
 
+#[AllowMockObjectsWithoutExpectations]
 class RepoManagerWrapper extends RepoManager
 {
     public function getLocalRepos() : array
@@ -29,6 +31,7 @@ class RepoManagerWrapper extends RepoManager
     }
 }
 
+#[AllowMockObjectsWithoutExpectations]
 class RepoManagerTest extends TestCase
 {
     public function test_create() : void

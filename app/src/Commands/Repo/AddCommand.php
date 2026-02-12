@@ -10,26 +10,23 @@ use CaT\Doil\Lib\ConsoleOutput\Writer;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Question\Question;
+use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Question\ConfirmationQuestion;
 
+#[AsCommand(
+    name: 'repo:add',
+    description: "Adds a repository to the doil configuration file to prepare the possibility " .
+    "to use another repository within the create process of a new instance."
+)]
 class AddCommand extends Command
 {
-    protected static $defaultName = "repo:add";
-    protected static $defaultDescription =
-        "Adds a repository to the doil configuration file to prepare the possibility "
-        . "to use another repository within the create process of a new instance."
-    ;
-
-    protected RepoManager $repo_manager;
-    protected Writer $writer;
-
-    public function __construct(RepoManager $repo_manager, Writer $writer)
-    {
+    public function __construct(
+        protected RepoManager $repo_manager,
+        protected Writer $writer
+    ) {
         parent::__construct();
-        $this->repo_manager = $repo_manager;
-        $this->writer = $writer;
     }
 
     public function configure() : void

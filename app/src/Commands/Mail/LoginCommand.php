@@ -6,23 +6,21 @@ namespace CaT\Doil\Commands\Mail;
 
 use CaT\Doil\Lib\Docker\Docker;
 use Symfony\Component\Console\Command\Command;
+use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
+#[AsCommand(
+    name: 'mail:login',
+    description: "Login into the mail server."
+)]
 class LoginCommand extends Command
 {
     protected const MAIL_PATH = "/usr/local/lib/doil/server/mail";
 
-    protected static $defaultName = "mail:login";
-    protected static $defaultDescription = "Login into the mail server";
-
-    protected Docker $docker;
-
-    public function __construct(Docker $docker)
+    public function __construct(protected Docker $docker)
     {
         parent::__construct();
-
-        $this->docker = $docker;
     }
 
 

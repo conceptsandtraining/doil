@@ -10,7 +10,9 @@ use CaT\Doil\Lib\FileSystem\Filesystem;
 use Symfony\Component\Console\Application;
 use CaT\Doil\Lib\ConsoleOutput\CommandWriter;
 use Symfony\Component\Console\Tester\CommandTester;
+use PHPUnit\Framework\Attributes\AllowMockObjectsWithoutExpectations;
 
+#[AllowMockObjectsWithoutExpectations]
 class DeleteCommandTest extends TestCase
 {
     public function test_execute_with_non_root_user() : void
@@ -171,13 +173,30 @@ class DeleteCommandTest extends TestCase
             ->willReturn(true)
         ;
 
+        $matcher = $this->exactly(2);
         $docker
-            ->expects($this->exactly(2))
+            ->expects($matcher)
             ->method("executeCommand")
-            ->withConsecutive(
-                ["/usr/local/lib/doil/server/salt/", "doil_saltmain", "salt-key", "-d", "master.global", "-y", "-q"],
-                ["/usr/local/lib/doil/server/mail/", "doil_mail", "/bin/bash", "-c", "/root/delete-postbox-configuration.sh $instance &>/dev/null"]
-            )
+            ->willReturnCallback(function (... $values) use ($matcher, $instance) {
+                match ($matcher->numberOfInvocations()) {
+                    1 => $values == [
+                        "/usr/local/lib/doil/server/salt/",
+                        "doil_salt",
+                        "salt-key",
+                        "-d",
+                        "master.global",
+                        "-y",
+                        "-q"
+                    ],
+                    2 => $values == [
+                        "/usr/local/lib/doil/server/mail/",
+                        "doil_mail",
+                        "/bin/bash",
+                        "-c",
+                        "/root/delete-postbox-configuration.sh $instance &>/dev/null"
+                    ],
+                };
+            })
         ;
         $docker
             ->expects($this->once())
@@ -227,13 +246,22 @@ class DeleteCommandTest extends TestCase
             ->with("/usr/local/share/doil/instances/master")
             ->willReturn("/home/user/instances/master")
         ;
+        $matcher = $this->exactly(2);
         $filesystem
-            ->expects($this->exactly(2))
+            ->expects($matcher)
             ->method("remove")
-            ->withConsecutive(
-                ["/usr/local/share/doil/instances/master"],
-                ["/home/user/instances/master"]
-            )
+            ->willReturnCallback(function (string $value) use ($matcher, $instance) {
+                match ($matcher->numberOfInvocations()) {
+                    1 => $this->assertEquals(
+                        "/usr/local/share/doil/instances/master",
+                        $value
+                    ),
+                    2 => $this->assertEquals(
+                        "/home/user/instances/master",
+                        $value
+                    ),
+                };
+            })
         ;
 
         $tester->setInputs(["yes"]);

@@ -7,25 +7,23 @@ namespace CaT\Doil\Commands\Mail;
 use CaT\Doil\Lib\Docker\Docker;
 use CaT\Doil\Lib\ConsoleOutput\Writer;
 use Symfony\Component\Console\Command\Command;
+use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
+#[AsCommand(
+    name: 'mail:up',
+    description: "Starts the mail server."
+)]
 class UpCommand extends Command
 {
     protected const MAIL_PATH = "/usr/local/lib/doil/server/mail";
 
-    protected static $defaultName = "mail:up";
-    protected static $defaultDescription = "Starts the mail server";
-
-    protected Docker $docker;
-    protected Writer $writer;
-
-    public function __construct(Docker $docker, Writer $writer)
-    {
+    public function __construct(
+        protected Docker $docker,
+        protected Writer $writer
+    ) {
         parent::__construct();
-
-        $this->docker = $docker;
-        $this->writer = $writer;
     }
 
 

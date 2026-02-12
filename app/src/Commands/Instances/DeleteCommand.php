@@ -11,42 +11,35 @@ use CaT\Doil\Lib\FileSystem\Filesystem;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Input\InputArgument;
+use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Question\ConfirmationQuestion;
 use Symfony\Component\Console\Exception\InvalidArgumentException;
 
+#[AsCommand(
+    name: 'instances:delete|delete',
+    description: "<fg=red>!NEEDS SUDO PRIVILEGES!</> This command deletes one or all instances. It will remove everything belonging " .
+    "to the given instance including all its files, configuration and misc data."
+)]
 class DeleteCommand extends Command
 {
     protected const SALT_MAIN = "/usr/local/lib/doil/server/salt/";
     protected const POSTFIX = "/usr/local/lib/doil/server/mail/";
     protected const KEYCLOAK_PATH = "/usr/local/lib/doil/server/keycloak";
 
-    protected static $defaultName = "instances:delete";
-    protected static $defaultDescription =
-        "<fg=red>!NEEDS SUDO PRIVILEGES!</> This command deletes one or all instances. It will remove everything belonging " .
-        "to the given instance including all its files, configuration and misc data."
-    ;
-
-    protected Docker $docker;
-    protected Posix $posix;
-    protected Filesystem $filesystem;
-    protected Writer $writer;
-
-    public function __construct(Docker $docker, Posix $posix, Filesystem $filesystem, Writer $writer)
-    {
+    public function __construct(
+        protected Docker $docker,
+        protected Posix $posix,
+        protected Filesystem $filesystem,
+        protected Writer $writer
+    ) {
         parent::__construct();
-
-        $this->docker = $docker;
-        $this->posix = $posix;
-        $this->filesystem = $filesystem;
-        $this->writer = $writer;
     }
 
     public function configure() : void
     {
         $this
-            ->setAliases(["delete"])
             ->addArgument("instance", InputArgument::OPTIONAL, "name of the instance to delete")
             ->addOption("all", "a", InputOption::VALUE_NONE, "if is set all instances will be deleted")
             ->addOption("global", "g", InputOption::VALUE_NONE, "determines if an instance is global or not")
@@ -139,7 +132,7 @@ class DeleteCommand extends Command
 
         $this->docker->removeContainer($instance . "_" . $suffix);
 
-        $this->docker->executeCommand(self::SALT_MAIN, "doil_saltmain", "salt-key", "-d", "$instance.$suffix", "-y", "-q");
+        $this->docker->executeCommand(self::SALT_MAIN, "doil_salt", "salt-key", "-d", "$instance.$suffix", "-y", "-q");
         if ($is_up) {
             $this->docker->executeDockerCommand(
                 "doil_proxy",

@@ -8,6 +8,7 @@ use CaT\Doil\Lib\Posix\Posix;
 use CaT\Doil\Lib\SymfonyShell;
 use CaT\Doil\Lib\Logger\LoggerFactory;
 use CaT\Doil\Lib\FileSystem\Filesystem;
+use Symfony\Component\Process\Exception\ProcessFailedException;
 
 class DockerShell implements Docker
 {
@@ -18,12 +19,11 @@ class DockerShell implements Docker
     protected const PROXY = "/usr/local/lib/doil/server/proxy";
     protected const MAIL = "/usr/local/lib/doil/server/mail";
 
-    public function __construct(LoggerFactory $logger, Posix $posix, Filesystem $filesystem)
-    {
-        $this->logger = $logger;
-        $this->posix = $posix;
-        $this->filesystem = $filesystem;
-    }
+    public function __construct(
+        protected LoggerFactory $logger,
+        protected Posix $posix,
+        protected Filesystem $filesystem
+    ) {}
 
     protected array $systems = [
         self::SALT,
@@ -72,6 +72,9 @@ class DockerShell implements Docker
        $this->populateProxy();
     }
 
+    /**
+     * @throws ProcessFailedException
+     */
     public function stopContainerByDockerCompose(string $path) : void
     {
         $cmd = [
@@ -91,6 +94,9 @@ class DockerShell implements Docker
         }
     }
 
+    /**
+     * @throws ProcessFailedException
+     */
     public function ps() : array
     {
         $cmd = [
@@ -104,6 +110,25 @@ class DockerShell implements Docker
         return explode("\n", $this->run($cmd, $logger));
     }
 
+    /**
+     * @throws ProcessFailedException
+     */
+    public function getAllInstanceNames() : array
+    {
+        $cmd = [
+            "docker",
+            "ps",
+            "-a",
+            "--format",
+            "{{.Names}}"
+        ];
+        $logger = $this->logger->getDoilLogger("DOCKER");
+        return explode("\n", $this->run($cmd, $logger));
+    }
+
+    /**
+     * @throws ProcessFailedException
+     */
     public function getRunningInstanceNames() : array
     {
         $cmd = [
@@ -118,6 +143,9 @@ class DockerShell implements Docker
         return explode("\n", $this->run($cmd, $logger));
     }
 
+    /**
+     * @throws ProcessFailedException
+     */
     public function loginIntoContainer(string $path, string $name) : void
     {
         $cmd = [
@@ -137,6 +165,9 @@ class DockerShell implements Docker
         $this->runTTY($cmd, $logger);
     }
 
+    /**
+     * @throws ProcessFailedException
+     */
     public function isInstanceUp(string $path) : bool
     {
         $cmd = [
@@ -151,6 +182,9 @@ class DockerShell implements Docker
         return $this->run($cmd, $logger) != "";
     }
 
+    /**
+     * @throws ProcessFailedException
+     */
     public function executeCommand(string $path, string $name, ...$command) : void
     {
         $cmd = [
@@ -170,6 +204,9 @@ class DockerShell implements Docker
         $this->runTTY($cmd, $logger);
     }
 
+    /**
+     * @throws ProcessFailedException
+     */
     public function executeNoTTYCommand(string $path, string $name, ...$command) : void
     {
         $cmd = [
@@ -190,6 +227,9 @@ class DockerShell implements Docker
         $this->runNoTTYNoReturn($cmd, $logger);
     }
 
+    /**
+     * @throws ProcessFailedException
+     */
     public function executeBashCommandInsideContainer(string $name, ?string $working_dir, string ...$command) : void
     {
         $wd = "/";
@@ -216,6 +256,9 @@ class DockerShell implements Docker
         $this->runTTY($cmd, $logger);
     }
 
+    /**
+     * @throws ProcessFailedException
+     */
     public function hasVolume(string $name) : bool
     {
         $cmd = [
@@ -235,6 +278,27 @@ class DockerShell implements Docker
         return $result != "";
     }
 
+    /**
+     * @throws ProcessFailedException
+     */
+    public function getVolumesByPattern(string $pattern) : array
+    {
+        $cmd = [
+            "docker",
+            "volume",
+            "ls",
+            "-q",
+            "--filter",
+            "name={$pattern}"
+        ];
+
+        $logger = $this->logger->getDoilLogger("DOCKER");
+        return explode("\n", $this->run($cmd, $logger));
+    }
+
+    /**
+     * @throws ProcessFailedException
+     */
     public function removeVolume(string $name) : void
     {
         $cmd = [
@@ -250,6 +314,9 @@ class DockerShell implements Docker
         $this->run($cmd, $logger);
     }
 
+    /**
+     * @throws ProcessFailedException
+     */
     public function getImageIdsByName(string $name) : array
     {
         $cmd = [
@@ -264,6 +331,26 @@ class DockerShell implements Docker
         return explode("\n", $this->run($cmd, $logger));
     }
 
+    /**
+     * @throws ProcessFailedException
+     */
+    public function getDoilRelatedImageIdsByPattern(string $pattern) : array
+    {
+        $cmd = [
+            "docker",
+            "images",
+            "-q",
+            "--filter",
+            "reference={$pattern}",
+        ];
+
+        $logger = $this->logger->getDoilLogger("DOCKER");
+        return explode("\n", $this->run($cmd, $logger));
+    }
+
+    /**
+     * @throws ProcessFailedException
+     */
     public function removeImage(string $id) : void
     {
         $cmd = [
@@ -280,13 +367,16 @@ class DockerShell implements Docker
         $this->run($cmd, $logger);
     }
 
+    /**
+     * @throws ProcessFailedException
+     */
     public function getSaltAcceptedKeys() : array
     {
         $cmd = [
             "docker",
             "exec",
             "-t",
-            "doil_saltmain",
+            "doil_salt",
             "bash",
             "-c",
             "salt-key -L --out json"
@@ -298,13 +388,16 @@ class DockerShell implements Docker
         return $keys;
     }
 
+    /**
+     * @throws ProcessFailedException
+     */
     public function getShadowHashForInstance(string $name, string $password) : string
     {
         $cmd = [
             "docker",
             "exec",
             "-i",
-            "doil_saltmain",
+            "doil_salt",
             "bash",
             "-c",
             "salt \"$name\" shadow.gen_password \"$password\" --out txt"
@@ -316,13 +409,16 @@ class DockerShell implements Docker
         return trim($result[1]);
     }
 
+    /**
+     * @throws ProcessFailedException
+     */
     public function applyState(string $name, string $state) : void
     {
         $cmd = [
             "docker",
             "exec",
             "-i",
-            "doil_saltmain",
+            "doil_salt",
             "bash",
             "-c",
             "salt \"$name\" state.highstate saltenv=$state"
@@ -334,6 +430,9 @@ class DockerShell implements Docker
         $logger->info($result);
     }
 
+    /**
+     * @throws ProcessFailedException
+     */
     public function commit(string $instance_name, ?string $image_name = null) : void
     {
         if (is_null($image_name)) {
@@ -352,6 +451,9 @@ class DockerShell implements Docker
         $this->run($cmd, $logger);
     }
 
+    /**
+     * @throws ProcessFailedException
+     */
     public function copy(string $instance_name, string $from, string $to) : void
     {
         $cmd = [
@@ -366,6 +468,9 @@ class DockerShell implements Docker
         $this->run($cmd, $logger);
     }
 
+    /**
+     * @throws ProcessFailedException
+     */
     public function listContainerDirectory(string $container_name, string $path) : array
     {
         $cmd = [
@@ -382,6 +487,9 @@ class DockerShell implements Docker
         return explode("\n", trim($this->run($cmd, $logger)));
     }
 
+    /**
+     * @throws ProcessFailedException
+     */
     public function pull(string $name, string $tag) : void
     {
         $cmd = [
@@ -395,6 +503,9 @@ class DockerShell implements Docker
         $this->run($cmd, $logger);
     }
 
+    /**
+     * @throws ProcessFailedException
+     */
     public function build(string $path, string $name) : void
     {
         $cmd = [
@@ -411,6 +522,9 @@ class DockerShell implements Docker
         $this->run($cmd, $logger);
     }
 
+    /**
+     * @throws ProcessFailedException
+     */
     public function runContainer(string $name) : void
     {
         $cmd = [
@@ -427,6 +541,9 @@ class DockerShell implements Docker
         $this->run($cmd, $logger);
     }
 
+    /**
+     * @throws ProcessFailedException
+     */
     public function stop(string $name) : void
     {
         $cmd = [
@@ -440,6 +557,25 @@ class DockerShell implements Docker
         $this->run($cmd, $logger);
     }
 
+    /**
+     * @throws ProcessFailedException
+     */
+    public function kill(string $name) : void
+    {
+        $cmd = [
+            "docker",
+            "kill",
+            $name
+        ];
+
+        $logger = $this->logger->getDoilLogger($name);
+        $logger->info("Kill instance");
+        $this->run($cmd, $logger);
+    }
+
+    /**
+     * @throws ProcessFailedException
+     */
     public function removeContainer(string $name) : void
     {
         $cmd = [
@@ -454,6 +590,9 @@ class DockerShell implements Docker
         $this->run($cmd, $logger);
     }
 
+    /**
+     * @throws ProcessFailedException
+     */
     public function executeDockerCommand(string $name, string $cmd) : void
     {
         $cmd = [
@@ -471,6 +610,9 @@ class DockerShell implements Docker
         $this->run($cmd, $logger);
     }
 
+    /**
+     * @throws ProcessFailedException
+     */
     public function executeDockerCommandWithReturn(string $name, string $cmd) : string
     {
         $cmd = [
@@ -488,13 +630,16 @@ class DockerShell implements Docker
         return $this->run($cmd, $logger);
     }
 
+    /**
+     * @throws ProcessFailedException
+     */
     public function setGrain(string $name, string $key, string $value) : void
     {
         $cmd = [
             "docker",
             "exec",
             "-d",
-            "doil_saltmain",
+            "doil_salt",
             "bash",
             "-c",
             "salt \"$name\" grains.setval \"$key\" \"$value\""
@@ -505,13 +650,16 @@ class DockerShell implements Docker
         $this->runTTY($cmd, $logger);
     }
 
+    /**
+     * @throws ProcessFailedException
+     */
     public function refreshGrains(string $name) : void
     {
         $cmd = [
             "docker",
             "exec",
             "-d",
-            "doil_saltmain",
+            "doil_salt",
             "bash",
             "-c",
             "salt \"$name\" saltutil.refresh_grains"
@@ -522,6 +670,9 @@ class DockerShell implements Docker
         $this->runTTY($cmd, $logger);
     }
 
+    /**
+     * @throws ProcessFailedException
+     */
     public function deleteInstances(array $instances) : void
     {
         foreach ($instances as $instance) {
@@ -535,21 +686,44 @@ class DockerShell implements Docker
         }
     }
 
-    public function pruneNetworks() : void
+    /**
+     * @throws ProcessFailedException
+     */
+    public function getNetworksByPattern(string $pattern) : array
     {
         $cmd = [
             "docker",
             "network",
-            "prune",
-            "-f"
+            "ls",
+            "-q",
+            "--filter",
+            "name={$pattern}"
         ];
 
         $logger = $this->logger->getDoilLogger("DOCKER");
-        $logger->info("Prune network");
+        return explode("\n", $this->run($cmd, $logger));
+    }
+
+    /**
+     * @throws ProcessFailedException
+     */
+    public function removeNetwork(string $id) : void
+    {
+        $cmd = [
+            "docker",
+            "network",
+            "rm",
+            $id
+        ];
+
+        $logger = $this->logger->getDoilLogger("DOCKER");
         $this->run($cmd, $logger);
     }
 
-    protected function getImageNameByInstance(string $instance) : string
+    /**
+     * @throws ProcessFailedException
+     */
+    public function getImageNameByInstance(string $instance) : string
     {
         $cmd = [
             "docker",
@@ -562,18 +736,9 @@ class DockerShell implements Docker
         return $this->run($cmd, $logger);
     }
 
-    protected function kill(string $name) : void
-    {
-        $cmd = [
-            "docker",
-            "kill",
-            $name
-        ];
-
-        $logger = $this->logger->getDoilLogger($name);
-        $this->run($cmd, $logger);
-    }
-
+    /**
+     * @throws ProcessFailedException
+     */
     protected function startDoilSystemsIfNeeded() : void
     {
         if (! $this->isInstanceUp(self::SALT)) {
@@ -595,6 +760,9 @@ class DockerShell implements Docker
         }
     }
 
+    /**
+     * @throws ProcessFailedException
+     */
     protected function startContainerByDockerComposeWithForceRecreate(string $path) : void
     {
         $cmd = [
@@ -612,6 +780,9 @@ class DockerShell implements Docker
         $this->run($cmd, $logger);
     }
 
+    /**
+     * @throws ProcessFailedException
+     */
     protected function populateProxy() : void
     {
         $this->executeDockerCommand(
@@ -655,6 +826,9 @@ class DockerShell implements Docker
         ));
     }
 
+    /**
+     * @throws ProcessFailedException
+     */
     protected function cleanupProxy(string $path) : void
     {
         $name = basename($path);
@@ -662,5 +836,39 @@ class DockerShell implements Docker
             "doil_proxy",
             "rm -f /etc/nginx/conf.d/sites/$name.conf &&  /root/generate_index_html.sh"
         );
+    }
+
+    /**
+     * @throws ProcessFailedException
+     */
+    public function getDoilRelatedContainersNames() : array
+    {
+        $cmd = [
+            "docker",
+            "ps",
+            "--filter",
+            "name=_local",
+            "--filter",
+            "name=_global",
+            "--filter",
+            "name=doil_",
+            "--format={{.Names}}",
+        ];
+        $logger = $this->logger->getDoilLogger("DOCKER");
+        $instances = explode("\n", $this->run($cmd, $logger));
+        return array_filter($instances);
+    }
+
+    public function pruneImages() : void
+    {
+        $cmd = [
+            "docker",
+            "image",
+            "prune",
+            "-a",
+            "-f"
+        ];
+        $logger = $this->logger->getDoilLogger("DOCKER");
+        $this->run($cmd, $logger);
     }
 }

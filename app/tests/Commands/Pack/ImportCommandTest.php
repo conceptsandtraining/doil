@@ -11,7 +11,9 @@ use CaT\Doil\Lib\FileSystem\Filesystem;
 use CaT\Doil\Commands\Repo\RepoManager;
 use CaT\Doil\Lib\ConsoleOutput\CommandWriter;
 use Symfony\Component\Console\Tester\CommandTester;
+use PHPUnit\Framework\Attributes\AllowMockObjectsWithoutExpectations;
 
+#[AllowMockObjectsWithoutExpectations]
 class ImportCommandTest extends TestCase
 {
     public function test_execute_without_instance_param() : void

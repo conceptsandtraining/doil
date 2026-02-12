@@ -7,25 +7,23 @@ namespace CaT\Doil\Commands\Proxy;
 use CaT\Doil\Lib\Docker\Docker;
 use CaT\Doil\Lib\ConsoleOutput\Writer;
 use Symfony\Component\Console\Command\Command;
+use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
+#[AsCommand(
+    name: 'proxy:down',
+    description: "Stops the proxy server."
+)]
 class DownCommand extends Command
 {
     protected const PROXY_PATH = "/usr/local/lib/doil/server/proxy";
 
-    protected static $defaultName = "proxy:down";
-    protected static $defaultDescription = "Stops the proxy server";
-
-    protected Docker $docker;
-    protected Writer $writer;
-
-    public function __construct(Docker $docker, Writer $writer)
-    {
+    public function __construct(
+        protected Docker $docker,
+        protected Writer $writer
+    ) {
         parent::__construct();
-
-        $this->docker = $docker;
-        $this->writer = $writer;
     }
 
 

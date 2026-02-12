@@ -18,46 +18,29 @@ use CaT\Doil\Commands\Repo\RepoManager;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Input\InputArgument;
+use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Question\ConfirmationQuestion;
 
+#[AsCommand(
+    name: 'pack:export',
+    description: "Exports an instance to an archive with all the data needed for an import." .
+    " The final archive name will be <instance>-doilpack.zip."
+)]
 class ExportCommand extends Command
 {
-    protected static $defaultName = "pack:export";
-    protected static $defaultDescription =
-        "Exports an instance to an archive with all the data needed for an import."
-        . " The final archive name will be <instance>-doilpack.zip.";
-
-    protected Docker $docker;
-    protected Posix $posix;
-    protected Filesystem $filesystem;
-    protected Writer $writer;
-    protected ProjectConfig $project_config;
-    protected Git $git;
-    protected RepoManager $repo_manager;
-    protected IliasInfo $ilias_info;
-
     public function __construct(
-        Docker $docker,
-        Posix $posix,
-        Filesystem $filesystem,
-        Writer $writer,
-        ProjectConfig $project_config,
-        Git $git,
-        RepoManager $repo_manager,
-        IliasInfo $ilias_info
+        protected Docker $docker,
+        protected Posix $posix,
+        protected Filesystem $filesystem,
+        protected Writer $writer,
+        protected ProjectConfig $project_config,
+        protected Git $git,
+        protected RepoManager $repo_manager,
+        protected IliasInfo $ilias_info
     ) {
         parent::__construct();
-
-        $this->docker = $docker;
-        $this->posix = $posix;
-        $this->filesystem = $filesystem;
-        $this->writer = $writer;
-        $this->project_config = $project_config;
-        $this->git = $git;
-        $this->repo_manager = $repo_manager;
-        $this->ilias_info = $ilias_info;
     }
 
     public function configure() : void

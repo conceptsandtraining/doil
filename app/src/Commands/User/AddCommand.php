@@ -11,37 +11,25 @@ use CaT\Doil\Lib\FileSystem\Filesystem;
 use CaT\Doil\Commands\Repo\RepoManager;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
+use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
+#[AsCommand(
+    name: 'user:add',
+    description: "<fg=red>!NEEDS SUDO PRIVILEGES!</> Adds a user to the doil system."
+)]
 class AddCommand extends Command
 {
-    protected static $defaultName = "user:add";
-    protected static $defaultDescription = "<fg=red>!NEEDS SUDO PRIVILEGES!</> Adds a user to the doil system";
-
-    protected UserManager $user_manager;
-    protected Posix $posix;
-    protected Linux $linux;
-    protected Filesystem $filesystem;
-    protected Writer $writer;
-    protected RepoManager $repo_manager;
-
     public function __construct(
-        UserManager $user_manager,
-        Posix $posix,
-        Linux $linux,
-        Filesystem $filesystem,
-        Writer $writer,
-        RepoManager $repo_manager
+        protected UserManager $user_manager,
+        protected Posix $posix,
+        protected Linux $linux,
+        protected Filesystem $filesystem,
+        protected Writer $writer,
+        protected RepoManager $repo_manager
     ) {
         parent::__construct();
-
-        $this->user_manager = $user_manager;
-        $this->posix = $posix;
-        $this->linux = $linux;
-        $this->filesystem = $filesystem;
-        $this->writer = $writer;
-        $this->repo_manager = $repo_manager;
     }
 
     public function configure() : void

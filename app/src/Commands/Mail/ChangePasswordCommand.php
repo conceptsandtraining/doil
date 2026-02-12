@@ -9,27 +9,24 @@ use CaT\Doil\Lib\Docker\Docker;
 use CaT\Doil\Lib\ConsoleOutput\Writer;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
+use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
+#[AsCommand(
+    name: 'mail:change-password',
+    description: "<fg=red>!NEEDS SUDO PRIVILEGES!</> Change the roundcube password."
+)]
 class ChangePasswordCommand extends Command
 {
     protected const MAIL_PATH = "/usr/local/lib/doil/server/mail";
 
-    protected static $defaultName = "mail:change-password";
-    protected static $defaultDescription = "<fg=red>!NEEDS SUDO PRIVILEGES!</> Change the roundcube password.";
-
-    protected Docker $docker;
-    protected Writer $writer;
-    protected Posix $posix;
-
-    public function __construct(Docker $docker, Writer $writer, Posix $posix)
-    {
+    public function __construct(
+        protected Docker $docker,
+        protected Writer $writer,
+        protected Posix $posix
+    ) {
         parent::__construct();
-
-        $this->docker = $docker;
-        $this->writer = $writer;
-        $this->posix = $posix;
     }
 
     public function configure() : void

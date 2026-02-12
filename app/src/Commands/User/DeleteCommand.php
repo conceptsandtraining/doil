@@ -10,29 +10,25 @@ use CaT\Doil\Lib\ConsoleOutput\Writer;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Input\InputArgument;
+use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Question\ConfirmationQuestion;
 use Symfony\Component\Console\Exception\InvalidArgumentException;
 
+#[AsCommand(
+    name: 'user:delete',
+    description: "<fg=red>!NEEDS SUDO PRIVILEGES!</> Deletes a user from the doil system."
+)]
 class DeleteCommand extends Command
 {
-    protected static $defaultName = "user:delete";
-    protected static $defaultDescription = "<fg=red>!NEEDS SUDO PRIVILEGES!</> Deletes a user from the doil system";
-
-    protected UserManager $user_manager;
-    protected Posix $posix;
-    protected Linux $linux;
-    protected Writer $writer;
-
-    public function __construct(UserManager $user_manager, Posix $posix, Linux $linux, Writer $writer)
-    {
+    public function __construct(
+        protected UserManager $user_manager,
+        protected Posix $posix,
+        protected Linux $linux,
+        protected Writer $writer
+    ) {
         parent::__construct();
-
-        $this->user_manager = $user_manager;
-        $this->posix = $posix;
-        $this->linux = $linux;
-        $this->writer = $writer;
     }
 
     public function configure() : void

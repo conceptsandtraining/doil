@@ -1,0 +1,52 @@
+services:
+  doil_proxy:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: doil_proxy:stable
+    container_name: doil_proxy
+    hostname: doil
+    domainname: proxy
+    networks:
+      doil_proxy:
+        ipv4_address: 172.24.0.254
+      doil_saltnet:
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - type: bind
+        source: ./conf/salt-startup.sh
+        target: /root/salt-startup.sh
+      - type: bind
+        source: ./conf/startup.conf
+        target: /etc/supervisor/conf.d/startup.conf
+      - type: bind
+        source: ./conf/localcerts/
+        target: /etc/ssl/localcerts/
+      - type: bind
+        source: ./conf/salt-minion.conf
+        target: /etc/supervisor/conf.d/salt-minion.conf
+      - type: bind
+        source: ./conf/minion.cnf
+        target: /etc/salt/minion
+      - type: bind
+        source: ./conf/nginx/
+        target: /etc/nginx/conf.d/
+      - type: bind
+        source: ./conf/generate_index_html.sh
+        target: /root/generate_index_html.sh
+      - type: bind
+        source: ./conf/robots.txt
+        target: /var/www/html/robots.txt
+networks:
+  doil_saltnet:
+    external: true
+  doil_proxy:
+    name: doil_proxy
+    ipam:
+      driver: default
+      config:
+        - subnet: 172.24.0.0/16
+volumes:
+    persistent:
