@@ -9,7 +9,9 @@ define("ILIAS_HTTP_PATH", "{{ ilias_http_path }}");
 require_once("../vendor/composer/vendor/autoload.php");
 ilContext::init(ilContext::CONTEXT_CRON);
 
-ilInitialisation::initILIAS();
+require_once '../vendor/composer/vendor/autoload.php';
+require_once __DIR__ . '/../artifacts/bootstrap_default.php';
+entry_point('ILIAS Legacy Initialisation Adapter');
 
 ilSamlSettings::getInstance()->setLoginFormStatus(true);
 $idp = new ilSamlIdp();
