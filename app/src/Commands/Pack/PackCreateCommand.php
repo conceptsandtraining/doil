@@ -347,9 +347,15 @@ class PackCreateCommand extends Command implements SignalableCommandInterface
         // set grains
         $this->writer->beginBlock($output, "Setting up instance configuration");
         $mysql_password = $this->generatePassword(16);
+
         $cron_password = "not-needed";
         if ($ilias_version < 9) {
             $cron_password = $this->generatePassword(16);
+        }
+
+        $cron_path = "/var/www/html/cli";
+        if ($ilias_version < 10) {
+            $cron_path = "/var/www/html/cron";
         }
 
         if ($keycloak) {
@@ -364,6 +370,8 @@ class PackCreateCommand extends Command implements SignalableCommandInterface
 
         sleep(1);
         $this->docker->setGrain($instance_salt_name, "cpass", "$cron_password");
+        sleep(1);
+        $this->docker->setGrain($instance_salt_name, "cron_path", "$cron_path");
         sleep(1);
         if ($update_token) {
             $this->docker->setGrain($instance_salt_name, "update_token", "${update_token}");

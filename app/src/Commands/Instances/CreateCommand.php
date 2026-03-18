@@ -346,6 +346,11 @@ class CreateCommand extends Command implements SignalableCommandInterface
             $cron_password = $this->generatePassword(16);
         }
 
+        $cron_path = "/var/www/html/cli";
+        if ($ilias_version < 10) {
+            $cron_path = "/var/www/html/cron";
+        }
+
         if ($keycloak) {
             $samlpass = $this->generatePassword(33);
             $this->docker->setGrain($instance_salt_name, "samlpass", "$samlpass");
@@ -358,6 +363,8 @@ class CreateCommand extends Command implements SignalableCommandInterface
         $this->docker->setGrain($instance_salt_name, "mpass", "$mysql_password");
         sleep(1);
         $this->docker->setGrain($instance_salt_name, "cpass", "$cron_password");
+        sleep(1);
+        $this->docker->setGrain($instance_salt_name, "cron_path", "$cron_path");
         sleep(1);
         if ($update_token) {
             $this->docker->setGrain($instance_salt_name, "update_token", "${$update_token}");
