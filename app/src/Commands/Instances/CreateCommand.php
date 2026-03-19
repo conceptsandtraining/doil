@@ -485,6 +485,13 @@ class CreateCommand extends Command implements SignalableCommandInterface
             $this->writer->endBlock();
         }
 
+        if ($https_proxy) {
+            // apply enable-https state
+            $this->writer->beginBlock($output, "Apply enable-https state");
+            $this->docker->applyState($instance_salt_name, "enable-https");
+            $this->writer->endBlock();
+        }
+
         // apply access state
         $this->writer->beginBlock($output, "Apply access state");
         $this->docker->applyState($instance_salt_name, "access");
