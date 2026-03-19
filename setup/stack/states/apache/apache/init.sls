@@ -1,4 +1,3 @@
-{% set doil_domain = salt['grains.get']('doil_domain', 'http://ilias.local') %}
 {% set doil_project_name = salt['grains.get']('doil_project_name', 'ilias') %}
 {% set ilias_version = salt['grains.get']('ilias_version', '9') %}
 {% set csp = salt['grains.get']('csp', "") %}

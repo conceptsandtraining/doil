@@ -363,6 +363,18 @@ class ImportCommand extends Command
             $this->writer->endBlock();
         }
 
+        if ($https_proxy) {
+            // apply enable-https state
+            $this->writer->beginBlock($output, "Apply enable-https state");
+            $this->docker->applyState($instance . "." . $suffix, "enable-https");
+            $this->writer->endBlock();
+        } else {
+            // apply disable-https state
+            $this->writer->beginBlock($output, "Apply disable-https state");
+            $this->docker->applyState($instance . "." . $suffix, "disable-https");
+            $this->writer->endBlock();
+        }
+
         $this->writer->beginBlock($output, "Setting permissions");
         $this->docker->applyState($instance . "." . $suffix, "access");
         $this->writer->endBlock();
