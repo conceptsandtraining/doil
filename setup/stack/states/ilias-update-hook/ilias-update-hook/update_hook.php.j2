@@ -82,7 +82,7 @@ if ($branch === $base_ref) {
     // Run composer install
     $result_code = 0;
     log_write("Run composer install\n");
-    system("COMPOSER_HOME=/usr/local/bin/composer composer install >> /var/log/doil/instance-update.log 2>&1", $result_code);
+    system("COMPOSER_HOME=/root/.config/composer composer install >> /var/log/doil/instance-update.log 2>&1", $result_code);
     if ($result_code !== 0) {
         log_write("Error running 'composer install " . $branch);
         http_response_code(500);
