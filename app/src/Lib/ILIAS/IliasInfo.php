@@ -5,16 +5,20 @@
 namespace CaT\Doil\Lib\ILIAS;
 
 use RuntimeException;
+use CaT\Doil\Lib\Docker\Docker;
 use CaT\Doil\Lib\FileSystem\Filesystem;
 
 class IliasInfo implements ILIAS
 {
     protected Filesystem $filesystem;
+    protected Docker $docker;
 
     public function __construct(
-        Filesystem $filesystem
+        Filesystem $filesystem,
+        Docker $docker
     ) {
         $this->filesystem = $filesystem;
+        $this->docker = $docker;
     }
 
     public function getIliasVersion(string $path) : string
@@ -35,5 +39,13 @@ class IliasInfo implements ILIAS
         preg_match("/\d+.\d/", $ilias_version, $version);
 
         return $version[0];
+    }
+
+    public function isWopiEnabled(string $salt_instance_name) : bool
+    {
+        return (bool)$this->docker->executeDockerCommandWithReturn(
+            $salt_instance_name,
+            "mysql -N -B -e \"select value from ilias.settings where keyword = 'wopi_activated'\""
+        );
     }
 }

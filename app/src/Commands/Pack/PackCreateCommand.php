@@ -106,8 +106,8 @@ class PackCreateCommand extends Command implements SignalableCommandInterface
 
     public function execute(InputInterface $input, OutputInterface $output) : int
     {
-        $options = $this->gatherOptionData($input, $output);
         $doil_conf = $this->filesystem->parseIniFile(self::DOIL_INI_PATH);
+        $options = $this->gatherOptionData($input, $output, $doil_conf);
 
         $host = $doil_conf["host"];
         $allowed_hosts = $doil_conf["allowed_hosts"];

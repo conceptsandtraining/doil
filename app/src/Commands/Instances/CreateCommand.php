@@ -100,13 +100,14 @@ class CreateCommand extends Command implements SignalableCommandInterface
             ->addOption("xdebug", "x", InputOption::VALUE_NONE, "Determines if xdebug should be installed or not")
             ->addOption("global", "g", InputOption::VALUE_NONE, "Determines if an instance is global or not")
             ->addOption("skip-readme", "s", InputOption::VALUE_NONE, "Doesn't create the README.md file")
+            ->addOption("enable-office", "o", InputOption::VALUE_NONE, "Enable office support")
         ;
     }
 
     public function execute(InputInterface $input, OutputInterface $output) : int
     {
-        $options = $this->gatherOptionData($input, $output);
         $doil_conf = $this->filesystem->parseIniFile(self::DOIL_INI_PATH);
+        $options = $this->gatherOptionData($input, $output, $doil_conf);
 
         $host = $doil_conf["host"];
         $allowed_hosts = $doil_conf["allowed_hosts"];
@@ -492,6 +493,13 @@ class CreateCommand extends Command implements SignalableCommandInterface
             $this->writer->endBlock();
         }
 
+        if ($options['enable_office']) {
+            // apply enable-office state
+            $this->writer->beginBlock($output, "Apply enable-office state");
+            $this->docker->applyState($instance_salt_name, "enable-office");
+            $this->writer->endBlock();
+        }
+
         // apply access state
         $this->writer->beginBlock($output, "Apply access state");
         $this->docker->applyState($instance_salt_name, "access");
@@ -574,7 +582,7 @@ class CreateCommand extends Command implements SignalableCommandInterface
         return Command::SUCCESS;
     }
 
-    protected function gatherOptionData(InputInterface $input, OutputInterface $output) : array
+    protected function gatherOptionData(InputInterface $input, OutputInterface $output, array $doil_conf) : array
     {
         $options = [];
 
@@ -587,6 +595,7 @@ class CreateCommand extends Command implements SignalableCommandInterface
         $xdebug = $input->getOption("xdebug");
         $global = $input->getOption("global");
         $skip_readme = $input->getOption("skip-readme");
+        $enable_office = $input->getOption("enable-office");
 
         $one_option_missed = is_null($name) || is_null($repo) || is_null($branch) || is_null($php_version) || is_null($target);
 
@@ -737,6 +746,17 @@ class CreateCommand extends Command implements SignalableCommandInterface
             $skip_readme = $helper->ask($input, $output, $question);
         }
         $options["skip_readme"] = $skip_readme;
+
+        // Enable office support
+        if (!$enable_office && $one_option_missed && $doil_conf['enable_office']) {
+            $question = new ConfirmationQuestion(
+                "Enable office support? [yN]: ",
+                false
+            );
+            $enable_office = $helper->ask($input, $output, $question);
+        }
+        $options["enable_office"] = $enable_office;
+
 
         // Target
         if (is_null($target) && !$global) {

@@ -116,6 +116,16 @@ class ImportCommand extends Command
         $unpacked = $dir . DIRECTORY_SEPARATOR . $target;
         $delete_path = $unpacked;
 
+        // Enable office support?
+        $enable_office = false;
+        if ($this->filesystem->exists($unpacked . "/conf/project_config.json")) {
+            $project_config = $this->filesystem->readFromJsonFile($unpacked . "/conf/project_config.json");
+            $project_config = array_shift($project_config);
+            if ((float)$project_config->getIliasVersion() >= 10.0 && $doil_conf["enable_office"]) {
+                $enable_office = $this->confirmEnableOfficeSuport($input, $output, $instance);
+            }
+        }
+
         if ($create) {
             // This is very ugly, but necessary for importing old doil export zips.
             $sql_dump = "";
@@ -323,7 +333,7 @@ class ImportCommand extends Command
                 $instance,
                 "bash",
                 "-c",
-                "php /var/www/html/setup/setup.php update /var/ilias/data/ilias-config.json -y"
+                "cd /var/www/html && php setup/setup.php update /var/ilias/data/ilias-config.json -y"
             );
         } else if ($path . "/volumes/ilias/cli/setup.php") {
             $this->docker->executeCommand(
@@ -331,7 +341,7 @@ class ImportCommand extends Command
                 $instance,
                 "bash",
                 "-c",
-                "php /var/www/html/cli/setup.php update /var/ilias/data/ilias-config.json -y"
+                "cd /var/www/html && php cli/setup.php update /var/ilias/data/ilias-config.json -y"
             );
         } else {
             throw new RuntimeException("Can not found setup.php.");
@@ -360,6 +370,13 @@ class ImportCommand extends Command
             // apply enable-saml state
             $this->writer->beginBlock($output, "Apply enable-saml state");
             $this->docker->applyState($instance . "." . $suffix, "enable-saml");
+            $this->writer->endBlock();
+        }
+
+        if ($enable_office) {
+            // apply enable-office state
+            $this->writer->beginBlock($output, "Apply enable-office state");
+            $this->docker->applyState($instance . "." . $suffix, "enable-office");
             $this->writer->endBlock();
         }
 
@@ -426,6 +443,14 @@ class ImportCommand extends Command
 
             return $package;
         };
+    }
+
+    protected function confirmEnableOfficeSuport(InputInterface $input, OutputInterface $output, string $instance) : bool
+    {
+        $helper = $this->getHelper("question");
+        $question = new ConfirmationQuestion("Enable office support for $instance? [yN]: ", false);
+
+        return $helper->ask($input, $output, $question);
     }
 
     protected function confirmCreateNewInstance(InputInterface $input, OutputInterface $output, string $instance) : bool

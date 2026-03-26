@@ -14,6 +14,7 @@ all mails from your instances, so you can test the ILIAS emailing.
 1. adjust your mail password in `setup/conf/doil.conf`
 1. if you run global instances make sure to adjust 'global_instances_path' in `setup/conf/doil.conf` to specify
    where to place them, default is '/srv/instances'. Attention, paths with 'home' are not allowed here.
+1. if you want to enable office support ensure to set enable_office to true in `setup/conf/doil.conf`
 1. execute `sudo ./setup/install.sh` in order to install **doil**
 1. you can remove the downloaded folder afterwards
 1. check `doil help` for available commands and further instructions
@@ -56,7 +57,7 @@ however **doil** needs [Docker](https://www.docker.com/) in order to work:
 * git
 * .ssh folder in your home directory. **doil** will mount it into the container. **doil** needs this to have access to any private git repositories that may be used. 
 
-Additional dependencies, but these are installed automatically during setup.
+Additional dependencies, but these are installed automatically during setup and only inside containers.
 
 * php version => 7.4
 * php*.*-zip
@@ -71,6 +72,12 @@ Additional dependencies, but these are installed automatically during setup.
 * ext-openssl
 * psr/log
 * monolog/monolog
+
+if office is enabled, these dependencies will also be installed
+
+* onlyoffice/documentserver
+* postgres
+* rabbitmq
 
 The easiest way to fulfill the dependencies is Ubuntu 22.01, but it should also be possible with any other Linux installation.
 
@@ -435,6 +442,26 @@ users, so make sure to understand what you are doing.
 * `doil keycloak:restart` restarts the keycloak server
 
 See `doil keycloak:<command> --help` for more information
+
+
+### Office Sever
+
+If enabled **doil** installs an OnlyOffice server. This enables ILIAS to
+support document editing in office style.
+
+* `doil office:down` stops the office server
+* `doil office:login` logs the user into the office server
+* `doil office:restart` restarts the office server
+* `doil office:up` starts the office server
+
+See `doil office:<command> --help` for more information
+
+To enable or disable Office support for a specific ILIAS instance, there
+are two states that can be selected using `doil apply <instancename>`.
+These are `enable-office` and `disable-office`.
+
+When a new instance is installed, you are asked during the installation 
+process whether Office should be activated for this instance.
 
 ### xdedug
 

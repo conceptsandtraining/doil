@@ -1,8 +1,40 @@
 # Changelog
 
+## 20260624
+## What's Changed
+* master office: prepare doil to deploy an OnlyOffice run-document-server
+* add 2 apply states to en/disable office support for a specific ilias instance
+
 ## 20260611
 ## What's Changed
 * update_hook.php - ensure that ilias >= 10 always has the update_hook file in public folder; works for CaT and Essential
+
+## 20260323
+## What's Changed
+* master ilias-update-hook: adjust COMPOSER_HOME to point at correct location by @daniwe4 in https://github.com/conceptsandtraining/doil/pull/562
+* master add update file for release 20260323 by @daniwe4 in https://github.com/conceptsandtraining/doil/pull/563
+
+## 20260319
+## What's Changed
+* master 555: enable ILIAS https depending on doil https_proxy property by @daniwe4 in https://github.com/conceptsandtraining/doil/pull/558
+
+## 20260318
+## What's Changed
+* master ilias cron: add path to cron starting script depending on ilias version by @daniwe4 in https://github.com/conceptsandtraining/doil/pull/557
+
+## 20260224
+## What's Changed
+* master quick_fix: fix last release by @daniwe4 in https://github.com/conceptsandtraining/doil/pull/552
+
+## 20260223
+## What's Changed
+* master SetIdpV10: new initialisation routine by @daniwe4 in https://github.com/conceptsandtraining/doil/pull/551
+
+## 20251125
+## What's Changed
+* Master hotfix 20251125 by @daniwe4 in https://github.com/conceptsandtraining/doil/pull/543
+* use node/npm versions depending on ilias version
+* use new salt.sources while creating/importing instances
 
 ## 20260323
 ## What's Changed

@@ -61,7 +61,6 @@ function doil_system_remove() {
   doil_system_remove_doil_system_images
   doil_system_remove_networks
   doil_system_remove_volumes
-  doil_system_remove_user_doil_folders
   doil_system_remove_hosts_entry
 
   delgroup doil
@@ -79,6 +78,8 @@ function doil_system_remove() {
     doil_system_remove_instances_on_disk
 
   fi
+
+  doil_system_remove_user_doil_folders
 
   if [ -d /etc/doil ]
   then
@@ -109,7 +110,7 @@ function doil_system_rm_system_instances() {
 }
 
 function doil_system_remove_all_images() {
-  docker rmi -f $(docker images -q --filter reference=doil[/,_]*) >/dev/null 2>&1
+  docker image prune -af  >/dev/null 2>&1
 }
 
 function doil_system_remove_doil_system_images() {
@@ -207,6 +208,8 @@ function doil_system_create_folder() {
 
 function doil_system_copy_doil() {
   enable_keycloak="$1"
+  enable_office="$2"
+
   if [[ "$enable_keycloak" == true ]]
   then
     cp -r ${SCRIPT_DIR}/templates/keycloak /usr/local/lib/doil/server/
@@ -214,6 +217,16 @@ function doil_system_copy_doil() {
     if [ -d /usr/local/lib/doil/server/keycloak ]
     then
       rm -rf /usr/local/lib/doil/server/keycloak
+    fi
+  fi
+
+  if [[ "$enable_office" == true ]]
+  then
+    cp -r ${SCRIPT_DIR}/templates/office /usr/local/lib/doil/server/
+  else
+    if [ -d /usr/local/lib/doil/server/office ]
+    then
+      rm -rf /usr/local/lib/doil/server/office
     fi
   fi
 
@@ -423,6 +436,13 @@ function doil_system_install_mailserver() {
     docker exec -i doil_saltmain bash -c "salt \"doil.mail\" state.highstate saltenv=change-roundcube-password" 2>&1 > /var/log/doil/stream.log
   fi
   docker commit doil_mail doil_mail:stable 2>&1 > /var/log/doil/stream.log
+}
+
+function doil_system_install_officeserver() {
+  cd /usr/local/lib/doil/server/office
+  BUILD=$(docker compose up -d 2>&1 > /var/log/doil/stream.log) 2>&1 > /var/log/doil/stream.log
+  sleep 20
+  docker exec -i doil_office bash -c "grep -qxF '172.24.0.254    doil' /etc/hosts || echo '172.24.0.254    doil' >> /etc/hosts" 2>&1 > /var/log/doil/stream.log
 }
 
 function doil_system_chown_dot_docker() {

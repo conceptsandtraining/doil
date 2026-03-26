@@ -16,8 +16,10 @@ RUN unzip keycloak-25.0.5.zip
 RUN mv keycloak-25.0.5 /opt/keycloak
 RUN rm keycloak-25.0.5.zip
 
+RUN mkdir -m 755 -p /etc/apt/keyrings
 RUN curl -fsSL https://packages.broadcom.com/artifactory/api/security/keypair/SaltProjectKey/public | tee /etc/apt/keyrings/salt-archive-keyring.pgp
 RUN curl -fsSL https://github.com/saltstack/salt-install-guide/releases/latest/download/salt.sources | tee /etc/apt/sources.list.d/salt.sources
+RUN echo "Package: salt-*\nPin: version 3006.22\nPin-Priority: 1001" >> /etc/apt/preferences.d/salt-pin-1001
 RUN apt-get update && apt-get install -y salt-minion
 
 RUN /opt/saltstack/salt/bin/python3 -m pip install --upgrade pip

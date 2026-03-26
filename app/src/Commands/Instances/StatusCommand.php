@@ -38,6 +38,9 @@ class StatusCommand extends Command
                 strstr($a, "doil_proxy") ||
                 strstr($a, "doil_saltmain") ||
                 strstr($a, "doil_keycloak") ||
+                strstr($a, "doil_office") ||
+                strstr($a, "doil_postgresql") ||
+                strstr($a, "doil_rabbitmq") ||
                 strstr($a, "_local") ||
                 strstr($a, "_global")
             ) {

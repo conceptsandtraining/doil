@@ -725,7 +725,11 @@ file_roots:
   prevent-super-global-replacement:
     - /srv/salt/states/prevent-super-global-replacement
   set-update-token:
-      - /srv/salt/states/set-update-token
+    - /srv/salt/states/set-update-token
+  enable-office:
+    - /srv/salt/states/enable-office
+  disable-office:
+    - /srv/salt/states/disable-office
 
 
 # The master_roots setting configures a master-only copy of the file_roots dictionary,
