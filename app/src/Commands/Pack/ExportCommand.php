@@ -24,6 +24,9 @@ use Symfony\Component\Console\Question\ConfirmationQuestion;
 
 class ExportCommand extends Command
 {
+
+    protected const DOIL_INI_PATH = "/etc/doil/doil.conf";
+
     protected static $defaultName = "pack:export";
     protected static $defaultDescription =
         "Exports an instance to an archive with all the data needed for an import."
@@ -71,6 +74,7 @@ class ExportCommand extends Command
 
     public function execute(InputInterface $input, OutputInterface $output) : int
     {
+        $doil_conf = $this->filesystem->parseIniFile(self::DOIL_INI_PATH);
         $instance = $input->getArgument("instance");
         $name = $instance . "-doilpack";
         $starting = false;
@@ -101,6 +105,13 @@ class ExportCommand extends Command
             $this->docker->startContainerByDockerCompose($path);
             $starting = true;
             sleep(5);
+            $this->writer->endBlock();
+        }
+
+        $wopi_enabled = $this->ilias_info->isWopiEnabled($instance . "_" . $suffix);
+        if ($this->ilias_info->getIliasVersion($path) >= 10 && $doil_conf["enable_office"] && $wopi_enabled) {
+            $this->writer->beginBlock($output, "Apply disable-office state");
+            $this->docker->applyState($instance . "." . $suffix, "disable-office");
             $this->writer->endBlock();
         }
 
@@ -174,6 +185,12 @@ class ExportCommand extends Command
         );
         $this->writer->endBlock();
 
+        if ($wopi_enabled) {
+            $this->writer->beginBlock($output, "Apply enable-office state");
+            $this->docker->applyState($instance . "." . $suffix, "enable-office");
+            $this->writer->endBlock();
+        }
+
         if ($starting) {
             $this->writer->beginBlock($output, "Stopping instance $instance");
             $this->docker->stopContainerByDockerCompose($path);
@@ -234,6 +251,7 @@ class ExportCommand extends Command
 
         $cmd = "php -v | head -n 1 | cut -d ' ' -f2 | cut -d . -f1,2";
         $php_version = trim($this->docker->executeDockerCommandWithReturn($instance, $cmd));
+        $ilias_version = $this->ilias_info->getIliasVersion($path);
 
         $remotes = $this->git->getRemotes($path . "/volumes/ilias");
 
@@ -324,6 +342,7 @@ class ExportCommand extends Command
             ->withPhpVersion($php_version)
             ->withRepositoryName($repo->getName())
             ->withRepositoryUrl($repo->getUrl())
+            ->withIliasVersion($ilias_version)
         ;
 
         $this->filesystem->saveToJsonFile($target_path, [$project_config]);

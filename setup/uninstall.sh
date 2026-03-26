@@ -48,6 +48,7 @@ fi
 if [ -z $1 ]
 then
   echo "This will delete all doil related files on your system."
+  echo "ATTENTION: This will also delete all images with no related container."
   echo "If you keep instances, you have to relink them after a new doil installation."
   read -r -p "Do you also want to delete all instances and images? [y/N] " RESPONSE
   case "$RESPONSE" in

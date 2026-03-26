@@ -17,6 +17,7 @@ class ProjectConfigTest extends TestCase
         $this->assertEmpty($project_config->getRepositoryBranch());
         $this->assertEmpty($project_config->getRepositoryUrl());
         $this->assertEmpty($project_config->getPhpVersion());
+        $this->assertEmpty($project_config->getIliasVersion());
     }
 
     public function test_create_with_params() : void
@@ -26,7 +27,8 @@ class ProjectConfigTest extends TestCase
             "repo_name",
             "repo_branch",
             "repo_url",
-            "php_version"
+            "php_version",
+            "ilias_version"
         );
 
         $this->assertEquals("name", $project_config->getName());
@@ -34,6 +36,7 @@ class ProjectConfigTest extends TestCase
         $this->assertEquals("repo_branch", $project_config->getRepositoryBranch());
         $this->assertEquals("repo_url", $project_config->getRepositoryUrl());
         $this->assertEquals("php_version", $project_config->getPhpVersion());
+        $this->assertEquals("ilias_version", $project_config->getIliasVersion());
     }
 
     public function test_withName() : void
@@ -43,7 +46,8 @@ class ProjectConfigTest extends TestCase
             "repo_name",
             "repo_branch",
             "repo_url",
-            "php_version"
+            "php_version",
+            "ilias_version"
         );
 
         $new = $project_config->withName("test");
@@ -53,12 +57,14 @@ class ProjectConfigTest extends TestCase
         $this->assertEquals("repo_branch", $project_config->getRepositoryBranch());
         $this->assertEquals("repo_url", $project_config->getRepositoryUrl());
         $this->assertEquals("php_version", $project_config->getPhpVersion());
+        $this->assertEquals("ilias_version", $project_config->getIliasVersion());
 
         $this->assertEquals("test", $new->getName());
         $this->assertEquals("repo_name", $new->getRepositoryName());
         $this->assertEquals("repo_branch", $new->getRepositoryBranch());
         $this->assertEquals("repo_url", $new->getRepositoryUrl());
         $this->assertEquals("php_version", $new->getPhpVersion());
+        $this->assertEquals("ilias_version", $project_config->getIliasVersion());
     }
 
     public function test_withRepositoryName() : void
@@ -68,7 +74,8 @@ class ProjectConfigTest extends TestCase
             "repo_name",
             "repo_branch",
             "repo_url",
-            "php_version"
+            "php_version",
+            "ilias_version"
         );
 
         $new = $project_config->withRepositoryName("test");
@@ -78,12 +85,14 @@ class ProjectConfigTest extends TestCase
         $this->assertEquals("repo_branch", $project_config->getRepositoryBranch());
         $this->assertEquals("repo_url", $project_config->getRepositoryUrl());
         $this->assertEquals("php_version", $project_config->getPhpVersion());
+        $this->assertEquals("ilias_version", $project_config->getIliasVersion());
 
         $this->assertEquals("name", $new->getName());
         $this->assertEquals("test", $new->getRepositoryName());
         $this->assertEquals("repo_branch", $new->getRepositoryBranch());
         $this->assertEquals("repo_url", $new->getRepositoryUrl());
         $this->assertEquals("php_version", $new->getPhpVersion());
+        $this->assertEquals("ilias_version", $project_config->getIliasVersion());
     }
 
     public function test_withRepositoryBranch() : void
@@ -93,7 +102,8 @@ class ProjectConfigTest extends TestCase
             "repo_name",
             "repo_branch",
             "repo_url",
-            "php_version"
+            "php_version",
+            "ilias_version"
         );
 
         $new = $project_config->withRepositoryBranch("test");
@@ -103,12 +113,14 @@ class ProjectConfigTest extends TestCase
         $this->assertEquals("repo_branch", $project_config->getRepositoryBranch());
         $this->assertEquals("repo_url", $project_config->getRepositoryUrl());
         $this->assertEquals("php_version", $project_config->getPhpVersion());
+        $this->assertEquals("ilias_version", $project_config->getIliasVersion());
 
         $this->assertEquals("name", $new->getName());
         $this->assertEquals("repo_name", $new->getRepositoryName());
         $this->assertEquals("test", $new->getRepositoryBranch());
         $this->assertEquals("repo_url", $new->getRepositoryUrl());
         $this->assertEquals("php_version", $new->getPhpVersion());
+        $this->assertEquals("ilias_version", $project_config->getIliasVersion());
     }
 
     public function test_withRepositoryUrl() : void
@@ -118,7 +130,8 @@ class ProjectConfigTest extends TestCase
             "repo_name",
             "repo_branch",
             "repo_url",
-            "php_version"
+            "php_version",
+            "ilias_version"
         );
 
         $new = $project_config->withRepositoryUrl("test");
@@ -128,12 +141,14 @@ class ProjectConfigTest extends TestCase
         $this->assertEquals("repo_branch", $project_config->getRepositoryBranch());
         $this->assertEquals("repo_url", $project_config->getRepositoryUrl());
         $this->assertEquals("php_version", $project_config->getPhpVersion());
+        $this->assertEquals("ilias_version", $project_config->getIliasVersion());
 
         $this->assertEquals("name", $new->getName());
         $this->assertEquals("repo_name", $new->getRepositoryName());
         $this->assertEquals("repo_branch", $new->getRepositoryBranch());
         $this->assertEquals( "test", $new->getRepositoryUrl());
         $this->assertEquals("php_version", $new->getPhpVersion());
+        $this->assertEquals("ilias_version", $project_config->getIliasVersion());
     }
 
     public function test_withPhpVersion() : void
@@ -143,7 +158,8 @@ class ProjectConfigTest extends TestCase
             "repo_name",
             "repo_branch",
             "repo_url",
-            "php_version"
+            "php_version",
+            "ilias_version"
         );
 
         $new = $project_config->withPhpVersion("test");
@@ -153,11 +169,41 @@ class ProjectConfigTest extends TestCase
         $this->assertEquals("repo_branch", $project_config->getRepositoryBranch());
         $this->assertEquals("repo_url", $project_config->getRepositoryUrl());
         $this->assertEquals("php_version", $project_config->getPhpVersion());
+        $this->assertEquals("ilias_version", $project_config->getIliasVersion());
 
         $this->assertEquals("name", $new->getName());
         $this->assertEquals("repo_name", $new->getRepositoryName());
         $this->assertEquals("repo_branch", $new->getRepositoryBranch());
         $this->assertEquals("repo_url", $new->getRepositoryUrl());
         $this->assertEquals("test", $new->getPhpVersion());
+        $this->assertEquals("ilias_version", $project_config->getIliasVersion());
+    }
+
+    public function test_withIliasVersion() : void
+    {
+        $project_config = new ProjectConfig(
+            "name",
+            "repo_name",
+            "repo_branch",
+            "repo_url",
+            "php_version",
+            "ilias_version"
+        );
+
+        $new = $project_config->withIliasVersion("test");
+
+        $this->assertEquals("name", $project_config->getName());
+        $this->assertEquals("repo_name", $project_config->getRepositoryName());
+        $this->assertEquals("repo_branch", $project_config->getRepositoryBranch());
+        $this->assertEquals("repo_url", $project_config->getRepositoryUrl());
+        $this->assertEquals("php_version", $project_config->getPhpVersion());
+        $this->assertEquals("ilias_version", $project_config->getIliasVersion());
+
+        $this->assertEquals("name", $new->getName());
+        $this->assertEquals("repo_name", $new->getRepositoryName());
+        $this->assertEquals("repo_branch", $new->getRepositoryBranch());
+        $this->assertEquals("repo_url", $new->getRepositoryUrl());
+        $this->assertEquals("php_version", $new->getPhpVersion());
+        $this->assertEquals("test", $new->getIliasVersion());
     }
 }

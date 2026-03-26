@@ -1,0 +1,5 @@
+#!/bin/sh
+
+CLIENTDIR=/usr/share/instantclient
+export LD_LIBRARY_PATH=$CLIENTDIR
+$CLIENTDIR/sqlplus $@

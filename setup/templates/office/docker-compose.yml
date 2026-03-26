@@ -1,0 +1,99 @@
+services:
+  doil_office:
+    build:
+      context: .
+    image: onlyoffice/documentserver:9.4
+    container_name: doil_office
+    depends_on:
+      - doil_postgresql
+      - doil_rabbitmq
+    labels:
+      doil.compose.doilinstance: "true"
+    environment:
+      - WOPI_ENABLED=true
+      - DB_TYPE=postgres
+      - DB_HOST=doil_postgresql
+      - DB_PORT=5432
+      - DB_NAME=onlyoffice
+      - DB_USER=onlyoffice
+      - AMQP_URI=amqp://guest:guest@doil_rabbitmq
+      # Uncomment strings below to enable the JSON Web Token validation.
+      #- JWT_ENABLED=true
+      #- JWT_SECRET=secret
+      #- JWT_HEADER=Authorization
+      #- JWT_IN_BODY=true
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/info/info.json"]
+      interval: 30s
+      retries: 5
+      start_period: 60s
+      timeout: 10s
+    stdin_open: true
+    restart: always
+    stop_grace_period: 60s
+    volumes:
+      - /var/www/onlyoffice/Data
+      - /var/log/onlyoffice
+      - /var/lib/onlyoffice/documentserver/App_Data/cache/files
+      - /var/www/onlyoffice/documentserver-example/public/files
+      - /usr/share/fonts
+    networks:
+      doil_proxy:
+        ipv4_address: 172.24.0.251
+      salt_saltnet:
+      doil_office:
+
+  doil_rabbitmq:
+    container_name: doil_rabbitmq
+    image: rabbitmq:3
+    restart: always
+    labels:
+      doil.compose.doilinstance: "true"
+    expose:
+      - '5672'
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "status"]
+      interval: 10s
+      retries: 3
+      start_period: 10s
+      timeout: 10s
+    networks:
+      doil_office:
+
+  doil_postgresql:
+    container_name: doil_postgresql
+    image: postgres:15
+    labels:
+      doil.compose.doilinstance: "true"
+    environment:
+      - POSTGRES_DB=onlyoffice
+      - POSTGRES_USER=onlyoffice
+      - POSTGRES_HOST_AUTH_METHOD=trust
+    restart: always
+    expose:
+      - '5432'
+    volumes:
+      - postgresql_data:/var/lib/postgresql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U onlyoffice"]
+      interval: 10s
+      retries: 3
+      start_period: 10s
+      timeout: 10s
+    networks:
+      doil_office:
+
+volumes:
+  postgresql_data:
+
+networks:
+  doil_proxy:
+    external: true
+  salt_saltnet:
+    external: true
+  doil_office:
+    name: doil_office
+    ipam:
+      driver: default
+      config:
+        - subnet: 172.26.0.0/16

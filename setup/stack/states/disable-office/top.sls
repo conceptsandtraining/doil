@@ -1,0 +1,3 @@
+disable-office:
+  '*':
+    - office

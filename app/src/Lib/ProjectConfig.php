@@ -11,19 +11,22 @@ class ProjectConfig
     protected string $repository_branch;
     protected string $repository_url;
     protected string $php_version;
+    protected string $ilias_version;
 
     public function __construct(
         string $name = "",
         string $repository_name = "",
         string $repository_branch = "",
         string $repository_url = "",
-        string $php_version = ""
+        string $php_version = "",
+        string $ilias_version = ""
     ) {
         $this->name = $name;
         $this->repository_name = $repository_name;
         $this->repository_branch = $repository_branch;
         $this->repository_url = $repository_url;
         $this->php_version = $php_version;
+        $this->ilias_version = $ilias_version;
     }
 
     public function getName() : string
@@ -83,6 +86,18 @@ class ProjectConfig
     {
         $clone = clone $this;
         $clone->php_version = $php_version;
+        return $clone;
+    }
+
+    public function getIliasVersion() : string
+    {
+        return $this->ilias_version;
+    }
+
+    public function withIliasVersion(string $ilias_version) : ProjectConfig
+    {
+        $clone = clone $this;
+        $clone->ilias_version = $ilias_version;
         return $clone;
     }
 }

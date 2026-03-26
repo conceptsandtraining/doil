@@ -1,6 +1,6 @@
 FROM debian:12
 
-RUN apt-get update && apt-get install -y vim ca-certificates curl zip unzip git php8.2-cli php8.2-zip php8.2-dom php8.2-mbstring php-json
+RUN apt-get update && apt-get install -y vim ca-certificates curl zip unzip git php8.2-curl php8.2-cli php8.2-zip php8.2-dom php8.2-mbstring php-json
 RUN install -m 0755 -d /etc/apt/keyrings
 RUN curl -fsSL https://download.docker.com/linux/debian/gpg -o /etc/apt/keyrings/docker.asc
 RUN chmod a+r /etc/apt/keyrings/docker.asc

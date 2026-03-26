@@ -2,6 +2,7 @@
 
 update() {
   ENABLE_KEYCLOAK=$(doil_get_conf enable_keycloak)
+  ENABLE_OFFICE=$(doil_get_conf enable_office)
 
   doil_status_send_message_nl "Stopping all services"
   doil_system_stop_instances
@@ -17,7 +18,7 @@ update() {
 
   doil_status_send_message "Copying new doil system"
   doil_system_create_folder
-  doil_system_copy_doil "$ENABLE_KEYCLOAK"
+  doil_system_copy_doil "$ENABLE_KEYCLOAK" "$ENABLE_OFFICE"
   doil_status_okay
 
   doil_status_send_message "Creating log file"
@@ -52,7 +53,7 @@ update() {
 
   doil_status_send_message "Copying new doil system"
   doil_system_create_folder
-  doil_system_copy_doil "$ENABLE_KEYCLOAK"
+  doil_system_copy_doil "$ENABLE_KEYCLOAK" "$ENABLE_OFFICE"
   doil_status_okay
 
   doil_status_send_message "Adding safe git dir for user"
@@ -105,6 +106,15 @@ update() {
   doil_status_send_message "Reinstalling mail service"
   doil_system_install_mailserver
   doil_status_okay
+
+  # start office server
+  if [[ "$ENABLE_OFFICE" == true ]]
+  then
+    doil_status_send_message "Reinstalling office service"
+    doil_system_install_officeserver
+    doil_status_okay
+  fi
+
 
 	return 0
 }

@@ -10,6 +10,7 @@ use CaT\Doil\Commands\Pack;
 use CaT\Doil\Commands\Salt;
 use CaT\Doil\Commands\User;
 use CaT\Doil\Commands\Proxy;
+use CaT\Doil\Commands\Office;
 use CaT\Doil\Lib\Git\GitShell;
 use CaT\Doil\Lib\ProjectConfig;
 use CaT\Doil\Commands\Keycloak;
@@ -57,6 +58,10 @@ function buildContainerForApp() : Container
             $c["command.mail.login"],
             $c["command.mail.restart"],
             $c["command.mail.up"],
+            $c["command.office.down"],
+            $c["command.office.login"],
+            $c["command.office.restart"],
+            $c["command.office.up"],
             $c["command.pack.export"],
             $c["command.pack.import"],
             $c["command.pack.create"],
@@ -96,7 +101,8 @@ function buildContainerForApp() : Container
 
     $c["ilias.info"] = function($c) {
         return new IliasInfo(
-            $c["filesystem.shell"]
+            $c["filesystem.shell"],
+            $c["docker.shell"]
         );
     };
 
@@ -326,6 +332,33 @@ function buildContainerForApp() : Container
 
     $c["command.mail.up"] = function($c) {
         return new Mail\UpCommand(
+            $c["docker.shell"],
+            $c["command.writer"]
+        );
+    };
+
+    $c["command.office.down"] = function($c) {
+        return new Office\DownCommand(
+            $c["docker.shell"],
+            $c["command.writer"]
+        );
+    };
+
+    $c["command.office.login"] = function($c) {
+        return new Office\LoginCommand(
+            $c["docker.shell"]
+        );
+    };
+
+    $c["command.office.restart"] = function($c) {
+        return new Office\RestartCommand(
+            $c["docker.shell"],
+            $c["command.writer"]
+        );
+    };
+
+    $c["command.office.up"] = function($c) {
+        return new Office\UpCommand(
             $c["docker.shell"],
             $c["command.writer"]
         );
