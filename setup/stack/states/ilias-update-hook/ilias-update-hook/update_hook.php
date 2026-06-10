@@ -1,0 +1,119 @@
+<?php
+
+declare(strict_types=1);
+
+/**
+ * This file is part of cate, a powerful training management system
+ * published by CaT Concepts and Training GmbH. cate is based upon ILIAS open source e-Learning.
+ *
+ * cate is licensed with the GPL-3.0,
+ * see https://www.gnu.org/licenses/gpl-3.0.en.html
+ * You should have received a copy of said license along with the
+ * source code, too.
+ *
+ * If this is not the case, or you just want to try cate, you'll find
+ * us at:
+ * https://www.cate-tms.de
+ *
+ *
+ *********************************************************************/
+
+function log_write(string $output = ""): void
+{
+    $date = new DateTimeImmutable("now", new DateTimeZone("Europe/Berlin"));
+    file_put_contents(
+        "/var/log/doil/instance-update.log",
+        "\n" . $date->format('Y-m-d H:i:s') . " :: " . $output,
+        FILE_APPEND
+    );
+}
+
+$request_headers = apache_request_headers();
+if (is_null($request_headers) || !array_key_exists("Authorization", $request_headers)) {
+    log_write("No request headers found. Authorization required");
+    http_response_code(401);
+    throw new Exception("Authorization required");
+}
+$request_token = $request_headers["Authorization"];
+
+$environment_token = getenv("UPDATE_TOKEN");
+if (is_null($environment_token)) {
+    log_write("No environment token found. Authorization required");
+    http_response_code(401);
+    throw new Exception("Authorization required");
+}
+
+if ($environment_token !== $request_token) {
+    log_write("No token match. Authorization required");
+    http_response_code(401);
+    throw new Exception("Authorization required");
+}
+
+if (is_null($_GET) || !array_key_exists("base_ref", $_GET)) {
+    log_write("Missing get params");
+    http_response_code(500);
+    throw new Exception("Failed to run update hook");
+}
+
+$base_ref = $_GET["base_ref"];
+$branch = exec("git -C /var/www/html branch --show-current");
+if ($branch === $base_ref) {
+    // reset language files
+    exec("git -C /var/www/html checkout lang/");
+
+    // Pull current checked out branch from origin
+    $pull_output = [];
+    $result_code = 0;
+    $branch = exec("git -C /var/www/html branch --show-current");
+    log_write("Pull current checked out branch from origin\n");
+    $pull_output = system("git -C /var/www/html pull origin " . $branch . " 2>&1 | tee -a /var/log/doil/instance-update.log", $result_code);
+    if ($result_code !== 0) {
+        log_write("Error running 'git pull origin " . $branch . "'");
+        http_response_code(500);
+        throw new Exception("Failed to run update hook");
+    }
+    if (strstr($pull_output, "Already up to date.")) {
+        log_write("Already up to date.");
+        http_response_code(200);
+        exit();
+    }
+
+    // Install captainhook
+    log_write("Install captainhook hooks\n");
+    system("./../vendor/composer/vendor/captainhook/captainhook/bin/captainhook install -f -c ./../captainhook.json -g ./.. -q", $result_code);
+    if ($result_code !== 0) {
+        log_write("Error running 'captainhook install'");
+        http_response_code(500);
+        throw new Exception("Failed to run update hook");
+    }
+
+    // Run language script
+    log_write("Run language script\n");
+    system("cd /var/www/html && ./scripts/tools/build-dev-custom-lang.sh >> /var/log/doil/instance-update.log 2>&1", $result_code);
+    if ($result_code !== 0) {
+        log_write("Error running 'build-dev-custom-lang.sh'");
+        http_response_code(500);
+        throw new Exception("Failed to run update hook");
+    }
+
+    // Run composer install
+    $result_code = 0;
+    log_write("Run composer install\n");
+    system("COMPOSER_HOME=/root/.config/composer composer -d /var/www/html install >> /var/log/doil/instance-update.log 2>&1", $result_code);
+    if ($result_code !== 0) {
+        log_write("Error running 'composer install " . $branch);
+        http_response_code(500);
+        throw new Exception("Failed to run update hook");
+    }
+
+    // Run ilias update
+    $result_code = 0;
+    log_write("Run ilias update\n");
+    system("cd /var/www/html && php cli/setup.php update -y >> /var/log/doil/instance-update.log 2>&1", $result_code);
+
+    if ($result_code !== 0) {
+        log_write("Error running 'php setup/setup.php update -y " . $branch);
+        http_response_code(500);
+        throw new Exception("Failed to run update hook");
+    }
+}
