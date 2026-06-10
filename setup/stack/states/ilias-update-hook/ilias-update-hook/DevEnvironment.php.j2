@@ -1,0 +1,40 @@
+<?php
+
+/**
+ * This file is part of cate, a powerful training management system
+ * published by CaT Concepts and Training GmbH. cate is based upon ILIAS open source e-Learning.
+ *
+ * cate is licensed with the GPL-3.0,
+ * see https://www.gnu.org/licenses/gpl-3.0.en.html
+ * You should have received a copy of said license along with the
+ * source code, too.
+ *
+ * If this is not the case, or you just want to try cate, you'll find
+ * us at:
+ * https://www.cate-tms.de
+ *
+ *
+ *********************************************************************/
+
+declare(strict_types=1);
+
+namespace {{ workspace }};
+
+use ILIAS\Component;
+
+class DevEnvironment implements Component\Component
+{
+    public function init(
+        array | \ArrayAccess &$define,
+        array | \ArrayAccess &$implement,
+        array | \ArrayAccess &$use,
+        array | \ArrayAccess &$contribute,
+        array | \ArrayAccess &$seek,
+        array | \ArrayAccess &$provide,
+        array | \ArrayAccess &$pull,
+        array | \ArrayAccess &$internal,
+    ): void {
+        $contribute[Component\Resource\PublicAsset::class] = fn() =>
+        new Component\Resource\OfComponent($this, ".update_hook.php", ".");
+    }
+}
