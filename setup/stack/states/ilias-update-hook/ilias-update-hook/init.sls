@@ -21,9 +21,12 @@
 
 /var/www/html/components/{{ target_dir }}/DevEnvironment/resources/.update_hook.php:
   file.managed:
-    - source: salt://ilias-update-hook/update_hook.php
+    - source: salt://ilias-update-hook/update_hook.php.j2
     - user: www-data
     - group: www-data
+    - template: jinja
+    - context:
+        target: {{ target_dir }}
 
 /var/www/html/components/{{ target_dir }}/DevEnvironment/DevEnvironment.php:
   file.managed:

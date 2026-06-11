@@ -87,13 +87,16 @@ if ($branch === $base_ref) {
         throw new Exception("Failed to run update hook");
     }
 
-    // Run language script
-    log_write("Run language script\n");
-    system("cd /var/www/html && ./scripts/tools/build-dev-custom-lang.sh >> /var/log/doil/instance-update.log 2>&1", $result_code);
-    if ($result_code !== 0) {
-        log_write("Error running 'build-dev-custom-lang.sh'");
-        http_response_code(500);
-        throw new Exception("Failed to run update hook");
+    if ("{{ target }}" == "CaT") {
+        // Run language script
+        log_write("Run language script\n");
+        system("cd /var/www/html && ./scripts/tools/build-dev-custom-lang.sh >> /var/log/doil/instance-update.log 2>&1",
+            $result_code);
+        if ($result_code !== 0) {
+            log_write("Error running 'build-dev-custom-lang.sh'");
+            http_response_code(500);
+            throw new Exception("Failed to run update hook");
+        }
     }
 
     // Run composer install
