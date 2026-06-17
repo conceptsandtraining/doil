@@ -42,6 +42,9 @@
         "path_to_logfile" : "{{ log_dir }}/ilias.log",
         "errorlog_dir" : "{{ log_dir }}"
     },
+    "mediaobject" : {
+        "path_to_ffmpeg" : "/usr/bin/ffmpeg"
+    },
     "utilities" : {
         "path_to_convert" : "/usr/bin/convert",
         "path_to_zip" : "/usr/bin/zip",
