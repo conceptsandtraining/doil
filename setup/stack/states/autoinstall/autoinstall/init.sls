@@ -4,6 +4,10 @@
 {% set doil_host_system = salt['grains.get']('doil_host_system', 'linux') %}
 {% set ilias_version = salt['grains.get']('ilias_version', '9') %}
 
+ffmpeg_package:
+  pkg.installed:
+    - pkgs:
+      - ffmpeg
 
 /var/ilias/data/ilias-config.json:
   file.managed:
