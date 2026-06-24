@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-doil_update_20260602() {
+doil_update_20260624() {
 
 cat <<Message
 This update prepares Doil to deploy an Office Server.
