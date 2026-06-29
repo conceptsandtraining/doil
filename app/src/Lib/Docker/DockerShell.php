@@ -17,6 +17,7 @@ class DockerShell implements Docker
     protected const KEYCLOAK = "/usr/local/lib/doil/server/keycloak";
     protected const PROXY = "/usr/local/lib/doil/server/proxy";
     protected const MAIL = "/usr/local/lib/doil/server/mail";
+    protected const OFFICE = "/usr/local/lib/doil/server/office";
 
     public function __construct(LoggerFactory $logger, Posix $posix, Filesystem $filesystem)
     {
@@ -581,6 +582,9 @@ class DockerShell implements Docker
         }
         if ($this->filesystem->exists(self::KEYCLOAK . "/docker-compose.yml") && ! $this->isInstanceUp(self::KEYCLOAK)) {
             $this->startContainerByDockerComposeWithForceRecreate(self::KEYCLOAK);
+        }
+        if ($this->filesystem->exists(self::OFFICE . "/docker-compose.yml") && ! $this->isInstanceUp(self::OFFICE)) {
+            $this->startContainerByDockerComposeWithForceRecreate(self::OFFICE);
         }
         if (! $this->isInstanceUp(self::PROXY)) {
             $this->startContainerByDockerComposeWithForceRecreate(self::PROXY);

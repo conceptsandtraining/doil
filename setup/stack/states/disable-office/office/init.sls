@@ -20,9 +20,9 @@ set_wopi_url:
 drop_wopi_app_table:
   mysql_query.run:
     - database: ilias
-    - query: "DROP TABLE IF EXISTS wopi_app;"
+    - query: "TRUNCATE wopi_app;"
 
 truncate_wopi_action_table:
   mysql_query.run:
     - database: ilias
-    - query: "DELETE FROM wopi_action;"
+    - query: "TRUNCATE wopi_action;"
