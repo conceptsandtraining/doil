@@ -361,17 +361,17 @@ class PackCreateCommand extends Command implements SignalableCommandInterface
         if ($keycloak) {
             $samlpass = $this->generatePassword(33);
             $samlsalt = $this->generatePassword(33);
-            $this->docker->setGrain($instance_salt_name, "samlpass", "$samlpass");
-            $this->docker->setGrain($instance_salt_name, "samlsalt", "$samlsalt");
+            $this->docker->setGrain($instance_salt_name, "samlpass", "${samlpass}");
+            $this->docker->setGrain($instance_salt_name, "samlsalt", "${samlsalt}");
             sleep(1);
         }
 
         $this->docker->setGrain($instance_salt_name, "mpass", "${mysql_password}");
 
         sleep(1);
-        $this->docker->setGrain($instance_salt_name, "cpass", "$cron_password");
+        $this->docker->setGrain($instance_salt_name, "cpass", "${cron_password}");
         sleep(1);
-        $this->docker->setGrain($instance_salt_name, "cron_path", "$cron_path");
+        $this->docker->setGrain($instance_salt_name, "cron_path", "${cron_path}");
         sleep(1);
         if ($update_token) {
             $this->docker->setGrain($instance_salt_name, "update_token", "${update_token}");
