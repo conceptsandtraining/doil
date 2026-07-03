@@ -354,21 +354,21 @@ class CreateCommand extends Command implements SignalableCommandInterface
 
         if ($keycloak) {
             $samlpass = $this->generatePassword(33);
-            $this->docker->setGrain($instance_salt_name, "samlpass", "$samlpass");
+            $this->docker->setGrain($instance_salt_name, "samlpass", "${samlpass}");
             sleep(1);
             $samlsalt = $this->generatePassword(33);
-            $this->docker->setGrain($instance_salt_name, "samlsalt", "$samlsalt");
+            $this->docker->setGrain($instance_salt_name, "samlsalt", "${samlsalt}");
             sleep(1);
         }
 
-        $this->docker->setGrain($instance_salt_name, "mpass", "$mysql_password");
+        $this->docker->setGrain($instance_salt_name, "mpass", "${mysql_password}");
         sleep(1);
-        $this->docker->setGrain($instance_salt_name, "cpass", "$cron_password");
+        $this->docker->setGrain($instance_salt_name, "cpass", "${cron_password}");
         sleep(1);
-        $this->docker->setGrain($instance_salt_name, "cron_path", "$cron_path");
+        $this->docker->setGrain($instance_salt_name, "cron_path", "${cron_path}");
         sleep(1);
         if ($update_token) {
-            $this->docker->setGrain($instance_salt_name, "update_token", "${$update_token}");
+            $this->docker->setGrain($instance_salt_name, "update_token", "${update_token}");
             sleep(1);
         }
         $this->docker->setGrain($instance_salt_name, "doil_domain", $http_scheme . $host . "/" . $options["name"]);
@@ -747,8 +747,13 @@ class CreateCommand extends Command implements SignalableCommandInterface
         }
         $options["skip_readme"] = $skip_readme;
 
+        $office = false;
+        if (array_key_exists("enable_office", $doil_conf)) {
+            $office = $doil_conf['enable_office'];
+        }
+
         // Enable office support
-        if (!$enable_office && $one_option_missed && $doil_conf['enable_office']) {
+        if (!$enable_office && $one_option_missed && $office) {
             $question = new ConfirmationQuestion(
                 "Enable office support? [yN]: ",
                 false
