@@ -7,6 +7,13 @@ services:
     container_name: doil_mail
     hostname: doil
     domainname: mail
+    healthcheck:
+      test: "doveadm service status || exit 1"
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 40s
+      start_interval: 5s
     networks:
       doil_proxy:
         ipv4_address: 172.24.0.253
