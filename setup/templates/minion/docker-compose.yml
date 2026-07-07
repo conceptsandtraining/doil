@@ -49,6 +49,13 @@ services:
       - type: bind
         source: ./conf/salt-minion.conf
         target: /etc/supervisor/conf.d/salt-minion.conf
+    healthcheck:
+      test: "curl -f http://localhost && mysql -u root --execute \"SHOW DATABASES;\" || exit 1"
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 40s
+      start_interval: 5s
     environment:
       - ILIAS_INI_PATH=/var/www/html/ilias.ini.php
       - TZ=Europe/Berlin

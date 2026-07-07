@@ -13,6 +13,13 @@ services:
     networks:
       saltnet:
         ipv4_address: 172.20.0.254
+    healthcheck:
+      test: "salt-master --version || exit 1"
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 40s
+      start_interval: 5s
 networks:
   saltnet:
     ipam:
