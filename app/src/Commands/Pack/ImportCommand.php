@@ -287,6 +287,13 @@ class ImportCommand extends Command
             $instance,
             "bash",
             "-c",
+            "sed -i '1d' /var/ilias/data/ilias.sql"
+        );
+        $this->docker->executeCommand(
+            $path,
+            $instance,
+            "bash",
+            "-c",
             "mysql ilias < /var/ilias/data/ilias.sql"
         );
 
