@@ -10,8 +10,7 @@ RUN curl -fsSL https://github.com/saltstack/salt-install-guide/releases/latest/d
 RUN echo "Package: salt-*\nPin: version 3006.22\nPin-Priority: 1001" >> /etc/apt/preferences.d/salt-pin-1001
 RUN apt-get update && apt-get install -y salt-minion
 
-RUN /opt/saltstack/salt/bin/python3 -m pip install --upgrade pip
-RUN /opt/saltstack/salt/bin/python3 -m pip install mysql
+RUN /opt/saltstack/salt/salt-pip install mysql
 
 RUN apt-get update && apt-get remove -y python3-dev default-libmysqlclient-dev build-essential pkg-config
 
