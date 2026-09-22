@@ -461,6 +461,7 @@ class PackCreateCommand extends Command implements SignalableCommandInterface
 
         $this->docker->stopContainerByDockerCompose($instance_path);
 
+        $permission_files = [];
         // create README.md file for instance
         if (! $options["skip_readme"]) {
             $this->writer->beginBlock($output, "Copy README to project");
@@ -469,6 +470,7 @@ class PackCreateCommand extends Command implements SignalableCommandInterface
             $this->filesystem->replaceStringInFile($readme_path, "%TPL_PROJECT_NAME%", $options["name"]);
             $this->filesystem->replaceStringInFile($readme_path, "%GRAIN_MYSQL_PASSWORD%", $mysql_password);
             $this->filesystem->replaceStringInFile($readme_path, "%GRAIN_CRON_PASSWORD%", $cron_password);
+            $permission_files[] = "README.md";
             $this->writer->endBlock();
         }
 
@@ -484,10 +486,7 @@ class PackCreateCommand extends Command implements SignalableCommandInterface
             "volumes/logs"
         ];
 
-        $permission_files = [
-            "docker-compose.yml",
-            "README.md",
-        ];
+        $permission_files[] = "docker-compose.yml";
 
         $this->writer->beginBlock($output, "Set folder permissions");
         if ($options["global"]) {
