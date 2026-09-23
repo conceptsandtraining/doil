@@ -6,23 +6,21 @@ namespace CaT\Doil\Commands\Salt;
 
 use CaT\Doil\Lib\Docker\Docker;
 use Symfony\Component\Console\Command\Command;
+use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
+#[AsCommand(
+    name: 'salt:login',
+    description: "Login into the salt main server."
+)]
 class LoginCommand extends Command
 {
     protected const SALT_PATH = "/usr/local/lib/doil/server/salt";
 
-    protected static $defaultName = "salt:login";
-    protected static $defaultDescription = "Login into the salt main server";
-
-    protected Docker $docker;
-
-    public function __construct(Docker $docker)
+    public function __construct(protected Docker $docker)
     {
         parent::__construct();
-
-        $this->docker = $docker;
     }
 
 
@@ -32,7 +30,7 @@ class LoginCommand extends Command
             $this->docker->startContainerByDockerCompose(self::SALT_PATH);
         }
 
-        $this->docker->loginIntoContainer(self::SALT_PATH, "doil_saltmain");
+        $this->docker->loginIntoContainer(self::SALT_PATH, "doil_salt");
         return Command::SUCCESS;
     }
 }

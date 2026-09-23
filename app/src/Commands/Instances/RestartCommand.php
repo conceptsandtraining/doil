@@ -11,36 +11,29 @@ use CaT\Doil\Lib\FileSystem\Filesystem;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Input\InputArgument;
+use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
+#[AsCommand(
+    name: 'instances:restart|restart',
+    description: "This command restarts an instance. If [instance] not given doil will try to restart the instance" .
+    " from the current active directory if doil can find a suitable configuration."
+)]
 class RestartCommand extends Command
 {
-    protected static $defaultName = "instances:restart";
-    protected static $defaultDescription =
-        "This command restarts an instance. If [instance] not given doil will try to restart the instance" .
-        " from the current active directory if doil can find a suitable configuration."
-    ;
-
-    protected Docker $docker;
-    protected Posix $posix;
-    protected Filesystem $filesystem;
-    protected Writer $writer;
-
-    public function __construct(Docker $docker, Posix $posix, Filesystem $filesystem, Writer $writer)
-    {
+    public function __construct(
+        protected Docker $docker,
+        protected Posix $posix,
+        protected Filesystem $filesystem,
+        protected Writer $writer
+    ) {
         parent::__construct();
-
-        $this->docker = $docker;
-        $this->posix = $posix;
-        $this->filesystem = $filesystem;
-        $this->writer = $writer;
     }
 
     public function configure() : void
     {
         $this
-            ->setAliases(["restart"])
             ->addArgument("instance", InputArgument::OPTIONAL, "Name of the instance to start")
             ->addOption("global", "g", InputOption::VALUE_NONE, "Determines if an instance is global or not")
             ->addOption("all", "a", InputOption::VALUE_NONE, "If is set start all instances")

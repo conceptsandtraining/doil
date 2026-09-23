@@ -18,7 +18,9 @@ use Symfony\Component\Console\Application;
 use CaT\Doil\Lib\ConsoleOutput\CommandWriter;
 use Symfony\Component\Console\Tester\CommandTester;
 use Symfony\Component\Console\Output\OutputInterface;
+use PHPUnit\Framework\Attributes\AllowMockObjectsWithoutExpectations;
 
+#[AllowMockObjectsWithoutExpectations]
 class CreateCommandWrapper extends CreateCommand
 {
     protected function normalizeTarget() : Closure
@@ -49,6 +51,7 @@ class CreateCommandWrapper extends CreateCommand
     }
 }
 
+#[AllowMockObjectsWithoutExpectations]
 class CreateCommandTest extends TestCase
 {
     public function test_execute_with_wrong_chars_in_instance_param() : void

@@ -1,0 +1,41 @@
+services:
+  %TPL_PROJECT_NAME%:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: doil/%TPL_PROJECT_NAME%_%TPL_PROJECT_DOMAINNAME%:stable
+    container_name: %TPL_PROJECT_NAME%_%TPL_PROJECT_DOMAINNAME%
+    hostname: %TPL_PROJECT_NAME%
+    domainname: %TPL_PROJECT_DOMAINNAME%
+    volumes:
+      - ./volumes/ilias:/var/www/html
+      - ./volumes/data:/var/ilias/data
+      - ./volumes/db/:/var/lib/mysql
+      - ./volumes/index:/var/ilias/index
+      - ./volumes/logs:/var/ilias/logs
+      - ./volumes/logs/error/:/var/ilias/logs/error
+      - ./volumes/logs/apache:/var/log/apache2
+      - ./conf/minion.cnf:/etc/salt/minion
+      - ./conf:/root/conf
+      - ~/.ssh/:/root/.ssh/
+      - ~/.bashrc:/root/.bashrc
+      - ~/.vimrc:/root/.vimrc
+      - ~/.gitconfig:/root/.gitconfig
+      - type: bind
+        source: ./conf/salt-minion.conf
+        target: /etc/supervisor/conf.d/salt-minion.conf
+    environment:
+      - ILIAS_INI_PATH=/var/www/html/ilias.ini.php
+      - TZ=Europe/Berlin
+      - JAVA_SERVER_PATH=/var/www/html/Services/WebServices/RPC/lib
+      - JAVA_SERVER_START
+    networks:
+      - doil_saltnet
+      - doil_proxy
+networks:
+  doil_proxy:
+    external: true
+  doil_saltnet:
+    external: true
+volumes:
+    persistent:

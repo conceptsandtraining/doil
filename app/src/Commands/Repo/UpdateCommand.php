@@ -10,26 +10,23 @@ use CaT\Doil\Lib\ConsoleOutput\Writer;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Input\InputArgument;
+use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Question\ConfirmationQuestion;
 use Symfony\Component\Console\Exception\InvalidArgumentException;
 
+#[AsCommand(
+    name: 'repo:update',
+    description: "Updates one or all repositories so that it won't be fetched when an instances is created."
+)]
 class UpdateCommand extends Command
 {
-    protected static $defaultName = "repo:update";
-    protected static $defaultDescription =
-        "Updates one or all repositories so that it won't be fetched when an instances is created.";
-
-    protected RepoManager $repo_manager;
-    protected Writer $writer;
-
-    public function __construct(RepoManager $repo_manager, Writer $writer)
-    {
+    public function __construct(
+        protected RepoManager $repo_manager,
+        protected Writer $writer
+    ) {
         parent::__construct();
-
-        $this->repo_manager = $repo_manager;
-        $this->writer = $writer;
     }
 
     public function configure() : void

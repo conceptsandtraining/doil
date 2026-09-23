@@ -5,7 +5,9 @@ namespace CaT\Doil\Commands\Salt;
 use PHPUnit\Framework\TestCase;
 use CaT\Doil\Lib\FileSystem\Filesystem;
 use Symfony\Component\Console\Tester\CommandTester;
+use PHPUnit\Framework\Attributes\AllowMockObjectsWithoutExpectations;
 
+#[AllowMockObjectsWithoutExpectations]
 class StatesCommandTest extends TestCase
 {
     public function test_execute() : void

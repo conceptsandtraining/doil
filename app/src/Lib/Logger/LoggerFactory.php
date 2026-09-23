@@ -11,8 +11,23 @@ use Monolog\Formatter\LineFormatter;
 
 class LoggerFactory
 {
+    protected const SETUP_LOG_PATH = "/var/log/doil/setup.log";
     protected const DOIL_LOG_PATH = "/var/log/doil/doil.log";
     protected const SALT_LOG_PATH = "/var/log/doil/salt.log";
+
+    /**
+     * @throws \InvalidArgumentException
+     */
+    public function getSetupLogger(string $channel) : LoggerInterface
+    {
+        $logger = new Logger($channel);
+        $stream = new StreamHandler(self::SETUP_LOG_PATH, Logger::DEBUG, true, 0777);
+        $form = new LineFormatter(null,null,true,false,true);
+        $form->setJsonPrettyPrint(true);
+        $stream->setFormatter($form);
+        $logger->pushHandler($stream);
+        return $logger;
+    }
 
     public function getDoilLogger(string $channel) : LoggerInterface
     {

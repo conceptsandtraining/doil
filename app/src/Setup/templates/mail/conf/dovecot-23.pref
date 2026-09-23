@@ -1,0 +1,3 @@
+Package: dovecot*
+Pin: release n=bookworm
+Pin-Priority: 1001

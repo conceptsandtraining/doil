@@ -9,8 +9,11 @@ interface Git
     public function getBranches(string $path) : array;
     public function getCurrentBranch(string $path) : string;
     public function fetchBare(string $path) : void;
+    public function clone(string $url, string $path) : void;
     public function cloneBare(string $url, string $path) : void;
     public function setLocalConfig(string $path, ...$commands) : void;
     public function checkoutRemote(string $path, string $branch) : void;
     public function getRemotes(string $path) : array;
+    public function getTagsFromGithubUrl(string $url) : array;
+    public function setGlobalSafeDirectory(string $path) : void;
 }

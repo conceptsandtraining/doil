@@ -6,7 +6,9 @@ use PHPUnit\Framework\TestCase;
 use CaT\Doil\Lib\Docker\Docker;
 use CaT\Doil\Lib\ConsoleOutput\Writer;
 use Symfony\Component\Console\Tester\CommandTester;
+use PHPUnit\Framework\Attributes\AllowMockObjectsWithoutExpectations;
 
+#[AllowMockObjectsWithoutExpectations]
 class UpCommandTest extends TestCase
 {
     public function test_execute_salt_already_up() : void
@@ -55,13 +57,22 @@ class UpCommandTest extends TestCase
             ->method("getRunningInstanceNames")
             ->willReturn(["foo1_local", "foo2_local"])
         ;
+        $matcher = $this->exactly(2);
         $docker
-            ->expects($this->exactly(2))
+            ->expects($matcher)
             ->method("executeDockerCommand")
-            ->withConsecutive(
-                ["foo1_local", "supervisorctl start startup"],
-                ["foo2_local", "supervisorctl start startup"]
-            )
+            ->willReturnCallback(function (... $values) use ($matcher) {
+                match ($matcher->numberOfInvocations()) {
+                    1 => $values == [
+                            "foo1_local",
+                            "supervisorctl start startup"
+                        ],
+                    2 => $values == [
+                            "foo2_global",
+                            "supervisorctl start startup"
+                        ],
+                };
+            })
         ;
 
         $execute_result = $tester->execute([]);

@@ -7,25 +7,23 @@ namespace CaT\Doil\Commands\Salt;
 use CaT\Doil\Lib\Docker\Docker;
 use CaT\Doil\Lib\ConsoleOutput\Writer;
 use Symfony\Component\Console\Command\Command;
+use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
+#[AsCommand(
+    name: 'salt:up',
+    description: "Starts the salt main server."
+)]
 class UpCommand extends Command
 {
     protected const SALT_PATH = "/usr/local/lib/doil/server/salt";
 
-    protected static $defaultName = "salt:up";
-    protected static $defaultDescription = "Starts the salt main server";
-
-    protected Docker $docker;
-    protected Writer $writer;
-
-    public function __construct(Docker $docker, Writer $writer)
-    {
+    public function __construct(
+        protected Docker $docker,
+        protected Writer $writer
+    ) {
         parent::__construct();
-
-        $this->docker = $docker;
-        $this->writer = $writer;
     }
 
 
@@ -42,7 +40,7 @@ class UpCommand extends Command
         sleep(3);
         $instances = array_filter($this->docker->getRunningInstanceNames());
         foreach ($instances as $instance) {
-            if ($instance == "doil_saltmain") {
+            if ($instance == "doil_salt") {
                 continue;
             }
             if (

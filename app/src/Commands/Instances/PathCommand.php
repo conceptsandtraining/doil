@@ -11,33 +11,28 @@ use CaT\Doil\Lib\FileSystem\Filesystem;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Input\InputArgument;
+use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
+#[AsCommand(
+    name: 'instances:path|path',
+    description: 'Shows the root folder of the desired instance.'
+)]
 class PathCommand extends Command
 {
-    protected static $defaultName = "instances:path";
-    protected static $defaultDescription = "Shows the root folder of the desired instance.";
-
-    protected Docker $docker;
-    protected Posix $posix;
-    protected Filesystem $filesystem;
-    protected Writer $writer;
-
-    public function __construct(Docker $docker, Posix $posix, Filesystem $filesystem, Writer $writer)
-    {
+    public function __construct(
+        protected Docker $docker,
+        protected Posix $posix,
+        protected Filesystem $filesystem,
+        protected Writer $writer
+    ) {
         parent::__construct();
-
-        $this->docker = $docker;
-        $this->posix = $posix;
-        $this->filesystem = $filesystem;
-        $this->writer = $writer;
     }
 
     public function configure() : void
     {
         $this
-            ->setAliases(["path"])
             ->addArgument("instance", InputArgument::OPTIONAL, "name of the instance to start")
             ->addOption("global", "g", InputOption::VALUE_NONE, "determines if an instance is global or not")
             ->addOption("pure", "p", InputOption::VALUE_NONE, "output is not formatted")

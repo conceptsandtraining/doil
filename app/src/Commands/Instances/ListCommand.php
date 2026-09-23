@@ -8,31 +8,22 @@ use CaT\Doil\Lib\Posix\Posix;
 use CaT\Doil\Lib\ConsoleOutput\Writer;
 use CaT\Doil\Lib\FileSystem\Filesystem;
 use Symfony\Component\Console\Command\Command;
+use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
+#[AsCommand(
+    name: 'instances:list|ls',
+    description: 'Lists all created instances.'
+)]
 class ListCommand extends Command
 {
-    protected static $defaultName = "instances:list";
-    protected static $defaultDescription = "Lists all created instances.";
-
-
-    protected Posix $posix;
-    protected Filesystem $filesystem;
-    protected Writer $writer;
-
-    public function __construct(Posix $posix, Filesystem $filesystem, Writer $writer)
-    {
+    public function __construct(
+        protected Posix $posix,
+        protected Filesystem $filesystem,
+        protected Writer $writer
+    ) {
         parent::__construct();
-
-        $this->posix = $posix;
-        $this->filesystem = $filesystem;
-        $this->writer = $writer;
-    }
-
-    public function configure() : void
-    {
-        $this->setAliases(["ls"]);
     }
 
     public function execute(InputInterface $input, OutputInterface $output) : int

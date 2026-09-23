@@ -11,13 +11,17 @@ use CaT\Doil\Lib\FileSystem\Filesystem;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Input\InputArgument;
+use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Question\ChoiceQuestion;
 use Symfony\Component\Console\Exception\InvalidArgumentException;
-use Symfony\Component\Console\Command\SignalableCommandInterface;
 
-class ApplyCommand extends Command implements SignalableCommandInterface
+#[AsCommand(
+    name: 'instances:apply|apply',
+    description: 'Apply state for the given instance. This is useful for re-applying singular state to your instance.'
+)]
+class ApplyCommand extends Command
 {
     protected const PATH_STATES = "/usr/local/share/doil/stack/states";
 
@@ -40,29 +44,18 @@ class ApplyCommand extends Command implements SignalableCommandInterface
         "set-update-token"
     ];
 
-    protected static $defaultName = "instances:apply";
-    protected static $defaultDescription =
-        "Apply state for the given instance. This is useful for re-applying singular state to your instance.";
-
-    protected Docker $docker;
-    protected Posix $posix;
-    protected Filesystem $filesystem;
-    protected Writer $writer;
-
-    public function __construct(Docker $docker, Posix $posix, Filesystem $filesystem, Writer $writer)
-    {
+    public function __construct(
+        protected Docker $docker,
+        protected Posix $posix,
+        protected Filesystem $filesystem,
+        protected Writer $writer
+    ) {
         parent::__construct();
-
-        $this->docker = $docker;
-        $this->posix = $posix;
-        $this->filesystem = $filesystem;
-        $this->writer = $writer;
     }
 
     public function configure() : void
     {
         $this
-            ->setAliases(["apply"])
             ->addArgument("instance", InputArgument::OPTIONAL, "name of the instance to apply state to")
             ->addArgument("state", InputArgument::OPTIONAL, "name of the state to apply")
             ->addOption("all", "a", InputOption::VALUE_NONE, "if is set apply state to all instances")
@@ -198,12 +191,13 @@ class ApplyCommand extends Command implements SignalableCommandInterface
         return [SIGINT, SIGTERM];
     }
 
-    public function handleSignal(int $signal) : void
+    public function handleSignal(int $signal, int|false $previousExitCode = 0): int|false
     {
         if (SIGINT === $signal || SIGTERM === $signal) {
             echo "Aborted by User!\n";
             exit(0);
         }
+        return false;
     }
 
     protected function applyState(

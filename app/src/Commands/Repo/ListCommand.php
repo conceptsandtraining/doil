@@ -5,21 +5,19 @@
 namespace CaT\Doil\Commands\Repo;
 
 use Symfony\Component\Console\Command\Command;
+use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
+#[AsCommand(
+    name: 'repo:list',
+    description: "Lists all registered repositories."
+)]
 class ListCommand extends Command
 {
-    protected static $defaultName = "repo:list";
-    protected static $defaultDescription = "Lists all registered repositories.";
-
-    protected RepoManager $repo_manager;
-
-    public function __construct(RepoManager $repo_manager)
+    public function __construct(protected RepoManager $repo_manager)
     {
         parent::__construct();
-
-        $this->repo_manager = $repo_manager;
     }
 
     public function execute(InputInterface $input, OutputInterface $output) : int

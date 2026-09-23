@@ -7,15 +7,17 @@ namespace CaT\Doil\Commands\Office;
 use CaT\Doil\Lib\Docker\Docker;
 use CaT\Doil\Lib\ConsoleOutput\Writer;
 use Symfony\Component\Console\Command\Command;
+use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
+#[AsCommand(
+    name: 'office:up',
+    description: 'Starts the office server.'
+)]
 class UpCommand extends Command
 {
     protected const OFFICE_PATH = "/usr/local/lib/doil/server/office";
-
-    protected static $defaultName = "office:up";
-    protected static $defaultDescription = "Starts the office server";
 
     protected Docker $docker;
     protected Writer $writer;

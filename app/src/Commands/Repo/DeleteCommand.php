@@ -10,25 +10,23 @@ use CaT\Doil\Lib\ConsoleOutput\Writer;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Input\InputArgument;
+use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Question\ConfirmationQuestion;
 use Symfony\Component\Console\Exception\InvalidArgumentException;
 
+#[AsCommand(
+    name: 'repo:delete',
+    description: "Deletes a repository."
+)]
 class DeleteCommand extends Command
 {
-    protected static $defaultName = "repo:delete";
-    protected static $defaultDescription = "Deletes a repository.";
-
-    protected RepoManager $repo_manager;
-    protected Writer $writer;
-
-    public function __construct(RepoManager $repo_manager, Writer $writer)
-    {
+    public function __construct(
+        protected RepoManager $repo_manager,
+        protected Writer $writer
+    ) {
         parent::__construct();
-
-        $this->repo_manager = $repo_manager;
-        $this->writer = $writer;
     }
 
     public function configure() : void

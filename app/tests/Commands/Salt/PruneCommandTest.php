@@ -6,7 +6,9 @@ use PHPUnit\Framework\TestCase;
 use CaT\Doil\Lib\Docker\Docker;
 use CaT\Doil\Lib\ConsoleOutput\Writer;
 use Symfony\Component\Console\Tester\CommandTester;
+use PHPUnit\Framework\Attributes\AllowMockObjectsWithoutExpectations;
 
+#[AllowMockObjectsWithoutExpectations]
 class PruneCommandTest extends TestCase
 {
     public function test_execute() : void
@@ -30,7 +32,7 @@ class PruneCommandTest extends TestCase
         $docker
             ->expects($this->once())
             ->method("executeCommand")
-            ->with("/usr/local/lib/doil/server/salt", "doil_saltmain", "salt-key", "-y", "-D")
+            ->with("/usr/local/lib/doil/server/salt", "doil_salt", "salt-key", "-y", "-D")
         ;
 
         $execute_result = $tester->execute([]);

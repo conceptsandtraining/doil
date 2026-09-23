@@ -6,7 +6,9 @@ namespace CaT\Doil\Commands\User;
 
 use PHPUnit\Framework\TestCase;
 use CaT\Doil\Lib\FileSystem\Filesystem;
+use PHPUnit\Framework\Attributes\AllowMockObjectsWithoutExpectations;
 
+#[AllowMockObjectsWithoutExpectations]
 class UserManagerTest extends TestCase
 {
     public function test_create() : void
@@ -102,14 +104,17 @@ class UserManagerTest extends TestCase
         $filesystem = $this->createMock(Filesystem::class);
         $user_manager = new UserManager($filesystem);
 
+        $matcher = $this->exactly(3);
         $filesystem
-            ->expects($this->exactly(3))
+            ->expects($matcher)
             ->method("makeDirectoryRecursive")
-            ->withConsecutive(
-                ["/tmp/doil_test/.doil/config"],
-                ["/tmp/doil_test/.doil/repositories"],
-                ["/tmp/doil_test/.doil/instances"]
-            )
+            ->willReturnCallback(function (string $value) use ($matcher) {
+                return match ($matcher->numberOfInvocations()) {
+                    1 => $value == "/tmp/doil_test/.doil/config",
+                    2 => $value == "/tmp/doil_test/.doil/repositories",
+                    3 => $value == "/tmp/doil_test/.doil/instances",
+                };
+            })
         ;
         $filesystem
             ->expects($this->once())

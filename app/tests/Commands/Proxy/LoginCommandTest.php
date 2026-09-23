@@ -5,7 +5,9 @@ namespace CaT\Doil\Commands\Proxy;
 use PHPUnit\Framework\TestCase;
 use CaT\Doil\Lib\Docker\Docker;
 use Symfony\Component\Console\Tester\CommandTester;
+use PHPUnit\Framework\Attributes\AllowMockObjectsWithoutExpectations;
 
+#[AllowMockObjectsWithoutExpectations]
 class LoginCommandTest extends TestCase
 {
     public function test_execute() : void
