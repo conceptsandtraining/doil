@@ -59,7 +59,7 @@ ilserver_conf_ge_10:
     - template: jinja
     - context:
         ilserver_jar_path: /var/ilias/ilServer.jar
-        ilserver_ini_path: var/www/html/components/ILIAS/WebServices/RPC/lib/ilServer.ini
+        ilserver_ini_path: /var/www/html/components/ILIAS/WebServices/RPC/lib/ilServer.ini
 {% endif %}
 
 supervisor_ilserver_signal:
