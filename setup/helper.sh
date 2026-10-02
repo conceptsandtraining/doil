@@ -124,3 +124,44 @@ function doil_perform_update() {
 doil_perform_single_update() {
   "${1}"
 }
+
+function doil_is_complete_update() {
+  declare -a UPDATES
+
+  # No doil binary found > no update
+  # Prevents a file not found error in doil_get_doil_version() if update.sh is called without an existing version
+  if [ ! -f "/usr/local/bin/doil" ]
+  then
+    echo "No current doil version found at /usr/local/bin/doil."
+    exit
+  fi
+
+  DOIL_VERSION=$(doil_get_doil_version)
+
+  for UPDATE_FILE in $(find ${SCRIPT_DIR}/updates/ -type f -name "update-*" | sort)
+  do
+    source ${UPDATE_FILE}
+    for UPDATE in $(set | grep  -E '^doil_update.* \(\)' | sed -e 's: .*::')
+    do
+      if [[ ! " ${UPDATES[@]} " =~ " ${UPDATE} " ]]
+      then
+        UPDATES=("${UPDATES[@]}" ${UPDATE})
+        UPDATE_NAME=$(echo ${UPDATE} | cut -d "_" -f 3)
+
+        doil_test_version_compare ${DOIL_VERSION} ${UPDATE_NAME} "<"
+
+        if [ $? -ne 0 ]
+        then
+          continue
+        fi
+
+        if grep -rq '^[[:blank:]]*update[[:blank:]]*$' "$UPDATE_FILE"
+        then
+          return 0
+        fi
+      fi
+    done
+  done
+
+  return 1
+}

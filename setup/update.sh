@@ -25,7 +25,15 @@ source ${SCRIPT_DIR}/helper.sh
 source ${SCRIPT_DIR}/env.sh
 source ${SCRIPT_DIR}/colors.sh
 
-echo "This update will stop all running doil instances. Please ensure to save relevant files."
+if doil_is_complete_update
+then
+  echo "This update will stop all running doil instances. Please ensure to save relevant files."
+else
+  echo "This update will install the newest doil version."
+fi
+exit 0
+
+
 read -r -p "Do you want to continue update? [y/N] " RESPONSE
 case "$RESPONSE" in
     [yY][eE][sS]|[yY])
