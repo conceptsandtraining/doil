@@ -147,7 +147,7 @@ class DeleteCommand extends Command
             );
         }
 
-        if ($this->filesystem->exists(self::KEYCLOAK_PATH)) {
+        if ($this->filesystem->exists(self::KEYCLOAK_PATH) && $this->docker->isInstanceUp(self::KEYCLOAK_PATH)) {
             $this->docker->executeDockerCommand(
                 "doil_keycloak",
                 "/root/delete_keycloak_client.sh $instance"
