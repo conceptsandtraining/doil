@@ -23,6 +23,7 @@ use CaT\Doil\Lib\Logger\LoggerFactory;
 use CaT\Doil\Commands\Repo\RepoManager;
 use CaT\Doil\Lib\FileSystem\FilesystemShell;
 use CaT\Doil\Lib\ConsoleOutput\CommandWriter;
+use CaT\Doil\Commands\Keycloak\DeleteObsoleteClientsCommand;
 
 require_once __DIR__ . "/../vendor/autoload.php";
 
@@ -49,6 +50,7 @@ function buildContainerForApp() : Container
             $c["command.instances.set.update.token"],
             $c["command.instances.status"],
             $c["command.instances.up"],
+            $c["command.keycloak.delete-obsolete-clients"],
             $c["command.keycloak.down"],
             $c["command.keycloak.login"],
             $c["command.keycloak.restart"],
@@ -264,6 +266,15 @@ function buildContainerForApp() : Container
 
     $c["command.instances.up"] = function($c) {
         return new Instances\UpCommand(
+            $c["docker.shell"],
+            $c["posix.shell"],
+            $c["filesystem.shell"],
+            $c["command.writer"]
+        );
+    };
+
+    $c["command.keycloak.delete-obsolete-clients"] = function($c) {
+        return new Keycloak\DeleteObsoleteClientsCommand(
             $c["docker.shell"],
             $c["posix.shell"],
             $c["filesystem.shell"],
