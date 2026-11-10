@@ -31,8 +31,6 @@ then
 else
   echo "This update will install the newest doil version."
 fi
-exit 0
-
 
 read -r -p "Do you want to continue update? [y/N] " RESPONSE
 case "$RESPONSE" in
